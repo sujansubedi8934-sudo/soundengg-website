@@ -1,2 +1,2 @@
 # soundengg-website
-aodio tools and blogs for soundengg
+audio tools and blogs for soundengg
