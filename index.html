@@ -17,7 +17,6 @@
             </a>
             <nav class="top-nav">
                 <a href="#" id="btn-nav-dashboard" class="active">Dashboard</a>
-                <a href="#" id="btn-nav-ear-training">Ear Training</a>
                 <a href="#">Archive</a>
                 <a href="#" id="btn-nav-author">Author</a>
                 <a href="#" id="btn-nav-blog">Blog</a>
@@ -59,11 +58,31 @@
             </div>
             <div class="dashboard-system-stats">
                 <div class="unit-toggle-group">
-                    <button id="unit-metric" class="unit-btn active">METRIC</button>
-                    <button id="unit-imperial" class="unit-btn">IMPERIAL</button>
+                    <button id="unit-metric" class="active">METRIC</button>
+                    <button id="unit-imperial">IMPERIAL</button>
+                </div>
+                <div class="sys-sensors">
+                    <span class="sys-load">DSP_LOAD: 12%</span>
+                    <span class="sys-temp">CORE_TEMP: 42°C</span>
                 </div>
             </div>
         </header>
+
+        <!-- Dashboard Sub-Navigation Tabs -->
+        <div class="dashboard-nav-tabs brushed-metal rugged-bevel">
+            <button class="dash-tab active" id="btn-tab-dashboard">
+                <span class="material-symbols-outlined">dashboard</span>
+                SYSTEM_OVERVIEW
+            </button>
+            <button class="dash-tab" id="btn-tab-ear-training">
+                <span class="material-symbols-outlined">hearing</span>
+                EAR_TRAINING_PRO
+            </button>
+            <button class="dash-tab">
+                <span class="material-symbols-outlined">inventory_2</span>
+                TOOL_ARCHIVE
+            </button>
+        </div>
 
         <!-- Global Search Bar -->
         <div class="global-search-container">

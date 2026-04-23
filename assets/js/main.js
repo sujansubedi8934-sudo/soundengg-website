@@ -139,7 +139,12 @@ function setupNavigation() {
         if (btnNavDashboard) btnNavDashboard.classList.toggle('active', activeBtn === btnNavDashboard);
         if (btnNavAuthor) btnNavAuthor.classList.toggle('active', activeBtn === btnNavAuthor);
         if (btnNavBlog) btnNavBlog.classList.toggle('active', activeBtn === btnNavBlog);
-        if (btnNavEarTraining) btnNavEarTraining.classList.toggle('active', activeBtn === btnNavEarTraining);
+        
+        // Sync Dashboard Tabs
+        const btnTabDashboard = document.getElementById('btn-tab-dashboard');
+        const btnTabEarTraining = document.getElementById('btn-tab-ear-training');
+        if (btnTabDashboard) btnTabDashboard.classList.toggle('active', activeBtn === btnTabDashboard || activeBtn === btnNavDashboard);
+        if (btnTabEarTraining) btnTabEarTraining.classList.toggle('active', activeBtn === btnTabEarTraining);
     };
 
     /**
@@ -181,11 +186,13 @@ function setupNavigation() {
     const btnLaunchSiggen = document.getElementById('btn-launch-siggen');
     if (btnLaunchSiggen) btnLaunchSiggen.addEventListener('click', () => showView(siggenView));
 
-    if (btnLaunchEarTraining) btnLaunchEarTraining.addEventListener('click', () => showView(earTrainingView, btnNavEarTraining));
-    if (btnNavEarTraining) btnNavEarTraining.addEventListener('click', (e) => {
-        e.preventDefault();
-        showView(earTrainingView, btnNavEarTraining);
-    });
+    const btnTabDashboard = document.getElementById('btn-tab-dashboard');
+    const btnTabEarTraining = document.getElementById('btn-tab-ear-training');
+
+    if (btnLaunchEarTraining) btnLaunchEarTraining.addEventListener('click', () => showView(earTrainingView, btnTabEarTraining));
+    
+    if (btnTabDashboard) btnTabDashboard.addEventListener('click', () => showView(dashboardView, btnTabDashboard));
+    if (btnTabEarTraining) btnTabEarTraining.addEventListener('click', () => showView(earTrainingView, btnTabEarTraining));
 
     // Top Navigation Listeners
     if (btnNavDashboard) {
@@ -194,6 +201,8 @@ function setupNavigation() {
             showView(dashboardView, btnNavDashboard);
         });
     }
+
+    // btnNavEarTraining removed from logic as it was removed from HTML
 
     if (btnNavAuthor) {
         btnNavAuthor.addEventListener('click', (e) => {
