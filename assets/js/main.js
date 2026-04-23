@@ -1012,6 +1012,10 @@ function initProfessionalRTA() {
     }
 
     function drawGridAndLabels() {
+        const isLight = document.documentElement.classList.contains('light');
+        const gridColor = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
+        const textColor = isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)';
+
         ctx.save();
         ctx.textAlign = 'right';
         ctx.font = "12px 'Space Grotesk', sans-serif";
@@ -1030,13 +1034,13 @@ function initProfessionalRTA() {
             // Draw Grid Line
             ctx.beginPath();
             ctx.setLineDash([5, 5]);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.strokeStyle = gridColor;
             ctx.moveTo(40, y);
             ctx.lineTo(canvas.width, y);
             ctx.stroke();
 
             // Draw Label
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            ctx.fillStyle = textColor;
             ctx.fillText(`${displayDB}`, 35, y + 4);
         }
         ctx.restore();
@@ -1067,15 +1071,25 @@ function initProfessionalRTA() {
 
             if (db > peakData[i]) peakData[i] = db;
             
-            // Draw Snapshot first (background)
-            if (snapshotDataRTA && snapshotDataRTA[i]) {
-                const sh = Math.max(2, (snapshotDataRTA[i] + 100) * (canvas.height / 100));
-                ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-                ctx.fillRect(i * barWidth + 1, canvas.height - sh, barWidth - 2, sh);
-                // Outline for better visibility
-                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-                ctx.lineWidth = 1;
-                ctx.strokeRect(i * barWidth + 1, canvas.height - sh, barWidth - 2, sh);
+            // Draw Reference Snapshot
+            if (snapshotDataRTA) {
+                const isLight = document.documentElement.classList.contains('light');
+                const snapFill = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)';
+                const snapStroke = isLight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.4)';
+                const snapDb = snapshotDataRTA[i];
+                if (snapDb > -100) {
+                    const snapH = Math.max(0, (snapDb + 100) * (canvas.height / 100));
+                    ctx.fillStyle = snapFill;
+                    ctx.fillRect(x + 1, canvas.height - snapH, barWidth - 2, snapH);
+                    // Snapshot line
+                    ctx.beginPath();
+                    ctx.strokeStyle = snapStroke;
+                    ctx.setLineDash([2, 2]);
+                    ctx.moveTo(x, canvas.height - snapH);
+                    ctx.lineTo(x + barWidth, canvas.height - snapH);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                }
             }
 
             const h = Math.max(2, (db + 100) * (canvas.height / 100));
@@ -1083,29 +1097,33 @@ function initProfessionalRTA() {
             ctx.fillRect(i * barWidth + 1, canvas.height - h, barWidth - 2, h);
 
             if (peakHoldEnabled) {
+                const isLight = document.documentElement.classList.contains('light');
                 const ph = (peakData[i] + 100) * (canvas.height / 100);
-                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
                 ctx.fillRect(i * barWidth + 1, canvas.height - ph - 2, barWidth - 2, 2);
             }
         });
     }
 
     function drawFFT() {
-        // Draw Snapshot if exists
+        const sliceWidth = canvas.width / bufferLength;
+
+        // Draw Reference Snapshot Line
         if (snapshotDataFFT) {
+            const isLight = document.documentElement.classList.contains('light');
             ctx.beginPath();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.4)';
             ctx.lineWidth = 1;
+            ctx.setLineDash([4, 4]);
             for (let i = 0; i < bufferLength; i++) {
-                let dbVal = snapshotDataFFT[i];
                 const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
-                const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
+                const db = snapshotDataFFT[i];
+                const y = canvas.height - (db + 100) * (canvas.height / 100);
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             }
             ctx.stroke();
-            ctx.setLineDash([]); // Reset
+            ctx.setLineDash([]);
         }
 
         ctx.beginPath();
