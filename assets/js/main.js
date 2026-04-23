@@ -1,17 +1,25 @@
 document.addEventListener('DOMContentLoaded', () => {
-    setupThemeToggle();
-    applyAutoTheme();
-    setupRoleModal();
-    initGlobalUnits();
-    setupNavigation();
-    initDelayCalc();
-    initProfessionalRTA(); 
-    initSPLSegments();
-    initPinout();
-    initGlobalSearch();
-    initBlog();
-    initSignalGenerator();
-    initEarTraining();
+    const safeInit = (fn, name) => {
+        try {
+            fn();
+        } catch (e) {
+            console.error(`Error initializing module: ${name || fn.name}`, e);
+        }
+    };
+
+    safeInit(setupThemeToggle, 'setupThemeToggle');
+    safeInit(applyAutoTheme, 'applyAutoTheme');
+    safeInit(setupRoleModal, 'setupRoleModal');
+    safeInit(initGlobalUnits, 'initGlobalUnits');
+    safeInit(setupNavigation, 'setupNavigation');
+    safeInit(initDelayCalc, 'initDelayCalc');
+    safeInit(initProfessionalRTA, 'initProfessionalRTA'); 
+    safeInit(initSPLSegments, 'initSPLSegments');
+    safeInit(initPinout, 'initPinout');
+    safeInit(initGlobalSearch, 'initGlobalSearch');
+    safeInit(initBlog, 'initBlog');
+    safeInit(initSignalGenerator, 'initSignalGenerator');
+    safeInit(initEarTraining, 'initEarTraining');
     
     // Start mock data loops
     setInterval(updateSPL, 250);
