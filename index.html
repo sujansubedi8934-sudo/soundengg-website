@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SoundEngg | Titan Console Pro</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+</head>
+<body>
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <a href="index.html" class="logo-link">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
+                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
+            </a>
+            <nav class="top-nav">
+                <a href="#" id="btn-nav-dashboard" class="active">Dashboard</a>
+                <a href="#">Archive</a>
+                <a href="#" id="btn-nav-author">Author</a>
+                <a href="#" id="btn-nav-blog">Blog</a>
+            </nav>
+        </div>
+        <div class="top-bar-right">
+            <div class="status-indicator">
+                <span class="status-title">Status: Online</span>
+                <span class="status-detail">48kHz / 24-bit</span>
+            </div>
+            <div class="actions">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" class="active" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="system-actions">
+                    <button id="btn-settings" aria-label="Settings"><span class="material-symbols-outlined">settings</span></button>
+                    <button aria-label="Power" class="power-btn"><span class="material-symbols-outlined">power_settings_new</span></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar Removed as requested -->
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view-container">
+        <!-- Breadcrumb / System ID -->
+        <header class="dashboard-header">
+            <div class="dashboard-title-container">
+                <h1 class="dashboard-title" style="text-transform: uppercase;">WELCOME TO SOUNDENGG</h1>
+                <p class="dashboard-subtitle">Precision Engineering Toolkit</p>
+            </div>
+            <div class="dashboard-system-stats">
+                <div class="unit-toggle-group">
+                    <button id="unit-metric" class="unit-btn active">METRIC</button>
+                    <button id="unit-imperial" class="unit-btn">IMPERIAL</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Global Search Bar -->
+        <div class="global-search-container">
+            <div class="search-wrapper global-search">
+                <span class="material-symbols-outlined">search</span>
+                <input type="text" placeholder="Search parameters, modules, settings, authors, or docs..." id="global-search-input">
+                <button id="btn-global-search" class="rugged-btn search-submit">SEARCH</button>
+            </div>
+            
+            <div class="filter-row">
+                <button class="filter-chip active" data-filter="all">ALL</button>
+                <button class="filter-chip" data-filter="tools">TOOLS</button>
+                <button class="filter-chip" data-filter="ref">REFERENCE</button>
+                <button class="filter-chip" data-filter="system">SYSTEM</button>
+            </div>
+        </div>
+
+        <!-- Tool Grid -->
+        <div class="dashboard-grid">
+            
+            <!-- MODULE LAUNCHER: RTA Analyzer -->
+            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-rta" data-category="tools">
+                <div class="launcher-header">
+                    <span class="material-symbols-outlined icon">analytics</span>
+                    <span class="launcher-status">READY</span>
+                </div>
+                <div class="launcher-body">
+                    <h3 class="widget-title">RTA Spectrum Analyzer</h3>
+                    <p class="widget-subtitle">ISO Band Analysis & Peak Monitoring</p>
+                </div>
+            </button>
+            <!-- MODULE LAUNCHER: Time & Delay -->
+            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-delay" data-category="tools">
+                <div class="launcher-header">
+                    <img src="assets/img/time-delay-icon.png" alt="Time & Delay Icon" class="launcher-img-icon">
+                    <span class="launcher-status">READY</span>
+                </div>
+                <div class="launcher-body">
+                    <h3 class="widget-title">Time and Delay Calculation</h3>
+                    <p class="widget-subtitle">Acoustic Alignment & Propagation</p>
+                </div>
+            </button>
+
+            <!-- MODULE LAUNCHER: Pinout Connection -->
+            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-pinout" data-category="ref">
+                <div class="launcher-header">
+                    <span class="material-symbols-outlined icon">cable</span>
+                    <span class="launcher-status">READY</span>
+                </div>
+                <div class="launcher-body">
+                    <h3 class="widget-title">Pinout Connection</h3>
+                    <p class="widget-subtitle">Audio / Power / Data Reference</p>
+                </div>
+            </button>
+
+            <!-- MODULE LAUNCHER: Signal Generator -->
+            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-siggen" data-category="tools">
+                <div class="launcher-header">
+                    <span class="material-symbols-outlined icon">waves</span>
+                    <span class="launcher-status">OFF</span>
+                </div>
+                <div class="launcher-body">
+                    <h3 class="widget-title">Signal Generator</h3>
+                    <p class="widget-subtitle">Test Tones & Noise Injection</p>
+                </div>
+            </button>
+
+
+
+            <!-- Quick Presets -->
+            <div class="widget" data-category="system">
+                <header class="widget-header">
+                    <div>
+                        <h3 class="widget-title">Quick Presets</h3>
+                        <p class="widget-subtitle">Recall Node Config</p>
+                    </div>
+                    <span class="material-symbols-outlined icon">bookmarks</span>
+                </header>
+                <div class="preset-list">
+                    <button class="preset-btn active"><span>01_LIVE_ARENA</span><span class="status">ACTIVE</span></button>
+                    <button class="preset-btn"><span>02_STUDIO_REF</span></button>
+                    <button class="preset-btn"><span>03_MON_CHECK</span></button>
+                    <button class="preset-btn"><span>04_CALIB_MODE</span></button>
+                </div>
+            </div>
+
+            <!-- Signal Routing -->
+            <div class="widget" data-category="system">
+                <header class="widget-header">
+                    <div>
+                        <h3 class="widget-title">Signal Routing</h3>
+                        <p class="widget-subtitle">I/O Patch Matrix</p>
+                    </div>
+                    <span class="material-symbols-outlined icon">hub</span>
+                </header>
+                <div class="meter-list">
+                    <div class="meter-item">
+                        <div class="meter-header"><span>Input Bus A</span><span class="meter-val">-12.4dB</span></div>
+                        <div class="meter-track"><div class="meter-fill" style="width: 65%; background-color: var(--secondary);"></div></div>
+                    </div>
+                    <div class="meter-item">
+                        <div class="meter-header"><span>Output Main L/R</span><span class="meter-val">-3.1dB</span></div>
+                        <div class="meter-track"><div class="meter-fill" style="width: 82%; background-color: var(--primary);"></div></div>
+                    </div>
+                    <div class="meter-item">
+                        <div class="meter-header"><span>Aux Send 1-4</span><span class="meter-val empty">-∞</span></div>
+                        <div class="meter-track"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hardware Health -->
+            <div class="widget" data-category="system">
+                <header class="widget-header">
+                    <div>
+                        <h3 class="widget-title">Hardware Health</h3>
+                        <p class="widget-subtitle">Titan Core Node Alpha</p>
+                    </div>
+                    <span class="material-symbols-outlined icon">monitor_heart</span>
+                </header>
+                <div class="health-grid">
+                    <div class="health-card">
+                        <span class="health-label">Core Temp</span>
+                        <span class="health-val text-secondary">42°C</span>
+                    </div>
+                    <div class="health-card">
+                        <span class="health-label">CPU Load</span>
+                        <span class="health-val text-primary" id="cpu-load">12%</span>
+                    </div>
+                    <div class="health-card">
+                        <span class="health-label">Fan Speed</span>
+                        <span class="health-val text-muted">2200 RPM</span>
+                    </div>
+                    <div class="health-card">
+                        <span class="health-label">Uptime</span>
+                        <span class="health-val text-muted">12:44:02</span>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- SPL Meter -->
+            <div class="widget widget-wide spl-monitoring" data-category="tools">
+                <header class="widget-header">
+                    <div>
+                        <h3 class="widget-title">SPL Monitoring</h3>
+                        <p class="widget-subtitle">FOH Real-Time Pressure</p>
+                    </div>
+                    <div class="spl-live-val">
+                        <span class="spl-num" id="spl-live">98.4</span>
+                        <span class="spl-unit">dB_A</span>
+                    </div>
+                </header>
+                <div class="spl-segments" id="spl-segments">
+                    <!-- Segments generated via JS -->
+                </div>
+                <div class="spl-footer">
+                    <span>THRESHOLD: 105 dB</span>
+                    <span class="text-secondary">PEAK: 101.2 dB</span>
+                </div>
+            </div>
+            </div>
+        </div>
+
+        <!-- Module View (Hidden) -->
+        <div id="module-view" class="view-container" style="display: none;">
+            <header class="module-header">
+                <button class="back-link btn-back-home" id="btn-back-home-delay">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    BACK_TO_HOMEPAGE
+                </button>
+                <div class="module-title-wrap">
+                    <h1 class="dashboard-title">TIME_DELAY_ANALYSIS</h1>
+                    <p class="dashboard-subtitle">Precision Phase Alignment Node // CALIBRATION_ACTIVE</p>
+                </div>
+            </header>
+
+            <div class="module-content">
+                <!-- Delay Calc Widget -->
+                <div class="widget delay-calc widget-wide">
+                    <header class="widget-header">
+                        <div>
+                            <h3 class="widget-title">Delay Calculator</h3>
+                            <p class="widget-subtitle">Phase Alignment & Acoustic Propagation</p>
+                        </div>
+                        <span class="launcher-status">SYSTEM_CALIBRATED</span>
+                    </header>
+                    <div class="calc-inputs">
+                        <div class="input-group">
+                            <label for="delay-dist" id="label-dist-mod">Distance (m)</label>
+                            <input type="number" id="delay-dist-mod" class="rugged-input" value="1.0" step="0.1" min="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="delay-temp-mod">Temperature</label>
+                            <div class="input-with-select">
+                                <input type="number" id="delay-temp-mod" class="rugged-input" value="22.4" step="0.1">
+                                <select id="delay-temp-unit-mod" class="rugged-select">
+                                    <option value="C">°C</option>
+                                    <option value="F">°F</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="delay-display">
+                        <span class="delay-label">DELAY_OFFSET:</span>
+                        <span class="delay-val vfd-glow" id="delay-output-mod">2.91<span class="delay-unit">ms</span></span>
+                    </div>
+                    <div class="meter-track">
+                        <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; background-color: var(--primary);"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE VIEW: Pinout Connection -->
+        <div id="pinout-view" class="view-container hidden">
+            <!-- Breadcrumb Header -->
+            <header class="dashboard-header module-header">
+                <div class="dashboard-title-container">
+                    <button class="btn-back" id="btn-back-pinout"><span class="material-symbols-outlined">arrow_back</span></button>
+                    <div>
+                        <h1 class="dashboard-title">PINOUT_REFERENCE</h1>
+                        <p class="dashboard-subtitle">Hardware Wiring & Interfaces // <span id="pinout-count-badge">0 CONNECTORS</span></p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="module-content">
+                <div class="pinout-controls">
+                    <div class="search-wrapper">
+                        <span class="material-symbols-outlined">search</span>
+                        <input type="text" placeholder="Search connectors..." id="pinout-srch">
+                    </div>
+                    <div class="pinout-cats" id="pinout-cats">
+                        <!-- Category buttons will be injected by main.js -->
+                    </div>
+                </div>
+                <div id="pinout-list">
+                    <!-- Pinout accords injected by main.js -->
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE VIEW: Author -->
+        <div id="author-view" class="view-container hidden">
+            <header class="dashboard-header module-header">
+                <div class="dashboard-title-container">
+                    <button class="btn-back" id="btn-back-author"><span class="material-symbols-outlined">arrow_back</span></button>
+                    <div>
+                        <h1 class="dashboard-title">AUTHOR_IDENTITY</h1>
+                        <p class="dashboard-subtitle">Sujan Subedi // Live Sound & System Engineer</p>
+                    </div>
+                </div>
+            </header>
+
+            <div class="module-content">
+                <div class="author-layout">
+                    <!-- Hero Section -->
+                    <div class="author-hero widget rugged-bevel brushed-metal">
+                        <div class="author-avatar-wrap" style="overflow: hidden;">
+                            <img src="assets/img/author-profile.jpg" alt="Sujan Subedi" style="width: 100%; height: 100%; object-fit: cover;">
+                        </div>
+                        <div class="author-hero-info">
+                            <h2>SUJAN SUBEDI</h2>
+                            <p class="author-tagline">Distinguished Live Sound Mixing & System Engineer</p>
+                            <p class="author-desc">Sujan Subedi is a distinguished Live Sound Mixing and System engineer in Nepal and India. He started the journey in Live Sound from 2019 as a tech and kept upgrading himself in this field. Later in 2021 he joined the Sound Engineering Diploma classes in KMMC college in Chennai, India, a college established by an Oscar winner A.R. Rahman.</p>
+                            <p class="author-desc">After his completion of diploma he started working in a Sound rental company in Mumbai, Goa, Banglore and recently in Udaipur. Started with the EV systems, later he kept working with d&b audiotechnik, RCF, JBL, and audiofocus systems.</p>
+                            <div class="author-contact-row">
+                                <a href="https://www.instagram.com/soundengg" target="_blank" class="contact-btn">
+                                    <span class="material-symbols-outlined">photo_camera</span> INSTAGRAM
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="author-grid">
+                        <!-- Services Section -->
+                        <div class="widget">
+                            <header class="widget-header">
+                                <div>
+                                    <h3 class="widget-title">Core Services</h3>
+                                </div>
+                                <span class="material-symbols-outlined icon">room_preferences</span>
+                            </header>
+                            <ul class="author-list">
+                                <li><span class="material-symbols-outlined">check_circle</span> <strong>System Design:</strong> Tailored audio configurations scaling from clubs to stadiums (d&b, RCF, JBL).</li>
+                                <li><span class="material-symbols-outlined">check_circle</span> <strong>Live Band Mixing:</strong> FOH & Monitor engineering for high-profile touring acts.</li>
+                                <li><span class="material-symbols-outlined">check_circle</span> <strong>RF Coordination:</strong> Wireless microphone and IEM spectrum management in dense RF environments.</li>
+                                <li><span class="material-symbols-outlined">check_circle</span> <strong>Corporate AV:</strong> Specialized setups for summits (G20) and product launches (Mahindra, Audi, Dell).</li>
+                            </ul>
+                        </div>
+
+                        <!-- Portfolio Section -->
+                        <div class="widget">
+                            <header class="widget-header">
+                                <div>
+                                    <h3 class="widget-title">Portfolio & Experience</h3>
+                                    <p class="widget-subtitle">Featured Engineering Operations</p>
+                                </div>
+                                <span class="material-symbols-outlined icon">star</span>
+                            </header>
+
+                            <div class="portfolio-content">
+                                <div class="portfolio-group">
+                                    <h4><span class="material-symbols-outlined">festival</span> Concerts & Festivals</h4>
+                                    <p>Sunburn Festival, India Bike Week, DGTL Festival.</p>
+                                </div>
+                                
+                                <div class="portfolio-group">
+                                    <h4><span class="material-symbols-outlined">corporate_fare</span> Global & Corporate Events</h4>
+                                    <p>High profile Government Conferences like G20 meet, product launches for OLA, Mahindra, Audi, Lamborghini, and yearly meets of MNCs like Dell Technologies, Sennheiser, Deloitte, Axis Bank, and more.</p>
+                                </div>
+
+                                <div class="portfolio-group">
+                                    <h4><span class="material-symbols-outlined">person_play</span> Featured Artists</h4>
+                                    <div class="artist-badges">
+                                        <span class="artist-badge">Kailash Kher</span>
+                                        <span class="artist-badge">Hargun Kaur</span>
+                                        <span class="artist-badge">Salim Suleiman</span>
+                                        <span class="artist-badge">B Praak</span>
+                                        <span class="artist-badge">Sonu Nigam</span>
+                                        <span class="artist-badge">Harshdeep Kaur</span>
+                                        <span class="artist-badge">Madhur Sharma</span>
+                                        <span class="artist-badge">Twin Strings</span>
+                                        <span class="artist-badge">Usha Uthup</span>
+                                        <span class="artist-badge">Papon</span>
+                                        <span class="artist-badge">Sukhwinder Singh</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="portfolio-gallery">
+                                <!-- SoundEngg Extracted Images -->
+                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/img_5245-vtaz5f4pPDEIAeWi.jpg'); background-size: cover; background-position: center; border: none;">
+                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">Live Mixing Action</span>
+                                </div>
+                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/img20251024173144-E8OJFHcocez0saC5.jpg'); background-size: cover; background-position: center; border: none;">
+                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">Festival Setup</span>
+                                </div>
+                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/screenshot-2026-04-09-at-8.33.59a-pm-z4yqutof5blTxIkY.png'); background-size: cover; background-position: center; border: none;">
+                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">System Design</span>
+                                </div>
+                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/img20241108093846-PcxZKpIIwBrLpN37.jpg'); background-size: cover; background-position: center; border: none;">
+                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">FOH Console</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+
+
+    <!-- Settings Slideout Panel -->
+    <div id="settings-panel" class="settings-slideout">
+        <div class="settings-header">
+            <h2>SYSTEM SETTINGS</h2>
+            <button id="btn-close-settings" class="btn-back"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="settings-body">
+            <div class="setting-group">
+                <h3>Audio Inputs</h3>
+                <label class="setting-item">
+                    <span>Microphone Permission</span>
+                    <button class="rugged-btn">Request Access</button>
+                </label>
+            </div>
+            <div class="setting-group">
+                <h3>Hardware Config</h3>
+                <label class="setting-item">
+                    <span>Sample Rate</span>
+                    <select class="rugged-select">
+                        <option>44.1 kHz</option>
+                        <option selected>48.0 kHz</option>
+                        <option>96.0 kHz</option>
+                    </select>
+                </label>
+                <label class="setting-item">
+                    <span>Bit Depth</span>
+                    <select class="rugged-select">
+                        <option>16-bit</option>
+                        <option selected>24-bit</option>
+                        <option>32-bit float</option>
+                    </select>
+                </label>
+            </div>
+            <div class="setting-group">
+                <h3>Application</h3>
+                <label class="setting-item">
+                    <span>Background Processing</span>
+                    <input type="checkbox" checked>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- SIGNAL GENERATOR VIEW (Hidden) -->
+    <div id="siggen-view" class="view-container" style="display: none;">
+        <header class="module-header">
+            <button class="back-link btn-back-home">
+                <span class="material-symbols-outlined">arrow_back</span>
+                BACK_TO_DASHBOARD
+            </button>
+            <div class="module-title-wrap">
+                <h1 class="dashboard-title">SIGNAL_GENERATOR_CORE</h1>
+                <p class="dashboard-subtitle">Acoustic Calibration & System Line-Check</p>
+            </div>
+        </header>
+
+        <div class="siggen-layout">
+            <div class="siggen-main-panel widget rugged-bevel brushed-metal">
+                <div class="siggen-header">
+                    <div class="status-badge" id="siggen-status">STATUS: STANDBY</div>
+                    <div class="vfd-telemetry">
+                        <div class="telemetry-item">
+                            <span class="label">OUTPUT_LEVEL</span>
+                            <span class="value" id="siggen-meter-text">-∞ dB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="siggen-controls">
+                    <!-- Frequency Control -->
+                    <div class="control-section">
+                        <div class="control-label">
+                            <span>FREQUENCY_HERTZ</span>
+                            <div class="vfd-input-wrap">
+                                <input type="number" id="siggen-freq-input" value="1000" min="20" max="20000" class="vfd-glow vfd-input">
+                                <span class="vfd-glow text-primary">Hz</span>
+                            </div>
+                        </div>
+                        <input type="range" id="siggen-freq-slider" min="0" max="1" step="0.001" value="0.5" class="rugged-slider log-slider">
+                        <div class="freq-presets">
+                            <button class="freq-chip" data-freq="100">100Hz</button>
+                            <button class="freq-chip" data-freq="440">440Hz</button>
+                            <button class="freq-chip" data-freq="1000">1kHz</button>
+                            <button class="freq-chip" data-freq="10000">10kHz</button>
+                        </div>
+                    </div>
+
+                    <!-- Waveform Control -->
+                    <div class="control-section">
+                        <div class="control-label">WAVEFORM_TYPE</div>
+                        <div class="waveform-grid">
+                            <button class="wave-btn active" data-wave="sine"><span class="material-symbols-outlined">waves</span>SINE</button>
+                            <button class="wave-btn" data-wave="square"><span class="material-symbols-outlined">view_kanban</span>SQUARE</button>
+                            <button class="wave-btn" data-wave="sawtooth"><span class="material-symbols-outlined">trending_up</span>SAW</button>
+                            <button class="wave-btn" data-wave="triangle"><span class="material-symbols-outlined">change_history</span>TRI</button>
+                            <button class="wave-btn" data-wave="white"><span class="material-symbols-outlined">grain</span>WHITE</button>
+                            <button class="wave-btn" data-wave="pink"><span class="material-symbols-outlined">blur_on</span>PINK</button>
+                        </div>
+                    </div>
+
+                    <!-- Gain Control -->
+                    <div class="control-section">
+                        <div class="control-label">
+                            <span>MASTER_GAIN</span>
+                            <span id="siggen-gain-val">-18 dB</span>
+                        </div>
+                        <div class="gain-strip">
+                            <input type="range" id="siggen-gain-slider" min="-60" max="0" step="1" value="-18" class="rugged-slider vertical-slider">
+                            <div class="vu-meter">
+                                <div id="siggen-vu-fill" class="vu-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="siggen-footer">
+                    <button id="btn-siggen-toggle" class="rugged-btn power-btn large">
+                        <span class="material-symbols-outlined">power_settings_new</span>
+                        ENGAGE_OUTPUT
+                    </button>
+                </div>
+            </div>
+
+            <aside class="siggen-sidebar widget rugged-bevel brushed-metal">
+                <h4 class="sidebar-title">OPERATIONAL_NOTES</h4>
+                <ul class="author-list">
+                    <li><span class="material-symbols-outlined text-primary">info</span> Pink Noise is calibrated for constant energy per octave (RTA Calibration).</li>
+                    <li><span class="material-symbols-outlined text-primary">warning</span> Start at -18dB to prevent accidental transducer damage.</li>
+                    <li><span class="material-symbols-outlined text-primary">bolt</span> Soft-start logic is enabled to prevent DC clicks.</li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Blog View (Hidden) -->
+    <div id="blog-view" class="view-container" style="display: none;">
+        <header class="module-header">
+            <button class="back-link btn-back-home">
+                <span class="material-symbols-outlined">arrow_back</span>
+                BACK_TO_DASHBOARD
+            </button>
+            <div class="module-title-wrap">
+                <h1 class="dashboard-title">ENGINEERING_BLOG</h1>
+                <p class="dashboard-subtitle">Technical Deep Dives // SoundEngg Knowledge Base</p>
+            </div>
+        </header>
+
+        <div class="blog-layout">
+            <!-- Sidebar: Categories -->
+            <aside class="blog-sidebar rugged-bevel brushed-metal">
+                <h4 class="sidebar-title">CATEGORIES</h4>
+                <ul class="category-list">
+                    <li><button class="cat-btn active" data-cat="all">ALL TOPICS</button></li>
+                    <li><button class="cat-btn" data-cat="consoles">CONSOLES & REVIEWS</button></li>
+                    <li><button class="cat-btn" data-cat="arrays">LINE ARRAYS</button></li>
+                    <li><button class="cat-btn" data-cat="dynamics">EQ & DYNAMICS</button></li>
+                    <li><button class="cat-btn" data-cat="mics">MICROPHONES</button></li>
+                    <li><button class="cat-btn" data-cat="cables">CABLES & SIGNAL</button></li>
+                    <li><button class="cat-btn" data-cat="amps">AMPLIFIERS</button></li>
+                    <li><button class="cat-btn" data-cat="plugins">PLUGINS</button></li>
+                    <li><button class="cat-btn" data-cat="routing">ROUTING & NETWORK</button></li>
+                    <li><button class="cat-btn" data-cat="acoustics">ACOUSTIC THEORY</button></li>
+                    <li><button class="cat-btn" data-cat="live">LIVE TECHNIQUES</button></li>
+                    <li><button class="cat-btn" data-cat="subs">SUBWOOFERS</button></li>
+                    <li><button class="cat-btn" data-cat="tuning">SYSTEM TUNING</button></li>
+                    <li><button class="cat-btn" data-cat="dante">DANTE & IP</button></li>
+                    <li><button class="cat-btn" data-cat="wireless">WIRELESS & RF</button></li>
+                    <li><button class="cat-btn" data-cat="power">POWER & INFRA</button></li>
+                    <li><button class="cat-btn" data-cat="industry">INDUSTRY BIZ</button></li>
+                    <li><button class="cat-btn" data-cat="india">INDIA SPECIFIC</button></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="blog-content">
+                <!-- Article Index (Grid) - Populated by main.js -->
+                <div id="blog-index" class="article-grid"></div>
+
+                <!-- Article Reader (Hidden by default) -->
+                <div id="blog-reader" style="display: none;">
+                    <button class="btn-back-to-index rugged-btn">
+                        <span class="material-symbols-outlined">grid_view</span> BACK TO INDEX
+                    </button>
+                    <div id="article-view" class="article-view-body">
+                        <!-- Loaded dynamically via JS -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- RTA / Spectrum Analyzer View (Hidden) -->
+    <div id="rta-view" class="view-container" style="display: none;">
+        <header class="module-header">
+            <button class="back-link btn-back-home">
+                <span class="material-symbols-outlined">arrow_back</span>
+                BACK_TO_DASHBOARD
+            </button>
+            <div class="module-title-wrap">
+                <h1 class="dashboard-title">SPECTRUM_ANALYZER_PRO</h1>
+                <p class="dashboard-subtitle">Real-time Acoustic Analysis // 31-Band ISO RTA</p>
+            </div>
+            <div class="header-controls">
+                <button id="btn-start-analyzer" class="rugged-btn pulse-glow">
+                    <span class="material-symbols-outlined">mic</span>
+                    INITIALIZE_CORE
+                </button>
+            </div>
+        </header>
+
+        <div class="blog-layout analyzer-layout">
+            <!-- Sidebar: Controls -->
+            <aside class="blog-sidebar rugged-bevel brushed-metal">
+                <h4 class="sidebar-title">ANALYZER_CONTROLS</h4>
+                
+                <div class="control-group">
+                    <label>INPUT_SOURCE</label>
+                    <select id="rta-input-select" class="rugged-select">
+                        <option value="default">Default Input</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>VIEW_MODE</label>
+                    <div class="toggle-group-vertical">
+                        <button class="mode-btn active" data-mode="fft">SPECTRUM_CURVE</button>
+                        <button class="mode-btn" data-mode="rta">31_BAND_RTA</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>WEIGHTING</label>
+                    <div class="toggle-group-vertical">
+                        <button class="weight-btn active" data-weight="a">A-WEIGHTED</button>
+                        <button class="weight-btn" data-weight="c">C-WEIGHTED</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>AVERAGING_FACTOR</label>
+                    <input type="range" id="rta-averaging" min="0" max="10" value="4" class="rugged-slider">
+                    <div class="slider-val">FACTOR: <span id="avg-val">4</span></div>
+                </div>
+
+                <div class="control-group">
+                    <label>CALIBRATION (dB)</label>
+                    <input type="range" id="rta-calibration" min="50" max="150" value="100" class="rugged-slider">
+                    <div class="slider-val"><span id="cal-offset">100</span> dB OFFSET</div>
+                </div>
+
+                <div class="control-group">
+                    <label>PEAK_HOLD</label>
+                    <div class="toggle-group">
+                        <button id="btn-peak-toggle" class="active">ON</button>
+                        <button id="btn-peak-reset">RESET</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>REFERENCE_SNAPSHOT</label>
+                    <div class="toggle-group-vertical">
+                        <button id="btn-capture-snapshot" class="rugged-btn">
+                            <span class="material-symbols-outlined">camera</span>
+                            CAPTURE_SNAPSHOT
+                        </button>
+                        <button id="btn-clear-snapshot" class="rugged-btn">
+                            <span class="material-symbols-outlined">delete_sweep</span>
+                            CLEAR_SNAPSHOT
+                        </button>
+                    </div>
+                </div>
+
+                <div class="vfd-telemetry">
+                    <div class="telemetry-item">
+                        <span class="label">PEAK_LEVEL</span>
+                        <span class="value" id="rta-peak-val">-∞ dB</span>
+                    </div>
+                    <div class="telemetry-item">
+                        <span class="label">DOMINANT_FREQ</span>
+                        <span class="value text-primary" id="rta-dom-val">--- Hz</span>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main: Visualizer -->
+            <main class="blog-grid analyzer-main rugged-bevel brushed-metal" id="analyzer-container">
+                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 500px;">
+                    <canvas id="rta-canvas" style="width: 100%; height: 100%;"></canvas>
+                    <div class="freq-labels" id="rta-labels">
+                        <!-- Labels injected via JS -->
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Image Zoom Modal -->
+    <div id="image-zoom-overlay" class="modal-overlay hidden">
+        <button id="btn-close-zoom" style="position: absolute; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface-higher); color: var(--text-main); cursor: pointer; transition: all 0.2s ease;"><span class="material-symbols-outlined">close</span></button>
+        <div class="zoom-image-container">
+            <img id="zoom-image-view" src="" alt="Enlarged Portfolio View" style="max-width: 90vw; max-height: 85vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); object-fit: contain;">
+        </div>
+    </div>
+
+    <!-- Role Selection Modal -->
+    <div id="role-modal-overlay" class="modal-overlay">
+        <div class="role-modal rugged-bevel brushed-metal">
+            <header class="modal-header">
+                <h2 class="modal-title">SELECT OPERATIONAL MODE</h2>
+                <p class="modal-subtitle">Configure Console for Identity-Specific Toolsets</p>
+            </header>
+            <div class="role-options">
+                <button class="role-btn" data-role="studio">
+                    <span class="material-symbols-outlined">mic</span>
+                    <div class="role-info">
+                        <span class="role-name">Studio Engineer</span>
+                        <span class="role-desc">Precision mixing & recording tools</span>
+                    </div>
+                </button>
+                <button class="role-btn" data-role="live">
+                    <span class="material-symbols-outlined">speaker_group</span>
+                    <div class="role-info">
+                        <span class="role-name">Live Engineer</span>
+                        <span class="role-desc">Event monitoring & SPL focus</span>
+                    </div>
+                </button>
+                <button class="role-btn" data-role="both">
+                    <span class="material-symbols-outlined">settings_input_component</span>
+                    <div class="role-info">
+                        <span class="role-name">Dual Role</span>
+                        <span class="role-desc">Unified console configuration</span>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/blog-data.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html>
