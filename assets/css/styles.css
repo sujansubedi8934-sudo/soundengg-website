@@ -507,11 +507,9 @@ html.light .nav-item:hover { color: var(--text-main); }
 
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 1.5rem;
 }
-@media(min-width: 768px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
-@media(min-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(3, 1fr); } }
 
 .widget-wide {
     grid-column: 1 / -1;
@@ -1039,6 +1037,13 @@ html.light .rugged-input:focus {
     border-color: var(--primary);
     transform: translateY(-4px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.4), 0 0 15px rgba(20, 167, 181, 0.3);
+}
+
+.widget-launcher {
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .launcher-header {

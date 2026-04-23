@@ -148,100 +148,7 @@
 
 
 
-            <!-- Quick Presets -->
-            <div class="widget" data-category="system">
-                <header class="widget-header">
-                    <div>
-                        <h3 class="widget-title">Quick Presets</h3>
-                        <p class="widget-subtitle">Recall Node Config</p>
-                    </div>
-                    <span class="material-symbols-outlined icon">bookmarks</span>
-                </header>
-                <div class="preset-list">
-                    <button class="preset-btn active"><span>01_LIVE_ARENA</span><span class="status">ACTIVE</span></button>
-                    <button class="preset-btn"><span>02_STUDIO_REF</span></button>
-                    <button class="preset-btn"><span>03_MON_CHECK</span></button>
-                    <button class="preset-btn"><span>04_CALIB_MODE</span></button>
-                </div>
-            </div>
-
-            <!-- Signal Routing -->
-            <div class="widget" data-category="system">
-                <header class="widget-header">
-                    <div>
-                        <h3 class="widget-title">Signal Routing</h3>
-                        <p class="widget-subtitle">I/O Patch Matrix</p>
-                    </div>
-                    <span class="material-symbols-outlined icon">hub</span>
-                </header>
-                <div class="meter-list">
-                    <div class="meter-item">
-                        <div class="meter-header"><span>Input Bus A</span><span class="meter-val">-12.4dB</span></div>
-                        <div class="meter-track"><div class="meter-fill" style="width: 65%; background-color: var(--secondary);"></div></div>
-                    </div>
-                    <div class="meter-item">
-                        <div class="meter-header"><span>Output Main L/R</span><span class="meter-val">-3.1dB</span></div>
-                        <div class="meter-track"><div class="meter-fill" style="width: 82%; background-color: var(--primary);"></div></div>
-                    </div>
-                    <div class="meter-item">
-                        <div class="meter-header"><span>Aux Send 1-4</span><span class="meter-val empty">-∞</span></div>
-                        <div class="meter-track"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Hardware Health -->
-            <div class="widget" data-category="system">
-                <header class="widget-header">
-                    <div>
-                        <h3 class="widget-title">Hardware Health</h3>
-                        <p class="widget-subtitle">Titan Core Node Alpha</p>
-                    </div>
-                    <span class="material-symbols-outlined icon">monitor_heart</span>
-                </header>
-                <div class="health-grid">
-                    <div class="health-card">
-                        <span class="health-label">Core Temp</span>
-                        <span class="health-val text-secondary">42°C</span>
-                    </div>
-                    <div class="health-card">
-                        <span class="health-label">CPU Load</span>
-                        <span class="health-val text-primary" id="cpu-load">12%</span>
-                    </div>
-                    <div class="health-card">
-                        <span class="health-label">Fan Speed</span>
-                        <span class="health-val text-muted">2200 RPM</span>
-                    </div>
-                    <div class="health-card">
-                        <span class="health-label">Uptime</span>
-                        <span class="health-val text-muted">12:44:02</span>
-                    </div>
-                </div>
-            </div>
-
-
-
-            <!-- SPL Meter -->
-            <div class="widget widget-wide spl-monitoring" data-category="tools">
-                <header class="widget-header">
-                    <div>
-                        <h3 class="widget-title">SPL Monitoring</h3>
-                        <p class="widget-subtitle">FOH Real-Time Pressure</p>
-                    </div>
-                    <div class="spl-live-val">
-                        <span class="spl-num" id="spl-live">98.4</span>
-                        <span class="spl-unit">dB_A</span>
-                    </div>
-                </header>
-                <div class="spl-segments" id="spl-segments">
-                    <!-- Segments generated via JS -->
-                </div>
-                <div class="spl-footer">
-                    <span>THRESHOLD: 105 dB</span>
-                    <span class="text-secondary">PEAK: 101.2 dB</span>
-                </div>
-            </div>
-            </div>
+            <!-- The dashboard is now clean and uniform, focusing on functional tools -->
         </div>
 
         <!-- Module View (Hidden) -->
@@ -295,7 +202,7 @@
         </div>
 
         <!-- MODULE VIEW: Pinout Connection -->
-        <div id="pinout-view" class="view-container hidden">
+        <div id="pinout-view" class="view-container" style="display: none;">
             <!-- Breadcrumb Header -->
             <header class="dashboard-header module-header">
                 <div class="dashboard-title-container">
@@ -324,7 +231,7 @@
         </div>
 
         <!-- MODULE VIEW: Author -->
-        <div id="author-view" class="view-container hidden">
+        <div id="author-view" class="view-container" style="display: none;">
             <header class="dashboard-header module-header">
                 <div class="dashboard-title-container">
                     <button class="btn-back" id="btn-back-author"><span class="material-symbols-outlined">arrow_back</span></button>

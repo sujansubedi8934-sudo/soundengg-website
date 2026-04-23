@@ -14,16 +14,11 @@ document.addEventListener('DOMContentLoaded', () => {
     safeInit(setupNavigation, 'setupNavigation');
     safeInit(initDelayCalc, 'initDelayCalc');
     safeInit(initProfessionalRTA, 'initProfessionalRTA'); 
-    safeInit(initSPLSegments, 'initSPLSegments');
     safeInit(initPinout, 'initPinout');
     safeInit(initGlobalSearch, 'initGlobalSearch');
     safeInit(initBlog, 'initBlog');
     safeInit(initSignalGenerator, 'initSignalGenerator');
     safeInit(initEarTraining, 'initEarTraining');
-    
-    // Start mock data loops
-    setInterval(updateSPL, 250);
-    setInterval(updateCPU, 2000);
 });
 
 function setupThemeToggle() {
@@ -377,46 +372,6 @@ function updateRTA() {
     });
 }
 
-const SPL_SEGMENTS_COUNT = 12;
-function initSPLSegments() {
-    const container = document.getElementById('spl-segments');
-    for (let i = 0; i < SPL_SEGMENTS_COUNT; i++) {
-        const seg = document.createElement('div');
-        seg.className = 'spl-seg';
-        
-        // Color bands: Deep Navy for first 4, Turquoise (Primary) for next 4, Bright Cyan for next 1, Gray for rest
-        if (i < 4) seg.style.backgroundColor = 'rgba(0, 38, 77, 0.8)'; 
-        else if (i < 8) seg.style.backgroundColor = 'rgba(20, 167, 181, 0.8)'; 
-        else if (i < 9) seg.style.backgroundColor = 'rgba(0, 210, 255, 0.8)'; 
-        else seg.style.backgroundColor = 'var(--surface-highest)';
-        
-        container.appendChild(seg);
-    }
-}
-
-function updateSPL() {
-    const splVal = Math.max(85, Math.min(102, 98.4 + (Math.random() * 4 - 2)));
-    document.getElementById('spl-live').textContent = splVal.toFixed(1);
-    
-    // Update segments visually based on SPL
-    const segments = document.querySelectorAll('.spl-seg');
-    const activeIndex = Math.floor(((splVal - 80) / 25) * SPL_SEGMENTS_COUNT);
-    
-    segments.forEach((seg, i) => {
-        if (i <= activeIndex) {
-            seg.style.opacity = "1";
-        } else {
-            seg.style.opacity = "0.2";
-        }
-    });
-
-    const splText = document.getElementById('spl-live');
-    if (splVal > 100) {
-        splText.style.color = '#f44336';
-    } else {
-        splText.style.color = 'var(--primary)';
-    }
-}
 
 function updateCPU() {
     const cpuVal = Math.floor(Math.random() * 15) + 5;
