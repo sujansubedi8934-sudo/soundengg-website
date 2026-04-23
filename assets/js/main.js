@@ -1544,9 +1544,11 @@ function initSignalGenerator() {
         });
     });
 
-    btnSweep.addEventListener('click', () => {
-        startSweep();
-    });
+    if (btnSweep) {
+        btnSweep.addEventListener('click', () => {
+            startSweep();
+        });
+    }
 
     freqChips.forEach(chip => {
         chip.addEventListener('click', () => {
@@ -1730,8 +1732,8 @@ function initEarTraining() {
     }
 
     // Listeners
-    btnNext.addEventListener('click', startChallenge);
-    btnStop.addEventListener('click', stopAudio);
+    if (btnNext) btnNext.addEventListener('click', startChallenge);
+    if (btnStop) btnStop.addEventListener('click', stopAudio);
 
     sourceBtns.forEach(btn => {
         btn.addEventListener('click', () => {
