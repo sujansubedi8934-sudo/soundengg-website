@@ -1638,16 +1638,17 @@ function initEarTraining() {
         // 2. Setup Audio
         if (currentSource === 'pink') {
             sourceNode = createPinkNoise();
+            filterNode.frequency.value = currentTargetFreq;
+            filterNode.gain.value = currentBoost;
+            sourceNode.connect(filterNode);
         } else {
             sourceNode = audioCtx.createOscillator();
             sourceNode.type = 'sine';
-            sourceNode.frequency.value = 1000; // Base reference
+            sourceNode.frequency.value = currentTargetFreq;
+            // No filter needed for pure tone identification
+            sourceNode.connect(gainNode);
         }
 
-        filterNode.frequency.value = currentTargetFreq;
-        filterNode.gain.value = currentBoost;
-        
-        sourceNode.connect(filterNode);
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
         
