@@ -133,6 +133,7 @@ function setupNavigation() {
         });
 
         mobileOverlay.addEventListener('click', closeMobileMenu);
+        mobileOverlay.addEventListener('touchstart', closeMobileMenu, { passive: true });
     }
 
     const updateActiveNav = (activeBtn) => {
