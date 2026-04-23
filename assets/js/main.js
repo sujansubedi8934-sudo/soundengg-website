@@ -140,11 +140,7 @@ function setupNavigation() {
         if (btnNavAuthor) btnNavAuthor.classList.toggle('active', activeBtn === btnNavAuthor);
         if (btnNavBlog) btnNavBlog.classList.toggle('active', activeBtn === btnNavBlog);
         
-        // Sync Dashboard Tabs
-        const btnTabDashboard = document.getElementById('btn-tab-dashboard');
-        const btnTabEarTraining = document.getElementById('btn-tab-ear-training');
-        if (btnTabDashboard) btnTabDashboard.classList.toggle('active', activeBtn === btnTabDashboard || activeBtn === btnNavDashboard);
-        if (btnTabEarTraining) btnTabEarTraining.classList.toggle('active', activeBtn === btnTabEarTraining);
+        // Dashboard Widgets don't need active nav classes but we sync them if needed
     };
 
     /**
@@ -186,14 +182,8 @@ function setupNavigation() {
     const btnLaunchSiggen = document.getElementById('btn-launch-siggen');
     if (btnLaunchSiggen) btnLaunchSiggen.addEventListener('click', () => showView(siggenView));
 
-    const btnTabDashboard = document.getElementById('btn-tab-dashboard');
-    const btnTabEarTraining = document.getElementById('btn-tab-ear-training');
-
-    if (btnLaunchEarTraining) btnLaunchEarTraining.addEventListener('click', () => showView(earTrainingView, btnTabEarTraining));
+    if (btnLaunchEarTraining) btnLaunchEarTraining.addEventListener('click', () => showView(earTrainingView));
     
-    if (btnTabDashboard) btnTabDashboard.addEventListener('click', () => showView(dashboardView, btnTabDashboard));
-    if (btnTabEarTraining) btnTabEarTraining.addEventListener('click', () => showView(earTrainingView, btnTabEarTraining));
-
     // Top Navigation Listeners
     if (btnNavDashboard) {
         btnNavDashboard.addEventListener('click', (e) => {
