@@ -1586,11 +1586,15 @@ function initSignalGenerator() {
 function initEarTraining() {
     const ISO_FREQS = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000];
     
-    const btnNext = document.getElementById('btn-train-next');
-    const btnStop = document.getElementById('btn-train-stop');
-    const statusEl = document.getElementById('train-status');
-    const hintEl = document.getElementById('train-hint');
-    const scoreEl = document.getElementById('train-score');
+    const btnPlayToggle = document.getElementById('btn-train-toggle');
+    const playIcon = document.getElementById('train-play-icon');
+    const btnA = document.querySelector('.ab-channel-btn[data-channel="A"]');
+    const btnB = document.querySelector('.ab-channel-btn[data-channel="B"]');
+    
+    const statRound = document.getElementById('train-stat-round');
+    const statQ = document.getElementById('train-stat-q');
+    const statScore = document.getElementById('train-stat-score');
+    
     const optionsContainer = document.getElementById('train-options-container');
     const sourceBtns = document.querySelectorAll('.train-source-btn');
     const boostBtns = document.querySelectorAll('.train-boost-btn');
@@ -1599,10 +1603,14 @@ function initEarTraining() {
     let sourceNode;
     let filterNode;
     let gainNode;
+    
     let isTraining = false;
     let currentTargetFreq = 0;
     let currentBoost = 6;
     let currentSource = 'pink';
+    let currentChannel = 'B';
+    
+    let sessionRound = 1;
     let questionsTotal = 0;
     let questionsCorrect = 0;
 
@@ -1641,26 +1649,35 @@ function initEarTraining() {
         return node;
     }
 
+    function setChannel(ch) {
+        if (!isTraining || currentSource !== 'pink') return;
+        currentChannel = ch;
+        if (btnA) btnA.classList.toggle('active', ch === 'A');
+        if (btnB) btnB.classList.toggle('active', ch === 'B');
+        
+        if (filterNode) {
+            const targetGain = (ch === 'B') ? currentBoost : 0;
+            filterNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
+        }
+    }
+
     function startChallenge() {
         initAudio();
         if (audioCtx.state === 'suspended') audioCtx.resume();
         stopAudio();
 
-        // 1. Pick target
         const idx = Math.floor(Math.random() * ISO_FREQS.length);
         currentTargetFreq = ISO_FREQS[idx];
         
-        // 2. Setup Audio
         if (currentSource === 'pink') {
             sourceNode = createPinkNoise();
             filterNode.frequency.value = currentTargetFreq;
-            filterNode.gain.value = currentBoost;
+            filterNode.gain.value = (currentChannel === 'B') ? currentBoost : 0;
             sourceNode.connect(filterNode);
         } else {
             sourceNode = audioCtx.createOscillator();
             sourceNode.type = 'sine';
             sourceNode.frequency.value = currentTargetFreq;
-            // No filter needed for pure tone identification
             sourceNode.connect(gainNode);
         }
 
@@ -1669,15 +1686,12 @@ function initEarTraining() {
         
         if (sourceNode.start) sourceNode.start();
         
-        // 3. Setup UI
-        statusEl.textContent = 'CHALLENGE_ACTIVE';
-        statusEl.classList.add('vfd-active');
-        hintEl.textContent = 'LISTEN CLOSELY TO THE SPECTRAL BOOST';
-        hintEl.style.color = '';
-        statusEl.style.color = '';
+        isTraining = true;
+        if (btnPlayToggle) btnPlayToggle.classList.add('playing');
+        if (playIcon) playIcon.textContent = 'pause';
         
         renderOptions(idx);
-        isTraining = true;
+        updateStats();
     }
 
     function stopAudio() {
@@ -1687,13 +1701,29 @@ function initEarTraining() {
             sourceNode = null;
         }
         isTraining = false;
-        statusEl.classList.remove('vfd-active');
+        if (btnPlayToggle) btnPlayToggle.classList.remove('playing');
+        if (playIcon) playIcon.textContent = 'play_arrow';
+    }
+
+    function togglePlay() {
+        if (isTraining) {
+            stopAudio();
+        } else {
+            startChallenge();
+        }
+    }
+
+    function updateStats() {
+        if (statRound) statRound.textContent = sessionRound;
+        if (statQ) statQ.textContent = `${questionsTotal}/10`;
+        const percentage = questionsTotal > 0 ? Math.round((questionsCorrect / questionsTotal) * 100) : 0;
+        if (statScore) statScore.textContent = `${percentage}%`;
     }
 
     function renderOptions(correctIdx) {
+        if (!optionsContainer) return;
         optionsContainer.innerHTML = '';
         
-        // Select 5 neighbors (2 below, 2 above, and target)
         let options = [];
         for (let i = -2; i <= 2; i++) {
             const idx = correctIdx + i;
@@ -1702,13 +1732,12 @@ function initEarTraining() {
             }
         }
 
-        // Shuffle options for challenge
         options.sort(() => Math.random() - 0.5);
 
         options.forEach(freq => {
             const btn = document.createElement('button');
-            btn.className = 'freq-chip train-option-btn';
-            btn.textContent = freq >= 1000 ? (freq/1000).toFixed(2).replace(/\.00$/, '') + 'kHz' : freq + 'Hz';
+            btn.className = 'train-option-btn';
+            btn.textContent = freq >= 1000 ? (freq/1000).toFixed(2).replace(/\.00$/, '') + 'k' : freq;
             btn.addEventListener('click', () => handleAnswer(freq, btn));
             optionsContainer.appendChild(btn);
         });
@@ -1720,41 +1749,60 @@ function initEarTraining() {
         questionsTotal++;
         const isCorrect = (Math.abs(selectedFreq - currentTargetFreq) < 0.1);
         
+        // Disable all buttons to prevent double-clicking
+        const allBtns = optionsContainer.querySelectorAll('.train-option-btn');
+        allBtns.forEach(b => b.style.pointerEvents = 'none');
+        
         if (isCorrect) {
             questionsCorrect++;
-            statusEl.textContent = 'PASS';
-            statusEl.style.color = '#14A7B5';
-            statusEl.classList.add('vfd-pass');
-            hintEl.textContent = 'PERFECT MATCH DETECTED';
-            btn.classList.add('active');
+            btn.classList.add('correct');
         } else {
-            statusEl.textContent = 'FAIL';
-            statusEl.style.color = '#FF4D4D';
-            statusEl.classList.add('vfd-fail');
-            hintEl.textContent = `TARGET WAS ${currentTargetFreq >= 1000 ? (currentTargetFreq/1000) + 'kHz' : currentTargetFreq + 'Hz'}`;
             btn.classList.add('error');
+            // Highlight the correct one
+            allBtns.forEach(b => {
+                const fText = currentTargetFreq >= 1000 ? (currentTargetFreq/1000).toFixed(2).replace(/\.00$/, '') + 'k' : currentTargetFreq.toString();
+                if (b.textContent === fText) {
+                    b.classList.add('correct');
+                }
+            });
         }
 
-        scoreEl.textContent = `${questionsCorrect.toString().padStart(2, '0')} / ${questionsTotal.toString().padStart(2, '0')}`;
-        isTraining = false;
+        updateStats();
         
-        // Brief pause then stop audio
-        setTimeout(stopAudio, 1500);
+        // Auto-advance after brief pause
         setTimeout(() => {
-            statusEl.style.color = '';
-            statusEl.classList.remove('vfd-pass', 'vfd-fail');
-        }, 2500);
+            if (questionsTotal >= 10) {
+                // End of round
+                stopAudio();
+                sessionRound++;
+                questionsTotal = 0;
+                questionsCorrect = 0;
+                optionsContainer.innerHTML = '<div class="placeholder-text" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Round Complete! Click Play to start next round.</div>';
+                updateStats();
+            } else {
+                startChallenge();
+            }
+        }, 1500);
     }
 
     // Listeners
-    if (btnNext) btnNext.addEventListener('click', startChallenge);
-    if (btnStop) btnStop.addEventListener('click', stopAudio);
+    if (btnPlayToggle) btnPlayToggle.addEventListener('click', togglePlay);
+    if (btnA) btnA.addEventListener('click', () => setChannel('A'));
+    if (btnB) btnB.addEventListener('click', () => setChannel('B'));
 
     sourceBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             sourceBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentSource = btn.getAttribute('data-source');
+            if (currentSource === 'sine') {
+                if (btnA) btnA.style.opacity = '0.5';
+                if (btnB) btnB.style.opacity = '0.5';
+            } else {
+                if (btnA) btnA.style.opacity = '1';
+                if (btnB) btnB.style.opacity = '1';
+            }
+            if (isTraining) startChallenge();
         });
     });
 
@@ -1763,7 +1811,25 @@ function initEarTraining() {
             boostBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             currentBoost = parseInt(btn.getAttribute('data-boost'));
+            if (isTraining && currentChannel === 'B' && filterNode) {
+                filterNode.gain.setTargetAtTime(currentBoost, audioCtx.currentTime, 0.05);
+            }
         });
+    });
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+        const view = document.getElementById('ear-training-view');
+        if (!view || view.style.display === 'none') return;
+        
+        if (e.code === 'Space') {
+            e.preventDefault();
+            togglePlay();
+        } else if (e.code === 'KeyA') {
+            setChannel('A');
+        } else if (e.code === 'KeyB') {
+            setChannel('B');
+        }
     });
 }
 

@@ -2410,53 +2410,238 @@ html.light .rugged-input:focus {
 .vfd-input[type=number] {
   -moz-appearance: textfield;
 }
-/* --- EAR TRAINING MODULE --- */
-.train-options-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    gap: 1rem;
-    padding: 1.5rem;
-    background: rgba(0,0,0,0.2);
+/* --- EAR TRAINING MODULE REDESIGN --- */
+.training-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    padding: 2rem;
+    background: var(--surface);
     border-radius: 8px;
     border: 1px solid var(--outline);
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.train-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--outline);
+}
+
+.train-control-group {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.train-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.train-source-btn, .train-boost-btn {
+    background: transparent;
+    border: 1px solid var(--outline);
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.train-source-btn.active, .train-boost-btn.active {
+    background: var(--surface-highest);
+    color: var(--text-main);
+    border-color: var(--text-main);
+}
+
+.train-instruction {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--text-main);
+    margin: 1rem 0;
+}
+
+.train-ab-container {
+    display: flex;
+    gap: 1rem;
+    background: var(--surface-low);
+    padding: 1.5rem;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.train-play-btn {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: transparent;
+    border: 2px solid var(--outline);
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.train-play-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.train-play-btn.playing {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(20, 167, 181, 0.3);
+}
+
+.train-play-btn .icon-large {
+    font-size: 2.5rem;
+}
+
+.ab-channel-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ab-channel-btn .ab-title {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-headline);
+    color: var(--text-main);
+}
+
+.ab-channel-btn .ab-subtitle {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    margin-top: 0.5rem;
+}
+
+.ab-channel-btn.active {
+    background: var(--surface-highest);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(20, 167, 181, 0.1);
+}
+
+.ab-channel-btn.active .ab-title {
+    color: var(--primary);
+}
+
+.train-freq-section {
+    margin-top: 2rem;
+}
+
+.train-freq-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.train-options-grid-flat {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 1rem;
 }
 
 .train-option-btn {
-    height: 60px !important;
-    font-size: 1.1rem !important;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80px;
+    background: transparent;
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1.25rem;
+    font-weight: 700;
+    font-family: var(--font-headline);
+    color: var(--text-main);
 }
 
 .train-option-btn:hover {
-    background: var(--surface-higher);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    background: rgba(255,255,255,0.05);
 }
 
-.train-option-btn.active {
-    background: var(--primary) !important;
-    color: var(--surface-low) !important;
-    border-color: var(--primary-light) !important;
-    box-shadow: 0 0 15px var(--primary);
+.train-option-btn.correct {
+    background: rgba(46, 125, 50, 0.2) !important;
+    border-color: #4CAF50 !important;
+    color: #4CAF50 !important;
 }
 
-.vfd-active {
-    animation: vfd-flicker 0.1s infinite alternate;
+.train-option-btn.error {
+    background: rgba(211, 47, 47, 0.2) !important;
+    border-color: #F44336 !important;
+    color: #F44336 !important;
 }
 
-@keyframes vfd-flicker {
-    from { opacity: 0.9; }
-    to { opacity: 1; text-shadow: 0 0 15px currentColor; }
+.train-stats-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 2rem;
+    background: var(--surface-low);
+    border-radius: 8px;
+    margin-top: 2rem;
 }
 
-.placeholder-text {
-    grid-column: 1 / -1;
-    text-align: center;
-    padding: 3rem;
+.stat-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
     color: var(--text-muted);
+    letter-spacing: 0.1em;
+    font-weight: 700;
+}
+
+.stat-val {
+    font-size: 2rem;
+    font-weight: 700;
+    font-family: var(--font-headline);
+    color: var(--text-main);
+    font-style: italic;
+}
+
+.train-shortcuts {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    padding-top: 1rem;
+    border-top: 1px solid var(--outline);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.train-shortcuts kbd {
+    background: var(--surface-higher);
+    border: 1px solid var(--outline);
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
     font-family: var(--font-mono);
-    letter-spacing: 0.1rem;
-    border: 1px dashed var(--outline);
+    color: var(--text-main);
 }
 .vfd-input:focus {
     text-shadow: 0 0 10px rgba(20, 167, 181, 0.8);

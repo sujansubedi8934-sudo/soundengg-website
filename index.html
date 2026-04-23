@@ -758,53 +758,76 @@
             </div>
         </header>
 
-        <div class="analyzer-layout">
-            <aside class="blog-sidebar rugged-bevel brushed-metal">
-                <h4 class="sidebar-title">TRAINING_CONTROLS</h4>
+        <div class="training-layout">
+            <!-- Top Controls -->
+            <div class="train-top-bar">
+                <div class="train-control-group">
+                    <span class="train-label">SOURCE:</span>
+                    <button class="train-source-btn active" data-source="pink">Pink Noise</button>
+                    <button class="train-source-btn" data-source="sine">Sine Wave</button>
+                </div>
+                <div class="train-control-group">
+                    <span class="train-label">DIFFICULTY:</span>
+                    <button class="train-boost-btn" data-boost="12">+12 dB</button>
+                    <button class="train-boost-btn active" data-boost="6">+6 dB</button>
+                    <button class="train-boost-btn" data-boost="3">+3 dB</button>
+                </div>
+            </div>
+
+            <!-- Header Instruction -->
+            <div class="train-instruction">
+                <p>Listen to <strong>A (Dry)</strong> and <strong>B (Processed)</strong>. Identify the frequency that was boosted on B.</p>
+            </div>
+
+            <!-- A/B Toggle Area -->
+            <div class="train-ab-container">
+                <!-- Play/Stop Control on the left -->
+                <button id="btn-train-toggle" class="train-ab-btn train-play-btn">
+                    <span class="material-symbols-outlined icon-large" id="train-play-icon">play_arrow</span>
+                </button>
                 
-                <div class="control-group">
-                    <label>TEST_SOURCE</label>
-                    <div class="toggle-group-vertical">
-                        <button class="train-source-btn active" data-source="pink">PINK_NOISE</button>
-                        <button class="train-source-btn" data-source="sine">SINE_WAVE</button>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>DIFFICULTY_BOOST</label>
-                    <div class="toggle-group-vertical">
-                        <button class="train-boost-btn" data-boost="12">+12 dB (EASY)</button>
-                        <button class="train-boost-btn active" data-boost="6">+6 dB (HARD)</button>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>SCORE_TRACKER</label>
-                    <div class="vfd-display vfd-medium" id="train-score">00 / 00</div>
-                </div>
-
-                <button id="btn-train-next" class="rugged-btn pulse-glow" style="margin-top: 1rem;">
-                    <span class="material-symbols-outlined">play_arrow</span>
-                    START_NEW_CHALLENGE
+                <button class="train-ab-btn ab-channel-btn active" data-channel="A">
+                    <span class="ab-title">A</span>
+                    <span class="ab-subtitle">DRY</span>
                 </button>
-
-                <button id="btn-train-stop" class="rugged-btn" style="margin-top: 0.5rem; border-color: var(--error);">
-                    <span class="material-symbols-outlined">stop</span>
-                    STOP_TRAINING
+                <button class="train-ab-btn ab-channel-btn" data-channel="B">
+                    <span class="ab-title">B</span>
+                    <span class="ab-subtitle">PROCESSED</span>
                 </button>
-            </aside>
+            </div>
 
-            <div class="analyzer-main">
-                <div class="vfd-display-large brushed-metal rugged-bevel" style="margin-bottom: 1.5rem; min-height: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
-                    <div id="train-status" class="vfd-glow" style="font-size: 2.5rem; letter-spacing: 0.3rem;">SYSTEM_READY</div>
-                    <div id="train-hint" class="vfd-glow" style="font-size: 1rem; opacity: 0.6; margin-top: 0.5rem;">INITIALIZE CHALLENGE TO BEGIN</div>
+            <!-- Frequency Selection -->
+            <div class="train-freq-section">
+                <div class="train-freq-header">
+                    <span class="train-label">FREQUENCY</span>
+                    <span class="train-label">5 bands</span>
                 </div>
-
-                <div class="control-label" style="margin-bottom: 1rem;">CHOOSE_THE_BOOSTED_FREQUENCY</div>
-                <div id="train-options-container" class="train-options-grid">
+                <div id="train-options-container" class="train-options-grid-flat">
                     <!-- Dynamic buttons will appear here -->
-                    <div class="placeholder-text">NO ACTIVE CHALLENGE</div>
+                    <div class="placeholder-text" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Click Play to begin challenge</div>
                 </div>
+            </div>
+
+            <!-- Statistics Footer -->
+            <div class="train-stats-footer">
+                <div class="stat-block">
+                    <span class="stat-label">SESSION</span>
+                    <span class="stat-val" id="train-stat-round">0</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">QUESTION</span>
+                    <span class="stat-val" id="train-stat-q">0/10</span>
+                </div>
+                <div class="stat-block">
+                    <span class="stat-label">SESSION SCORE</span>
+                    <span class="stat-val" id="train-stat-score">0%</span>
+                </div>
+            </div>
+
+            <!-- Keyboard Shortcuts -->
+            <div class="train-shortcuts">
+                <span class="shortcut"><kbd>Space</kbd> Play/Pause</span>
+                <span class="shortcut"><kbd>A</kbd> <kbd>B</kbd> Channel</span>
             </div>
         </div>
     </div>
