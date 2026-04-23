@@ -116,6 +116,25 @@ function setupNavigation() {
     const btnLaunchEarTraining = document.getElementById('widget-ear-training');
     const backButtons = document.querySelectorAll('.btn-back-home, .btn-back');
 
+    // Mobile Nav Logic
+    const btnMobileMenu = document.getElementById('btn-mobile-menu');
+    const topNav = document.querySelector('.top-nav');
+    const mobileOverlay = document.getElementById('mobile-nav-overlay');
+
+    function closeMobileMenu() {
+        if (topNav) topNav.classList.remove('open');
+        if (mobileOverlay) mobileOverlay.classList.remove('active');
+    }
+
+    if (btnMobileMenu && topNav && mobileOverlay) {
+        btnMobileMenu.addEventListener('click', () => {
+            topNav.classList.add('open');
+            mobileOverlay.classList.add('active');
+        });
+
+        mobileOverlay.addEventListener('click', closeMobileMenu);
+    }
+
     const updateActiveNav = (activeBtn) => {
         if (btnNavDashboard) btnNavDashboard.classList.toggle('active', activeBtn === btnNavDashboard);
         if (btnNavAuthor) btnNavAuthor.classList.toggle('active', activeBtn === btnNavAuthor);
@@ -144,6 +163,9 @@ function setupNavigation() {
         
         // Handle Nav Highlights
         updateActiveNav(navButton);
+        
+        // Auto-close mobile menu when navigating
+        closeMobileMenu();
         
         // Common Reset
         window.scrollTo(0, 0);

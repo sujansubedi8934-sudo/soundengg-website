@@ -2885,3 +2885,125 @@ html.light .auth-modal {
     background: var(--surface-light);
     color: var(--text-heading);
 }
+
+/* --- Mobile Nav Overlay --- */
+.mobile-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 99;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.mobile-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mobile-menu-btn {
+    display: none; /* hidden on desktop */
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 0.5rem;
+}
+
+/* --- Mobile Responsive Rules --- */
+@media (max-width: 768px) {
+    /* Top Bar & Nav */
+    .top-bar {
+        padding: 0.75rem 1rem;
+    }
+    .status-indicator {
+        display: none; /* Hide heavy text on mobile top bar */
+    }
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Slide-out Menu */
+    .top-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background: var(--surface-highest);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 5rem 2rem 2rem 2rem;
+        gap: 2rem;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
+
+    .top-nav.open {
+        transform: translateX(0);
+    }
+
+    .top-nav a {
+        font-size: 1.2rem;
+        width: 100%;
+        padding-bottom: 0.5rem;
+    }
+
+    /* Typography Scaling */
+    .dashboard-title {
+        font-size: 1.5rem;
+    }
+    .dashboard-subtitle {
+        font-size: 0.85rem;
+    }
+    .auth-title {
+        font-size: 1.4rem;
+    }
+    
+    /* Touch Targets */
+    .widget-launcher,
+    .rugged-btn,
+    .train-source-btn,
+    .filter-chip,
+    .auth-submit-btn,
+    .auth-social-btn,
+    .rugged-input,
+    .rugged-select {
+        min-height: 44px;
+    }
+
+    /* RTA Canvas */
+    #rta-canvas {
+        height: 300px !important;
+    }
+    .canvas-wrapper {
+        height: 300px !important;
+    }
+
+    /* Stacking Layouts */
+    .train-top-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .train-control-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    .train-control-group select,
+    .train-control-group button {
+        flex: 1;
+    }
+
+    /* Auth Modal */
+    .auth-modal {
+        padding: 1.5rem;
+        max-width: 95vw;
+    }
+}
