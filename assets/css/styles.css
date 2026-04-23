@@ -760,6 +760,10 @@ html.light .nav-item:hover { color: var(--text-main); }
     gap: 1.5rem;
 }
 
+.siggen-sweep-wrap {
+    margin-top: 1.5rem;
+}
+
 .sweep-controls-row {
     display: flex;
     align-items: center;

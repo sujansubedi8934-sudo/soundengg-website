@@ -505,6 +505,20 @@
                             <button class="freq-chip" data-freq="1000">1kHz</button>
                             <button class="freq-chip" data-freq="10000">10kHz</button>
                         </div>
+
+                        <!-- Sweep Control Moved Here -->
+                        <div class="siggen-sweep-wrap" id="siggen-sweep-section">
+                            <div class="sweep-controls-row">
+                                <div class="vfd-input-wrap">
+                                    <input type="number" id="siggen-sweep-time" value="5" min="1" max="60" class="vfd-glow vfd-input">
+                                    <span class="vfd-glow text-primary">SEC DURATION</span>
+                                </div>
+                                <button id="btn-siggen-sweep" class="rugged-btn">
+                                    <span class="material-symbols-outlined">sync</span>
+                                    START_SWEEP
+                                </button>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Waveform Control -->
@@ -517,21 +531,6 @@
                             <button class="wave-btn" data-wave="triangle"><span class="material-symbols-outlined">change_history</span>TRI</button>
                             <button class="wave-btn" data-wave="white"><span class="material-symbols-outlined">grain</span>WHITE</button>
                             <button class="wave-btn" data-wave="pink"><span class="material-symbols-outlined">blur_on</span>PINK</button>
-                        </div>
-                    </div>
-
-                    <!-- Sweep Control -->
-                    <div class="control-section" id="siggen-sweep-section">
-                        <div class="control-label">FREQUENCY_SWEEP (20Hz - 20kHz)</div>
-                        <div class="sweep-controls-row">
-                            <div class="vfd-input-wrap">
-                                <input type="number" id="siggen-sweep-time" value="5" min="1" max="60" class="vfd-glow vfd-input">
-                                <span class="vfd-glow text-primary">SEC DURATION</span>
-                            </div>
-                            <button id="btn-siggen-sweep" class="rugged-btn">
-                                <span class="material-symbols-outlined">settings_backup_restore</span>
-                                START_SWEEP
-                            </button>
                         </div>
                     </div>
 
