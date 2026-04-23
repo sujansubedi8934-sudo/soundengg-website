@@ -2363,7 +2363,54 @@ html.light .rugged-input:focus {
 .vfd-input[type=number] {
   -moz-appearance: textfield;
 }
+/* --- EAR TRAINING MODULE --- */
+.train-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    padding: 1.5rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    border: 1px solid var(--outline);
+}
 
+.train-option-btn {
+    height: 60px !important;
+    font-size: 1.1rem !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.train-option-btn:hover {
+    background: var(--surface-higher);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.train-option-btn.active {
+    background: var(--primary) !important;
+    color: var(--surface-low) !important;
+    border-color: var(--primary-light) !important;
+    box-shadow: 0 0 15px var(--primary);
+}
+
+.vfd-active {
+    animation: vfd-flicker 0.1s infinite alternate;
+}
+
+@keyframes vfd-flicker {
+    from { opacity: 0.9; }
+    to { opacity: 1; text-shadow: 0 0 15px currentColor; }
+}
+
+.placeholder-text {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    letter-spacing: 0.1rem;
+    border: 1px dashed var(--outline);
+}
 .vfd-input:focus {
     text-shadow: 0 0 10px rgba(20, 167, 181, 0.8);
 }

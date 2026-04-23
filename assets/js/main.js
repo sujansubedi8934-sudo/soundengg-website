@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalSearch();
     initBlog();
     initSignalGenerator();
+    initEarTraining();
     
     // Start mock data loops
     setInterval(updateSPL, 250);
@@ -120,23 +121,25 @@ function setupNavigation() {
     const pinoutView = document.getElementById('pinout-view');
     const blogView = document.getElementById('blog-view');
     const siggenView = document.getElementById('siggen-view');
+    const earTrainingView = document.getElementById('ear-training-view');
     
     // IDs for ALL primary views to manage visibility
-    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView];
+    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView];
 
     const btnLaunchRta = document.getElementById('btn-launch-rta');
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
     const btnLaunchPinout = document.getElementById('btn-launch-pinout');
     
-    const btnNavAuthor = document.getElementById('btn-nav-author');
     const btnNavBlog = document.getElementById('btn-nav-blog');
-    const btnNavDashboard = document.getElementById('btn-nav-dashboard');
+    const btnNavEarTraining = document.getElementById('btn-nav-ear-training');
+    const btnLaunchEarTraining = document.getElementById('widget-ear-training');
     const backButtons = document.querySelectorAll('.btn-back-home, .btn-back');
 
     const updateActiveNav = (activeBtn) => {
         if (btnNavDashboard) btnNavDashboard.classList.toggle('active', activeBtn === btnNavDashboard);
         if (btnNavAuthor) btnNavAuthor.classList.toggle('active', activeBtn === btnNavAuthor);
         if (btnNavBlog) btnNavBlog.classList.toggle('active', activeBtn === btnNavBlog);
+        if (btnNavEarTraining) btnNavEarTraining.classList.toggle('active', activeBtn === btnNavEarTraining);
     };
 
     /**
@@ -176,6 +179,12 @@ function setupNavigation() {
 
     const btnLaunchSiggen = document.getElementById('btn-launch-siggen');
     if (btnLaunchSiggen) btnLaunchSiggen.addEventListener('click', () => showView(siggenView));
+
+    if (btnLaunchEarTraining) btnLaunchEarTraining.addEventListener('click', () => showView(earTrainingView, btnNavEarTraining));
+    if (btnNavEarTraining) btnNavEarTraining.addEventListener('click', (e) => {
+        e.preventDefault();
+        showView(earTrainingView, btnNavEarTraining);
+    });
 
     // Top Navigation Listeners
     if (btnNavDashboard) {

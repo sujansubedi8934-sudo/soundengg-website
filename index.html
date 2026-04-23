@@ -17,6 +17,7 @@
             </a>
             <nav class="top-nav">
                 <a href="#" id="btn-nav-dashboard" class="active">Dashboard</a>
+                <a href="#" id="btn-nav-ear-training">Ear Training</a>
                 <a href="#">Archive</a>
                 <a href="#" id="btn-nav-author">Author</a>
                 <a href="#" id="btn-nav-blog">Blog</a>
@@ -727,6 +728,57 @@
                     </div>
                 </div>
             </main>
+        </div>
+    <!-- Ear Training View -->
+    <div id="ear-training-view" class="view-container" style="display:none">
+        <div class="analyzer-layout">
+            <aside class="blog-sidebar rugged-bevel brushed-metal">
+                <h4 class="sidebar-title">TRAINING_CONTROLS</h4>
+                
+                <div class="control-group">
+                    <label>TEST_SOURCE</label>
+                    <div class="toggle-group-vertical">
+                        <button class="train-source-btn active" data-source="pink">PINK_NOISE</button>
+                        <button class="train-source-btn" data-source="sine">SINE_WAVE</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>DIFFICULTY_BOOST</label>
+                    <div class="toggle-group-vertical">
+                        <button class="train-boost-btn" data-boost="12">+12 dB (EASY)</button>
+                        <button class="train-boost-btn active" data-boost="6">+6 dB (HARD)</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label>SCORE_TRACKER</label>
+                    <div class="vfd-display vfd-medium" id="train-score">00 / 00</div>
+                </div>
+
+                <button id="btn-train-next" class="rugged-btn pulse-glow" style="margin-top: 1rem;">
+                    <span class="material-symbols-outlined">play_arrow</span>
+                    START_NEW_CHALLENGE
+                </button>
+
+                <button id="btn-train-stop" class="rugged-btn" style="margin-top: 0.5rem; border-color: var(--error);">
+                    <span class="material-symbols-outlined">stop</span>
+                    STOP_TRAINING
+                </button>
+            </aside>
+
+            <div class="analyzer-main">
+                <div class="vfd-display-large brushed-metal rugged-bevel" style="margin-bottom: 1.5rem; min-height: 120px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                    <div id="train-status" class="vfd-glow" style="font-size: 2.5rem; letter-spacing: 0.3rem;">SYSTEM_READY</div>
+                    <div id="train-hint" class="vfd-glow" style="font-size: 1rem; opacity: 0.6; margin-top: 0.5rem;">INITIALIZE CHALLENGE TO BEGIN</div>
+                </div>
+
+                <div class="control-label" style="margin-bottom: 1rem;">CHOOSE_THE_BOOSTED_FREQUENCY</div>
+                <div id="train-options-container" class="train-options-grid">
+                    <!-- Dynamic buttons will appear here -->
+                    <div class="placeholder-text">NO ACTIVE CHALLENGE</div>
+                </div>
+            </div>
         </div>
     </div>
 
