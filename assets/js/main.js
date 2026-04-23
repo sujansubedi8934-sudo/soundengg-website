@@ -9,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     safeInit(setupThemeToggle, 'setupThemeToggle');
     safeInit(applyAutoTheme, 'applyAutoTheme');
-    safeInit(setupRoleModal, 'setupRoleModal');
     safeInit(initGlobalUnits, 'initGlobalUnits');
     safeInit(setupNavigation, 'setupNavigation');
     safeInit(initDelayCalc, 'initDelayCalc');
@@ -62,28 +61,6 @@ function applyAutoTheme() {
     }
 }
 
-function setupRoleModal() {
-    const overlay = document.getElementById('role-modal-overlay');
-    const roleButtons = document.querySelectorAll('.role-btn');
-    const savedRole = localStorage.getItem('soundengg-role');
-
-    // If a role is already saved, hide the modal immediately
-    if (savedRole && savedRole !== 'null') {
-        overlay.classList.add('hidden');
-    } else {
-        overlay.classList.remove('hidden');
-    }
-
-    roleButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const role = btn.getAttribute('data-role');
-            localStorage.setItem('soundengg-role', role);
-            overlay.classList.add('hidden');
-            console.log(`Role selected: ${role}`);
-            // Future: Trigger dashboard filter based on role
-        });
-    });
-}
 
 let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
 
