@@ -155,6 +155,7 @@ function setupNavigation() {
 
         // Show target
         targetView.style.display = 'block';
+        targetView.style.opacity = '1'; // Ensure visibility for animation-driven layouts
         
         // Handle Nav Highlights
         updateActiveNav(navButton);
@@ -1006,8 +1007,6 @@ function initProfessionalRTA() {
         }
 
         // 2. Perform FFT
-        // Note: AnalyserNode.getFloatFrequencyData applies its own Blackman window.
-        // For professional accuracy with the custom smoothing, we use rawData.
         analyser.getFloatFrequencyData(dataArray);
 
         // 3. Apply Averaging / Smoothing
@@ -1563,6 +1562,190 @@ function initSignalGenerator() {
             if (oscillator) {
                 oscillator.frequency.setTargetAtTime(currentFreq, audioCtx.currentTime, 0.05);
             }
+        });
+    });
+}
+
+// --- EAR TRAINING LOGIC ---
+function initEarTraining() {
+    const ISO_FREQS = [20, 25, 31.5, 40, 50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000, 20000];
+    
+    const btnNext = document.getElementById('btn-train-next');
+    const btnStop = document.getElementById('btn-train-stop');
+    const statusEl = document.getElementById('train-status');
+    const hintEl = document.getElementById('train-hint');
+    const scoreEl = document.getElementById('train-score');
+    const optionsContainer = document.getElementById('train-options-container');
+    const sourceBtns = document.querySelectorAll('.train-source-btn');
+    const boostBtns = document.querySelectorAll('.train-boost-btn');
+
+    let audioCtx;
+    let sourceNode;
+    let filterNode;
+    let gainNode;
+    let isTraining = false;
+    let currentTargetFreq = 0;
+    let currentBoost = 6;
+    let currentSource = 'pink';
+    let questionsTotal = 0;
+    let questionsCorrect = 0;
+
+    function initAudio() {
+        if (!audioCtx) {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            gainNode = audioCtx.createGain();
+            filterNode = audioCtx.createBiquadFilter();
+            filterNode.type = 'peaking';
+            filterNode.Q.value = 4.32; // 1/3 octave
+            
+            filterNode.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+        }
+    }
+
+    function createPinkNoise() {
+        const bufferSize = 4096 * 2;
+        const b = [0, 0, 0, 0, 0, 0, 0];
+        const node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+        node.onaudioprocess = (e) => {
+            const output = e.outputBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b[0] = 0.99886 * b[0] + white * 0.0555179;
+                b[1] = 0.99332 * b[1] + white * 0.0750759;
+                b[2] = 0.96900 * b[2] + white * 0.1538520;
+                b[3] = 0.86650 * b[3] + white * 0.3104856;
+                b[4] = 0.55000 * b[4] + white * 0.5329522;
+                b[5] = -0.7616 * b[5] - white * 0.0168980;
+                output[i] = b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + white * 0.5362;
+                output[i] *= 0.11;
+                b[6] = white * 0.115926;
+            }
+        };
+        return node;
+    }
+
+    function startChallenge() {
+        initAudio();
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        stopAudio();
+
+        // 1. Pick target
+        const idx = Math.floor(Math.random() * ISO_FREQS.length);
+        currentTargetFreq = ISO_FREQS[idx];
+        
+        // 2. Setup Audio
+        if (currentSource === 'pink') {
+            sourceNode = createPinkNoise();
+        } else {
+            sourceNode = audioCtx.createOscillator();
+            sourceNode.type = 'sine';
+            sourceNode.frequency.value = 1000; // Base reference
+        }
+
+        filterNode.frequency.value = currentTargetFreq;
+        filterNode.gain.value = currentBoost;
+        
+        sourceNode.connect(filterNode);
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
+        
+        if (sourceNode.start) sourceNode.start();
+        
+        // 3. Setup UI
+        statusEl.textContent = 'CHALLENGE_ACTIVE';
+        statusEl.classList.add('vfd-active');
+        hintEl.textContent = 'LISTEN CLOSELY TO THE SPECTRAL BOOST';
+        hintEl.style.color = '';
+        statusEl.style.color = '';
+        
+        renderOptions(idx);
+        isTraining = true;
+    }
+
+    function stopAudio() {
+        if (sourceNode) {
+            if (sourceNode.stop) sourceNode.stop();
+            sourceNode.disconnect();
+            sourceNode = null;
+        }
+        isTraining = false;
+        statusEl.classList.remove('vfd-active');
+    }
+
+    function renderOptions(correctIdx) {
+        optionsContainer.innerHTML = '';
+        
+        // Select 5 neighbors (2 below, 2 above, and target)
+        let options = [];
+        for (let i = -2; i <= 2; i++) {
+            const idx = correctIdx + i;
+            if (idx >= 0 && idx < ISO_FREQS.length) {
+                options.push(ISO_FREQS[idx]);
+            }
+        }
+
+        // Shuffle options for challenge
+        options.sort(() => Math.random() - 0.5);
+
+        options.forEach(freq => {
+            const btn = document.createElement('button');
+            btn.className = 'freq-chip train-option-btn';
+            btn.textContent = freq >= 1000 ? (freq/1000).toFixed(2).replace(/\.00$/, '') + 'kHz' : freq + 'Hz';
+            btn.addEventListener('click', () => handleAnswer(freq, btn));
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function handleAnswer(selectedFreq, btn) {
+        if (!isTraining) return;
+        
+        questionsTotal++;
+        const isCorrect = (Math.abs(selectedFreq - currentTargetFreq) < 0.1);
+        
+        if (isCorrect) {
+            questionsCorrect++;
+            statusEl.textContent = 'PASS';
+            statusEl.style.color = '#14A7B5';
+            statusEl.classList.add('vfd-pass');
+            hintEl.textContent = 'PERFECT MATCH DETECTED';
+            btn.classList.add('active');
+        } else {
+            statusEl.textContent = 'FAIL';
+            statusEl.style.color = '#FF4D4D';
+            statusEl.classList.add('vfd-fail');
+            hintEl.textContent = `TARGET WAS ${currentTargetFreq >= 1000 ? (currentTargetFreq/1000) + 'kHz' : currentTargetFreq + 'Hz'}`;
+            btn.classList.add('error');
+        }
+
+        scoreEl.textContent = `${questionsCorrect.toString().padStart(2, '0')} / ${questionsTotal.toString().padStart(2, '0')}`;
+        isTraining = false;
+        
+        // Brief pause then stop audio
+        setTimeout(stopAudio, 1500);
+        setTimeout(() => {
+            statusEl.style.color = '';
+            statusEl.classList.remove('vfd-pass', 'vfd-fail');
+        }, 2500);
+    }
+
+    // Listeners
+    btnNext.addEventListener('click', startChallenge);
+    btnStop.addEventListener('click', stopAudio);
+
+    sourceBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            sourceBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSource = btn.getAttribute('data-source');
+        });
+    });
+
+    boostBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            boostBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentBoost = parseInt(btn.getAttribute('data-boost'));
         });
     });
 }
