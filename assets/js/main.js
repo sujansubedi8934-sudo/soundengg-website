@@ -133,8 +133,9 @@ function setupNavigation() {
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
     const btnLaunchPinout = document.getElementById('btn-launch-pinout');
     
+    const btnNavDashboard = document.getElementById('btn-nav-dashboard');
+    const btnNavAuthor = document.getElementById('btn-nav-author');
     const btnNavBlog = document.getElementById('btn-nav-blog');
-    const btnNavEarTraining = document.getElementById('btn-nav-ear-training');
     const btnLaunchEarTraining = document.getElementById('widget-ear-training');
     const backButtons = document.querySelectorAll('.btn-back-home, .btn-back');
 
@@ -253,6 +254,15 @@ function setupNavigation() {
         });
         btnCloseSettings.addEventListener('click', () => {
             settingsPanel.classList.remove('open');
+        });
+    }
+
+    // Auth Placeholder Logic
+    const btnAuthToggle = document.getElementById('btn-auth-toggle');
+    if (btnAuthToggle) {
+        btnAuthToggle.addEventListener('click', () => {
+            console.log('Authentication triggered. Google Auth integration pending.');
+            alert('Authentication API integration pending. This will launch the Google/Social Auth flow.');
         });
     }
 

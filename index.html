@@ -38,7 +38,7 @@
                 </div>
                 <div class="system-actions">
                     <button id="btn-settings" aria-label="Settings"><span class="material-symbols-outlined">settings</span></button>
-                    <button aria-label="Power" class="power-btn"><span class="material-symbols-outlined">power_settings_new</span></button>
+                    <button aria-label="Login / Sign Out" id="btn-auth-toggle" class="power-btn" title="Authentication"><span class="material-symbols-outlined">power_settings_new</span></button>
                 </div>
             </div>
         </div>
@@ -55,15 +55,6 @@
             <div class="dashboard-title-container">
                 <h1 class="dashboard-title" style="text-transform: uppercase;">WELCOME TO SOUNDENGG</h1>
                 <p class="dashboard-subtitle">Precision Engineering Toolkit</p>
-            </div>
-            <div class="dashboard-system-stats">
-                <div class="unit-toggle-group">
-                    <button id="unit-metric" class="active">METRIC</button>
-                    <button id="unit-imperial">IMPERIAL</button>
-                    <div class="sys-sensors">
-                    <span class="sys-load">DSP_LOAD: 12%</span>
-                    <span class="sys-temp">CORE_TEMP: 42°C</span>
-                </div>
             </div>
         </header>
 
@@ -161,6 +152,12 @@
                 <div class="module-title-wrap">
                     <h1 class="dashboard-title">TIME_DELAY_ANALYSIS</h1>
                     <p class="dashboard-subtitle">Precision Phase Alignment Node // CALIBRATION_ACTIVE</p>
+                </div>
+                <div class="dashboard-system-stats">
+                    <div class="unit-toggle-group">
+                        <button id="unit-metric" class="active">METRIC</button>
+                        <button id="unit-imperial">IMPERIAL</button>
+                    </div>
                 </div>
             </header>
 
@@ -567,89 +564,77 @@
             </div>
         </header>
 
-        <div class="blog-layout analyzer-layout">
-            <!-- Sidebar: Controls -->
-            <aside class="blog-sidebar rugged-bevel brushed-metal">
-                <h4 class="sidebar-title">ANALYZER_CONTROLS</h4>
-                
-                <div class="control-group">
-                    <label>INPUT_SOURCE</label>
-                    <select id="rta-input-select" class="rugged-select">
+        <div class="training-layout">
+            <!-- Top Controls -->
+            <div class="train-top-bar" style="flex-wrap: wrap; gap: 1.5rem;">
+                <div class="train-control-group">
+                    <span class="train-label">SOURCE</span>
+                    <select id="rta-input-select" class="rugged-select" style="min-width: 150px;">
                         <option value="default">Default Input</option>
                     </select>
                 </div>
-
-                <div class="control-group">
-                    <label>VIEW_MODE</label>
-                    <div class="toggle-group-vertical">
-                        <button class="mode-btn active" data-mode="fft">SPECTRUM_CURVE</button>
-                        <button class="mode-btn" data-mode="rta">31_BAND_RTA</button>
-                    </div>
+                <div class="train-control-group">
+                    <span class="train-label">MODE</span>
+                    <button class="train-source-btn active mode-btn" data-mode="fft">CURVE</button>
+                    <button class="train-source-btn mode-btn" data-mode="rta">RTA</button>
                 </div>
-
-                <div class="control-group">
-                    <label>WEIGHTING</label>
-                    <div class="toggle-group-vertical">
-                        <button class="weight-btn active" data-weight="a">A-WEIGHTED</button>
-                        <button class="weight-btn" data-weight="c">C-WEIGHTED</button>
-                    </div>
+                <div class="train-control-group">
+                    <span class="train-label">WEIGHT</span>
+                    <button class="train-source-btn active weight-btn" data-weight="a">A-WT</button>
+                    <button class="train-source-btn weight-btn" data-weight="c">C-WT</button>
                 </div>
+            </div>
 
-                <div class="control-group">
-                    <label>AVERAGING_FACTOR</label>
-                    <input type="range" id="rta-averaging" min="0" max="10" value="4" class="rugged-slider">
-                    <div class="slider-val">FACTOR: <span id="avg-val">4</span></div>
-                </div>
-
-                <div class="control-group">
-                    <label>CALIBRATION (dB)</label>
-                    <input type="range" id="rta-calibration" min="50" max="150" value="100" class="rugged-slider">
-                    <div class="slider-val"><span id="cal-offset">100</span> dB OFFSET</div>
-                </div>
-
-                <div class="control-group">
-                    <label>PEAK_HOLD</label>
-                    <div class="toggle-group">
-                        <button id="btn-peak-toggle" class="active">ON</button>
-                        <button id="btn-peak-reset">RESET</button>
-                    </div>
-                </div>
-
-                <div class="control-group">
-                    <label>REFERENCE_SNAPSHOT</label>
-                    <div class="toggle-group-vertical">
-                        <button id="btn-capture-snapshot" class="rugged-btn">
-                            <span class="material-symbols-outlined">camera</span>
-                            CAPTURE_SNAPSHOT
-                        </button>
-                        <button id="btn-clear-snapshot" class="rugged-btn">
-                            <span class="material-symbols-outlined">delete_sweep</span>
-                            CLEAR_SNAPSHOT
-                        </button>
-                    </div>
-                </div>
-
-                <div class="vfd-telemetry">
-                    <div class="telemetry-item">
-                        <span class="label">PEAK_LEVEL</span>
-                        <span class="value" id="rta-peak-val">-∞ dB</span>
-                    </div>
-                    <div class="telemetry-item">
-                        <span class="label">DOMINANT_FREQ</span>
-                        <span class="value text-primary" id="rta-dom-val">--- Hz</span>
-                    </div>
-                </div>
-            </aside>
-
-            <!-- Main: Visualizer -->
-            <main class="blog-grid analyzer-main rugged-bevel brushed-metal" id="analyzer-container">
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 500px;">
+            <!-- Visualizer -->
+            <div class="train-ab-container" style="display: block; padding: 0; background: transparent; border: 1px solid var(--outline); overflow: hidden;">
+                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 500px; background: var(--surface-highest);">
                     <canvas id="rta-canvas" style="width: 100%; height: 100%;"></canvas>
                     <div class="freq-labels" id="rta-labels">
                         <!-- Labels injected via JS -->
                     </div>
                 </div>
-            </main>
+            </div>
+
+            <!-- Bottom Controls -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; align-items: start; padding-top: 1rem;">
+                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <span class="train-label">AVERAGING: <span id="avg-val" style="color: var(--primary);">4</span></span>
+                    <input type="range" id="rta-averaging" min="0" max="10" value="4" class="rugged-slider" style="width: 100%;">
+                </div>
+                
+                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <span class="train-label">CALIBRATION: <span id="cal-offset" style="color: var(--primary);">100</span>dB</span>
+                    <input type="range" id="rta-calibration" min="50" max="150" value="100" class="rugged-slider" style="width: 100%;">
+                </div>
+
+                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <span class="train-label">PEAK HOLD</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-peak-toggle" class="train-source-btn active">ON</button>
+                        <button id="btn-peak-reset" class="train-source-btn">RESET</button>
+                    </div>
+                </div>
+
+                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <span class="train-label">SNAPSHOT</span>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button id="btn-capture-snapshot" class="train-source-btn" style="display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 16px;">camera</span> CAPTURE</button>
+                        <button id="btn-clear-snapshot" class="train-source-btn" style="display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span> CLEAR</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telemetry Footer -->
+            <div class="train-stats-footer" style="margin-top: 1rem; justify-content: space-around;">
+                <div class="stat-item">
+                    <span class="stat-label">PEAK LEVEL</span>
+                    <span class="stat-val" id="rta-peak-val" style="font-family: var(--font-mono);">-∞ dB</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">DOMINANT FREQ</span>
+                    <span class="stat-val" id="rta-dom-val" style="color: var(--primary); font-family: var(--font-mono);">--- Hz</span>
+                </div>
+            </div>
         </div>
     </div>
     <!-- Ear Training View -->
