@@ -2930,6 +2930,7 @@ html.light .auth-modal {
 
     /* Slide-out Menu */
     .top-nav {
+        display: flex;
         position: fixed;
         top: 0;
         left: 0;
