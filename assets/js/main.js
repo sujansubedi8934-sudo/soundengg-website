@@ -143,6 +143,9 @@ function setupNavigation() {
         // Dashboard Widgets don't need active nav classes but we sync them if needed
     };
 
+    // Make showView accessible globally for fallbacks
+    window.showView = showView;
+
     /**
      * Senior View Manager: Ensures ONLY one view is visible at any time.
      */
@@ -227,9 +230,13 @@ function setupNavigation() {
         });
     }
 
-    // Common Back Navigation
-    backButtons.forEach(btn => {
-        btn.addEventListener('click', () => showView(dashboardView, btnNavDashboard));
+    // Common Back Navigation - Using delegation for robustness
+    document.addEventListener('click', (e) => {
+        const backBtn = e.target.closest('.btn-back-home, .btn-back');
+        if (backBtn) {
+            e.preventDefault();
+            showView(dashboardView, btnNavDashboard);
+        }
     });
 
     // Settings Toggle Logic (Non-exclusive view)
