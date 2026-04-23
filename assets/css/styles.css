@@ -754,6 +754,28 @@ html.light .nav-item:hover { color: var(--text-main); }
     letter-spacing: 0.1rem;
 }
 
+.siggen-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.sweep-controls-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(0,0,0,0.2);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--outline);
+}
+
+.waveform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
 .role-options {
     display: flex;
     flex-direction: column;

@@ -1273,6 +1273,9 @@ function initSignalGenerator() {
     const statusBadge = document.getElementById('siggen-status');
     const vuFill = document.getElementById('siggen-vu-fill');
     const meterText = document.getElementById('siggen-meter-text');
+    const btnSweep = document.getElementById('btn-siggen-sweep');
+    const sweepTimeInput = document.getElementById('siggen-sweep-time');
+    const sweepSection = document.getElementById('siggen-sweep-section');
 
     let audioCtx;
     let oscillator;
@@ -1411,6 +1414,50 @@ function initSignalGenerator() {
         requestAnimationFrame(updateVisuals);
     }
 
+    function startSweep() {
+        if (!isPlaying || !oscillator) {
+            startOutput();
+        }
+        
+        const duration = parseFloat(sweepTimeInput.value) || 5;
+        const startTime = audioCtx.currentTime;
+        const endTime = startTime + duration;
+        
+        // Audio Ramp
+        oscillator.frequency.cancelScheduledValues(startTime);
+        oscillator.frequency.setValueAtTime(20, startTime);
+        oscillator.frequency.exponentialRampToValueAtTime(20000, endTime);
+        
+        btnSweep.classList.add('active');
+        btnSweep.innerHTML = '<span class="material-symbols-outlined">sync</span> SWEEPING...';
+
+        // UI Sync Loop
+        function updateSweepUI() {
+            if (!isPlaying || audioCtx.currentTime >= endTime) {
+                btnSweep.classList.remove('active');
+                btnSweep.innerHTML = '<span class="material-symbols-outlined">settings_backup_restore</span> START_SWEEP';
+                currentFreq = 20000;
+                freqInput.value = currentFreq;
+                freqSlider.value = 1;
+                return;
+            }
+            
+            // Calculate current freq for UI sync (logarithmic interpolation)
+            const elapsed = audioCtx.currentTime - startTime;
+            const progress = elapsed / duration;
+            const minFreq = 20;
+            const maxFreq = 20000;
+            currentFreq = Math.round(minFreq * Math.pow(maxFreq / minFreq, progress));
+            
+            freqInput.value = currentFreq;
+            freqSlider.value = Math.log(currentFreq / minFreq) / Math.log(maxFreq / minFreq);
+            
+            requestAnimationFrame(updateSweepUI);
+        }
+        
+        updateSweepUI();
+    }
+
     // --- Event Listeners ---
 
     btnToggle.addEventListener('click', () => {
@@ -1473,11 +1520,24 @@ function initSignalGenerator() {
             if (wasPlaying) stopOutput();
             
             currentWave = newWave;
+
+            // Hide sweep for noise
+            if (currentWave === 'white' || currentWave === 'pink') {
+                sweepSection.style.opacity = '0.3';
+                sweepSection.style.pointerEvents = 'none';
+            } else {
+                sweepSection.style.opacity = '1';
+                sweepSection.style.pointerEvents = 'all';
+            }
             
             if (wasPlaying) {
                 setTimeout(startOutput, 100);
             }
         });
+    });
+
+    btnSweep.addEventListener('click', () => {
+        startSweep();
     });
 
     freqChips.forEach(chip => {

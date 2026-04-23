@@ -520,6 +520,21 @@
                         </div>
                     </div>
 
+                    <!-- Sweep Control -->
+                    <div class="control-section" id="siggen-sweep-section">
+                        <div class="control-label">FREQUENCY_SWEEP (20Hz - 20kHz)</div>
+                        <div class="sweep-controls-row">
+                            <div class="vfd-input-wrap">
+                                <input type="number" id="siggen-sweep-time" value="5" min="1" max="60" class="vfd-glow vfd-input">
+                                <span class="vfd-glow text-primary">SEC DURATION</span>
+                            </div>
+                            <button id="btn-siggen-sweep" class="rugged-btn">
+                                <span class="material-symbols-outlined">settings_backup_restore</span>
+                                START_SWEEP
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- Gain Control -->
                     <div class="control-section">
                         <div class="control-label">
