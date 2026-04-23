@@ -234,13 +234,72 @@ function setupNavigation() {
         });
     }
 
-    // Auth Placeholder Logic
+    // Auth Modal Logic
     const btnAuthToggle = document.getElementById('btn-auth-toggle');
-    if (btnAuthToggle) {
+    const authModalOverlay = document.getElementById('auth-modal-overlay');
+    const btnCloseAuth = document.getElementById('btn-close-auth');
+    const authTabs = document.querySelectorAll('.auth-tab');
+    const authContents = document.querySelectorAll('.auth-content');
+    
+    if (btnAuthToggle && authModalOverlay && btnCloseAuth) {
+        // Open Modal
         btnAuthToggle.addEventListener('click', () => {
-            console.log('Authentication triggered. Google Auth integration pending.');
-            alert('Authentication API integration pending. This will launch the Google/Social Auth flow.');
+            authModalOverlay.classList.remove('hidden');
         });
+
+        // Close Modal
+        btnCloseAuth.addEventListener('click', () => {
+            authModalOverlay.classList.add('hidden');
+        });
+
+        // Close on overlay click
+        authModalOverlay.addEventListener('click', (e) => {
+            if (e.target === authModalOverlay) {
+                authModalOverlay.classList.add('hidden');
+            }
+        });
+
+        // Tab Switching
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetId = `tab-${tab.getAttribute('data-tab')}`;
+                
+                // Remove active class from all tabs & contents
+                authTabs.forEach(t => t.classList.remove('active'));
+                authContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab & matching content
+                tab.classList.add('active');
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Mock Form Submissions
+        const authForms = document.querySelectorAll('.auth-form');
+        authForms.forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const btn = form.querySelector('.auth-submit-btn');
+                const originalText = btn.textContent;
+                btn.textContent = 'Processing...';
+                btn.disabled = true;
+                
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                    authModalOverlay.classList.add('hidden');
+                    alert('Backend integration pending. Sign-In UI triggered successfully.');
+                }, 1000);
+            });
+        });
+        
+        // Mock Google Auth
+        const btnGoogle = document.getElementById('btn-google-auth');
+        if (btnGoogle) {
+            btnGoogle.addEventListener('click', () => {
+                alert('Google OAuth flow pending backend integration.');
+            });
+        }
     }
 
     // Gallery Zoom Logic
