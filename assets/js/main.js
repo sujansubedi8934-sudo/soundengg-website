@@ -1887,6 +1887,7 @@ function initTuner() {
     let isTuning = false;
     let rafID = null;
     let A4 = 440;
+    let smoothedPitch = -1;
     
     let currentMode = 'needle'; // needle, strobe, bar
     let strobePhase = 0;
@@ -1970,6 +1971,7 @@ function initTuner() {
         let pitch = autoCorrelate(buf, audioCtx.sampleRate);
 
         if (pitch == -1) {
+            smoothedPitch = -1;
             drawVisualizer(null);
             noteDisplay.textContent = "--";
             centsDisplay.textContent = "0¢";
@@ -1977,13 +1979,20 @@ function initTuner() {
             statusText.textContent = "WAITING FOR SIGNAL";
             centsDisplay.className = "tuner-cents";
         } else {
-            let note = noteFromPitch(pitch);
+            // Apply exponential smoothing unless there is a huge jump (new note)
+            if (smoothedPitch === -1 || Math.abs(smoothedPitch - pitch) > 30) {
+                smoothedPitch = pitch;
+            } else {
+                smoothedPitch = smoothedPitch * 0.85 + pitch * 0.15; // 85% old, 15% new
+            }
+
+            let note = noteFromPitch(smoothedPitch);
             let noteName = noteStrings[note % 12];
             let octave = Math.floor(note / 12) - 1;
-            let cents = centsOffFromPitch(pitch, note);
+            let cents = centsOffFromPitch(smoothedPitch, note);
             
             noteDisplay.textContent = `${noteName}${octave}`;
-            freqDisplay.textContent = pitch.toFixed(1);
+            freqDisplay.textContent = smoothedPitch.toFixed(1);
             
             let centsText = (cents > 0 ? "+" : "") + cents + "¢";
             centsDisplay.textContent = centsText;
