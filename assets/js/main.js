@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     safeInit(initSignalGenerator, 'initSignalGenerator');
     safeInit(initEarTraining, 'initEarTraining');
     safeInit(initTuner, 'initTuner');
+    safeInit(initSubCalc, 'initSubCalc');
 });
 
 function setupThemeToggle() {
@@ -104,14 +105,16 @@ function setupNavigation() {
     const siggenView = document.getElementById('siggen-view');
     const earTrainingView = document.getElementById('ear-training-view');
     const tunerView = document.getElementById('tuner-view');
+    const subcalcView = document.getElementById('sub-calc-view');
     
     // IDs for ALL primary views to manage visibility
-    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView];
+    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView, subcalcView];
 
     const btnLaunchRta = document.getElementById('btn-launch-rta');
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
     const btnLaunchPinout = document.getElementById('btn-launch-pinout');
     const btnLaunchTuner = document.getElementById('btn-launch-tuner');
+    const btnLaunchSubcalc = document.getElementById('btn-launch-subcalc');
     
     const btnNavDashboard = document.getElementById('btn-nav-dashboard');
     const btnNavAuthor = document.getElementById('btn-nav-author');
@@ -189,6 +192,7 @@ function setupNavigation() {
     if (btnLaunchDelay) btnLaunchDelay.addEventListener('click', () => showView(moduleView));
     if (btnLaunchPinout) btnLaunchPinout.addEventListener('click', () => showView(pinoutView));
     if (btnLaunchTuner) btnLaunchTuner.addEventListener('click', () => showView(tunerView));
+    if (btnLaunchSubcalc) btnLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
 
     const btnLaunchSiggen = document.getElementById('btn-launch-siggen');
     if (btnLaunchSiggen) btnLaunchSiggen.addEventListener('click', () => showView(siggenView));
@@ -2178,4 +2182,108 @@ function initTuner() {
             if (!isTuning) drawVisualizer(null);
         });
     });
+}
+
+// --- SUB CALCULATOR LOGIC ---
+function initSubCalc() {
+    const freqInput = document.getElementById('subcalc-freq');
+    const tempInput = document.getElementById('subcalc-temp');
+    const presetBtns = document.querySelectorAll('.subcalc-preset-btn');
+    const unitBtn = document.getElementById('btn-subcalc-unit');
+    
+    if (!freqInput || !tempInput) return;
+
+    let isMetric = true; // true = Metric (m, °C, m/s), false = Imperial (ft, °F, ft/s)
+
+    function updateCalculations() {
+        let f = parseFloat(freqInput.value);
+        let t = parseFloat(tempInput.value);
+        if (isNaN(f) || f <= 0) f = 100;
+        if (isNaN(t)) t = isMetric ? 20 : 68;
+
+        // Speed of Sound
+        let c_ms = 0;
+        if (isMetric) {
+            c_ms = 331.3 + (0.606 * t); // m/s
+        } else {
+            // Convert °F to °C for the formula
+            let t_c = (t - 32) * 5/9;
+            c_ms = 331.3 + (0.606 * t_c); // still m/s internally
+        }
+        
+        let displaySpeed = isMetric ? c_ms : (c_ms * 3.28084);
+        
+        document.getElementById('subcalc-speed-val').textContent = displaySpeed.toFixed(1);
+        document.getElementById('subcalc-freq-label').textContent = f + " HZ";
+
+        // Wavelengths
+        let lambda_m = c_ms / f;
+        let unit_mult = isMetric ? 1 : 3.28084;
+
+        let w1_8 = (lambda_m / 8) * unit_mult;
+        let w1_4 = (lambda_m / 4) * unit_mult;
+        let w1_2 = (lambda_m / 2) * unit_mult;
+        let w1   = lambda_m * unit_mult;
+
+        document.getElementById('wave-1-8').textContent = w1_8.toFixed(3);
+        document.getElementById('wave-1-4').textContent = w1_4.toFixed(3);
+        document.getElementById('wave-1-2').textContent = w1_2.toFixed(3);
+        document.getElementById('wave-1').textContent = w1.toFixed(3);
+
+        // Cardioid & End-Fire (1/4 lambda spacing)
+        let delay_ms = ((lambda_m / 4) / c_ms) * 1000;
+        document.getElementById('cardioid-space').textContent = w1_4.toFixed(3);
+        document.getElementById('cardioid-delay').textContent = delay_ms.toFixed(1);
+        
+        document.getElementById('endfire-space').textContent = w1_4.toFixed(3);
+        document.getElementById('endfire-delay').textContent = delay_ms.toFixed(1);
+
+        // Broadside
+        let bt = (lambda_m * (2/3)) * unit_mult;
+        document.getElementById('broadside-half').textContent = w1_2.toFixed(3);
+        document.getElementById('broadside-two-third').textContent = bt.toFixed(3);
+    }
+
+    freqInput.addEventListener('input', () => {
+        presetBtns.forEach(b => b.classList.remove('active'));
+        updateCalculations();
+    });
+
+    tempInput.addEventListener('input', updateCalculations);
+
+    presetBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            presetBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            freqInput.value = btn.getAttribute('data-freq');
+            updateCalculations();
+        });
+    });
+
+    unitBtn.addEventListener('click', () => {
+        isMetric = !isMetric;
+        
+        // Update labels
+        document.getElementById('subcalc-temp-unit').textContent = isMetric ? "°C" : "°F";
+        document.getElementById('subcalc-speed-unit').textContent = isMetric ? "m/s" : "ft/s";
+        document.querySelectorAll('.wave-unit, .su-unit').forEach(el => el.textContent = isMetric ? "m" : "ft");
+        
+        unitBtn.innerHTML = isMetric 
+            ? '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)'
+            : '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
+
+        // Convert current temperature input gracefully
+        let currentT = parseFloat(tempInput.value);
+        if (!isNaN(currentT)) {
+            if (isMetric) { // Was Imperial, now Metric
+                tempInput.value = Math.round((currentT - 32) * 5/9);
+            } else { // Was Metric, now Imperial
+                tempInput.value = Math.round((currentT * 9/5) + 32);
+            }
+        }
+        
+        updateCalculations();
+    });
+
+    updateCalculations();
 }

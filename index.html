@@ -117,6 +117,18 @@
                 </div>
             </button>
 
+            <!-- MODULE LAUNCHER: Sub Calculator -->
+            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-subcalc" data-category="tools">
+                <div class="launcher-header">
+                    <span class="material-symbols-outlined icon">speaker</span>
+                    <span class="launcher-status">READY</span>
+                </div>
+                <div class="launcher-body">
+                    <h3 class="widget-title">Sub Array Calculator</h3>
+                    <p class="widget-subtitle">Wavelength & Array Configurations</p>
+                </div>
+            </button>
+
             <!-- MODULE LAUNCHER: Time & Delay -->
             <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-delay" data-category="tools">
                 <div class="launcher-header">
@@ -791,6 +803,145 @@
             <div class="canvas-wrapper" style="position: relative; width: 100%; height: 250px; background: var(--surface-highest); border: 1px solid var(--outline); margin-top: 1rem; border-radius: 8px;">
                 <canvas id="tuner-canvas" style="width: 100%; height: 100%;"></canvas>
             </div>
+        </div>
+    </div>
+
+    <!-- Subwoofer Array Calculator View (Hidden) -->
+    <div id="sub-calc-view" class="view-container" style="display:none">
+        <header class="module-header">
+            <button class="back-link btn-back-home" onclick="if(window.showView) window.showView(document.getElementById('dashboard-view'))">
+                <span class="material-symbols-outlined">arrow_back</span>
+                BACK_TO_DASHBOARD
+            </button>
+            <div class="module-title-wrap">
+                <h1 class="dashboard-title">SUB CONFIGURATION CALCULATOR</h1>
+                <p class="dashboard-subtitle">Wavelength Analysis & Array Alignment</p>
+            </div>
+            <div class="header-controls">
+                <button id="btn-subcalc-unit" class="rugged-btn pulse-glow" data-unit="metric">
+                    <span class="material-symbols-outlined">straighten</span>
+                    USE IMPERIAL (FT/°F)
+                </button>
+            </div>
+        </header>
+
+        <div class="training-layout">
+            <!-- Top Inputs -->
+            <div class="subcalc-panel rugged-bevel">
+                <div class="subcalc-top-grid">
+                    <div class="subcalc-input-group">
+                        <span class="train-label">FREQUENCY (HZ)</span>
+                        <div style="display: flex; align-items: baseline; gap: 1rem;">
+                            <input type="number" id="subcalc-freq" class="rugged-input" value="100" min="20" max="20000" style="font-size: 3rem; width: 140px; font-weight: bold; padding: 0.5rem; text-align: left; background: transparent; border: none; color: var(--text-main); font-family: var(--font-mono);">
+                        </div>
+                        <div class="subcalc-presets">
+                            <button class="train-source-btn subcalc-preset-btn" data-freq="40">40Hz</button>
+                            <button class="train-source-btn subcalc-preset-btn" data-freq="63">63Hz</button>
+                            <button class="train-source-btn subcalc-preset-btn" data-freq="80">80Hz</button>
+                            <button class="train-source-btn subcalc-preset-btn active" data-freq="100">100Hz</button>
+                            <button class="train-source-btn subcalc-preset-btn" data-freq="125">125Hz</button>
+                            <button class="train-source-btn subcalc-preset-btn" data-freq="250">250Hz</button>
+                        </div>
+                    </div>
+
+                    <div class="subcalc-input-group">
+                        <span class="train-label">TEMPERATURE</span>
+                        <div style="display: flex; align-items: baseline; gap: 0.5rem;">
+                            <input type="number" id="subcalc-temp" class="rugged-input" value="20" style="font-size: 3rem; width: 100px; font-weight: bold; padding: 0.5rem; text-align: left; background: transparent; border: none; color: var(--text-main); font-family: var(--font-mono);">
+                            <span id="subcalc-temp-unit" style="font-size: 1.5rem; color: var(--text-muted); font-family: var(--font-mono);">°C</span>
+                        </div>
+                        <span class="train-label" style="margin-top: 1rem;">SPEED OF SOUND</span>
+                        <div style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--primary);">
+                            <span id="subcalc-speed-val">343.4</span> <span id="subcalc-speed-unit" style="font-size: 1rem; color: var(--text-muted);">m/s</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Wavelength Blocks -->
+            <div class="subcalc-panel rugged-bevel" style="border-color: var(--primary);">
+                <span class="train-label" style="display: block; margin-bottom: 1rem;">WAVELENGTH AT <span id="subcalc-freq-label" style="color: var(--text-main);">100 HZ</span></span>
+                <div class="subcalc-wave-grid">
+                    <div class="wave-block">
+                        <span class="wave-frac">⅛ λ</span>
+                        <span class="wave-val" id="wave-1-8">0.429</span>
+                        <span class="wave-unit">m</span>
+                    </div>
+                    <div class="wave-block">
+                        <span class="wave-frac">¼ λ</span>
+                        <span class="wave-val" id="wave-1-4">0.859</span>
+                        <span class="wave-unit">m</span>
+                    </div>
+                    <div class="wave-block">
+                        <span class="wave-frac">½ λ</span>
+                        <span class="wave-val" id="wave-1-2">1.717</span>
+                        <span class="wave-unit">m</span>
+                    </div>
+                    <div class="wave-block highlight">
+                        <span class="wave-frac">λ</span>
+                        <span class="wave-val highlight-val" id="wave-1">3.434</span>
+                        <span class="wave-unit highlight-unit">m</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Array Configurations -->
+            <div class="subcalc-panel rugged-bevel">
+                <span class="train-label" style="display: block; margin-bottom: 1rem;">ARRAY CONFIGURATIONS</span>
+                
+                <div class="config-card">
+                    <div class="config-info">
+                        <h3 class="config-title">Cardioid (Gradient)</h3>
+                        <p class="config-desc">Rear sub inverted + delayed by ¼λ travel time</p>
+                        <div class="config-stats">
+                            <div class="config-stat">
+                                <span class="stat-lbl">Spacing</span>
+                                <span class="stat-v"><span id="cardioid-space">0.859</span> <span class="su-unit">m</span></span>
+                            </div>
+                            <div class="config-stat">
+                                <span class="stat-lbl">Delay</span>
+                                <span class="stat-v"><span id="cardioid-delay">2.5</span> ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-info">
+                        <h3 class="config-title">End-Fire Array</h3>
+                        <p class="config-desc">Subs in-line, progressively delayed by ¼λ</p>
+                        <div class="config-stats">
+                            <div class="config-stat">
+                                <span class="stat-lbl">Spacing</span>
+                                <span class="stat-v"><span id="endfire-space">0.859</span> <span class="su-unit">m</span></span>
+                            </div>
+                            <div class="config-stat">
+                                <span class="stat-lbl">Delay</span>
+                                <span class="stat-v"><span id="endfire-delay">2.5</span> ms</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="config-card">
+                    <div class="config-info">
+                        <h3 class="config-title">Broadside Array (Max Spacing)</h3>
+                        <p class="config-desc">Subs side-by-side. Max spacing ½λ to ⅔λ to avoid lobing.</p>
+                        <div class="config-stats">
+                            <div class="config-stat">
+                                <span class="stat-lbl">½λ Spacing</span>
+                                <span class="stat-v"><span id="broadside-half">1.717</span> <span class="su-unit">m</span></span>
+                            </div>
+                            <div class="config-stat">
+                                <span class="stat-lbl">⅔λ Spacing</span>
+                                <span class="stat-v"><span id="broadside-two-third">2.289</span> <span class="su-unit">m</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
         </div>
     </div>
 

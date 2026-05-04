@@ -2881,6 +2881,133 @@ html.light .auth-modal {
     transition: all 0.2s ease;
 }
 
+/* --- Sub Calculator View Styles --- */
+.subcalc-panel {
+    background: var(--surface-higher);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.subcalc-top-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.subcalc-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.subcalc-wave-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+}
+
+.wave-block {
+    background: var(--surface-highest);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.wave-block.highlight {
+    border-color: #10b981;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+.wave-frac {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
+
+.wave-val {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: var(--text-main);
+}
+
+.wave-unit {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--text-muted);
+}
+
+.highlight-val, .highlight-unit {
+    color: #10b981;
+}
+
+.config-card {
+    background: var(--surface-highest);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.config-title {
+    font-family: var(--font-sans);
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: var(--text-heading);
+}
+
+.config-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+}
+
+.config-stats {
+    display: flex;
+    gap: 2rem;
+}
+
+.config-stat {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-lbl {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.25rem;
+}
+
+.stat-v {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #10b981;
+}
+
+@media (max-width: 768px) {
+    .subcalc-top-grid, .subcalc-wave-grid {
+        grid-template-columns: 1fr;
+    }
+    .wave-block {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 1rem;
+    }
+    .wave-frac {
+        margin-bottom: 0;
+    }
+}
+
 /* --- Tuner View Styles --- */
 .tuner-main-display {
     display: flex;
