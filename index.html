@@ -105,6 +105,18 @@
                 </div>
             </button>
 
+            <!-- MODULE LAUNCHER: Tuner -->
+            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tuner" data-category="tools">
+                <div class="launcher-header">
+                    <span class="material-symbols-outlined icon">tune</span>
+                    <span class="launcher-status">READY</span>
+                </div>
+                <div class="launcher-body">
+                    <h3 class="widget-title">Precision Tuner</h3>
+                    <p class="widget-subtitle">Chromatic Pitch Detection</p>
+                </div>
+            </button>
+
             <!-- MODULE LAUNCHER: Time & Delay -->
             <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-delay" data-category="tools">
                 <div class="launcher-header">
@@ -725,6 +737,59 @@
             <div class="train-shortcuts">
                 <span class="shortcut"><kbd>Space</kbd> Play/Pause</span>
                 <span class="shortcut"><kbd>A</kbd> <kbd>B</kbd> Channel</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tuner View (Hidden) -->
+    <div id="tuner-view" class="view-container" style="display:none">
+        <header class="module-header">
+            <button class="back-link btn-back-home" onclick="if(window.showView) window.showView(document.getElementById('dashboard-view'))">
+                <span class="material-symbols-outlined">arrow_back</span>
+                BACK_TO_DASHBOARD
+            </button>
+            <div class="module-title-wrap">
+                <h1 class="dashboard-title">PRECISION TUNER</h1>
+                <p class="dashboard-subtitle">Chromatic Instrument Tuning & Pitch Analysis</p>
+            </div>
+            <div class="header-controls">
+                <button id="btn-start-tuner" class="rugged-btn pulse-glow">
+                    <span class="material-symbols-outlined">mic</span>
+                    ACTIVATE_MIC
+                </button>
+            </div>
+        </header>
+
+        <div class="training-layout">
+            <!-- Top Controls -->
+            <div class="train-top-bar" style="flex-wrap: wrap; gap: 1.5rem;">
+                <div class="train-control-group">
+                    <span class="train-label">A4 REFERENCE (Hz)</span>
+                    <input type="number" id="tuner-a4-ref" class="rugged-input" value="440" min="400" max="480" step="1" style="width: 100px; text-align: center; font-size: 1.1rem;">
+                </div>
+                <div class="train-control-group">
+                    <span class="train-label">VISUAL MODE</span>
+                    <button class="train-source-btn active tuner-mode-btn" data-mode="needle">Classic</button>
+                    <button class="train-source-btn tuner-mode-btn" data-mode="strobe">Strobe</button>
+                    <button class="train-source-btn tuner-mode-btn" data-mode="bar">Digital Bar</button>
+                </div>
+            </div>
+
+            <!-- Big Tuner Display -->
+            <div class="tuner-main-display">
+                <div class="tuner-note-area">
+                    <span id="tuner-note-display" class="tuner-note">--</span>
+                    <span id="tuner-cents-display" class="tuner-cents">0¢</span>
+                </div>
+                <div class="tuner-freq-display">
+                    <span id="tuner-freq-val">---.-</span> Hz
+                </div>
+                <div class="tuner-status-text" id="tuner-status-text">WAITING FOR SIGNAL</div>
+            </div>
+
+            <!-- Visualizer Canvas -->
+            <div class="canvas-wrapper" style="position: relative; width: 100%; height: 250px; background: var(--surface-highest); border: 1px solid var(--outline); margin-top: 1rem; border-radius: 8px;">
+                <canvas id="tuner-canvas" style="width: 100%; height: 100%;"></canvas>
             </div>
         </div>
     </div>

@@ -2881,6 +2881,68 @@ html.light .auth-modal {
     transition: all 0.2s ease;
 }
 
+/* --- Tuner View Styles --- */
+.tuner-main-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--surface-highest);
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    padding: 2rem;
+    margin-top: 1.5rem;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.2);
+}
+
+.tuner-note-area {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.tuner-note {
+    font-family: var(--font-headline);
+    font-size: 6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--primary);
+    text-shadow: 0 0 20px rgba(20, 167, 181, 0.4);
+}
+
+.tuner-cents {
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--text-muted);
+}
+
+.tuner-cents.in-tune {
+    color: #10b981; /* Green */
+}
+
+.tuner-freq-display {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    color: var(--text-heading);
+    letter-spacing: 1px;
+}
+
+#tuner-freq-val {
+    font-weight: bold;
+}
+
+.tuner-status-text {
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 1rem;
+    color: var(--text-muted);
+}
+
+/* Modal Close Btn Hover */
 .modal-close-btn:hover {
     background: var(--surface-light);
     color: var(--text-heading);
