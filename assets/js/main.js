@@ -2188,12 +2188,15 @@ function initTuner() {
 function initSubCalc() {
     const freqInput = document.getElementById('subcalc-freq');
     const tempInput = document.getElementById('subcalc-temp');
+    const cDepthInput = document.getElementById('c-depth-input');
     const presetBtns = document.querySelectorAll('.subcalc-preset-btn');
     const unitBtn = document.getElementById('btn-subcalc-unit');
+    const cTabs = document.querySelectorAll('.c-tab');
     
     if (!freqInput || !tempInput) return;
 
-    let isMetric = true; // true = Metric (m, °C, m/s), false = Imperial (ft, °F, ft/s)
+    let isMetric = true;
+    let currentCardioid = 'gradient'; // gradient, csa, lac
 
     function updateCalculations() {
         let f = parseFloat(freqInput.value);
@@ -2230,11 +2233,25 @@ function initSubCalc() {
         document.getElementById('wave-1-2').textContent = w1_2.toFixed(3);
         document.getElementById('wave-1').textContent = w1.toFixed(3);
 
-        // Cardioid & End-Fire (1/4 lambda spacing)
-        let delay_ms = ((lambda_m / 4) / c_ms) * 1000;
-        document.getElementById('cardioid-space').textContent = w1_4.toFixed(3);
-        document.getElementById('cardioid-delay').textContent = delay_ms.toFixed(1);
+        // Cardioid Logic based on currentCardioid tab
+        let cardioidDelayMs = 0;
+        let cardioidSpaceM = 0;
+
+        if (currentCardioid === 'gradient') {
+            cardioidSpaceM = lambda_m / 4;
+            cardioidDelayMs = (cardioidSpaceM / c_ms) * 1000;
+            document.getElementById('cardioid-space').textContent = (cardioidSpaceM * unit_mult).toFixed(3);
+        } else {
+            // CSA or LAC use physical cabinet depth
+            let depthRaw = parseFloat(cDepthInput.value) || (isMetric ? 0.8 : 2.6);
+            let depthM = isMetric ? depthRaw : (depthRaw / 3.28084);
+            cardioidDelayMs = (depthM / c_ms) * 1000;
+        }
         
+        document.getElementById('cardioid-delay').textContent = cardioidDelayMs.toFixed(1);
+
+        // End-Fire (1/4 lambda spacing)
+        let delay_ms = ((lambda_m / 4) / c_ms) * 1000;
         document.getElementById('endfire-space').textContent = w1_4.toFixed(3);
         document.getElementById('endfire-delay').textContent = delay_ms.toFixed(1);
 
@@ -2244,19 +2261,19 @@ function initSubCalc() {
         document.getElementById('broadside-two-third').textContent = bt.toFixed(3);
 
         // --- SVG ANIMATIONS ---
-        // Map wavelength (0.5m to 8m) to pixels (15px to 80px)
         let spacingPx = Math.max(15, Math.min(80, (lambda_m / 4) * 20)); 
 
-        // Cardioid Animation (Front sub moves right)
-        let cSub1 = document.getElementById('svg-c-sub1');
-        let cSub2 = document.getElementById('svg-c-sub2');
-        let cLine = document.getElementById('svg-c-line');
-        if (cSub1 && cSub2 && cLine) {
-            let cx = 100 - (spacingPx / 2);
-            cSub1.setAttribute('transform', `translate(${cx}, 40)`);
-            cSub2.setAttribute('transform', `translate(${cx + spacingPx}, 40)`);
-            cLine.setAttribute('x1', cx);
-            cLine.setAttribute('x2', cx + spacingPx);
+        if (currentCardioid === 'gradient') {
+            let cSub1 = document.getElementById('svg-c-sub1');
+            let cSub2 = document.getElementById('svg-c-sub2');
+            let cLine = document.getElementById('svg-c-line');
+            if (cSub1 && cSub2 && cLine) {
+                let cx = 100 - (spacingPx / 2);
+                cSub1.setAttribute('transform', `translate(${cx}, 40)`);
+                cSub2.setAttribute('transform', `translate(${cx + spacingPx}, 40)`);
+                cLine.setAttribute('x1', cx);
+                cLine.setAttribute('x2', cx + spacingPx);
+            }
         }
 
         // End-Fire Animation (Subs spread out)
@@ -2295,6 +2312,50 @@ function initSubCalc() {
     });
 
     tempInput.addEventListener('input', updateCalculations);
+    if(cDepthInput) cDepthInput.addEventListener('input', updateCalculations);
+
+    cTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            cTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentCardioid = tab.getAttribute('data-ctype');
+
+            const title = document.getElementById('c-title-text');
+            const desc = document.getElementById('c-desc-text');
+            const depthGroup = document.getElementById('c-depth-input-group');
+            const spacingStat = document.getElementById('c-spacing-stat');
+            
+            const svgG = document.getElementById('svg-c-gradient');
+            const svgC = document.getElementById('svg-c-csa');
+            const svgL = document.getElementById('svg-c-lac');
+
+            svgG.style.display = 'none';
+            svgC.style.display = 'none';
+            svgL.style.display = 'none';
+
+            if (currentCardioid === 'gradient') {
+                title.textContent = "Cardioid (Gradient)";
+                desc.textContent = "Horizontal deployment. Rear sub inverted + delayed by ¼λ travel time.";
+                depthGroup.style.display = "none";
+                spacingStat.style.display = "flex";
+                svgG.style.display = "block";
+            } else if (currentCardioid === 'csa') {
+                title.textContent = "d&b CSA (3-Box)";
+                desc.textContent = "Same plane deployment. Middle sub inverted + delayed by cabinet depth.";
+                depthGroup.style.display = "block";
+                spacingStat.style.display = "none";
+                svgC.style.display = "block";
+            } else if (currentCardioid === 'lac') {
+                title.textContent = "L-Acoustics Block (4-Box)";
+                desc.textContent = "Same plane deployment. Bottom-rear inverted + delayed by cabinet depth.";
+                depthGroup.style.display = "block";
+                spacingStat.style.display = "none";
+                svgL.style.display = "block";
+            }
+
+            updateCalculations();
+        });
+    });
 
     presetBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2320,10 +2381,20 @@ function initSubCalc() {
         // Convert current temperature input gracefully
         let currentT = parseFloat(tempInput.value);
         if (!isNaN(currentT)) {
-            if (isMetric) { // Was Imperial, now Metric
+            if (isMetric) {
                 tempInput.value = Math.round((currentT - 32) * 5/9);
-            } else { // Was Metric, now Imperial
+            } else {
                 tempInput.value = Math.round((currentT * 9/5) + 32);
+            }
+        }
+
+        // Convert cabinet depth gracefully
+        let currentD = parseFloat(cDepthInput.value);
+        if (!isNaN(currentD)) {
+            if (isMetric) {
+                cDepthInput.value = (currentD / 3.28084).toFixed(1);
+            } else {
+                cDepthInput.value = (currentD * 3.28084).toFixed(1);
             }
         }
         

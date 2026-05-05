@@ -2975,6 +2975,33 @@ html.light .auth-modal {
     justify-content: center;
 }
 
+.cardioid-tabs {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: var(--surface-bg);
+    border-radius: 6px;
+    width: fit-content;
+}
+
+.c-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.c-tab.active {
+    background: var(--surface-higher);
+    color: var(--primary);
+    font-weight: bold;
+}
+
 .config-title {
     font-family: var(--font-sans);
     font-size: 1.2rem;
