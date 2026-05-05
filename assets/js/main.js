@@ -2294,18 +2294,26 @@ function initSubCalc() {
             eLine3.setAttribute('x1', startX + spacingPx*2); eLine3.setAttribute('x2', startX + spacingPx*3);
         }
 
-        // Broadside Animation (Max spacing 1/2 lambda)
-        let bSpacingPx = Math.max(20, Math.min(60, (lambda_m / 2) * 15));
+        // Broadside Animation (Max spacing 1/2 lambda) - Vertical layout
+        let bSpacingPx = Math.max(20, Math.min(40, (lambda_m / 2) * 10));
         let bLine1 = document.getElementById('svg-b-line1');
         let bLine2 = document.getElementById('svg-b-line2');
         if (bLine1) {
-            let bStartX = 100 - bSpacingPx;
-            for(let i=1; i<=3; i++) {
-                let sub = document.getElementById(`svg-b-sub${i}`);
-                if (sub) sub.setAttribute('transform', `translate(${bStartX + (bSpacingPx * (i-1))}, 50)`);
-            }
-            bLine1.setAttribute('x1', bStartX); bLine1.setAttribute('x2', bStartX + bSpacingPx);
-            bLine2.setAttribute('x1', bStartX + bSpacingPx); bLine2.setAttribute('x2', bStartX + bSpacingPx*2);
+            let bCenterY = 60;
+            let sub1Y = bCenterY - bSpacingPx;
+            let sub2Y = bCenterY;
+            let sub3Y = bCenterY + bSpacingPx;
+            
+            let sub1 = document.getElementById('svg-b-sub1');
+            let sub2 = document.getElementById('svg-b-sub2');
+            let sub3 = document.getElementById('svg-b-sub3');
+
+            if (sub1) sub1.setAttribute('transform', `translate(80, ${sub1Y})`);
+            if (sub2) sub2.setAttribute('transform', `translate(80, ${sub2Y})`);
+            if (sub3) sub3.setAttribute('transform', `translate(80, ${sub3Y})`);
+            
+            bLine1.setAttribute('y1', sub1Y); bLine1.setAttribute('y2', sub2Y);
+            bLine2.setAttribute('y1', sub2Y); bLine2.setAttribute('y2', sub3Y);
         }
     }
 
