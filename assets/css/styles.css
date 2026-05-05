@@ -3244,6 +3244,38 @@ html.light .auth-modal {
         padding: 1.5rem;
         max-width: 95vw;
     }
+
+    /* Grid Layout Overrides for Small Screens (< 350px width like iPhone SE) */
+    .dashboard-grid,
+    .blog-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+    }
+
+    /* Tabs Overflow Fix */
+    .card-tabs {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    .card-tab {
+        flex: 1 1 calc(50% - 0.5rem);
+        text-align: center;
+        padding: 0.5rem;
+        font-size: 0.85rem;
+    }
+
+    /* SVG Visualizer Scaling */
+    .visualizer-box {
+        min-height: auto;
+        padding: 1rem;
+    }
+
+    /* Ad Banners */
+    .ad-modal-content {
+        padding: 1.5rem;
+        width: 95%;
+    }
 }
 
 /* =========================================
