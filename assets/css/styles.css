@@ -3602,16 +3602,19 @@ html.light .auth-modal {
     line-height: 1.1;
     font-weight: 900;
     margin-bottom: 1.5rem;
-    background: linear-gradient(to right, #ffffff, #d1d5db);
+    background: linear-gradient(135deg, var(--primary), #0d9488);
     -webkit-background-clip: text;
     color: transparent;
 }
 
 .hero-subtitle {
     font-size: 1.2rem;
-    color: #e5e7eb;
+    font-weight: 500;
     margin-bottom: 2.5rem;
     line-height: 1.6;
+    background: linear-gradient(135deg, var(--primary), #0d9488);
+    -webkit-background-clip: text;
+    color: transparent;
 }
 
 .hero-actions {
