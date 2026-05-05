@@ -2295,7 +2295,9 @@ function initSubCalc() {
         }
 
         // Broadside Animation (Max spacing 1/2 lambda) - Vertical layout
-        let bSpacingPx = Math.max(20, Math.min(40, (lambda_m / 2) * 10));
+        // Wavelengths are typically 2.8m (120Hz) to 11.4m (30Hz).
+        // lambda/2 is 1.4m to 5.7m. Multiplying by 12 gives ~16px to ~68px. Clamp to 24-48px.
+        let bSpacingPx = Math.max(24, Math.min(48, (lambda_m / 2) * 12));
         let bLine1 = document.getElementById('svg-b-line1');
         let bLine2 = document.getElementById('svg-b-line2');
         if (bLine1) {
