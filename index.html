@@ -3,10 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>SoundEngg | Titan Console Pro</title>
-    <link rel="stylesheet" href="assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <title>AudioMate | The Professional Audio Engineer's Toolkit</title>
     
     <!-- PWA Configuration -->
     <link rel="manifest" href="manifest.json">
@@ -14,1229 +11,129 @@
     <link rel="apple-touch-icon" href="assets/img/logo.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 </head>
-<body>
-    <div id="mobile-nav-overlay" class="mobile-overlay"></div>
-    <header class="top-bar">
-        <div class="top-bar-left">
-            <button id="btn-mobile-menu" class="mobile-menu-btn" aria-label="Menu">
-                <span class="material-symbols-outlined">menu</span>
-            </button>
+<body class="landing-page">
+    <!-- Navbar -->
+    <header class="landing-nav">
+        <div class="container nav-container">
             <a href="index.html" class="logo-link">
-                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
-                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
+                <img src="assets/img/logo-dark.png" alt="AudioMate Logo" class="brand-logo dark-logo">
             </a>
-            <nav class="top-nav">
-                <a href="#" id="btn-nav-dashboard" class="active">Dashboard</a>
-                <a href="#">Archive</a>
-                <a href="#" id="btn-nav-author">Author</a>
-                <a href="#" id="btn-nav-blog">Blog</a>
-            </nav>
-        </div>
-        <div class="top-bar-right">
-            <div class="status-indicator">
-                <span class="status-title">Status: Online</span>
-                <span class="status-detail">48kHz / 24-bit</span>
-            </div>
-            <div class="actions">
-                <div class="theme-toggle">
-                    <button id="btn-light" aria-label="Light Mode">
-                        <span class="material-symbols-outlined">light_mode</span>
-                    </button>
-                    <button id="btn-dark" class="active" aria-label="Dark Mode">
-                        <span class="material-symbols-outlined">dark_mode</span>
-                    </button>
-                </div>
-                <div class="system-actions">
-                    <button id="btn-settings" aria-label="Settings"><span class="material-symbols-outlined">settings</span></button>
-                    <button aria-label="Login / Sign Out" id="btn-auth-toggle" class="power-btn" title="Authentication"><span class="material-symbols-outlined">power_settings_new</span></button>
-                </div>
+            <div class="nav-links">
+                <a href="#features">Features</a>
+                <a href="#pro">Pro</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
         </div>
     </header>
 
-    <!-- Sidebar Removed as requested -->
-
-    <!-- Main Content -->
-    <main class="main-content">
-        <!-- Dashboard View -->
-        <div id="dashboard-view" class="view-container">
-        <!-- Breadcrumb / System ID -->
-        <header class="dashboard-header">
-            <div class="dashboard-title-container">
-                <h1 class="dashboard-title" style="text-transform: uppercase;">WELCOME TO SOUNDENGG</h1>
-                <p class="dashboard-subtitle">Precision Engineering Toolkit</p>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <div class="hero-badge">v1.0 Now Live</div>
+                <h1 class="hero-title">The Ultimate Toolkit for System Engineers.</h1>
+                <p class="hero-subtitle">Phase-accurate calculations, pinout references, real-time analysis, and system tuning in one rugged, offline-ready dashboard.</p>
+                <div class="hero-actions">
+                    <a href="app.html" class="btn btn-primary hero-btn">Start Free Console</a>
+                    <a href="#features" class="btn btn-outline hero-btn">Explore Features</a>
+                </div>
             </div>
-        </header>
+            <div class="hero-visual">
+                <!-- Dashboard Mockup Image Placeholder -->
+                <div class="mockup-frame">
+                    <img src="assets/img/logo.png" alt="Dashboard Mockup" class="mockup-img" style="opacity: 0.2; width: 150px; margin-top: 100px;">
+                    <p style="color: var(--text-muted); margin-top: 1rem;">Dashboard Visualization</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <!-- Global Search Bar -->
-        <div class="global-search-container">
-            <div class="search-wrapper global-search">
-                <span class="material-symbols-outlined">search</span>
-                <input type="text" placeholder="Search parameters, modules, settings, authors, or docs..." id="global-search-input">
-                <button id="btn-global-search" class="rugged-btn search-submit">SEARCH</button>
+    <!-- Features Section -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Everything you need for the perfect gig.</h2>
+                <p>Designed by engineers, for engineers. AudioMate consolidates your messy spreadsheets into one lightning-fast interface.</p>
             </div>
             
-            <div class="filter-row">
-                <button class="filter-chip active" data-filter="all">ALL</button>
-                <button class="filter-chip" data-filter="tools">TOOLS</button>
-                <button class="filter-chip" data-filter="ref">REFERENCE</button>
-                <button class="filter-chip" data-filter="system">SYSTEM</button>
-            </div>
-        </div>
-
-        <!-- Tool Grid -->
-        <div class="dashboard-grid">
-            
-            <!-- MODULE LAUNCHER: RTA Analyzer -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-rta" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">analytics</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">RTA Spectrum Analyzer</h3>
-                    <p class="widget-subtitle">ISO Band Analysis & Peak Monitoring</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Ear Training -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="widget-ear-training" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">hearing</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Ear Training</h3>
-                    <p class="widget-subtitle">Spectral identification & accuracy</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Tuner -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tuner" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">tune</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Precision Tuner</h3>
-                    <p class="widget-subtitle">Chromatic Pitch Detection</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Sub Calculator -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-subcalc" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">speaker</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Sub Array Calculator</h3>
-                    <p class="widget-subtitle">Wavelength & Array Configurations</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Time & Delay -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-delay" data-category="tools">
-                <div class="launcher-header">
-                    <img src="assets/img/time-delay-icon.png" alt="Time & Delay Icon" class="launcher-img-icon">
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Time and Delay Calculation</h3>
-                    <p class="widget-subtitle">Acoustic Alignment & Propagation</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Pinout Connection -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-pinout" data-category="ref">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">cable</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Pinout Connection</h3>
-                    <p class="widget-subtitle">Audio / Power / Data Reference</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Signal Generator -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-siggen" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">waves</span>
-                    <span class="launcher-status">OFF</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Signal Generator</h3>
-                    <p class="widget-subtitle">Test Tones & Noise Injection</p>
-                </div>
-            </button>
-
-
-
-            <!-- The dashboard is now clean and uniform, focusing on functional tools -->
-        </div>
-        </div>
-
-        <!-- Module View (Hidden) -->
-        <div id="module-view" class="view-container" style="display: none;">
-            <header class="module-header">
-                <button class="back-link btn-back-home" id="btn-back-home-delay">
-                    <span class="material-symbols-outlined">arrow_back</span>
-                    BACK_TO_HOMEPAGE
-                </button>
-                <div class="module-title-wrap">
-                    <h1 class="dashboard-title">TIME_DELAY_ANALYSIS</h1>
-                    <p class="dashboard-subtitle">Precision Phase Alignment Node // CALIBRATION_ACTIVE</p>
-                </div>
-                <div class="dashboard-system-stats">
-                    <div class="unit-toggle-group">
-                        <button id="unit-metric" class="active">METRIC</button>
-                        <button id="unit-imperial">IMPERIAL</button>
-                    </div>
-                </div>
-            </header>
-
-            <div class="module-content">
-                <!-- Delay Calc Widget -->
-                <div class="widget delay-calc widget-wide">
-                    <header class="widget-header">
-                        <div>
-                            <h3 class="widget-title">Delay Calculator</h3>
-                            <p class="widget-subtitle">Phase Alignment & Acoustic Propagation</p>
-                        </div>
-                        <span class="launcher-status">SYSTEM_CALIBRATED</span>
-                    </header>
-                    <div class="calc-inputs">
-                        <div class="input-group">
-                            <label for="delay-dist" id="label-dist-mod">Distance (m)</label>
-                            <input type="number" id="delay-dist-mod" class="rugged-input" value="1.0" step="0.1" min="0">
-                        </div>
-                        <div class="input-group">
-                            <label for="delay-temp-mod">Temperature</label>
-                            <div class="input-with-select">
-                                <input type="number" id="delay-temp-mod" class="rugged-input" value="22.4" step="0.1">
-                                <select id="delay-temp-unit-mod" class="rugged-select">
-                                    <option value="C">°C</option>
-                                    <option value="F">°F</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="delay-display">
-                        <span class="delay-label">DELAY_OFFSET:</span>
-                        <span class="delay-val vfd-glow" id="delay-output-mod">2.91<span class="delay-unit">ms</span></span>
-                    </div>
-                    <div class="meter-track">
-                        <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; background-color: var(--primary);"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- MODULE VIEW: Pinout Connection -->
-        <div id="pinout-view" class="view-container" style="display: none;">
-            <!-- Breadcrumb Header -->
-            <header class="dashboard-header module-header">
-                <div class="dashboard-title-container">
-                    <button class="btn-back" id="btn-back-pinout"><span class="material-symbols-outlined">arrow_back</span></button>
-                    <div>
-                        <h1 class="dashboard-title">PINOUT_REFERENCE</h1>
-                        <p class="dashboard-subtitle">Hardware Wiring & Interfaces // <span id="pinout-count-badge">0 CONNECTORS</span></p>
-                    </div>
-                </div>
-            </header>
-
-            <div class="module-content">
-                <div class="pinout-controls">
-                    <div class="search-wrapper">
-                        <span class="material-symbols-outlined">search</span>
-                        <input type="text" placeholder="Search connectors..." id="pinout-srch">
-                    </div>
-                    <div class="pinout-cats" id="pinout-cats">
-                        <!-- Category buttons will be injected by main.js -->
-                    </div>
-                </div>
-                <div id="pinout-list">
-                    <!-- Pinout accords injected by main.js -->
-                </div>
-            </div>
-        </div>
-
-        <!-- MODULE VIEW: Author -->
-        <div id="author-view" class="view-container" style="display: none;">
-            <header class="dashboard-header module-header">
-                <div class="dashboard-title-container">
-                    <button class="btn-back" id="btn-back-author"><span class="material-symbols-outlined">arrow_back</span></button>
-                    <div>
-                        <h1 class="dashboard-title">AUTHOR_IDENTITY</h1>
-                        <p class="dashboard-subtitle">Sujan Subedi // Live Sound & System Engineer</p>
-                    </div>
-                </div>
-            </header>
-
-            <div class="module-content">
-                <div class="author-layout">
-                    <!-- Hero Section -->
-                    <div class="author-hero widget rugged-bevel brushed-metal">
-                        <div class="author-avatar-wrap" style="overflow: hidden;">
-                            <img src="assets/img/author-profile.jpg" alt="Sujan Subedi" style="width: 100%; height: 100%; object-fit: cover;">
-                        </div>
-                        <div class="author-hero-info">
-                            <h2>SUJAN SUBEDI</h2>
-                            <p class="author-tagline">Distinguished Live Sound Mixing & System Engineer</p>
-                            <p class="author-desc">Sujan Subedi is a distinguished Live Sound Mixing and System engineer in Nepal and India. He started the journey in Live Sound from 2019 as a tech and kept upgrading himself in this field. Later in 2021 he joined the Sound Engineering Diploma classes in KMMC college in Chennai, India, a college established by an Oscar winner A.R. Rahman.</p>
-                            <p class="author-desc">After his completion of diploma he started working in a Sound rental company in Mumbai, Goa, Banglore and recently in Udaipur. Started with the EV systems, later he kept working with d&b audiotechnik, RCF, JBL, and audiofocus systems.</p>
-                            <div class="author-contact-row">
-                                <a href="https://www.instagram.com/soundengg" target="_blank" class="contact-btn">
-                                    <span class="material-symbols-outlined">photo_camera</span> INSTAGRAM
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="author-grid">
-                        <!-- Services Section -->
-                        <div class="widget">
-                            <header class="widget-header">
-                                <div>
-                                    <h3 class="widget-title">Core Services</h3>
-                                </div>
-                                <span class="material-symbols-outlined icon">room_preferences</span>
-                            </header>
-                            <ul class="author-list">
-                                <li><span class="material-symbols-outlined">check_circle</span> <strong>System Design:</strong> Tailored audio configurations scaling from clubs to stadiums (d&b, RCF, JBL).</li>
-                                <li><span class="material-symbols-outlined">check_circle</span> <strong>Live Band Mixing:</strong> FOH & Monitor engineering for high-profile touring acts.</li>
-                                <li><span class="material-symbols-outlined">check_circle</span> <strong>RF Coordination:</strong> Wireless microphone and IEM spectrum management in dense RF environments.</li>
-                                <li><span class="material-symbols-outlined">check_circle</span> <strong>Corporate AV:</strong> Specialized setups for summits (G20) and product launches (Mahindra, Audi, Dell).</li>
-                            </ul>
-                        </div>
-
-                        <!-- Portfolio Section -->
-                        <div class="widget">
-                            <header class="widget-header">
-                                <div>
-                                    <h3 class="widget-title">Portfolio & Experience</h3>
-                                    <p class="widget-subtitle">Featured Engineering Operations</p>
-                                </div>
-                                <span class="material-symbols-outlined icon">star</span>
-                            </header>
-
-                            <div class="portfolio-content">
-                                <div class="portfolio-group">
-                                    <h4><span class="material-symbols-outlined">festival</span> Concerts & Festivals</h4>
-                                    <p>Sunburn Festival, India Bike Week, DGTL Festival.</p>
-                                </div>
-                                
-                                <div class="portfolio-group">
-                                    <h4><span class="material-symbols-outlined">corporate_fare</span> Global & Corporate Events</h4>
-                                    <p>High profile Government Conferences like G20 meet, product launches for OLA, Mahindra, Audi, Lamborghini, and yearly meets of MNCs like Dell Technologies, Sennheiser, Deloitte, Axis Bank, and more.</p>
-                                </div>
-
-                                <div class="portfolio-group">
-                                    <h4><span class="material-symbols-outlined">person_play</span> Featured Artists</h4>
-                                    <div class="artist-badges">
-                                        <span class="artist-badge">Kailash Kher</span>
-                                        <span class="artist-badge">Hargun Kaur</span>
-                                        <span class="artist-badge">Salim Suleiman</span>
-                                        <span class="artist-badge">B Praak</span>
-                                        <span class="artist-badge">Sonu Nigam</span>
-                                        <span class="artist-badge">Harshdeep Kaur</span>
-                                        <span class="artist-badge">Madhur Sharma</span>
-                                        <span class="artist-badge">Twin Strings</span>
-                                        <span class="artist-badge">Usha Uthup</span>
-                                        <span class="artist-badge">Papon</span>
-                                        <span class="artist-badge">Sukhwinder Singh</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="portfolio-gallery">
-                                <!-- SoundEngg Extracted Images -->
-                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/img_5245-vtaz5f4pPDEIAeWi.jpg'); background-size: cover; background-position: center; border: none;">
-                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">Live Mixing Action</span>
-                                </div>
-                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/img20251024173144-E8OJFHcocez0saC5.jpg'); background-size: cover; background-position: center; border: none;">
-                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">Festival Setup</span>
-                                </div>
-                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/screenshot-2026-04-09-at-8.33.59a-pm-z4yqutof5blTxIkY.png'); background-size: cover; background-position: center; border: none;">
-                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">System Design</span>
-                                </div>
-                                <div class="gallery-img-box" style="background-image: url('https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=1024,fit=crop/mnlWakrqzNC8JMPl/img20241108093846-PcxZKpIIwBrLpN37.jpg'); background-size: cover; background-position: center; border: none;">
-                                    <span class="hover-text" style="background: rgba(0,0,0,0.7); padding: 4px 8px; border-radius: 4px;">FOH Console</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-
-
-    <!-- Settings Slideout Panel -->
-    <div id="settings-panel" class="settings-slideout">
-        <div class="settings-header">
-            <h2>SYSTEM SETTINGS</h2>
-            <button id="btn-close-settings" class="btn-back"><span class="material-symbols-outlined">close</span></button>
-        </div>
-        <div class="settings-body">
-            <div class="setting-group">
-                <h3>Audio Inputs</h3>
-                <label class="setting-item">
-                    <span>Microphone Permission</span>
-                    <button class="rugged-btn">Request Access</button>
-                </label>
-            </div>
-            <div class="setting-group">
-                <h3>Hardware Config</h3>
-                <label class="setting-item">
-                    <span>Sample Rate</span>
-                    <select class="rugged-select">
-                        <option>44.1 kHz</option>
-                        <option selected>48.0 kHz</option>
-                        <option>96.0 kHz</option>
-                    </select>
-                </label>
-                <label class="setting-item">
-                    <span>Bit Depth</span>
-                    <select class="rugged-select">
-                        <option>16-bit</option>
-                        <option selected>24-bit</option>
-                        <option>32-bit float</option>
-                    </select>
-                </label>
-            </div>
-            <div class="setting-group">
-                <h3>Application</h3>
-                <label class="setting-item">
-                    <span>Background Processing</span>
-                    <input type="checkbox" checked>
-                </label>
-            </div>
-        </div>
-    </div>
-
-    <!-- SIGNAL GENERATOR VIEW (Hidden) -->
-    <div id="siggen-view" class="view-container" style="display: none;">
-        <header class="module-header">
-            <button class="back-link btn-back-home">
-                <span class="material-symbols-outlined">arrow_back</span>
-                BACK_TO_DASHBOARD
-            </button>
-            <div class="module-title-wrap">
-                <h1 class="dashboard-title">SIGNAL_GENERATOR_CORE</h1>
-                <p class="dashboard-subtitle">Acoustic Calibration & System Line-Check</p>
-            </div>
-        </header>
-
-        <div class="siggen-layout">
-            <div class="siggen-main-panel widget rugged-bevel brushed-metal">
-                <div class="siggen-header">
-                    <div class="status-badge" id="siggen-status">STATUS: STANDBY</div>
-                    <div class="vfd-telemetry">
-                        <div class="telemetry-item">
-                            <span class="label">OUTPUT_LEVEL</span>
-                            <span class="value" id="siggen-meter-text">-∞ dB</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="siggen-controls">
-                    <!-- Frequency Control -->
-                    <div class="control-section">
-                        <div class="control-label">
-                            <span>FREQUENCY_HERTZ</span>
-                            <div class="vfd-input-wrap">
-                                <input type="number" id="siggen-freq-input" value="1000" min="20" max="20000" class="vfd-glow vfd-input">
-                                <span class="vfd-glow text-primary">Hz</span>
-                            </div>
-                        </div>
-                        <input type="range" id="siggen-freq-slider" min="0" max="1" step="0.001" value="0.5" class="rugged-slider log-slider">
-                        <div class="freq-presets">
-                            <button class="freq-chip" data-freq="100">100Hz</button>
-                            <button class="freq-chip" data-freq="440">440Hz</button>
-                            <button class="freq-chip" data-freq="1000">1kHz</button>
-                            <button class="freq-chip" data-freq="10000">10kHz</button>
-                        </div>
-
-                        <!-- Sweep Control Moved Here -->
-                        <div class="siggen-sweep-wrap" id="siggen-sweep-section">
-                            <div class="sweep-controls-row">
-                                <div class="vfd-input-wrap">
-                                    <input type="number" id="siggen-sweep-time" value="5" min="1" max="60" class="vfd-glow vfd-input">
-                                    <span class="vfd-glow text-primary">SEC DURATION</span>
-                                </div>
-                                <button id="btn-siggen-sweep" class="rugged-btn">
-                                    <span class="material-symbols-outlined">sync</span>
-                                    START_SWEEP
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Waveform Control -->
-                    <div class="control-section">
-                        <div class="control-label">WAVEFORM_TYPE</div>
-                        <div class="waveform-grid">
-                            <button class="wave-btn active" data-wave="sine"><span class="material-symbols-outlined">waves</span>SINE</button>
-                            <button class="wave-btn" data-wave="square"><span class="material-symbols-outlined">view_kanban</span>SQUARE</button>
-                            <button class="wave-btn" data-wave="sawtooth"><span class="material-symbols-outlined">trending_up</span>SAW</button>
-                            <button class="wave-btn" data-wave="triangle"><span class="material-symbols-outlined">change_history</span>TRI</button>
-                            <button class="wave-btn" data-wave="white"><span class="material-symbols-outlined">grain</span>WHITE</button>
-                            <button class="wave-btn" data-wave="pink"><span class="material-symbols-outlined">blur_on</span>PINK</button>
-                        </div>
-                    </div>
-
-                    <!-- Gain Control -->
-                    <div class="control-section">
-                        <div class="control-label">
-                            <span>MASTER_GAIN</span>
-                            <span id="siggen-gain-val">-18 dB</span>
-                        </div>
-                        <div class="gain-strip">
-                            <input type="range" id="siggen-gain-slider" min="-60" max="0" step="1" value="-18" class="rugged-slider vertical-slider">
-                            <div class="vu-meter">
-                                <div id="siggen-vu-fill" class="vu-fill"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="siggen-footer">
-                    <button id="btn-siggen-toggle" class="rugged-btn power-btn large">
-                        <span class="material-symbols-outlined">power_settings_new</span>
-                        ENGAGE_OUTPUT
-                    </button>
-                </div>
-            </div>
-
-            <aside class="siggen-sidebar widget rugged-bevel brushed-metal">
-                <h4 class="sidebar-title">OPERATIONAL_NOTES</h4>
-                <ul class="author-list">
-                    <li><span class="material-symbols-outlined text-primary">info</span> Pink Noise is calibrated for constant energy per octave (RTA Calibration).</li>
-                    <li><span class="material-symbols-outlined text-primary">warning</span> Start at -18dB to prevent accidental transducer damage.</li>
-                    <li><span class="material-symbols-outlined text-primary">bolt</span> Soft-start logic is enabled to prevent DC clicks.</li>
-                </ul>
-            </aside>
-        </div>
-    </div>
-
-    <!-- Blog View (Hidden) -->
-    <div id="blog-view" class="view-container" style="display: none;">
-        <header class="module-header">
-            <button class="back-link btn-back-home">
-                <span class="material-symbols-outlined">arrow_back</span>
-                BACK_TO_DASHBOARD
-            </button>
-            <div class="module-title-wrap">
-                <h1 class="dashboard-title">ENGINEERING_BLOG</h1>
-                <p class="dashboard-subtitle">Technical Deep Dives // SoundEngg Knowledge Base</p>
-            </div>
-        </header>
-
-        <div class="blog-layout">
-            <!-- Sidebar: Categories -->
-            <aside class="blog-sidebar rugged-bevel brushed-metal">
-                <h4 class="sidebar-title">CATEGORIES</h4>
-                <ul class="category-list">
-                    <li><button class="cat-btn active" data-cat="all">ALL TOPICS</button></li>
-                    <li><button class="cat-btn" data-cat="consoles">CONSOLES & REVIEWS</button></li>
-                    <li><button class="cat-btn" data-cat="arrays">LINE ARRAYS</button></li>
-                    <li><button class="cat-btn" data-cat="dynamics">EQ & DYNAMICS</button></li>
-                    <li><button class="cat-btn" data-cat="mics">MICROPHONES</button></li>
-                    <li><button class="cat-btn" data-cat="cables">CABLES & SIGNAL</button></li>
-                    <li><button class="cat-btn" data-cat="amps">AMPLIFIERS</button></li>
-                    <li><button class="cat-btn" data-cat="plugins">PLUGINS</button></li>
-                    <li><button class="cat-btn" data-cat="routing">ROUTING & NETWORK</button></li>
-                    <li><button class="cat-btn" data-cat="acoustics">ACOUSTIC THEORY</button></li>
-                    <li><button class="cat-btn" data-cat="live">LIVE TECHNIQUES</button></li>
-                    <li><button class="cat-btn" data-cat="subs">SUBWOOFERS</button></li>
-                    <li><button class="cat-btn" data-cat="tuning">SYSTEM TUNING</button></li>
-                    <li><button class="cat-btn" data-cat="dante">DANTE & IP</button></li>
-                    <li><button class="cat-btn" data-cat="wireless">WIRELESS & RF</button></li>
-                    <li><button class="cat-btn" data-cat="power">POWER & INFRA</button></li>
-                    <li><button class="cat-btn" data-cat="industry">INDUSTRY BIZ</button></li>
-                    <li><button class="cat-btn" data-cat="india">INDIA SPECIFIC</button></li>
-                </ul>
-            </aside>
-
-            <!-- Main Content Area -->
-            <main class="blog-content">
-                <!-- Article Index (Grid) - Populated by main.js -->
-                <div id="blog-index" class="article-grid"></div>
-
-                <!-- Article Reader (Hidden by default) -->
-                <div id="blog-reader" style="display: none;">
-                    <button class="btn-back-to-index rugged-btn">
-                        <span class="material-symbols-outlined">grid_view</span> BACK TO INDEX
-                    </button>
-                    <div id="article-view" class="article-view-body">
-                        <!-- Loaded dynamically via JS -->
-                    </div>
-                </div>
-            </main>
-        </div>
-    </div>
-
-    <!-- RTA / Spectrum Analyzer View (Hidden) -->
-    <div id="rta-view" class="view-container" style="display: none;">
-        <header class="module-header">
-            <button class="back-link btn-back-home">
-                <span class="material-symbols-outlined">arrow_back</span>
-                BACK_TO_DASHBOARD
-            </button>
-            <div class="module-title-wrap">
-                <h1 class="dashboard-title">SPECTRUM_ANALYZER_PRO</h1>
-                <p class="dashboard-subtitle">Real-time Acoustic Analysis // 31-Band ISO RTA</p>
-            </div>
-            <div class="header-controls">
-                <button id="btn-start-analyzer" class="rugged-btn pulse-glow">
-                    <span class="material-symbols-outlined">mic</span>
-                    INITIALIZE_CORE
-                </button>
-            </div>
-        </header>
-
-        <div class="training-layout">
-            <!-- Top Controls -->
-            <div class="train-top-bar" style="flex-wrap: wrap; gap: 1.5rem;">
-                <div class="train-control-group">
-                    <span class="train-label">SOURCE</span>
-                    <select id="rta-input-select" class="rugged-select" style="min-width: 150px;">
-                        <option value="default">Default Input</option>
-                    </select>
-                </div>
-                <div class="train-control-group">
-                    <span class="train-label">MODE</span>
-                    <button class="train-source-btn active mode-btn" data-mode="fft">CURVE</button>
-                    <button class="train-source-btn mode-btn" data-mode="rta">RTA</button>
-                </div>
-                <div class="train-control-group">
-                    <span class="train-label">WEIGHT</span>
-                    <button class="train-source-btn active weight-btn" data-weight="a">A-WT</button>
-                    <button class="train-source-btn weight-btn" data-weight="c">C-WT</button>
-                </div>
-            </div>
-
-            <!-- Visualizer -->
-            <div class="train-ab-container" style="display: block; padding: 0; background: transparent; border: 1px solid var(--outline); overflow: hidden;">
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 500px; background: var(--surface-highest);">
-                    <canvas id="rta-canvas" style="width: 100%; height: 100%;"></canvas>
-                    <div class="freq-labels" id="rta-labels">
-                        <!-- Labels injected via JS -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Bottom Controls -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; align-items: start; padding-top: 1rem;">
-                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                    <span class="train-label">AVERAGING: <span id="avg-val" style="color: var(--primary);">4</span></span>
-                    <input type="range" id="rta-averaging" min="0" max="10" value="4" class="rugged-slider" style="width: 100%;">
+            <div class="feature-grid">
+                <!-- Feature 1 -->
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">equalizer</span></div>
+                    <h3>RTA Analyser</h3>
+                    <p>Professional grade Real-Time Analysis with high-resolution visual feedback for precision system tuning and feedback hunting.</p>
                 </div>
                 
-                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                    <span class="train-label">CALIBRATION: <span id="cal-offset" style="color: var(--primary);">100</span>dB</span>
-                    <input type="range" id="rta-calibration" min="50" max="150" value="100" class="rugged-slider" style="width: 100%;">
+                <!-- Feature 2 -->
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">hearing</span></div>
+                    <h3>Ear Training</h3>
+                    <p>Develop critical listening skills. Practice identifying frequencies, EQ cuts/boosts, and compression artifacts on the go.</p>
                 </div>
-
-                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                    <span class="train-label">PEAK HOLD</span>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button id="btn-peak-toggle" class="train-source-btn active">ON</button>
-                        <button id="btn-peak-reset" class="train-source-btn">RESET</button>
-                    </div>
-                </div>
-
-                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                    <span class="train-label">SNAPSHOT</span>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button id="btn-capture-snapshot" class="train-source-btn" style="display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 16px;">camera</span> CAPTURE</button>
-                        <button id="btn-clear-snapshot" class="train-source-btn" style="display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span> CLEAR</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Telemetry Footer -->
-            <div class="train-stats-footer" style="margin-top: 1rem; justify-content: space-around;">
-                <div class="stat-item">
-                    <span class="stat-label">PEAK LEVEL</span>
-                    <span class="stat-val" id="rta-peak-val" style="font-family: var(--font-mono);">-∞ dB</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">DOMINANT FREQ</span>
-                    <span class="stat-val" id="rta-dom-val" style="color: var(--primary); font-family: var(--font-mono);">--- Hz</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Ear Training View -->
-    <div id="ear-training-view" class="view-container" style="display:none">
-        <header class="module-header">
-            <button class="back-link btn-back-home" onclick="if(window.showView) window.showView(document.getElementById('dashboard-view'))">
-                <span class="material-symbols-outlined">arrow_back</span>
-                BACK_TO_DASHBOARD
-            </button>
-            <div class="module-title-wrap">
-                <h1 class="dashboard-title">EAR_TRAINING_PRO</h1>
-                <p class="dashboard-subtitle">Spectral Identification & Accuracy // TRAINING_ACTIVE</p>
-            </div>
-        </header>
-
-        <div class="training-layout">
-            <!-- Top Controls -->
-            <div class="train-top-bar">
-                <div class="train-control-group">
-                    <span class="train-label">SOURCE:</span>
-                    <button class="train-source-btn active" data-source="pink">Pink Noise</button>
-                    <button class="train-source-btn" data-source="sine">Sine Wave</button>
-                </div>
-                <div class="train-control-group">
-                    <span class="train-label">DIFFICULTY:</span>
-                    <button class="train-boost-btn" data-boost="12">+12 dB</button>
-                    <button class="train-boost-btn active" data-boost="6">+6 dB</button>
-                    <button class="train-boost-btn" data-boost="3">+3 dB</button>
-                </div>
-            </div>
-
-            <!-- Header Instruction -->
-            <div class="train-instruction">
-                <p>Listen to <strong>A (Dry)</strong> and <strong>B (Processed)</strong>. Identify the frequency that was boosted on B.</p>
-            </div>
-
-            <!-- A/B Toggle Area -->
-            <div class="train-ab-container">
-                <!-- Play/Stop Control on the left -->
-                <button id="btn-train-toggle" class="train-ab-btn train-play-btn">
-                    <span class="material-symbols-outlined icon-large" id="train-play-icon">play_arrow</span>
-                </button>
                 
-                <button class="train-ab-btn ab-channel-btn active" data-channel="A">
-                    <span class="ab-title">A</span>
-                    <span class="ab-subtitle">DRY</span>
-                </button>
-                <button class="train-ab-btn ab-channel-btn" data-channel="B">
-                    <span class="ab-title">B</span>
-                    <span class="ab-subtitle">PROCESSED</span>
-                </button>
-            </div>
-
-            <!-- Frequency Selection -->
-            <div class="train-freq-section">
-                <div class="train-freq-header">
-                    <span class="train-label">FREQUENCY</span>
-                    <span class="train-label">5 bands</span>
+                <!-- Feature 3 -->
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">speaker</span></div>
+                    <h3>Subwoofer Arrays</h3>
+                    <p>Mathematically perfect Cardioid and Broadside configurations. Includes presets for d&b CSA, Gradient, and L-Acoustics arrays.</p>
                 </div>
-                <div id="train-options-container" class="train-options-grid-flat">
-                    <!-- Dynamic buttons will appear here -->
-                    <div class="placeholder-text" style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Click Play to begin challenge</div>
-                </div>
-            </div>
-
-            <!-- Statistics Footer -->
-            <div class="train-stats-footer">
-                <div class="stat-block">
-                    <span class="stat-label">SESSION</span>
-                    <span class="stat-val" id="train-stat-round">0</span>
-                </div>
-                <div class="stat-block">
-                    <span class="stat-label">QUESTION</span>
-                    <span class="stat-val" id="train-stat-q">0/10</span>
-                </div>
-                <div class="stat-block">
-                    <span class="stat-label">SESSION SCORE</span>
-                    <span class="stat-val" id="train-stat-score">0%</span>
-                </div>
-            </div>
-
-            <!-- Keyboard Shortcuts -->
-            <div class="train-shortcuts">
-                <span class="shortcut"><kbd>Space</kbd> Play/Pause</span>
-                <span class="shortcut"><kbd>A</kbd> <kbd>B</kbd> Channel</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tuner View (Hidden) -->
-    <div id="tuner-view" class="view-container" style="display:none">
-        <header class="module-header">
-            <button class="back-link btn-back-home" onclick="if(window.showView) window.showView(document.getElementById('dashboard-view'))">
-                <span class="material-symbols-outlined">arrow_back</span>
-                BACK_TO_DASHBOARD
-            </button>
-            <div class="module-title-wrap">
-                <h1 class="dashboard-title">PRECISION TUNER</h1>
-                <p class="dashboard-subtitle">Chromatic Instrument Tuning & Pitch Analysis</p>
-            </div>
-            <div class="header-controls">
-                <button id="btn-start-tuner" class="rugged-btn pulse-glow">
-                    <span class="material-symbols-outlined">mic</span>
-                    ACTIVATE_MIC
-                </button>
-            </div>
-        </header>
-
-        <div class="training-layout">
-            <!-- Top Controls -->
-            <div class="train-top-bar" style="flex-wrap: wrap; gap: 1.5rem;">
-                <div class="train-control-group">
-                    <span class="train-label">A4 REFERENCE (Hz)</span>
-                    <input type="number" id="tuner-a4-ref" class="rugged-input" value="440" min="400" max="480" step="1" style="width: 100px; text-align: center; font-size: 1.1rem;">
-                </div>
-                <div class="train-control-group">
-                    <span class="train-label">VISUAL MODE</span>
-                    <button class="train-source-btn active tuner-mode-btn" data-mode="needle">Classic</button>
-                    <button class="train-source-btn tuner-mode-btn" data-mode="strobe">Strobe</button>
-                    <button class="train-source-btn tuner-mode-btn" data-mode="bar">Digital Bar</button>
-                </div>
-            </div>
-
-            <!-- Big Tuner Display -->
-            <div class="tuner-main-display">
-                <div class="tuner-note-area">
-                    <span id="tuner-note-display" class="tuner-note">--</span>
-                    <span id="tuner-cents-display" class="tuner-cents">0¢</span>
-                </div>
-                <div class="tuner-freq-display">
-                    <span id="tuner-freq-val">---.-</span> Hz
-                </div>
-                <div class="tuner-status-text" id="tuner-status-text">WAITING FOR SIGNAL</div>
-            </div>
-
-            <!-- Visualizer Canvas -->
-            <div class="canvas-wrapper" style="position: relative; width: 100%; height: 250px; background: var(--surface-highest); border: 1px solid var(--outline); margin-top: 1rem; border-radius: 8px;">
-                <canvas id="tuner-canvas" style="width: 100%; height: 100%;"></canvas>
-            </div>
-        </div>
-    </div>
-
-    <!-- Subwoofer Array Calculator View (Hidden) -->
-    <div id="sub-calc-view" class="view-container" style="display:none">
-        <header class="module-header">
-            <button class="back-link btn-back-home" onclick="if(window.showView) window.showView(document.getElementById('dashboard-view'))">
-                <span class="material-symbols-outlined">arrow_back</span>
-                BACK_TO_DASHBOARD
-            </button>
-            <div class="module-title-wrap">
-                <h1 class="dashboard-title">SUB CONFIGURATION CALCULATOR</h1>
-                <p class="dashboard-subtitle">Wavelength Analysis & Array Alignment</p>
-            </div>
-            <div class="header-controls">
-                <button id="btn-subcalc-unit" class="rugged-btn pulse-glow" data-unit="metric">
-                    <span class="material-symbols-outlined">straighten</span>
-                    USE IMPERIAL (FT/°F)
-                </button>
-            </div>
-        </header>
-
-        <div class="training-layout">
-            <!-- Top Inputs -->
-            <div class="subcalc-panel rugged-bevel">
-                <div class="subcalc-top-grid">
-                    <div class="subcalc-input-group">
-                        <span class="train-label">FREQUENCY (HZ)</span>
-                        <div style="display: flex; align-items: baseline; gap: 1rem;">
-                            <input type="number" id="subcalc-freq" class="rugged-input" value="100" min="20" max="20000" style="font-size: 3rem; width: 140px; font-weight: bold; padding: 0.5rem; text-align: left; background: transparent; border: none; color: var(--text-main); font-family: var(--font-mono);">
-                        </div>
-                        <div class="subcalc-presets">
-                            <button class="train-source-btn subcalc-preset-btn" data-freq="40">40Hz</button>
-                            <button class="train-source-btn subcalc-preset-btn" data-freq="63">63Hz</button>
-                            <button class="train-source-btn subcalc-preset-btn" data-freq="80">80Hz</button>
-                            <button class="train-source-btn subcalc-preset-btn active" data-freq="100">100Hz</button>
-                            <button class="train-source-btn subcalc-preset-btn" data-freq="125">125Hz</button>
-                            <button class="train-source-btn subcalc-preset-btn" data-freq="250">250Hz</button>
-                        </div>
-                    </div>
-
-                    <div class="subcalc-input-group">
-                        <span class="train-label">TEMPERATURE</span>
-                        <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                            <input type="number" id="subcalc-temp" class="rugged-input" value="20" style="font-size: 3rem; width: 100px; font-weight: bold; padding: 0.5rem; text-align: left; background: transparent; border: none; color: var(--text-main); font-family: var(--font-mono);">
-                            <span id="subcalc-temp-unit" style="font-size: 1.5rem; color: var(--text-muted); font-family: var(--font-mono);">°C</span>
-                        </div>
-                        <span class="train-label" style="margin-top: 1rem;">SPEED OF SOUND</span>
-                        <div style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--primary);">
-                            <span id="subcalc-speed-val">343.4</span> <span id="subcalc-speed-unit" style="font-size: 1rem; color: var(--text-muted);">m/s</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Wavelength Blocks -->
-            <div class="subcalc-panel rugged-bevel" style="border-color: var(--primary);">
-                <span class="train-label" style="display: block; margin-bottom: 1rem;">WAVELENGTH AT <span id="subcalc-freq-label" style="color: var(--text-main);">100 HZ</span></span>
-                <div class="subcalc-wave-grid">
-                    <div class="wave-block">
-                        <span class="wave-frac">⅛ λ</span>
-                        <span class="wave-val" id="wave-1-8">0.429</span>
-                        <span class="wave-unit">m</span>
-                    </div>
-                    <div class="wave-block">
-                        <span class="wave-frac">¼ λ</span>
-                        <span class="wave-val" id="wave-1-4">0.859</span>
-                        <span class="wave-unit">m</span>
-                    </div>
-                    <div class="wave-block">
-                        <span class="wave-frac">½ λ</span>
-                        <span class="wave-val" id="wave-1-2">1.717</span>
-                        <span class="wave-unit">m</span>
-                    </div>
-                    <div class="wave-block highlight">
-                        <span class="wave-frac">λ</span>
-                        <span class="wave-val highlight-val" id="wave-1">3.434</span>
-                        <span class="wave-unit highlight-unit">m</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Array Configurations -->
-            <div class="subcalc-panel rugged-bevel">
-                <span class="train-label" style="display: block; margin-bottom: 1rem;">ARRAY CONFIGURATIONS</span>
                 
-                <div class="config-card cardioid-multi-card" style="flex-direction: column; align-items: stretch; gap: 1rem;">
-                    <div class="cardioid-tabs">
-                        <button class="c-tab active" data-ctype="gradient">Gradient (2-Box)</button>
-                        <button class="c-tab" data-ctype="csa">d&b CSA (3-Box)</button>
-                        <button class="c-tab" data-ctype="lac">L-Acoustics (4-Box)</button>
-                    </div>
-
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 2rem; width: 100%;">
-                        <div class="config-info" style="flex: 1;">
-                            <h3 class="config-title" id="c-title-text">Cardioid (Gradient)</h3>
-                            <p class="config-desc" id="c-desc-text">Horizontal deployment. Rear sub inverted + delayed by ¼λ travel time.</p>
-                            
-                            <div id="c-depth-input-group" style="display: none; margin-bottom: 1rem;">
-                                <span class="train-label" style="display: block; margin-bottom: 0.25rem;">CABINET DEPTH</span>
-                                <div style="display: flex; align-items: baseline; gap: 0.5rem;">
-                                    <input type="number" id="c-depth-input" class="rugged-input" value="0.8" step="0.1" style="width: 80px; text-align: center; font-size: 1.2rem;">
-                                    <span class="su-unit text-muted">m</span>
-                                </div>
-                            </div>
-
-                            <div class="config-stats">
-                                <div class="config-stat" id="c-spacing-stat">
-                                    <span class="stat-lbl">Spacing</span>
-                                    <span class="stat-v"><span id="cardioid-space">0.859</span> <span class="su-unit">m</span></span>
-                                </div>
-                                <div class="config-stat">
-                                    <span class="stat-lbl">Delay</span>
-                                    <span class="stat-v"><span id="cardioid-delay">2.5</span> ms</span>
-                                </div>
-                                <div class="config-stat">
-                                    <span class="stat-lbl">Polarity</span>
-                                    <span class="stat-v" style="color: var(--primary);">INVERT REAR</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="config-visual" style="flex: 1;">
-                            <!-- Gradient SVG (Side Profile) -->
-                            <svg id="svg-c-gradient" width="100%" height="80" viewBox="0 0 200 80" style="display: block;">
-                                <defs>
-                                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                                        <polygon points="0 0, 10 3.5, 0 7" fill="var(--primary)" />
-                                    </marker>
-                                </defs>
-                                <!-- Audience Direction (Right) -->
-                                <line x1="140" y1="40" x2="180" y2="40" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
-                                <text x="160" y="30" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
-                                
-                                <line id="svg-c-line" x1="60" y1="55" x2="100" y2="55" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="2" />
-                                
-                                <g id="svg-c-sub1" transform="translate(60, 40)">
-                                    <rect x="-10" y="-15" width="20" height="30" fill="var(--surface-higher)" stroke="var(--primary)" stroke-width="2" rx="3" />
-                                    <line x1="-5" y1="-15" x2="-5" y2="15" stroke="var(--primary)" stroke-width="2" /> <!-- Grill Left -->
-                                </g>
-                                <g id="svg-c-sub2" transform="translate(100, 40)">
-                                    <rect x="-10" y="-15" width="20" height="30" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="3" />
-                                    <line x1="5" y1="-15" x2="5" y2="15" stroke="#10b981" stroke-width="2" /> <!-- Grill Right -->
-                                </g>
-                            </svg>
-
-                            <!-- CSA SVG (3-Box Stacked) -->
-                            <svg id="svg-c-csa" width="100%" height="80" viewBox="0 0 200 80" style="display: none;">
-                                <line x1="140" y1="40" x2="180" y2="40" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
-                                <text x="160" y="30" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
-                                
-                                <g transform="translate(100, 40)">
-                                    <!-- Bottom (Front) -->
-                                    <rect x="-15" y="14" width="30" height="12" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                    <line x1="12" y1="14" x2="12" y2="26" stroke="#10b981" stroke-width="2" />
-                                    <!-- Middle (Rear) -->
-                                    <rect x="-15" y="0" width="30" height="12" fill="var(--surface-higher)" stroke="var(--primary)" stroke-width="2" rx="2" />
-                                    <line x1="-12" y1="0" x2="-12" y2="12" stroke="var(--primary)" stroke-width="2" />
-                                    <!-- Top (Front) -->
-                                    <rect x="-15" y="-14" width="30" height="12" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                    <line x1="12" y1="-14" x2="12" y2="-2" stroke="#10b981" stroke-width="2" />
-                                </g>
-                            </svg>
-
-                            <!-- L-Acoustics Block SVG (Vertical Stack) -->
-                            <svg id="svg-c-lac" width="100%" height="120" viewBox="0 0 200 120" style="display: none;">
-                                <line x1="140" y1="60" x2="180" y2="60" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
-                                <text x="160" y="50" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
-                                
-                                <g transform="translate(100, 60)">
-                                    <!-- Box 4 (Top, Front) -->
-                                    <rect x="-15" y="-40" width="30" height="18" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                    <line x1="12" y1="-40" x2="12" y2="-22" stroke="#10b981" stroke-width="2" />
-                                    <!-- Box 3 (Upper Middle, Front) -->
-                                    <rect x="-15" y="-20" width="30" height="18" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                    <line x1="12" y1="-20" x2="12" y2="-2" stroke="#10b981" stroke-width="2" />
-                                    <!-- Box 2 (Lower Middle, Front) -->
-                                    <rect x="-15" y="0" width="30" height="18" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                    <line x1="12" y1="0" x2="12" y2="18" stroke="#10b981" stroke-width="2" />
-                                    <!-- Box 1 (Bottom, Rear) -->
-                                    <rect x="-15" y="20" width="30" height="18" fill="var(--surface-higher)" stroke="var(--primary)" stroke-width="2" rx="2" />
-                                    <line x1="-12" y1="20" x2="-12" y2="38" stroke="var(--primary)" stroke-width="2" />
-                                </g>
-                            </svg>
-                        </div>
-                    </div>
+                <!-- Feature 4 -->
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">speed</span></div>
+                    <h3>Delay & Time Alignment</h3>
+                    <p>Align mains to subs or delay towers with temperature-compensated precision calculations. Perfect phase alignment.</p>
                 </div>
-
-                <div class="config-card">
-                    <div class="config-info">
-                        <h3 class="config-title">End-Fire Array</h3>
-                        <p class="config-desc">Subs in-line, progressively delayed by ¼λ</p>
-                        <div class="config-stats">
-                            <div class="config-stat">
-                                <span class="stat-lbl">Spacing</span>
-                                <span class="stat-v"><span id="endfire-space">0.859</span> <span class="su-unit">m</span></span>
-                            </div>
-                            <div class="config-stat">
-                                <span class="stat-lbl">Delay</span>
-                                <span class="stat-v"><span id="endfire-delay">2.5</span> ms</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="config-visual">
-                        <svg width="100%" height="80" viewBox="0 0 200 80">
-                            <!-- Audience Direction -->
-                            <line x1="140" y1="40" x2="180" y2="40" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
-                            <text x="160" y="30" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
-                            
-                            <!-- Spacing Lines -->
-                            <line id="svg-e-line1" x1="40" y1="55" x2="70" y2="55" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="2" />
-                            <line id="svg-e-line2" x1="70" y1="55" x2="100" y2="55" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="2" />
-                            <line id="svg-e-line3" x1="100" y1="55" x2="130" y2="55" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="2" />
-                            
-                            <!-- Subwoofers (all facing right) -->
-                            <g id="svg-e-sub1" transform="translate(40, 40)">
-                                <rect x="-8" y="-15" width="16" height="30" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="4" y1="-15" x2="4" y2="15" stroke="#10b981" stroke-width="2" />
-                            </g>
-                            <g id="svg-e-sub2" transform="translate(70, 40)">
-                                <rect x="-8" y="-15" width="16" height="30" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="4" y1="-15" x2="4" y2="15" stroke="#10b981" stroke-width="2" />
-                            </g>
-                            <g id="svg-e-sub3" transform="translate(100, 40)">
-                                <rect x="-8" y="-15" width="16" height="30" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="4" y1="-15" x2="4" y2="15" stroke="#10b981" stroke-width="2" />
-                            </g>
-                            <g id="svg-e-sub4" transform="translate(130, 40)">
-                                <rect x="-8" y="-15" width="16" height="30" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="4" y1="-15" x2="4" y2="15" stroke="#10b981" stroke-width="2" />
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-
-                <div class="config-card">
-                    <div class="config-info">
-                        <h3 class="config-title">Broadside Array (Max Spacing)</h3>
-                        <p class="config-desc">Subs side-by-side. Max spacing ½λ to ⅔λ to avoid lobing.</p>
-                        <div class="config-stats">
-                            <div class="config-stat">
-                                <span class="stat-lbl">½λ Spacing</span>
-                                <span class="stat-v"><span id="broadside-half">1.717</span> <span class="su-unit">m</span></span>
-                            </div>
-                            <div class="config-stat">
-                                <span class="stat-lbl">⅔λ Spacing</span>
-                                <span class="stat-v"><span id="broadside-two-third">2.289</span> <span class="su-unit">m</span></span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="config-visual">
-                        <svg width="100%" height="120" viewBox="0 0 200 120">
-                            <!-- Audience Direction -->
-                            <line x1="120" y1="60" x2="180" y2="60" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
-                            <text x="150" y="50" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
-                            
-                            <!-- Spacing Lines -->
-                            <line id="svg-b-line1" x1="80" y1="30" x2="80" y2="60" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="2" />
-                            <line id="svg-b-line2" x1="80" y1="60" x2="80" y2="90" stroke="var(--text-muted)" stroke-width="1.5" stroke-dasharray="2" />
-                            
-                            <!-- Subwoofers (all facing right, arrayed vertically) -->
-                            <g id="svg-b-sub1" transform="translate(80, 30)">
-                                <rect x="-10" y="-12" width="20" height="24" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="5" y1="-12" x2="5" y2="12" stroke="#10b981" stroke-width="2" />
-                            </g>
-                            <g id="svg-b-sub2" transform="translate(80, 60)">
-                                <rect x="-10" y="-12" width="20" height="24" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="5" y1="-12" x2="5" y2="12" stroke="#10b981" stroke-width="2" />
-                            </g>
-                            <g id="svg-b-sub3" transform="translate(80, 90)">
-                                <rect x="-10" y="-12" width="20" height="24" fill="var(--surface-higher)" stroke="#10b981" stroke-width="2" rx="2" />
-                                <line x1="5" y1="-12" x2="5" y2="12" stroke="#10b981" stroke-width="2" />
-                            </g>
-                        </svg>
-                    </div>
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Image Zoom Modal -->
-    <div id="image-zoom-overlay" class="modal-overlay hidden">
-        <button id="btn-close-zoom" style="position: absolute; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface-higher); color: var(--text-main); cursor: pointer; transition: all 0.2s ease;"><span class="material-symbols-outlined">close</span></button>
-        <div class="zoom-image-container">
-            <img id="zoom-image-view" src="" alt="Enlarged Portfolio View" style="max-width: 90vw; max-height: 85vh; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); object-fit: contain;">
-        </div>
-    </div>
-
-    <!-- Authentication Modal -->
-    <div id="auth-modal-overlay" class="modal-overlay hidden">
-        <div class="auth-modal">
-            <button id="btn-close-auth" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
-            
-            <div class="auth-header">
-                <h2 class="auth-title">Welcome back</h2>
-                <p class="auth-subtitle">Log in to sync your console settings</p>
-            </div>
-
-            <div class="auth-tabs">
-                <button class="auth-tab active" data-tab="login">Log In</button>
-                <button class="auth-tab" data-tab="signup">Sign Up</button>
-            </div>
-
-            <div class="auth-content active" id="tab-login">
-                <form id="form-login" class="auth-form">
-                    <div class="auth-input-group">
-                        <label>Email Address</label>
-                        <input type="email" placeholder="engineer@studio.com" required>
-                    </div>
-                    <div class="auth-input-group">
-                        <label>Password</label>
-                        <input type="password" placeholder="••••••••" required>
-                    </div>
-                    <div class="auth-options">
-                        <label class="auth-checkbox">
-                            <input type="checkbox">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="#" class="auth-link">Forgot password?</a>
-                    </div>
-                    <button type="submit" class="auth-submit-btn">Log In</button>
-                </form>
-            </div>
-
-            <div class="auth-content" id="tab-signup">
-                <form id="form-signup" class="auth-form">
-                    <div class="auth-input-group">
-                        <label>Full Name</label>
-                        <input type="text" placeholder="John Doe" required>
-                    </div>
-                    <div class="auth-input-group">
-                        <label>Email Address</label>
-                        <input type="email" placeholder="engineer@studio.com" required>
-                    </div>
-                    <div class="auth-input-group">
-                        <label>Password</label>
-                        <input type="password" placeholder="Create a strong password" required>
-                    </div>
-                    <button type="submit" class="auth-submit-btn">Create Account</button>
-                </form>
-            </div>
-
-            <div class="auth-divider">
-                <span>OR</span>
-            </div>
-
-            <button class="auth-social-btn" id="btn-google-auth">
-                <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
-                    <g transform="matrix(1, 0, 0, 1, 27.009001, -39.238998)">
-                        <path fill="#4285F4" d="M -3.264 51.509 C -3.264 50.719 -3.334 49.969 -3.454 49.239 L -14.754 49.239 L -14.754 53.749 L -8.284 53.749 C -8.574 55.229 -9.424 56.479 -10.684 57.329 L -10.684 60.329 L -6.824 60.329 C -4.564 58.239 -3.264 55.159 -3.264 51.509 Z"/>
-                        <path fill="#34A853" d="M -14.754 63.239 C -11.514 63.239 -8.804 62.159 -6.824 60.329 L -10.684 57.329 C -11.764 58.049 -13.134 58.489 -14.754 58.489 C -17.884 58.489 -20.534 56.379 -21.484 53.529 L -25.464 53.529 L -25.464 56.619 C -23.494 60.539 -19.444 63.239 -14.754 63.239 Z"/>
-                        <path fill="#FBBC05" d="M -21.484 53.529 C -21.734 52.809 -21.864 52.039 -21.864 51.239 C -21.864 50.439 -21.724 49.669 -21.484 48.949 L -21.484 45.859 L -25.464 45.859 C -26.284 47.479 -26.754 49.299 -26.754 51.239 C -26.754 53.179 -26.284 54.999 -25.464 56.619 L -21.484 53.529 Z"/>
-                        <path fill="#EA4335" d="M -14.754 43.989 C -12.984 43.989 -11.404 44.599 -10.154 45.789 L -6.734 42.369 C -8.804 40.429 -11.514 39.239 -14.754 39.239 C -19.444 39.239 -23.494 41.939 -25.464 45.859 L -21.484 48.949 C -20.534 46.099 -17.884 43.989 -14.754 43.989 Z"/>
-                    </g>
-                </svg>
-                Continue with Google
-            </button>
-        </div>
-    </div>
-    <!-- Ad Integration / Monetization -->
-    <div id="bottom-sponsor-banner" class="ad-banner-bottom hidden">
-        <a href="#" target="_blank" class="sponsor-link">
-            <span class="sponsor-text">Sponsored by</span>
-            <img src="assets/img/sponsor-placeholder.png" alt="Sponsor Logo" class="sponsor-logo">
-        </a>
-    </div>
-
-    <!-- Ad Manager Full-Screen Lock Modal -->
-    <div id="ad-lock-modal" class="modal-overlay hidden">
-        <div class="ad-modal-content">
-            <div id="ad-state-online" class="ad-state">
-                <h2 class="ad-title">Support AudioMate</h2>
-                <p class="ad-subtitle">Watch this short ad to unlock all pro tools for the next 6 hours.</p>
                 
-                <div class="video-ad-container">
-                    <!-- Simulated Video Ad -->
-                    <div class="video-placeholder">
-                        <span class="material-symbols-outlined video-icon">play_circle</span>
-                        <span>Video Ad Playing...</span>
-                    </div>
-                    <div class="ad-timer">
-                        <span id="ad-countdown">15</span>s remaining
-                    </div>
+                <!-- Feature 5 -->
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">music_note</span></div>
+                    <h3>Instrument Tuner</h3>
+                    <p>Highly accurate chromatic tuner designed to grab specific fundamental frequencies quickly during hectic changeovers.</p>
                 </div>
-
-                <button id="btn-close-ad" class="btn btn-primary" disabled>
-                    <span class="material-symbols-outlined">lock</span> Wait for Ad
-                </button>
-            </div>
-
-            <div id="ad-state-offline" class="ad-state hidden">
-                <div class="offline-warning-icon">
-                    <span class="material-symbols-outlined">wifi_off</span>
-                </div>
-                <h2 class="ad-title">You Are Offline</h2>
-                <p class="ad-subtitle">Internet connection is required to load the sponsored video ad to unlock your tools.</p>
                 
-                <div class="pro-upsell-box">
-                    <h3>Upgrade to AudioMate Pro</h3>
-                    <p>Get permanent, unrestricted offline access to all tools and remove all ads forever.</p>
-                    <button class="btn btn-upgrade" id="btn-buy-pro">Upgrade Now - $9.99</button>
-                </div>
-
-                <div class="grace-period-box">
-                    <p class="grace-text">Need it for a show right now?</p>
-                    <button id="btn-grace-period" class="btn btn-outline">Use 2-Hour Offline Grace Period</button>
+                <!-- Feature 6 -->
+                <div class="feature-card">
+                    <div class="feature-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
+                    <h3>Signal Generator</h3>
+                    <p>Built-in oscillator providing Sine, Pink Noise, and White Noise to instantly test PA systems and verify signal flow.</p>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <script src="assets/js/blog-data.js"></script>
-    <script src="assets/js/main.js"></script>
-    
+    <!-- Bottom CTA -->
+    <section class="cta-section">
+        <div class="container cta-container">
+            <h2>Ready to tune the system?</h2>
+            <p>Access the Titan Console directly in your browser. Fully functional offline.</p>
+            <a href="app.html" class="btn btn-primary cta-btn">Launch Console Now</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <img src="assets/img/logo-dark.png" alt="AudioMate Logo" class="brand-logo dark-logo" style="height: 24px; margin-bottom: 1rem;">
+                <p>The standard in audio engineering calculators.</p>
+            </div>
+            <div class="footer-links">
+                <span>&copy; 2026 AudioMate. All rights reserved.</span>
+            </div>
+        </div>
+    </footer>
+
     <!-- Register PWA Service Worker -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
+                navigator.serviceWorker.register('/service-worker.js');
             });
         }
     </script>

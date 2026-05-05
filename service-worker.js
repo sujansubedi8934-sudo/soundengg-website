@@ -4,6 +4,7 @@ const CACHE_NAME = 'audiomate-cache-v1';
 const URLS_TO_CACHE = [
     '/',
     '/index.html',
+    '/app.html',
     '/manifest.json',
     '/assets/css/styles.css',
     '/assets/js/main.js',
