@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     safeInit(initEarTraining, 'initEarTraining');
     safeInit(initTuner, 'initTuner');
     safeInit(initSubCalc, 'initSubCalc');
+    safeInit(initAdManager, 'initAdManager');
 });
 
 function setupThemeToggle() {
@@ -2415,4 +2416,126 @@ function initSubCalc() {
     });
 
     updateCalculations();
+}
+
+// ==========================================
+// AD MANAGER SYSTEM
+// ==========================================
+function initAdManager() {
+    const modal = document.getElementById('ad-lock-modal');
+    const stateOnline = document.getElementById('ad-state-online');
+    const stateOffline = document.getElementById('ad-state-offline');
+    const btnCloseAd = document.getElementById('btn-close-ad');
+    const btnGracePeriod = document.getElementById('btn-grace-period');
+    const btnBuyPro = document.getElementById('btn-buy-pro');
+    const countdownEl = document.getElementById('ad-countdown');
+    const appContent = document.querySelector('.main-content');
+    const sidebar = document.querySelector('.top-bar'); // Using top-bar since sidebar is removed
+    const bottomBanner = document.getElementById('bottom-sponsor-banner');
+
+    if (!modal) return;
+
+    let countdownInterval;
+    let countdownVal = 15;
+
+    function checkAdStatus() {
+        const unlockedUntil = localStorage.getItem('tools_unlocked_until');
+        const now = Date.now();
+
+        if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
+            // Unlocked!
+            unlockApp();
+        } else {
+            // Locked!
+            lockApp();
+        }
+    }
+
+    function lockApp() {
+        // Blur app
+        if (appContent) appContent.classList.add('app-blurred');
+        if (sidebar) sidebar.classList.add('app-blurred');
+        if (bottomBanner) bottomBanner.classList.add('hidden');
+        
+        modal.classList.remove('hidden');
+
+        if (navigator.onLine) {
+            stateOnline.classList.remove('hidden');
+            stateOffline.classList.add('hidden');
+            startAdCountdown();
+        } else {
+            stateOnline.classList.add('hidden');
+            stateOffline.classList.remove('hidden');
+        }
+    }
+
+    function unlockApp() {
+        if (appContent) appContent.classList.remove('app-blurred');
+        if (sidebar) sidebar.classList.remove('app-blurred');
+        if (bottomBanner) bottomBanner.classList.remove('hidden');
+        modal.classList.add('hidden');
+    }
+
+    function grantAccess(hours) {
+        const ms = hours * 60 * 60 * 1000;
+        localStorage.setItem('tools_unlocked_until', Date.now() + ms);
+        unlockApp();
+    }
+
+    function startAdCountdown() {
+        countdownVal = 15;
+        countdownEl.textContent = countdownVal;
+        btnCloseAd.disabled = true;
+        btnCloseAd.innerHTML = '<span class="material-symbols-outlined">lock</span> Wait for Ad';
+
+        clearInterval(countdownInterval);
+        countdownInterval = setInterval(() => {
+            countdownVal--;
+            countdownEl.textContent = countdownVal;
+            if (countdownVal <= 0) {
+                clearInterval(countdownInterval);
+                btnCloseAd.disabled = false;
+                btnCloseAd.innerHTML = '<span class="material-symbols-outlined">lock_open</span> Unlock Tools';
+            }
+        }, 1000);
+    }
+
+    // Listeners
+    if (btnCloseAd) {
+        btnCloseAd.addEventListener('click', () => {
+            if (!btnCloseAd.disabled) {
+                grantAccess(6); // Grant 6 hours
+            }
+        });
+    }
+
+    if (btnGracePeriod) {
+        btnGracePeriod.addEventListener('click', () => {
+            grantAccess(2); // Grant 2 hours
+        });
+    }
+
+    if (btnBuyPro) {
+        btnBuyPro.addEventListener('click', () => {
+            alert('Mock Checkout: AudioMate Pro purchased! All limits removed forever.');
+            localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000)); // 1 year mock
+            unlockApp();
+        });
+    }
+
+    // Monitor network changes to toggle modal dynamically if locked
+    window.addEventListener('online', () => {
+        if (!modal.classList.contains('hidden')) {
+            lockApp(); // Re-trigger lock to switch states
+        }
+    });
+    
+    window.addEventListener('offline', () => {
+        if (!modal.classList.contains('hidden')) {
+            lockApp(); // Re-trigger lock to switch states
+        }
+    });
+
+    // Run initial check
+    checkAdStatus();
 }

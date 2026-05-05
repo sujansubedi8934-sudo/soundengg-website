@@ -1164,6 +1164,57 @@
             </button>
         </div>
     </div>
+    <!-- Ad Integration / Monetization -->
+    <div id="bottom-sponsor-banner" class="ad-banner-bottom hidden">
+        <a href="#" target="_blank" class="sponsor-link">
+            <span class="sponsor-text">Sponsored by</span>
+            <img src="assets/img/sponsor-placeholder.png" alt="Sponsor Logo" class="sponsor-logo">
+        </a>
+    </div>
+
+    <!-- Ad Manager Full-Screen Lock Modal -->
+    <div id="ad-lock-modal" class="modal-overlay hidden">
+        <div class="ad-modal-content">
+            <div id="ad-state-online" class="ad-state">
+                <h2 class="ad-title">Support AudioMate</h2>
+                <p class="ad-subtitle">Watch this short ad to unlock all pro tools for the next 6 hours.</p>
+                
+                <div class="video-ad-container">
+                    <!-- Simulated Video Ad -->
+                    <div class="video-placeholder">
+                        <span class="material-symbols-outlined video-icon">play_circle</span>
+                        <span>Video Ad Playing...</span>
+                    </div>
+                    <div class="ad-timer">
+                        <span id="ad-countdown">15</span>s remaining
+                    </div>
+                </div>
+
+                <button id="btn-close-ad" class="btn btn-primary" disabled>
+                    <span class="material-symbols-outlined">lock</span> Wait for Ad
+                </button>
+            </div>
+
+            <div id="ad-state-offline" class="ad-state hidden">
+                <div class="offline-warning-icon">
+                    <span class="material-symbols-outlined">wifi_off</span>
+                </div>
+                <h2 class="ad-title">You Are Offline</h2>
+                <p class="ad-subtitle">Internet connection is required to load the sponsored video ad to unlock your tools.</p>
+                
+                <div class="pro-upsell-box">
+                    <h3>Upgrade to AudioMate Pro</h3>
+                    <p>Get permanent, unrestricted offline access to all tools and remove all ads forever.</p>
+                    <button class="btn btn-upgrade" id="btn-buy-pro">Upgrade Now - $9.99</button>
+                </div>
+
+                <div class="grace-period-box">
+                    <p class="grace-text">Need it for a show right now?</p>
+                    <button id="btn-grace-period" class="btn btn-outline">Use 2-Hour Offline Grace Period</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="assets/js/blog-data.js"></script>
     <script src="assets/js/main.js"></script>

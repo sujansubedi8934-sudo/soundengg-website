@@ -3245,3 +3245,216 @@ html.light .auth-modal {
         max-width: 95vw;
     }
 }
+
+/* =========================================
+   AD INTEGRATION & MONETIZATION
+   ========================================= */
+
+.app-blurred {
+    filter: blur(8px) grayscale(50%);
+    pointer-events: none;
+    user-select: none;
+    overflow: hidden;
+}
+
+.ad-banner-bottom {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60px;
+    background: var(--surface-higher);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 900;
+}
+
+.ad-banner-bottom.hidden {
+    display: none;
+}
+
+.sponsor-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    opacity: 0.8;
+    transition: opacity 0.2s ease;
+}
+
+.sponsor-link:hover {
+    opacity: 1;
+}
+
+.sponsor-logo {
+    height: 30px;
+    object-fit: contain;
+    filter: grayscale(100%) brightness(1.5);
+    transition: all 0.2s ease;
+}
+
+.sponsor-link:hover .sponsor-logo {
+    filter: grayscale(0%) brightness(1);
+}
+
+/* Ad Modal */
+.ad-modal-content {
+    background: var(--surface-main);
+    border: 1px solid var(--primary);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    padding: 2.5rem;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px inset rgba(255,255,255,0.1);
+    position: relative;
+}
+
+.ad-title {
+    font-family: var(--font-sans);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    margin-bottom: 0.5rem;
+}
+
+.ad-subtitle {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+}
+
+/* Online State (Video Ad) */
+.video-ad-container {
+    background: var(--surface-higher);
+    border: 1px dashed var(--border-color);
+    border-radius: 8px;
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.video-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+}
+
+.video-icon {
+    font-size: 3rem;
+    color: var(--primary);
+    opacity: 0.5;
+}
+
+.ad-timer {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0,0,0,0.8);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: #fff;
+}
+
+#ad-countdown {
+    color: var(--primary);
+    font-weight: bold;
+}
+
+#btn-close-ad {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+#btn-close-ad:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--surface-higher);
+    border-color: var(--border-color);
+    color: var(--text-muted);
+}
+
+/* Offline State */
+.offline-warning-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(239, 68, 64, 0.1);
+    color: #ef4440;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.offline-warning-icon span {
+    font-size: 2rem;
+}
+
+.pro-upsell-box {
+    background: linear-gradient(145deg, var(--surface-higher), var(--surface-main));
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.pro-upsell-box h3 {
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+}
+
+.pro-upsell-box p {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.btn-upgrade {
+    background: var(--primary);
+    color: #000;
+    width: 100%;
+    font-weight: bold;
+}
+
+.grace-period-box {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1.5rem;
+}
+
+.grace-text {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+}
+
+#btn-grace-period {
+    width: 100%;
+    font-size: 0.9rem;
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+#btn-grace-period:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
