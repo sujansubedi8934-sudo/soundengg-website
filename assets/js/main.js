@@ -2268,14 +2268,14 @@ function initSubCalc() {
             let cSub2 = document.getElementById('svg-c-sub2'); // Front sub
             let cLine = document.getElementById('svg-c-line'); // Dashed line
             if (cSub1 && cSub2 && cLine) {
-                // Audience is at Y=25 (Top)
-                // Front sub moves up (closer to 25)
-                // Rear sub stays fixed or moves down
-                let startY = 80 - spacingPx;
-                cSub2.setAttribute('transform', `translate(100, ${startY})`);
-                cSub1.setAttribute('transform', `translate(100, 80)`);
-                cLine.setAttribute('y1', startY);
-                cLine.setAttribute('y2', 80);
+                // Audience is on the Right
+                // Front sub moves right
+                // Rear sub stays fixed
+                let cx = 100 - (spacingPx / 2);
+                cSub1.setAttribute('transform', `translate(${cx}, 40)`);
+                cSub2.setAttribute('transform', `translate(${cx + spacingPx}, 40)`);
+                cLine.setAttribute('x1', cx);
+                cLine.setAttribute('x2', cx + spacingPx);
             }
         }
 
