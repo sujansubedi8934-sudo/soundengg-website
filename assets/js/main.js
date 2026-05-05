@@ -2242,6 +2242,51 @@ function initSubCalc() {
         let bt = (lambda_m * (2/3)) * unit_mult;
         document.getElementById('broadside-half').textContent = w1_2.toFixed(3);
         document.getElementById('broadside-two-third').textContent = bt.toFixed(3);
+
+        // --- SVG ANIMATIONS ---
+        // Map wavelength (0.5m to 8m) to pixels (15px to 80px)
+        let spacingPx = Math.max(15, Math.min(80, (lambda_m / 4) * 20)); 
+
+        // Cardioid Animation (Front sub moves right)
+        let cSub1 = document.getElementById('svg-c-sub1');
+        let cSub2 = document.getElementById('svg-c-sub2');
+        let cLine = document.getElementById('svg-c-line');
+        if (cSub1 && cSub2 && cLine) {
+            let cx = 100 - (spacingPx / 2);
+            cSub1.setAttribute('transform', `translate(${cx}, 40)`);
+            cSub2.setAttribute('transform', `translate(${cx + spacingPx}, 40)`);
+            cLine.setAttribute('x1', cx);
+            cLine.setAttribute('x2', cx + spacingPx);
+        }
+
+        // End-Fire Animation (Subs spread out)
+        let eLine1 = document.getElementById('svg-e-line1');
+        let eLine2 = document.getElementById('svg-e-line2');
+        let eLine3 = document.getElementById('svg-e-line3');
+        if (eLine1) {
+            let startX = 100 - (spacingPx * 1.5);
+            for(let i=1; i<=4; i++) {
+                let sub = document.getElementById(`svg-e-sub${i}`);
+                if (sub) sub.setAttribute('transform', `translate(${startX + (spacingPx * (i-1))}, 40)`);
+            }
+            eLine1.setAttribute('x1', startX); eLine1.setAttribute('x2', startX + spacingPx);
+            eLine2.setAttribute('x1', startX + spacingPx); eLine2.setAttribute('x2', startX + spacingPx*2);
+            eLine3.setAttribute('x1', startX + spacingPx*2); eLine3.setAttribute('x2', startX + spacingPx*3);
+        }
+
+        // Broadside Animation (Max spacing 1/2 lambda)
+        let bSpacingPx = Math.max(20, Math.min(60, (lambda_m / 2) * 15));
+        let bLine1 = document.getElementById('svg-b-line1');
+        let bLine2 = document.getElementById('svg-b-line2');
+        if (bLine1) {
+            let bStartX = 100 - bSpacingPx;
+            for(let i=1; i<=3; i++) {
+                let sub = document.getElementById(`svg-b-sub${i}`);
+                if (sub) sub.setAttribute('transform', `translate(${bStartX + (bSpacingPx * (i-1))}, 50)`);
+            }
+            bLine1.setAttribute('x1', bStartX); bLine1.setAttribute('x2', bStartX + bSpacingPx);
+            bLine2.setAttribute('x1', bStartX + bSpacingPx); bLine2.setAttribute('x2', bStartX + bSpacingPx*2);
+        }
     }
 
     freqInput.addEventListener('input', () => {
