@@ -1224,6 +1224,39 @@
     </div>
 
     <script src="assets/js/blog-data.js"></script>
+    
+    <!-- Firebase SDK -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+      const firebaseConfig = {
+        projectId: "soundengg-console-67890",
+        appId: "1:323705438583:web:12fd85891218a442bf2172",
+        storageBucket: "soundengg-console-67890.firebasestorage.app",
+        apiKey: "AIzaSyCADem3qrLHWaOi7lmpj2JE2JO-LaqjCe8",
+        authDomain: "soundengg-console-67890.firebaseapp.com",
+        messagingSenderId: "323705438583"
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const googleProvider = new GoogleAuthProvider();
+
+      // Export for main.js to use
+      window.firebaseAuth = {
+        auth,
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        signInWithPopup,
+        GoogleAuthProvider,
+        googleProvider,
+        signOut
+      };
+    </script>
+
     <script src="assets/js/main.js"></script>
     
     <!-- Register PWA Service Worker -->

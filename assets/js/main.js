@@ -276,7 +276,14 @@ function setupNavigation() {
     if (btnAuthToggle && authModalOverlay && btnCloseAuth) {
         // Open Modal
         btnAuthToggle.addEventListener('click', () => {
-            authModalOverlay.classList.remove('hidden');
+            const user = window.firebaseAuth.auth.currentUser;
+            if (user) {
+                if (confirm(`Logged in as ${user.email}. Would you like to sign out?`)) {
+                    window.firebaseAuth.signOut(window.firebaseAuth.auth);
+                }
+            } else {
+                authModalOverlay.classList.remove('hidden');
+            }
         });
 
         // Close Modal
@@ -295,43 +302,89 @@ function setupNavigation() {
         authTabs.forEach(tab => {
             tab.addEventListener('click', () => {
                 const targetId = `tab-${tab.getAttribute('data-tab')}`;
-                
-                // Remove active class from all tabs & contents
                 authTabs.forEach(t => t.classList.remove('active'));
                 authContents.forEach(c => c.classList.remove('active'));
-                
-                // Add active class to clicked tab & matching content
                 tab.classList.add('active');
                 document.getElementById(targetId).classList.add('active');
             });
         });
 
-        // Mock Form Submissions
-        const authForms = document.querySelectorAll('.auth-form');
-        authForms.forEach(form => {
-            form.addEventListener('submit', (e) => {
+        // REAL Firebase Auth Submissions
+        const formLogin = document.getElementById('form-login');
+        const formSignup = document.getElementById('form-signup');
+
+        if (formLogin) {
+            formLogin.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const btn = form.querySelector('.auth-submit-btn');
-                const originalText = btn.textContent;
-                btn.textContent = 'Processing...';
-                btn.disabled = true;
-                
-                setTimeout(() => {
-                    btn.textContent = originalText;
-                    btn.disabled = false;
+                const email = formLogin.querySelector('input[type="email"]').value;
+                const password = formLogin.querySelector('input[type="password"]').value;
+                const btn = formLogin.querySelector('.auth-submit-btn');
+
+                try {
+                    btn.textContent = 'Verifying...';
+                    btn.disabled = true;
+                    await window.firebaseAuth.signInWithEmailAndPassword(window.firebaseAuth.auth, email, password);
                     authModalOverlay.classList.add('hidden');
-                    alert('Backend integration pending. Sign-In UI triggered successfully.');
-                }, 1000);
-            });
-        });
-        
-        // Mock Google Auth
-        const btnGoogle = document.getElementById('btn-google-auth');
-        if (btnGoogle) {
-            btnGoogle.addEventListener('click', () => {
-                alert('Google OAuth flow pending backend integration.');
+                } catch (error) {
+                    alert('Login failed: ' + error.message);
+                } finally {
+                    btn.textContent = 'Log In';
+                    btn.disabled = false;
+                }
             });
         }
+
+        if (formSignup) {
+            formSignup.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = formSignup.querySelector('input[type="email"]').value;
+                const password = formSignup.querySelector('input[type="password"]').value;
+                const btn = formSignup.querySelector('.auth-submit-btn');
+
+                try {
+                    btn.textContent = 'Creating...';
+                    btn.disabled = true;
+                    await window.firebaseAuth.createUserWithEmailAndPassword(window.firebaseAuth.auth, email, password);
+                    authModalOverlay.classList.add('hidden');
+                } catch (error) {
+                    alert('Signup failed: ' + error.message);
+                } finally {
+                    btn.textContent = 'Create Account';
+                    btn.disabled = false;
+                }
+            });
+        }
+        
+        // REAL Google Auth
+        const btnGoogle = document.getElementById('btn-google-auth');
+        if (btnGoogle) {
+            btnGoogle.addEventListener('click', async () => {
+                try {
+                    await window.firebaseAuth.signInWithPopup(window.firebaseAuth.auth, window.firebaseAuth.googleProvider);
+                    authModalOverlay.classList.add('hidden');
+                } catch (error) {
+                    alert('Google login failed: ' + error.message);
+                }
+            });
+        }
+
+        // Auth State Monitoring
+        window.firebaseAuth.onAuthStateChanged(window.firebaseAuth.auth, (user) => {
+            const authText = btnAuthToggle.querySelector('.btn-text');
+            const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
+            
+            if (user) {
+                // User is signed in
+                if (authText) authText.textContent = user.displayName || user.email.split('@')[0].toUpperCase();
+                if (authIcon) authIcon.textContent = 'account_circle';
+                btnAuthToggle.classList.add('logged-in');
+            } else {
+                // User is signed out
+                if (authText) authText.textContent = 'LOGIN_SYSTEM';
+                if (authIcon) authIcon.textContent = 'login';
+                btnAuthToggle.classList.remove('logged-in');
+            }
+        });
     }
 
     // Gallery Zoom Logic
@@ -2517,9 +2570,21 @@ function initAdManager() {
 
     if (btnBuyPro) {
         btnBuyPro.addEventListener('click', () => {
-            alert('Mock Checkout: SoundEngg Pro purchased! All limits removed forever.');
-            localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000)); // 1 year mock
-            unlockApp();
+            const user = window.firebaseAuth.auth.currentUser;
+            if (!user) {
+                alert('Please log in to purchase SoundEngg Pro.');
+                authModalOverlay.classList.remove('hidden');
+                return;
+            }
+
+            // Simulate Stripe Checkout
+            alert(`Redirecting to Stripe for ${user.email}...`);
+            setTimeout(() => {
+                alert('Mock Checkout: SoundEngg Pro purchased! Account upgraded.');
+                // In a real app, this would be handled by a webhook updating Firebase metadata
+                localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
+                unlockApp();
+            }, 1500);
         });
     }
 
