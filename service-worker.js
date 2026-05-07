@@ -1,4 +1,4 @@
-const CACHE_NAME = 'audiomate-cache-v1';
+const CACHE_NAME = 'soundengg-cache-v1';
 
 // All critical assets needed to run the dashboard offline
 const URLS_TO_CACHE = [

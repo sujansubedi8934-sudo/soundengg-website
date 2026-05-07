@@ -1,6 +1,6 @@
 {
-  "name": "AudioMate Titan Console",
-  "short_name": "AudioMate",
+  "name": "SoundEngg Titan Console",
+  "short_name": "SoundEngg",
   "description": "Professional toolkit for Live Sound and System Engineers.",
   "start_url": "/index.html",
   "display": "standalone",

@@ -2517,7 +2517,7 @@ function initAdManager() {
 
     if (btnBuyPro) {
         btnBuyPro.addEventListener('click', () => {
-            alert('Mock Checkout: AudioMate Pro purchased! All limits removed forever.');
+            alert('Mock Checkout: SoundEngg Pro purchased! All limits removed forever.');
             localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000)); // 1 year mock
             unlockApp();
         });
