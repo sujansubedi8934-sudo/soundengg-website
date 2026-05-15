@@ -484,6 +484,9 @@ function setupNavigation() {
                 try {
                     const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
+                        options: {
+                            redirectTo: window.location.origin + window.location.pathname
+                        }
                     });
                     if(error) throw error;
                     // Supabase redirects to Google, so we don't hide the modal manually here.
