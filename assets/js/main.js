@@ -71,30 +71,30 @@ function initGlobalUnits() {
     const btnUnit = document.getElementById('btn-delaycalc-unit');
     if (!btnUnit) return;
 
-    function setSystem(system) {
-        globalUnitSystem = system;
-        localStorage.setItem('soundengg-units', system);
-        
-        if (system === 'metric') {
+    function syncUI() {
+        if (window.globalUnitSystem === 'metric') {
             btnUnit.dataset.unit = 'metric';
             btnUnit.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)';
         } else {
             btnUnit.dataset.unit = 'imperial';
             btnUnit.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
         }
-
-        // Broadcast change
-        document.dispatchEvent(new CustomEvent('unitsChanged'));
     }
 
     btnUnit.addEventListener('click', () => {
-        const nextSystem = globalUnitSystem === 'metric' ? 'imperial' : 'metric';
-        setSystem(nextSystem);
+        const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
+        window.globalUnitSystem = nextSystem;
+        localStorage.setItem('soundengg-units', nextSystem);
+        
+        // Also update the global select if it exists
+        const unitSelect = document.getElementById('global-unit-select');
+        if (unitSelect) unitSelect.value = nextSystem;
+
+        document.dispatchEvent(new CustomEvent('unitsChanged'));
     });
 
-    // Init from storage
-    const saved = localStorage.getItem('soundengg-units') || 'metric';
-    setSystem(saved);
+    document.addEventListener('unitsChanged', syncUI);
+    syncUI();
 }
 
 function setupNavigation() {
@@ -1175,7 +1175,10 @@ function initProfessionalRTA() {
         } catch (e) { console.error("Device enumeration failed", e); }
     }
 
+    let isAnalyzing = false;
+    
     window.startAnalyzer = async function startAnalyzer(deviceId) {
+        if (isAnalyzing) return;
         deviceId = deviceId || localStorage.getItem('soundengg-mic-id') || 'default';
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
@@ -1203,15 +1206,36 @@ function initProfessionalRTA() {
             smoothedDataArray = new Float32Array(bufferLength).fill(-100);
             
             isInitialized = true;
+            isAnalyzing = true;
             startBtn.classList.remove('pulse-glow');
-            startBtn.innerHTML = '<span class="material-symbols-outlined">check_circle</span> SYSTEM_ACTIVE';
+            startBtn.classList.add('active', 'danger-btn');
+            startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
             
             getDevices();
-            requestAnimationFrame(draw);
+            rafID = requestAnimationFrame(draw);
         } catch (e) {
             console.error("Mic access failed", e);
             startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> ACCESS_DENIED';
+            isAnalyzing = false;
         }
+    };
+
+    function stopAnalyzer() {
+        if (!isAnalyzing) return;
+        isAnalyzing = false;
+        if (rafID) cancelAnimationFrame(rafID);
+        if (stream) {
+            stream.getTracks().forEach(t => t.stop());
+            stream = null;
+        }
+        if (audioCtx) {
+            audioCtx.suspend();
+        }
+        startBtn.classList.remove('active', 'danger-btn');
+        startBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span> START MEASUREMENT';
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGridAndLabels();
     }
 
     function getSPLColor(db) {
@@ -1436,7 +1460,13 @@ function initProfessionalRTA() {
         });
     }
 
-    startBtn.addEventListener('click', () => window.startAnalyzer());
+    startBtn.addEventListener('click', () => {
+        if (isAnalyzing) {
+            stopAnalyzer();
+        } else {
+            window.startAnalyzer();
+        }
+    });
     
     modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2390,18 +2420,26 @@ function initSubCalc() {
     
     if (!freqInput || !tempInput) return;
 
-    let isMetric = true;
     let currentCardioid = 'gradient'; // gradient, csa, lac
+
+    function syncUI() {
+        if (window.globalUnitSystem === 'metric') {
+            unitBtn.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)';
+        } else {
+            unitBtn.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
+        }
+        updateCalculations();
+    }
 
     function updateCalculations() {
         let f = parseFloat(freqInput.value);
         let t = parseFloat(tempInput.value);
         if (isNaN(f) || f <= 0) f = 100;
-        if (isNaN(t)) t = isMetric ? 20 : 68;
+        if (isNaN(t)) t = window.globalUnitSystem === 'metric' ? 20 : 68;
 
         // Speed of Sound
         let c_ms = 0;
-        if (isMetric) {
+        if (window.globalUnitSystem === 'metric') {
             c_ms = 331.3 + (0.606 * t); // m/s
         } else {
             // Convert °F to °C for the formula
@@ -2575,7 +2613,18 @@ function initSubCalc() {
     });
 
     unitBtn.addEventListener('click', () => {
-        isMetric = !isMetric;
+        const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
+        window.globalUnitSystem = nextSystem;
+        localStorage.setItem('soundengg-units', nextSystem);
+        
+        const globalSelect = document.getElementById('global-unit-select');
+        if (globalSelect) globalSelect.value = nextSystem;
+
+        document.dispatchEvent(new CustomEvent('unitsChanged'));
+    });
+
+    document.addEventListener('unitsChanged', () => {
+        const isMetric = window.globalUnitSystem === 'metric';
         
         // Update labels
         document.getElementById('subcalc-temp-unit').textContent = isMetric ? "°C" : "°F";
@@ -2606,10 +2655,10 @@ function initSubCalc() {
             }
         }
         
-        updateCalculations();
+        syncUI();
     });
 
-    updateCalculations();
+    syncUI();
 }
 
 // ==========================================
