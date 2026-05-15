@@ -137,5 +137,34 @@
             });
         }
     </script>
+    <!-- Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+      const SUPABASE_URL = 'https://ewudkzyjcvjxxqpqnqiy.supabase.co';
+      const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dWRrenlqY3ZqeHhxcHFucWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDM0MTQsImV4cCI6MjA5NDM3OTQxNH0.jLSCEjzAxR_pjlZsjJqQgGk4L-_c5Ls3STxDedOn2KM';
+      const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      // Listen for auth state changes on the landing page
+      supabaseClient.auth.onAuthStateChange((event, session) => {
+          const user = session?.user;
+          const consoleBtns = document.querySelectorAll('a[href="app.html"]');
+          
+          consoleBtns.forEach(btn => {
+              // Store original text on first load if not set
+              if (!btn.hasAttribute('data-original-text')) {
+                  btn.setAttribute('data-original-text', btn.textContent);
+              }
+
+              if (user) {
+                  const name = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                  btn.textContent = `Open Console (${name})`;
+                  btn.classList.add('logged-in-btn');
+              } else {
+                  btn.textContent = btn.getAttribute('data-original-text');
+                  btn.classList.remove('logged-in-btn');
+              }
+          });
+      });
+    </script>
 </body>
 </html>
