@@ -2626,3 +2626,139 @@ function initAdManager() {
     // Run initial check
     checkAdStatus();
 }
+
+// --- TOOL HELP MODAL SYSTEM ---
+document.addEventListener('DOMContentLoaded', () => {
+    const helpModal = document.getElementById('help-modal');
+    if (!helpModal) return;
+
+    const btnClose = document.getElementById('close-help-modal');
+    const btnUnderstood = document.getElementById('btn-help-understood');
+    const modalTitle = document.getElementById('help-modal-title');
+    const modalBody = document.getElementById('help-modal-body');
+    const helpButtons = document.querySelectorAll('.btn-help');
+
+    const toolHelpData = {
+        'delay': {
+            title: 'DELAY CALCULATOR',
+            content: `
+                <h3>What it does</h3>
+                <p>Calculates the exact acoustic delay (in milliseconds) required to time-align delay towers or fill speakers with the main PA system.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Measure the physical distance between the main PA and the delay speaker.</li>
+                    <li>Enter the distance and the current venue temperature (sound speed changes with temperature).</li>
+                    <li>Input the resulting delay time into your speaker processor or amplifier DSP.</li>
+                </ul>
+            `
+        },
+        'pinout': {
+            title: 'PINOUT REFERENCE',
+            content: `
+                <h3>What it does</h3>
+                <p>Provides an offline database of standard audio, power, and data connector wiring diagrams.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Search or scroll for the connector you are wiring (e.g., XLR, Speakon, RJ45).</li>
+                    <li>Follow the color-coded pin numbers to solder or terminate your cables correctly on site.</li>
+                </ul>
+            `
+        },
+        'siggen': {
+            title: 'SIGNAL GENERATOR',
+            content: `
+                <h3>What it does</h3>
+                <p>Generates reference audio signals (Sine waves, Pink Noise, White Noise) for system testing and acoustic calibration.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Connect your device to the console via an audio interface.</li>
+                    <li>Select 'Pink Noise' to tune the PA system using an RTA.</li>
+                    <li>Select 'Sine Wave' and dial in a specific frequency to locate rattles, test crossovers, or ring out monitors.</li>
+                </ul>
+            `
+        },
+        'rta': {
+            title: 'SPECTRUM ANALYZER (RTA)',
+            content: `
+                <h3>What it does</h3>
+                <p>Uses your device's microphone to display a real-time visual representation of the acoustic frequency spectrum in the room.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Play Pink Noise through the PA system.</li>
+                    <li>Watch the RTA bars to identify frequencies that are building up or canceling out in the room.</li>
+                    <li>Use your console's graphic EQ to flatten out the major peaks and valleys shown on the screen.</li>
+                </ul>
+            `
+        },
+        'eartraining': {
+            title: 'EAR TRAINING PRO',
+            content: `
+                <h3>What it does</h3>
+                <p>A training module designed to help you instantly recognize boosted or cut frequencies by ear without looking at a screen.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Start a session. The app will play a track and apply an EQ boost/cut to a random frequency.</li>
+                    <li>Listen carefully and guess which frequency was altered.</li>
+                    <li>Consistent practice will make ringing out monitors on stage second nature.</li>
+                </ul>
+            `
+        },
+        'tuner': {
+            title: 'PRECISION TUNER',
+            content: `
+                <h3>What it does</h3>
+                <p>A highly accurate chromatic instrument tuner for guitars, basses, and other acoustic instruments.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Place your device near the instrument.</li>
+                    <li>Pluck a string. The tuner will detect the pitch and show you how many cents sharp or flat you are.</li>
+                    <li>Adjust until the needle is dead center.</li>
+                </ul>
+            `
+        },
+        'subcalc': {
+            title: 'SUB ARRAY CALCULATOR',
+            content: `
+                <h3>What it does</h3>
+                <p>Calculates the physical spacing and electronic delay times required to build directional subwoofer arrays (like Cardioid or End-Fire).</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Select the type of array you want to build to keep bass off the stage.</li>
+                    <li>Follow the spacing dimensions provided by the calculator when placing your physical boxes.</li>
+                    <li>Apply the suggested delay times to the rear subwoofers in your DSP.</li>
+                </ul>
+            `
+        }
+    };
+
+    function openHelpModal(toolId) {
+        const data = toolHelpData[toolId];
+        if (data) {
+            modalTitle.textContent = data.title;
+            modalBody.innerHTML = data.content;
+            helpModal.classList.remove('hidden');
+        }
+    }
+
+    function closeHelpModal() {
+        helpModal.classList.add('hidden');
+    }
+
+    helpButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const toolId = btn.getAttribute('data-tool');
+            openHelpModal(toolId);
+        });
+    });
+
+    if(btnClose) btnClose.addEventListener('click', closeHelpModal);
+    if(btnUnderstood) btnUnderstood.addEventListener('click', closeHelpModal);
+
+    // Close on click outside
+    helpModal.addEventListener('click', (e) => {
+        if (e.target === helpModal) {
+            closeHelpModal();
+        }
+    });
+});

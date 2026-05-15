@@ -3808,3 +3808,50 @@ html.light .auth-modal {
         display: none; /* Hide on mobile for now */
     }
 }
+
+/* Tool Help Guide Styles */
+.btn-help {
+    background: none;
+    border: none;
+    color: var(--primary);
+    cursor: pointer;
+    vertical-align: middle;
+    margin-left: 0.5rem;
+    padding: 0;
+    transition: var(--transition);
+}
+
+.btn-help:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.btn-help .material-symbols-outlined {
+    font-size: 1.5rem;
+}
+
+.help-content-body {
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.help-content-body h3 {
+    color: var(--text-primary);
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    border-bottom: 1px solid var(--outline-light);
+    padding-bottom: 0.25rem;
+}
+
+.help-content-body ul {
+    padding-left: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.help-content-body li {
+    margin-bottom: 0.5rem;
+}

@@ -181,7 +181,7 @@
                     BACK_TO_HOMEPAGE
                 </button>
                 <div class="module-title-wrap">
-                    <h1 class="dashboard-title">TIME_DELAY_ANALYSIS</h1>
+                    <h1 class="dashboard-title">TIME_DELAY_ANALYSIS <button class="btn-help" data-tool="delay" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                     <p class="dashboard-subtitle">Precision Phase Alignment Node // CALIBRATION_ACTIVE</p>
                 </div>
                 <div class="dashboard-system-stats">
@@ -236,7 +236,7 @@
                 <div class="dashboard-title-container">
                     <button class="btn-back" id="btn-back-pinout"><span class="material-symbols-outlined">arrow_back</span></button>
                     <div>
-                        <h1 class="dashboard-title">PINOUT_REFERENCE</h1>
+                        <h1 class="dashboard-title">PINOUT_REFERENCE <button class="btn-help" data-tool="pinout" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                         <p class="dashboard-subtitle">Hardware Wiring & Interfaces // <span id="pinout-count-badge">0 CONNECTORS</span></p>
                     </div>
                 </div>
@@ -494,7 +494,7 @@
                 BACK_TO_DASHBOARD
             </button>
             <div class="module-title-wrap">
-                <h1 class="dashboard-title">SIGNAL_GENERATOR_CORE</h1>
+                <h1 class="dashboard-title">SIGNAL_GENERATOR_CORE <button class="btn-help" data-tool="siggen" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                 <p class="dashboard-subtitle">Acoustic Calibration & System Line-Check</p>
             </div>
         </header>
@@ -656,7 +656,7 @@
                 BACK_TO_DASHBOARD
             </button>
             <div class="module-title-wrap">
-                <h1 class="dashboard-title">SPECTRUM_ANALYZER_PRO</h1>
+                <h1 class="dashboard-title">SPECTRUM_ANALYZER_PRO <button class="btn-help" data-tool="rta" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                 <p class="dashboard-subtitle">Real-time Acoustic Analysis // 31-Band ISO RTA</p>
             </div>
             <div class="header-controls">
@@ -748,7 +748,7 @@
                 BACK_TO_DASHBOARD
             </button>
             <div class="module-title-wrap">
-                <h1 class="dashboard-title">EAR_TRAINING_PRO</h1>
+                <h1 class="dashboard-title">EAR_TRAINING_PRO <button class="btn-help" data-tool="eartraining" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                 <p class="dashboard-subtitle">Spectral Identification & Accuracy // TRAINING_ACTIVE</p>
             </div>
         </header>
@@ -835,7 +835,7 @@
                 BACK_TO_DASHBOARD
             </button>
             <div class="module-title-wrap">
-                <h1 class="dashboard-title">PRECISION TUNER</h1>
+                <h1 class="dashboard-title">PRECISION TUNER <button class="btn-help" data-tool="tuner" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                 <p class="dashboard-subtitle">Chromatic Instrument Tuning & Pitch Analysis</p>
             </div>
             <div class="header-controls">
@@ -888,7 +888,7 @@
                 BACK_TO_DASHBOARD
             </button>
             <div class="module-title-wrap">
-                <h1 class="dashboard-title">SUB CONFIGURATION CALCULATOR</h1>
+                <h1 class="dashboard-title">SUB CONFIGURATION CALCULATOR <button class="btn-help" data-tool="subcalc" title="Tool Guide"><span class="material-symbols-outlined">help</span></button></h1>
                 <p class="dashboard-subtitle">Wavelength Analysis & Array Alignment</p>
             </div>
             <div class="header-controls">
@@ -1247,6 +1247,18 @@
     </div>
 
     <!-- Ad Manager Full-Screen Lock Modal -->
+    <!-- Help/Info Modal -->
+    <div id="help-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close" id="close-help-modal"><span class="material-symbols-outlined">close</span></button>
+            <h2 id="help-modal-title" class="vfd-glow">TOOL_GUIDE</h2>
+            <div id="help-modal-body" class="help-content-body">
+                <!-- Content injected via JS -->
+            </div>
+            <button class="btn-action" id="btn-help-understood" style="margin-top: 2rem; width: 100%;">UNDERSTOOD</button>
+        </div>
+    </div>
+
     <div id="ad-lock-modal" class="modal-overlay hidden">
         <div class="ad-modal-content">
             <div id="ad-state-online" class="ad-state">
