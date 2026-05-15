@@ -1609,21 +1609,35 @@ html.light .rugged-input:focus {
     .author-hero {
         flex-direction: row;
         text-align: left;
-        align-items: center;
+        align-items: stretch;
+    }
+    .author-avatar-wrap {
+        width: 33.333%;
+        height: auto;
+        min-height: 250px;
+        flex-shrink: 0;
+    }
+    .author-hero-info {
+        width: 66.666%;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
 }
 
 .author-avatar-wrap {
-    width: 120px;
-    height: 120px;
+    width: 150px;
+    height: 150px;
     background: var(--surface-higher);
     border: 2px solid var(--primary);
-    border-radius: 50%;
+    border-radius: var(--radius);
     display: flex;
     align-items: center;
     justify-content: center;
     box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 0 15px rgba(20, 167, 181, 0.3);
     flex-shrink: 0;
+    overflow: hidden;
 }
 .author-avatar-wrap .identity-icon {
     font-size: 4rem;
