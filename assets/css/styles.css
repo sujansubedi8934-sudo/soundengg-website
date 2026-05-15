@@ -3959,3 +3959,8 @@ html.light .auth-modal {
     color: #ff4444;
     box-shadow: 0 0 10px rgba(255, 68, 68, 0.2);
 }
+
+/* UI Themes */
+body.theme-amber { --primary: #ffb300; }
+body.theme-green { --primary: #39ff14; }
+body.theme-red { --primary: #ff003c; }

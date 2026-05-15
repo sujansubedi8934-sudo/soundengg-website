@@ -457,36 +457,39 @@
         </div>
         <div class="settings-body">
             <div class="setting-group">
-                <h3>Audio Inputs</h3>
+                <h3>Audio Routing</h3>
                 <label class="setting-item">
-                    <span>Microphone Permission</span>
-                    <button class="rugged-btn">Request Access</button>
-                </label>
-            </div>
-            <div class="setting-group">
-                <h3>Hardware Config</h3>
-                <label class="setting-item">
-                    <span>Sample Rate</span>
-                    <select class="rugged-select">
-                        <option>44.1 kHz</option>
-                        <option selected>48.0 kHz</option>
-                        <option>96.0 kHz</option>
+                    <span>Measurement Input</span>
+                    <select id="global-mic-select" class="rugged-select">
+                        <option value="default">Default System Microphone</option>
                     </select>
                 </label>
+                <div style="margin-top: 10px;">
+                    <button id="btn-request-mic" class="rugged-btn small-btn outline-warning">Request Device Access</button>
+                </div>
+            </div>
+            
+            <div class="setting-group">
+                <h3>Global Preferences</h3>
                 <label class="setting-item">
-                    <span>Bit Depth</span>
-                    <select class="rugged-select">
-                        <option>16-bit</option>
-                        <option selected>24-bit</option>
-                        <option>32-bit float</option>
+                    <span>Default Unit System</span>
+                    <select id="global-unit-select" class="rugged-select">
+                        <option value="metric">Metric (Meters, °C)</option>
+                        <option value="imperial">Imperial (Feet, °F)</option>
                     </select>
                 </label>
             </div>
+
             <div class="setting-group">
-                <h3>Application</h3>
+                <h3>Appearance (Pro)</h3>
                 <label class="setting-item">
-                    <span>Background Processing</span>
-                    <input type="checkbox" checked>
+                    <span>Theme Accent Color</span>
+                    <select id="global-theme-select" class="rugged-select">
+                        <option value="theme-cyan">Cyan (Default)</option>
+                        <option value="theme-amber">Amber</option>
+                        <option value="theme-green">Neon Green</option>
+                        <option value="theme-red">Red</option>
+                    </select>
                 </label>
             </div>
         </div>

@@ -1175,7 +1175,8 @@ function initProfessionalRTA() {
         } catch (e) { console.error("Device enumeration failed", e); }
     }
 
-    async function startAnalyzer(deviceId) {
+    window.startAnalyzer = async function startAnalyzer(deviceId) {
+        deviceId = deviceId || localStorage.getItem('soundengg-mic-id') || 'default';
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
         }
@@ -1435,8 +1436,7 @@ function initProfessionalRTA() {
         });
     }
 
-    startBtn.addEventListener('click', () => startAnalyzer(inputSelect.value));
-    inputSelect.addEventListener('change', () => startAnalyzer(inputSelect.value));
+    startBtn.addEventListener('click', () => window.startAnalyzer());
     
     modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2318,23 +2318,11 @@ function initTuner() {
         }
     });
 
-    btnStart.addEventListener('click', () => {
-        if (isTuning) {
-            isTuning = false;
-            window.cancelAnimationFrame(rafID);
-            if (mediaStreamSource) mediaStreamSource.disconnect();
-            if (audioCtx) audioCtx.suspend();
-            btnStart.innerHTML = '<span class="material-symbols-outlined">mic</span> ACTIVATE_MIC';
-            btnStart.classList.remove('active');
-            drawVisualizer(null);
-            statusText.textContent = "TUNER INACTIVE";
-            statusText.style.color = "var(--text-muted)";
-            return;
-        }
-
-        btnStart.innerHTML = 'CONNECTING...';
-        
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+    window.startTuner = function(deviceId) {
+        if (isTuning) return;
+        deviceId = deviceId || localStorage.getItem('soundengg-mic-id') || 'default';
+        const constraints = { audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true };
+        navigator.mediaDevices.getUserMedia(constraints).then(stream => {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 2048;
@@ -2351,6 +2339,28 @@ function initTuner() {
             alert('Microphone access denied. Please allow microphone permissions to use the Tuner.');
             btnStart.innerHTML = '<span class="material-symbols-outlined">mic</span> ACTIVATE_MIC';
         });
+    };
+
+    function stopTuner() {
+        if (!isTuning) return;
+        isTuning = false;
+        window.cancelAnimationFrame(rafID);
+        if (mediaStreamSource) mediaStreamSource.disconnect();
+        if (audioCtx) audioCtx.suspend();
+        btnStart.innerHTML = '<span class="material-symbols-outlined">mic</span> ACTIVATE_MIC';
+        btnStart.classList.remove('active');
+        drawVisualizer(null);
+        statusText.textContent = "TUNER INACTIVE";
+        statusText.style.color = "var(--text-muted)";
+    }
+
+    btnStart.addEventListener('click', () => {
+        if (isTuning) {
+            stopTuner();
+        } else {
+            btnStart.innerHTML = 'CONNECTING...';
+            window.startTuner();
+        }
     });
 
     if (a4Input) {
@@ -2872,4 +2882,81 @@ document.addEventListener('DOMContentLoaded', () => {
             closeHelpModal();
         }
     });
+});
+
+// --- SYSTEM SETTINGS HUB ---
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Theme Selection
+    const themeSelect = document.getElementById('global-theme-select');
+    if (themeSelect) {
+        const savedTheme = localStorage.getItem('soundengg-theme') || 'theme-cyan';
+        themeSelect.value = savedTheme;
+        document.body.classList.add(savedTheme);
+        
+        themeSelect.addEventListener('change', (e) => {
+            const newTheme = e.target.value;
+            document.body.classList.remove('theme-cyan', 'theme-amber', 'theme-green', 'theme-red');
+            document.body.classList.add(newTheme);
+            localStorage.setItem('soundengg-theme', newTheme);
+        });
+    }
+
+    // 2. Global Units
+    const unitSelect = document.getElementById('global-unit-select');
+    if (unitSelect) {
+        const savedUnit = localStorage.getItem('soundengg-units') || 'metric';
+        unitSelect.value = savedUnit;
+        window.globalUnitSystem = savedUnit; // Export globally
+        
+        unitSelect.addEventListener('change', (e) => {
+            const system = e.target.value;
+            window.globalUnitSystem = system; 
+            localStorage.setItem('soundengg-units', system);
+            document.dispatchEvent(new CustomEvent('unitsChanged'));
+        });
+    }
+
+    // 3. Audio Routing
+    const micSelect = document.getElementById('global-mic-select');
+    const btnRequestMic = document.getElementById('btn-request-mic');
+    
+    async function populateDevices() {
+        if (!micSelect) return;
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const inputs = devices.filter(d => d.kind === 'audioinput');
+            if (inputs.length > 0) {
+                micSelect.innerHTML = '<option value="default">Default System Microphone</option>' + 
+                    inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
+                
+                const savedMic = localStorage.getItem('soundengg-mic-id');
+                if (savedMic) micSelect.value = savedMic;
+            }
+        } catch (e) {
+            console.error("Device enumeration failed", e);
+        }
+    }
+
+    if (btnRequestMic) {
+        btnRequestMic.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                stream.getTracks().forEach(t => t.stop());
+                btnRequestMic.textContent = 'Access Granted';
+                btnRequestMic.classList.remove('outline-warning');
+                btnRequestMic.classList.add('outline-primary');
+                populateDevices();
+            } catch (err) {
+                alert('Microphone access denied. ' + err.message);
+            }
+        });
+    }
+
+    if (micSelect) {
+        micSelect.addEventListener('change', (e) => {
+            localStorage.setItem('soundengg-mic-id', e.target.value);
+            document.dispatchEvent(new CustomEvent('deviceChanged', { detail: e.target.value }));
+        });
+        populateDevices();
+    }
 });
