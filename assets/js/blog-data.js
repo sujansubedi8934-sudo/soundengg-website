@@ -721,6 +721,179 @@ const blogArticles = [
                 <p>Phase alignment is the "magic" that makes a PA feel "forward" and "punchy." It’s not just about EQ; it’s about timing. Master the phase trace, and your systems will sound larger, tighter, and more professional.</p>
             </div>
         `
+        `
+    },
+    {
+        id: 'tool-delay-calc',
+        category: 'tuning',
+        categoryLabel: 'TOOL DEEP DIVE',
+        title: 'Tool Deep Dive: Mastering the Delay & Time Alignment Calculator',
+        excerpt: 'How to use our onboard delay calculator to perfectly align your main PA with delay towers and fill speakers using temperature compensation.',
+        readTime: '8 MIN READ',
+        seoKeywords: ['Delay Calculator', 'Time Alignment', 'Speaker Delay', 'Speed of Sound', 'SoundEngg Tools'],
+        content: `
+            <div class="article-header">
+                <span class="cat-tag">TOOL DEEP DIVE</span>
+                <h1>Mastering the Delay & Time Alignment Calculator</h1>
+                <p class="article-meta">By SoundEngg Editorial Team | 8 Minute Read | Updated May 2026</p>
+            </div>
+            <div class="article-body">
+                <p>One of the most frequently used tools in the SoundEngg dashboard is the <strong>Delay & Time Alignment Calculator</strong>. When you are deploying a large-scale PA system with delay towers or front fills, getting the acoustic timing right is the difference between a coherent, punchy mix and a blurry, echoing mess. This guide explores how to leverage our calculator for perfect alignment.</p>
+
+                <h2>1. Why We Need Delay</h2>
+                <p>Electricity travels through copper wire at near the speed of light. Sound travels through air much, much slower (roughly 343 meters per second). If a delay tower 50 meters away receives the audio signal at the exact same time as the main stage PA, the audience near the delay tower will hear the sound from the tower immediately, and then hear the sound from the main PA a fraction of a second later. This creates a distinct "slapback" echo.</p>
+                <p>To fix this, we electronically delay the signal going to the tower, forcing it to wait until the acoustic sound from the main PA arrives through the air. They sum together perfectly, creating a seamless listening experience.</p>
+
+                <h2>2. Temperature: The Hidden Variable</h2>
+                <p>The speed of sound is not fixed; it is highly dependent on ambient temperature. Our SoundEngg Delay Calculator explicitly asks for the current venue temperature in Celsius. Why? Because a 10-degree drop in temperature at night will slow down the speed of sound, meaning your afternoon delay calculations will be wrong by showtime. Always input the <em>current</em> temperature for millimeter precision.</p>
+
+                <h2>3. How to Use the Tool</h2>
+                <ul>
+                    <li><strong>Measure the Distance:</strong> Use a laser measure to find the exact distance from the Main PA acoustic center to the Delay Tower acoustic center.</li>
+                    <li><strong>Input the Temperature:</strong> Check your local weather app or venue thermometer.</li>
+                    <li><strong>Calculate:</strong> The tool provides the exact millisecond delay required. Enter this number into your speaker processor (e.g., Lake, Galileo, or amplifier DSP).</li>
+                </ul>
+
+                <h2>4. The "Haas Effect" Trick</h2>
+                <p><strong>Pro Tip:</strong> Once you find the mathematically perfect delay time, try adding an extra 10 to 15 milliseconds to the delay tower. This triggers the "Haas Effect" (or Precedence Effect). The human brain will perceive the sound as coming entirely from the Main Stage, even though the delay tower is doing the heavy lifting for volume. It maintains the illusion of the band being the source of the sound!</p>
+            </div>
+        `
+    },
+    {
+        id: 'tool-freq-note',
+        category: 'acoustics',
+        categoryLabel: 'TOOL DEEP DIVE',
+        title: 'Tool Deep Dive: The Science of Frequency to Note Conversion',
+        excerpt: 'Stop guessing frequencies. Use our converter to find resonant room nodes and ring out feedback based on musical keys.',
+        readTime: '6 MIN READ',
+        seoKeywords: ['Frequency to Note', 'Feedback Elimination', 'Room Resonance', 'Acoustic Tuning', 'SoundEngg Tools'],
+        content: `
+            <div class="article-header">
+                <span class="cat-tag">TOOL DEEP DIVE</span>
+                <h1>The Science of Frequency to Note Conversion</h1>
+                <p class="article-meta">By SoundEngg Editorial Team | 6 Minute Read | Updated May 2026</p>
+            </div>
+            <div class="article-body">
+                <p>Our <strong>Frequency-to-Note Converter</strong> isn't just for musicians tuning their guitars; it is a critical acoustic weapon for live sound engineers fighting room resonance and feedback. Understanding the relationship between musical pitch and Hertz (Hz) can drastically speed up your system tuning workflow.</p>
+
+                <h2>1. Ringing Out Monitors</h2>
+                <p>When you are ringing out a vocal wedge, a feedback ring will often sound like a distinct musical note. If you have perfect pitch (or use a pitch-pipe app), you might identify the feedback as a "G#". Instead of randomly sweeping a parametric EQ to find the ringing frequency, you can use our tool to instantly see that G#4 corresponds to roughly 415Hz. You can immediately notch 415Hz on your graphic EQ and kill the feedback.</p>
+
+                <h2>2. Tuning the PA to the Key of the Song</h2>
+                <p>In electronic music or heavily produced pop, the sub-bass often hits specific, sustained notes. If a track is in the key of C, the fundamental sub-bass note is likely a C1 (32.7Hz) or C2 (65.4Hz). By using the Frequency-to-Note tool, you can precisely tune your subwoofer crossover points or dynamic EQs to enhance the fundamental root note of the performance, giving the mix massive low-end impact without muddying the adjacent frequencies.</p>
+
+                <h2>3. Understanding Room Modes</h2>
+                <p>Every enclosed venue has "Room Modes"—frequencies that build up and resonate because their wavelengths fit perfectly between the walls. Often, these modes correspond to specific musical notes. If you notice that the bass guitar sounds overwhelmingly loud every time the bassist plays an "A", you have a room mode at 55Hz (A1) or 110Hz (A2). The tool helps you translate the musical problem into a mathematical EQ solution.</p>
+
+                <h2>Summary</h2>
+                <p>Stop guessing with your EQ. Use the SoundEngg Frequency-to-Note converter to bridge the gap between the musical performance on stage and the mathematical physics of your console.</p>
+            </div>
+        `
+    },
+    {
+        id: 'tool-spl-distance',
+        category: 'acoustics',
+        categoryLabel: 'TOOL DEEP DIVE',
+        title: 'Tool Deep Dive: Decoding SPL Distance Attenuation',
+        excerpt: 'Predicting how loud your PA will be in the back row. Understanding the inverse square law using our SPL tool.',
+        readTime: '7 MIN READ',
+        seoKeywords: ['SPL Distance Attenuation', 'Inverse Square Law', 'Loudspeaker Output', 'SPL Calculator', 'SoundEngg Tools'],
+        content: `
+            <div class="article-header">
+                <span class="cat-tag">TOOL DEEP DIVE</span>
+                <h1>Decoding SPL Distance Attenuation</h1>
+                <p class="article-meta">By SoundEngg Editorial Team | 7 Minute Read | Updated May 2026</p>
+            </div>
+            <div class="article-body">
+                <p>One of the most common questions an engineer is asked by a promoter is: "Will it be loud enough in the back?" With the <strong>SoundEngg SPL Distance Attenuation Calculator</strong>, you don't have to guess. You can prove it with math.</p>
+
+                <h2>1. The Inverse Square Law</h2>
+                <p>In a free field (outdoors, away from reflecting walls), sound energy drops significantly as you move away from the source. For a standard "Point Source" speaker, the rule is the <strong>Inverse Square Law</strong>: You lose 6 decibels (dB) of Sound Pressure Level (SPL) every time your distance from the speaker doubles.</p>
+                <p>If your speaker produces 130dB at 1 meter, it will produce 124dB at 2 meters, 118dB at 4 meters, and 112dB at 8 meters. Our calculator does all of this logarithmic math for you instantly.</p>
+
+                <h2>2. Using the Tool for System Design</h2>
+                <p>Before you load the truck, check the venue dimensions. If the audience stretches 32 meters back, you know you will lose roughly 30dB from the speaker's 1-meter output spec. If the client demands 100dB of rock-concert volume in the back row, your speaker must be capable of producing at least 130dB at 1 meter. If it only produces 120dB, the back row will only hear 90dB—you need a bigger PA or delay towers.</p>
+
+                <h2>3. Point Source vs. Line Source</h2>
+                <p>Our tool provides calculations for both Point Sources (6dB drop per doubling) and theoretical Line Sources (3dB drop per doubling). While true line sources only exist in theory, large line arrays behave closely to a 3dB drop in their "near-field." Using the Line Source option gives you an approximation of how a large-format line array will carry energy to the back of a stadium compared to a standard ground-stacked speaker.</p>
+
+                <h2>Summary</h2>
+                <p>Math doesn't lie. Use the SPL Distance tool during the pre-production phase to ensure you are bringing the right amount of firepower to the gig, keeping both the client and the audience happy.</p>
+            </div>
+        `
+    },
+    {
+        id: 'tool-voltage-conversion',
+        category: 'power',
+        categoryLabel: 'TOOL DEEP DIVE',
+        title: 'Tool Deep Dive: Voltage, dBu, and dBV Conversions Explained',
+        excerpt: 'Bridging the gap between consumer and professional gear. How to use our Voltage converter to prevent distortion.',
+        readTime: '9 MIN READ',
+        seoKeywords: ['Voltage to dBu', 'Audio Voltage Conversion', 'Pro Audio Levels', 'dBu vs dBV', 'SoundEngg Tools'],
+        content: `
+            <div class="article-header">
+                <span class="cat-tag">TOOL DEEP DIVE</span>
+                <h1>Voltage, dBu, and dBV Conversions Explained</h1>
+                <p class="article-meta">By SoundEngg Editorial Team | 9 Minute Read | Updated May 2026</p>
+            </div>
+            <div class="article-body">
+                <p>When you are interfacing a professional mixing console with broadcast video gear, consumer playback devices, or outboard analog hardware, you will inevitably run into the confusing world of analog voltage standards. The <strong>SoundEngg Voltage Converter</strong> takes the headache out of matching levels.</p>
+
+                <h2>1. The Two Standards: +4 dBu vs. -10 dBV</h2>
+                <p>In the analog audio world, there are two primary reference levels for "Line Level" audio:</p>
+                <ul>
+                    <li><strong>Professional (+4 dBu):</strong> Used by mixing consoles, high-end outboard gear, and professional amplifiers. +4 dBu translates to exactly <strong>1.228 Volts RMS</strong>.</li>
+                    <li><strong>Consumer (-10 dBV):</strong> Used by DJ controllers, laptops, keyboards, and consumer video cameras. -10 dBV translates to <strong>0.316 Volts RMS</strong>.</li>
+                </ul>
+
+                <h2>2. The Danger of Mismatching</h2>
+                <p>If you plug a Professional +4 dBu output (1.228V) directly into a Consumer -10 dBV input (expecting 0.316V), you are hitting the consumer device with nearly four times the voltage it expects. The result? Instant, harsh analog clipping and distortion.</p>
+                <p>Conversely, if you plug a Consumer -10 dBV output into a Professional +4 dBu input, the signal will be very weak. When you turn up the gain on your console to compensate, you will also turn up the "noise floor," resulting in a very noisy, hissy channel.</p>
+
+                <h2>3. Using the Tool on Gig Day</h2>
+                <p>When the broadcast truck asks you for a "1-volt peak-to-peak reference tone," you don't need to panic. Open the SoundEngg Voltage Converter, input the voltage, and it will instantly tell you what dBu level you need to send out of your console's matrix to satisfy the broadcast engineer's exact requirements.</p>
+
+                <h2>Summary</h2>
+                <p>Proper gain staging isn't just about the digital meters on your screen; it's about matching the physical electrical voltage of your hardware. Our converter ensures your signals stay clean, punchy, and distortion-free across any piece of gear.</p>
+            </div>
+        `
+    },
+    {
+        id: 'tool-file-size',
+        category: 'special',
+        categoryLabel: 'TOOL DEEP DIVE',
+        title: 'Tool Deep Dive: Estimating Audio File Sizes for Live Recording',
+        excerpt: 'Never run out of hard drive space mid-show again. How to accurately predict multi-track recording sizes.',
+        readTime: '6 MIN READ',
+        seoKeywords: ['Audio File Size Calculator', 'Multitrack Recording', 'WAV File Size', 'Live Sound Recording', 'SoundEngg Tools'],
+        content: `
+            <div class="article-header">
+                <span class="cat-tag">TOOL DEEP DIVE</span>
+                <h1>Estimating Audio File Sizes for Live Recording</h1>
+                <p class="article-meta">By SoundEngg Editorial Team | 6 Minute Read | Updated May 2026</p>
+            </div>
+            <div class="article-body">
+                <p>Live sound isn't just about the PA anymore. Almost every major tour, festival, and corporate event requires a multi-track recording for later broadcast, mixing, or virtual soundcheck. Running out of hard drive space halfway through the headliner's set is a catastrophic failure. The <strong>SoundEngg Audio File Size Estimator</strong> guarantees this never happens.</p>
+
+                <h2>1. The Math Behind the Music</h2>
+                <p>Uncompressed audio (like WAV or AIFF files) has a very predictable mathematical footprint. It depends on three factors:</p>
+                <ul>
+                    <li><strong>Sample Rate:</strong> How many times per second the audio is captured (e.g., 48kHz or 96kHz).</li>
+                    <li><strong>Bit Depth:</strong> The dynamic resolution of each sample (e.g., 24-bit).</li>
+                    <li><strong>Track Count:</strong> How many channels you are recording simultaneously.</li>
+                </ul>
+
+                <h2>2. The 96kHz Dilemma</h2>
+                <p>Many modern consoles (like the Allen & Heath dLive or DiGiCo Quantum) run natively at 96kHz. If you decide to record all 64 channels at 96kHz / 24-bit for a 3-hour festival set, the data footprint is massive. Using our tool, you can instantly calculate that this setup requires roughly <strong>95 Gigabytes</strong> of storage.</p>
+                <p>If you only have a 64GB USB drive, you immediately know you have a problem. The tool allows you to quickly see the alternative: dropping the recording rate to 48kHz cuts the file size exactly in half, saving your gig without sacrificing noticeable quality for standard live mixes.</p>
+
+                <h2>3. Workflow Best Practices</h2>
+                <p>Always use the estimator during your pre-production advancing. Calculate the total required storage for the entire day, and then <strong>double it</strong>. Hard drives can fail, format issues can consume overhead space, and bands always play longer than their allotted time. Having a 1TB SSD for a 200GB calculated show is standard professional practice.</p>
+
+                <h2>Summary</h2>
+                <p>Data management is now a core responsibility of the live sound engineer. Let the SoundEngg calculator do the math so you can focus on capturing the magic of the live performance.</p>
+            </div>
+        `
     }
 ];
 
