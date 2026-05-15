@@ -275,11 +275,16 @@ function setupNavigation() {
     
     if (btnAuthToggle && authModalOverlay && btnCloseAuth) {
         // Open Modal
-        btnAuthToggle.addEventListener('click', () => {
-            const user = window.firebaseAuth.auth.currentUser;
+        btnAuthToggle.addEventListener('click', async () => {
+            if (!window.supabaseClient) {
+                alert('Supabase is not configured yet. Waiting for keys.');
+                return;
+            }
+            
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
             if (user) {
                 if (confirm(`Logged in as ${user.email}. Would you like to sign out?`)) {
-                    window.firebaseAuth.signOut(window.firebaseAuth.auth);
+                    await window.supabaseClient.auth.signOut();
                 }
             } else {
                 authModalOverlay.classList.remove('hidden');
@@ -309,13 +314,15 @@ function setupNavigation() {
             });
         });
 
-        // REAL Firebase Auth Submissions
+        // REAL Supabase Auth Submissions
         const formLogin = document.getElementById('form-login');
         const formSignup = document.getElementById('form-signup');
 
         if (formLogin) {
             formLogin.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if(!window.supabaseClient) return alert('Auth not configured.');
+                
                 const email = formLogin.querySelector('input[type="email"]').value;
                 const password = formLogin.querySelector('input[type="password"]').value;
                 const btn = formLogin.querySelector('.auth-submit-btn');
@@ -323,7 +330,8 @@ function setupNavigation() {
                 try {
                     btn.textContent = 'Verifying...';
                     btn.disabled = true;
-                    await window.firebaseAuth.signInWithEmailAndPassword(window.firebaseAuth.auth, email, password);
+                    const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+                    if (error) throw error;
                     authModalOverlay.classList.add('hidden');
                 } catch (error) {
                     alert('Login failed: ' + error.message);
@@ -337,6 +345,8 @@ function setupNavigation() {
         if (formSignup) {
             formSignup.addEventListener('submit', async (e) => {
                 e.preventDefault();
+                if(!window.supabaseClient) return alert('Auth not configured.');
+                
                 const email = formSignup.querySelector('input[type="email"]').value;
                 const password = formSignup.querySelector('input[type="password"]').value;
                 const btn = formSignup.querySelector('.auth-submit-btn');
@@ -344,8 +354,10 @@ function setupNavigation() {
                 try {
                     btn.textContent = 'Creating...';
                     btn.disabled = true;
-                    await window.firebaseAuth.createUserWithEmailAndPassword(window.firebaseAuth.auth, email, password);
+                    const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+                    if (error) throw error;
                     authModalOverlay.classList.add('hidden');
+                    alert('Account created! You can now log in.');
                 } catch (error) {
                     alert('Signup failed: ' + error.message);
                 } finally {
@@ -359,9 +371,14 @@ function setupNavigation() {
         const btnGoogle = document.getElementById('btn-google-auth');
         if (btnGoogle) {
             btnGoogle.addEventListener('click', async () => {
+                if(!window.supabaseClient) return alert('Auth not configured.');
+                
                 try {
-                    await window.firebaseAuth.signInWithPopup(window.firebaseAuth.auth, window.firebaseAuth.googleProvider);
-                    authModalOverlay.classList.add('hidden');
+                    const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+                        provider: 'google',
+                    });
+                    if(error) throw error;
+                    // Supabase redirects to Google, so we don't hide the modal manually here.
                 } catch (error) {
                     alert('Google login failed: ' + error.message);
                 }
@@ -369,22 +386,25 @@ function setupNavigation() {
         }
 
         // Auth State Monitoring
-        window.firebaseAuth.onAuthStateChanged(window.firebaseAuth.auth, (user) => {
-            const authText = btnAuthToggle.querySelector('.btn-text');
-            const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
-            
-            if (user) {
-                // User is signed in
-                if (authText) authText.textContent = user.displayName || user.email.split('@')[0].toUpperCase();
-                if (authIcon) authIcon.textContent = 'account_circle';
-                btnAuthToggle.classList.add('logged-in');
-            } else {
-                // User is signed out
-                if (authText) authText.textContent = 'LOGIN_SYSTEM';
-                if (authIcon) authIcon.textContent = 'login';
-                btnAuthToggle.classList.remove('logged-in');
-            }
-        });
+        if(window.supabaseClient) {
+            window.supabaseClient.auth.onAuthStateChange((event, session) => {
+                const user = session?.user;
+                const authText = btnAuthToggle.querySelector('.btn-text');
+                const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
+                
+                if (user) {
+                    // User is signed in
+                    if (authText) authText.textContent = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                    if (authIcon) authIcon.textContent = 'account_circle';
+                    btnAuthToggle.classList.add('logged-in');
+                } else {
+                    // User is signed out
+                    if (authText) authText.textContent = 'LOGIN_SYSTEM';
+                    if (authIcon) authIcon.textContent = 'login';
+                    btnAuthToggle.classList.remove('logged-in');
+                }
+            });
+        }
     }
 
     // Gallery Zoom Logic
@@ -2569,8 +2589,10 @@ function initAdManager() {
     }
 
     if (btnBuyPro) {
-        btnBuyPro.addEventListener('click', () => {
-            const user = window.firebaseAuth.auth.currentUser;
+        btnBuyPro.addEventListener('click', async () => {
+            if(!window.supabaseClient) return alert('Auth not configured.');
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            
             if (!user) {
                 alert('Please log in to purchase SoundEngg Pro.');
                 authModalOverlay.classList.remove('hidden');
@@ -2581,7 +2603,7 @@ function initAdManager() {
             alert(`Redirecting to Stripe for ${user.email}...`);
             setTimeout(() => {
                 alert('Mock Checkout: SoundEngg Pro purchased! Account upgraded.');
-                // In a real app, this would be handled by a webhook updating Firebase metadata
+                // In a real app, this would be handled by a webhook updating Supabase profiles table
                 localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
                 unlockApp();
             }, 1500);
