@@ -1268,6 +1268,71 @@
     </div>
 
     <!-- Ad Manager Full-Screen Lock Modal -->
+    <!-- User Profile & Settings Modal -->
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal-content auth-modal-box">
+            <button id="btn-close-profile" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            
+            <div class="auth-header" style="margin-bottom: 1rem;">
+                <h2 class="vfd-glow">USER_PROFILE</h2>
+                <p>Manage your account, identity, and security.</p>
+            </div>
+
+            <div class="profile-section">
+                <div class="profile-stat-row">
+                    <div class="profile-stat-label">ACCOUNT EMAIL</div>
+                    <div class="profile-stat-value" id="profile-email-display">user@example.com</div>
+                </div>
+                <div class="profile-stat-row">
+                    <div class="profile-stat-label">SUBSCRIPTION TIER</div>
+                    <div class="profile-stat-value">
+                        <span id="profile-tier-badge" class="tier-badge free">FREE TIER</span>
+                        <button id="btn-profile-upgrade" class="rugged-btn outline-primary small-btn" style="display: none; margin-left: 10px;">UPGRADE</button>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="rugged-divider">
+
+            <div class="profile-section">
+                <h3 class="section-sub-title">PERSONAL DETAILS</h3>
+                <form id="form-update-profile" class="rugged-form">
+                    <div class="form-group">
+                        <label>FULL NAME</label>
+                        <input type="text" id="profile-fullname" class="rugged-input" placeholder="e.g. John Doe">
+                    </div>
+                    <div class="form-group">
+                        <label>COMPANY / STUDIO</label>
+                        <input type="text" id="profile-company" class="rugged-input" placeholder="e.g. SoundEngg Ltd.">
+                    </div>
+                    <button type="submit" class="auth-submit-btn">SAVE DETAILS</button>
+                </form>
+            </div>
+
+            <hr class="rugged-divider">
+
+            <div class="profile-section">
+                <h3 class="section-sub-title">SECURITY</h3>
+                <form id="form-update-password" class="rugged-form">
+                    <div class="form-group">
+                        <label>NEW PASSWORD</label>
+                        <input type="password" id="profile-new-password" class="rugged-input" placeholder="Enter new password" minlength="6" required>
+                    </div>
+                    <button type="submit" class="auth-submit-btn outline-warning">UPDATE PASSWORD</button>
+                    <p id="password-update-msg" class="form-msg"></p>
+                </form>
+            </div>
+
+            <hr class="rugged-divider">
+
+            <div class="profile-section" style="margin-top: 2rem;">
+                <button id="btn-profile-signout" class="auth-submit-btn danger-btn">
+                    <span class="material-symbols-outlined">logout</span> SECURE SIGN OUT
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Help/Info Modal -->
     <div id="help-modal" class="modal-overlay hidden">
         <div class="modal-content">

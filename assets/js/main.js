@@ -274,8 +274,20 @@ function setupNavigation() {
     const authTabs = document.querySelectorAll('.auth-tab');
     const authContents = document.querySelectorAll('.auth-content');
     
+    // Profile Modal Elements
+    const profileModal = document.getElementById('profile-modal');
+    const btnCloseProfile = document.getElementById('btn-close-profile');
+    const profileEmailDisplay = document.getElementById('profile-email-display');
+    const profileTierBadge = document.getElementById('profile-tier-badge');
+    const btnProfileUpgrade = document.getElementById('btn-profile-upgrade');
+    const formUpdateProfile = document.getElementById('form-update-profile');
+    const formUpdatePassword = document.getElementById('form-update-password');
+    const btnProfileSignout = document.getElementById('btn-profile-signout');
+    const inputFullname = document.getElementById('profile-fullname');
+    const inputCompany = document.getElementById('profile-company');
+
     if (btnAuthToggle && authModalOverlay && btnCloseAuth) {
-        // Open Modal
+        // Open Modal (Auth or Profile)
         btnAuthToggle.addEventListener('click', async () => {
             if (!window.supabaseClient) {
                 alert('Supabase is not configured yet. Waiting for keys.');
@@ -284,15 +296,36 @@ function setupNavigation() {
             
             const { data: { user } } = await window.supabaseClient.auth.getUser();
             if (user) {
-                if (confirm(`Logged in as ${user.email}. Would you like to sign out?`)) {
-                    await window.supabaseClient.auth.signOut();
+                // Populate Profile
+                if(profileEmailDisplay) profileEmailDisplay.textContent = user.email;
+                
+                // Check Tier
+                const unlockedUntil = localStorage.getItem('tools_unlocked_until');
+                const isPro = unlockedUntil && parseInt(unlockedUntil) > Date.now();
+                
+                if (profileTierBadge) {
+                    if (isPro) {
+                        profileTierBadge.className = 'tier-badge pro';
+                        profileTierBadge.textContent = 'PRO TIER';
+                        if(btnProfileUpgrade) btnProfileUpgrade.style.display = 'none';
+                    } else {
+                        profileTierBadge.className = 'tier-badge free';
+                        profileTierBadge.textContent = 'FREE TIER';
+                        if(btnProfileUpgrade) btnProfileUpgrade.style.display = 'inline-block';
+                    }
                 }
+
+                // Load saved local profile details
+                if (inputFullname) inputFullname.value = localStorage.getItem('profile_fullname') || '';
+                if (inputCompany) inputCompany.value = localStorage.getItem('profile_company') || '';
+
+                if(profileModal) profileModal.classList.remove('hidden');
             } else {
                 authModalOverlay.classList.remove('hidden');
             }
         });
 
-        // Close Modal
+        // Close Auth Modal
         btnCloseAuth.addEventListener('click', () => {
             authModalOverlay.classList.add('hidden');
         });
@@ -303,6 +336,80 @@ function setupNavigation() {
                 authModalOverlay.classList.add('hidden');
             }
         });
+
+        // Profile Modal Listeners
+        if (profileModal) {
+            if(btnCloseProfile) {
+                btnCloseProfile.addEventListener('click', () => profileModal.classList.add('hidden'));
+            }
+            profileModal.addEventListener('click', (e) => {
+                if (e.target === profileModal) profileModal.classList.add('hidden');
+            });
+
+            if (formUpdateProfile) {
+                formUpdateProfile.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    localStorage.setItem('profile_fullname', inputFullname.value);
+                    localStorage.setItem('profile_company', inputCompany.value);
+                    
+                    const btn = formUpdateProfile.querySelector('button[type="submit"]');
+                    const origText = btn.textContent;
+                    btn.textContent = 'SAVED!';
+                    setTimeout(() => btn.textContent = origText, 2000);
+                });
+            }
+
+            if (formUpdatePassword) {
+                formUpdatePassword.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const newPassword = document.getElementById('profile-new-password').value;
+                    const msgEl = document.getElementById('password-update-msg');
+                    const btn = formUpdatePassword.querySelector('button[type="submit"]');
+                    
+                    try {
+                        btn.textContent = 'UPDATING...';
+                        btn.disabled = true;
+                        const { data, error } = await window.supabaseClient.auth.updateUser({ password: newPassword });
+                        if (error) throw error;
+                        
+                        msgEl.style.color = '#00ffcc';
+                        msgEl.textContent = 'Password updated successfully.';
+                        formUpdatePassword.reset();
+                    } catch (err) {
+                        msgEl.style.color = '#ff4444';
+                        msgEl.textContent = err.message;
+                    } finally {
+                        btn.textContent = 'UPDATE PASSWORD';
+                        btn.disabled = false;
+                        setTimeout(() => msgEl.textContent = '', 3000);
+                    }
+                });
+            }
+
+            if (btnProfileSignout) {
+                btnProfileSignout.addEventListener('click', async () => {
+                    if (confirm('Are you sure you want to sign out?')) {
+                        await window.supabaseClient.auth.signOut();
+                        profileModal.classList.add('hidden');
+                        alert('You have been signed out.');
+                    }
+                });
+            }
+
+            if (btnProfileUpgrade) {
+                btnProfileUpgrade.addEventListener('click', async () => {
+                    const { data: { user } } = await window.supabaseClient.auth.getUser();
+                    if (!user) return;
+                    alert(`Redirecting to Stripe for ${user.email}...`);
+                    setTimeout(() => {
+                        alert('Mock Checkout: SoundEngg Pro purchased! Account upgraded.');
+                        localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
+                        profileModal.classList.add('hidden');
+                        if(typeof unlockApp === 'function') unlockApp();
+                    }, 1500);
+                });
+            }
+        }
 
         // Tab Switching
         authTabs.forEach(tab => {
