@@ -721,7 +721,6 @@ const blogArticles = [
                 <p>Phase alignment is the "magic" that makes a PA feel "forward" and "punchy." It’s not just about EQ; it’s about timing. Master the phase trace, and your systems will sound larger, tighter, and more professional.</p>
             </div>
         `
-        `
     },
     {
         id: 'tool-delay-calc',
