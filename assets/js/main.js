@@ -68,28 +68,29 @@ function applyAutoTheme() {
 let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
 
 function initGlobalUnits() {
-    const btnMetric = document.getElementById('unit-metric');
-    const btnImperial = document.getElementById('unit-imperial');
-    if (!btnMetric || !btnImperial) return;
+    const btnUnit = document.getElementById('btn-delaycalc-unit');
+    if (!btnUnit) return;
 
     function setSystem(system) {
         globalUnitSystem = system;
         localStorage.setItem('soundengg-units', system);
         
         if (system === 'metric') {
-            btnMetric.classList.add('active');
-            btnImperial.classList.remove('active');
+            btnUnit.dataset.unit = 'metric';
+            btnUnit.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)';
         } else {
-            btnImperial.classList.add('active');
-            btnMetric.classList.remove('active');
+            btnUnit.dataset.unit = 'imperial';
+            btnUnit.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
         }
 
         // Broadcast change
         document.dispatchEvent(new CustomEvent('unitsChanged'));
     }
 
-    btnMetric.addEventListener('click', () => setSystem('metric'));
-    btnImperial.addEventListener('click', () => setSystem('imperial'));
+    btnUnit.addEventListener('click', () => {
+        const nextSystem = globalUnitSystem === 'metric' ? 'imperial' : 'metric';
+        setSystem(nextSystem);
+    });
 
     // Init from storage
     const saved = localStorage.getItem('soundengg-units') || 'metric';

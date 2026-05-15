@@ -3816,9 +3816,12 @@ html.light .auth-modal {
     color: var(--primary);
     cursor: pointer;
     vertical-align: middle;
-    margin-left: 0.5rem;
+    margin-left: 1rem;
     padding: 0;
     transition: var(--transition);
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .btn-help:hover {
@@ -3828,6 +3831,23 @@ html.light .auth-modal {
 
 .btn-help .material-symbols-outlined {
     font-size: 1.5rem;
+}
+
+.help-label {
+    font-size: 0.6rem;
+    text-transform: lowercase;
+    margin-top: 2px;
+    opacity: 0.8;
+}
+
+@keyframes pulseGlowHelp {
+    0% { filter: drop-shadow(0 0 2px var(--primary)); opacity: 0.8; transform: scale(1); }
+    50% { filter: drop-shadow(0 0 8px var(--primary)); opacity: 1; transform: scale(1.05); }
+    100% { filter: drop-shadow(0 0 2px var(--primary)); opacity: 0.8; transform: scale(1); }
+}
+
+.pulse-glow-help {
+    animation: pulseGlowHelp 2s infinite alternate;
 }
 
 .help-content-body {
