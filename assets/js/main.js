@@ -4564,11 +4564,7 @@ window.showRazorpaySimOverlay = function(plan) {
                     await window.supabaseClient.from('profiles')
                         .upsert({ 
                             id: session.user.id,
-                            is_pro: true,
-                            subscription_tier: 'pro',
-                            subscription_provider: 'razorpay',
-                            subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
-                            subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 Year Default
+                            is_pro: true
                         });
                     
                     // Trigger global refresh
