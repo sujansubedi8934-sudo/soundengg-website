@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v1';
+const CACHE_NAME = 'soundengg-cache-v2';
 
 // All critical assets needed to run the dashboard offline
 const URLS_TO_CACHE = [
@@ -18,6 +18,7 @@ const URLS_TO_CACHE = [
 
 // Install Event - Download all files into cache
 self.addEventListener('install', event => {
+    self.skipWaiting(); // Force the waiting service worker to become active immediately (Senior Fix)
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
@@ -39,7 +40,7 @@ self.addEventListener('activate', event => {
                     }
                 })
             );
-        })
+        }).then(() => self.clients.claim()) // Claim all clients immediately so the new worker takes control (Senior Fix)
     );
 });
 

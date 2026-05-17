@@ -4,6 +4,38 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>SoundEngg | Titan Console Pro</title>
+    <meta name="description" content="Access professional audio engineering calculators and real-time analyzers. Precision tools for delay, subwoofers, and acoustic analysis in one modular dashboard.">
+    <meta name="keywords" content="audio engineering console, spectrum analyzer, rta, delay calculator, subwoofer array, sound engineer dashboard">
+    <link rel="canonical" href="https://soundengg.com/app.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="SoundEngg Titan Console | Professional Audio Engineering App">
+    <meta property="og:description" content="The ultimate console for live sound and studio engineers. Real-time RTA, precision calculators, and pro audio references.">
+    
+    <!-- JSON-LD SoftwareApplication Schema -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SoundEngg Titan Console",
+      "operatingSystem": "Web, iOS, Android",
+      "applicationCategory": "DesignApplication, MultimediaApplication",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.9",
+        "ratingCount": "1250"
+      },
+      "featureList": "Delay Calculator, Subwoofer Array Configuration, Real-time Spectrum Analyzer, SPL Attenuation, Audio Pinout Reference",
+      "screenshot": "https://soundengg.com/assets/img/app-preview.png"
+    }
+    </script>
+
     <link rel="stylesheet" href="assets/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -42,9 +74,13 @@
                         <span class="material-symbols-outlined">dark_mode</span>
                     </button>
                 </div>
+                <div class="cloud-sync-status" id="sync-status" title="Cloud Sync Status">
+                    <span class="material-symbols-outlined status-icon">cloud_done</span>
+                    <span class="status-text">SYNCED</span>
+                </div>
                 <div class="system-actions">
                     <button id="btn-settings" aria-label="Settings"><span class="material-symbols-outlined">settings</span></button>
-                    <button aria-label="Login / Sign Out" id="btn-auth-toggle" class="power-btn" title="Authentication"><span class="material-symbols-outlined">power_settings_new</span></button>
+                    <button aria-label="User Profile" id="btn-auth-toggle" class="power-btn" title="User Profile"><span class="material-symbols-outlined">account_circle</span></button>
                 </div>
             </div>
         </div>
@@ -229,6 +265,29 @@
                         <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; background-color: var(--primary);"></div>
                     </div>
                 </div>
+
+                <!-- Theory: Delay Calculator Engineering Insight -->
+                <div class="theory-card" aria-label="Engineering Insight: Speaker Delay Alignment">
+                    <div class="theory-card-header">
+                        <span class="material-symbols-outlined">school</span>
+                        <h4>Engineering Insight: The Physics of Sound Delay</h4>
+                    </div>
+                    <p>
+                        Sound travels through air at approximately <strong>344 metres per second (1,128 ft/s)</strong> at 21°C. 
+                        However, this speed isn't constant; it is primarily affected by <strong>temperature</strong>. 
+                        As air gets warmer, molecules move faster, and sound propagation speed increases. For every degree 
+                        Celsius increase, sound speed increases by about 0.6 m/s.
+                    </p>
+                    <p>
+                        In professional sound reinforcement, <strong>Time Alignment</strong> is critical. When using 
+                        "delay towers" at a large festival, the sound from the main stage speakers takes time to reach 
+                        the back of the crowd. If the delay speakers fired at the same time as the mains, the audience 
+                        would hear a "double hit" or echo. By delaying the secondary speakers to match the arrival time 
+                        of the primary sound wave, we maintain <strong>phase coherency</strong> and professional 
+                        clarity across the entire venue.
+                    </p>
+                </div>
+
             </div>
         </div>
 
@@ -622,6 +681,7 @@
                 <h4 class="sidebar-title">CATEGORIES</h4>
                 <ul class="category-list">
                     <li><button class="cat-btn active" data-cat="all">ALL TOPICS</button></li>
+                    <li><button class="cat-btn vault-btn" data-cat="vault"><span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle; margin-right: 4px;">lock</span> PRO VAULT</button></li>
                     <li><button class="cat-btn" data-cat="consoles">CONSOLES & REVIEWS</button></li>
                     <li><button class="cat-btn" data-cat="arrays">LINE ARRAYS</button></li>
                     <li><button class="cat-btn" data-cat="dynamics">EQ & DYNAMICS</button></li>
@@ -695,6 +755,7 @@
                     <span class="train-label">MODE</span>
                     <button class="train-source-btn active mode-btn" data-mode="fft">CURVE</button>
                     <button class="train-source-btn mode-btn" data-mode="rta">RTA</button>
+                    <button class="train-source-btn mode-btn" data-mode="waterfall">WATERFALL</button>
                 </div>
                 <div class="train-control-group">
                     <span class="train-label">WEIGHT</span>
@@ -707,6 +768,9 @@
             <div class="train-ab-container" style="display: block; padding: 0; background: transparent; border: 1px solid var(--outline); overflow: hidden;">
                 <div class="canvas-wrapper" style="position: relative; width: 100%; height: 500px; background: var(--surface-highest);">
                     <canvas id="rta-canvas" style="width: 100%; height: 100%;"></canvas>
+                    <button id="btn-rta-fullscreen" class="vfd-glow" style="position: absolute; top: 15px; right: 15px; background: rgba(5,5,8,0.7); border: 1px solid var(--primary); border-radius: 4px; color: var(--primary); padding: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: all 0.2s;" title="Toggle Fullscreen View">
+                        <span class="material-symbols-outlined" style="font-size: 20px;">fullscreen</span>
+                    </button>
                     <div class="freq-labels" id="rta-labels">
                         <!-- Labels injected via JS -->
                     </div>
@@ -726,6 +790,13 @@
                 </div>
 
                 <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
+                    <span class="train-label">MIC CALIBRATION</span>
+                    <button id="btn-mic-cal-modal" class="train-source-btn active-pro-glow" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.75rem; font-family: var(--font-mono); padding: 8px 12px; margin-top: 2px;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">settings_input_antenna</span> LOAD PROFILE
+                    </button>
+                </div>
+
+                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
                     <span class="train-label">PEAK HOLD</span>
                     <div style="display: flex; gap: 0.5rem;">
                         <button id="btn-peak-toggle" class="train-source-btn active">ON</button>
@@ -733,11 +804,19 @@
                     </div>
                 </div>
 
-                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                    <span class="train-label">SNAPSHOT</span>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button id="btn-capture-snapshot" class="train-source-btn" style="display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 16px;">camera</span> CAPTURE</button>
-                        <button id="btn-clear-snapshot" class="train-source-btn" style="display: flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 16px;">delete</span> CLEAR</button>
+                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; grid-column: span 2;">
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <span class="train-label">SNAPSHOT_MEMORY (MAX 10)</span>
+                        <button id="btn-clear-all-snapshots" class="rugged-link-btn" style="font-size: 0.7rem; color: var(--primary);">CLEAR_ALL</button>
+                    </div>
+                    <div class="snapshot-bank" id="rta-snapshot-bank">
+                        <!-- 10 Slots injected via JS -->
+                        <button id="btn-capture-snapshot" class="rugged-btn-sm pulse-glow" style="padding: 4px 8px; font-size: 0.7rem;">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">camera</span> CAPTURE_NEW
+                        </button>
+                        <div id="snapshot-slots-container" style="display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;">
+                            <!-- Slots like [1] [2] [3]... -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -758,7 +837,7 @@
     <!-- Ear Training View -->
     <div id="ear-training-view" class="view-container" style="display:none">
         <header class="module-header">
-            <button class="back-link btn-back-home" onclick="if(window.showView) window.showView(document.getElementById('dashboard-view'))">
+            <button class="back-link btn-back-home" type="button" onclick="window.showView(document.getElementById('dashboard-view'))">
                 <span class="material-symbols-outlined">arrow_back</span>
                 BACK_TO_DASHBOARD
             </button>
@@ -775,15 +854,45 @@
             <!-- Top Controls -->
             <div class="train-top-bar">
                 <div class="train-control-group">
-                    <span class="train-label">SOURCE:</span>
-                    <button class="train-source-btn active" data-source="pink">Pink Noise</button>
-                    <button class="train-source-btn" data-source="sine">Sine Wave</button>
+                    <span class="train-label">TIER</span>
+                    <div class="control-row">
+                        <button class="train-tier-btn active" data-tier="octave">OCTAVE</button>
+                        <button class="train-tier-btn" data-tier="third">1/3_OCTAVE</button>
+                        <button class="train-tier-btn locked-pro" data-tier="sixth">1/6_OCTAVE</button>
+                    </div>
                 </div>
                 <div class="train-control-group">
-                    <span class="train-label">DIFFICULTY:</span>
-                    <button class="train-boost-btn" data-boost="12">+12 dB</button>
-                    <button class="train-boost-btn active" data-boost="6">+6 dB</button>
-                    <button class="train-boost-btn" data-boost="3">+3 dB</button>
+                    <span class="train-label">SOURCE</span>
+                    <div class="control-row">
+                        <button class="train-source-btn active" data-source="pink">PINK</button>
+                        <button class="train-source-btn" data-source="white">WHITE</button>
+                        <button class="train-source-btn" data-source="sine">SINE</button>
+                        <button class="train-source-btn locked-pro" data-source="track">TRACK</button>
+                    </div>
+                </div>
+                <div class="train-control-group" id="train-track-upload-container" style="display: none; transition: all 0.3s ease; margin-top: 10px;">
+                    <span class="train-label">CUSTOM TRACK</span>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="file" id="train-track-file" accept="audio/*" style="display: none;">
+                        <button id="btn-train-upload" class="train-source-btn active-pro-glow" style="flex: 1; font-size: 0.75rem; padding: 6px 12px; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">upload_file</span> SELECT REFERENCE AUDIO
+                        </button>
+                        <span id="train-track-status" style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono); text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 150px;">No track loaded</span>
+                    </div>
+                    <!-- Position Slider Row -->
+                    <div id="train-track-seek-container" style="display: none; margin-top: 12px; align-items: center; gap: 10px;">
+                        <span id="train-track-time-current" style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono); min-width: 35px;">0:00</span>
+                        <input type="range" id="train-track-seek-slider" min="0" max="100" value="0" style="flex: 1; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; outline: none; cursor: pointer; accent-color: var(--neon-blue);">
+                        <span id="train-track-time-total" style="font-size: 0.7rem; color: var(--text-dim); font-family: var(--font-mono); min-width: 35px;">0:00</span>
+                    </div>
+                </div>
+                <div class="train-control-group">
+                    <span class="train-label">BOOST</span>
+                    <div class="control-row">
+                        <button class="train-boost-btn" data-boost="12">+12</button>
+                        <button class="train-boost-btn active" data-boost="6">+6</button>
+                        <button class="train-boost-btn" data-boost="3">+3</button>
+                    </div>
                 </div>
             </div>
 
@@ -1178,6 +1287,34 @@
                     </div>
                 </div>
 
+                <!-- Theory: Subwoofer Array Engineering Insight -->
+                <div class="theory-card" aria-label="Engineering Insight: Subwoofer Array Physics">
+                    <div class="theory-card-header">
+                        <span class="material-symbols-outlined">school</span>
+                        <h4>Engineering Insight: The Physics of Subwoofer Arrays</h4>
+                    </div>
+                    <p>
+                        Subwoofers produce very long wavelengths — a 60Hz tone has a wavelength of approximately 
+                        <strong>5.72 metres (18.75 ft)</strong>. Because standard speaker cabinets are much smaller than 
+                        this wavelength, a single subwoofer radiates energy nearly omnidirectionally at low frequencies. 
+                        This means bass energy goes everywhere equally — towards the audience, behind the stage, into the 
+                        building structure, and towards performers.
+                    </p>
+                    <p>
+                        <strong>Array techniques exploit acoustic interference</strong> to shape this otherwise uncontrollable 
+                        pattern. By spacing multiple subwoofers apart at specific fractions of a wavelength (typically λ/4), 
+                        you can create a cardioid (heart-shaped) pattern that produces significantly more bass energy 
+                        towards the audience while cancelling energy behind the array by <strong>10–20dB</strong>. 
+                        This dramatically reduces stage wash, monitor bleed, and structural loading on the venue.
+                    </p>
+                    <p>
+                        <strong>Gradient arrays</strong> use a rear-facing subwoofer delayed by 1/4 wavelength. 
+                        <strong>End-fire arrays</strong> use front-to-back spacing equal to 1/4 wavelength with delay 
+                        on the rear cabinets. <strong>Broadside arrays</strong> use vertical stacking to increase gain 
+                        at long throw distances without changing the horizontal directional pattern.
+                    </p>
+                </div>
+
             </div>
 
         </div>
@@ -1290,7 +1427,7 @@
                     <div class="profile-stat-label">SUBSCRIPTION TIER</div>
                     <div class="profile-stat-value">
                         <span id="profile-tier-badge" class="tier-badge free">FREE TIER</span>
-                        <button id="btn-profile-upgrade" class="rugged-btn outline-primary small-btn" style="display: none; margin-left: 10px;">UPGRADE</button>
+                        <a href="pro.html" id="btn-profile-upgrade" class="rugged-btn outline-primary small-btn" style="display: none; margin-left: 10px; text-decoration: none;">UPGRADE</a>
                     </div>
                 </div>
             </div>
@@ -1328,10 +1465,90 @@
 
             <hr class="rugged-divider">
 
-            <div class="profile-section" style="margin-top: 2rem;">
-                <button id="btn-profile-signout" class="auth-submit-btn danger-btn">
+            <div class="profile-section" style="margin-top: 2rem; position: relative; z-index: 9999;">
+                <button type="button" id="btn-profile-signout" class="auth-submit-btn danger-btn" style="position: relative; z-index: 10000; cursor: pointer !important;">
                     <span class="material-symbols-outlined">logout</span> SECURE SIGN OUT
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mic Calibration Modal -->
+    <div id="mic-cal-modal" class="modal-overlay hidden">
+        <div class="modal-content auth-modal-box" style="max-width: 500px;">
+            <button id="btn-close-mic-cal" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            <h2 class="vfd-glow" style="margin-bottom: 0.5rem;">MIC_CALIBRATION_PROFILE</h2>
+            <p class="modal-desc" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                Upload a <code>.cal</code> / <code>.txt</code> file or paste frequency-offset calibration values directly.
+            </p>
+            
+            <div class="cal-form-group">
+                <div class="drag-drop-zone" id="cal-drop-zone" style="border: 2px dashed var(--outline); border-radius: 8px; padding: 2rem; text-align: center; background: var(--surface-highest); cursor: pointer; transition: all 0.3s ease; margin-bottom: 1.5rem;">
+                    <span class="material-symbols-outlined drop-icon" style="font-size: 3rem; color: var(--primary); display: block; margin-bottom: 0.5rem;">cloud_upload</span>
+                    <span class="drop-text" style="font-size: 0.9rem; color: var(--text-muted); font-family: var(--font-mono);">
+                        Drag & Drop .cal file here or <label for="cal-file-input" class="file-label" style="color: var(--primary); cursor: pointer; text-decoration: underline;">Browse</label>
+                    </span>
+                    <input type="file" id="cal-file-input" accept=".cal,.txt" style="display: none;">
+                </div>
+                
+                <div style="margin: 1rem 0;">
+                    <span class="train-label" style="display: block; margin-bottom: 0.5rem;">OR PASTE VALUE PAIRS (FREQ OFFSET)</span>
+                    <textarea id="cal-text-input" class="rugged-textarea" placeholder="e.g.&#10;20 -1.5&#10;100 0.5&#10;1000 0.0&#10;10000 1.2" rows="6" style="width: 100%; font-family: var(--font-mono); background: var(--surface-higher); border: 1px solid var(--outline); border-radius: 6px; color: var(--text); padding: 10px; font-size: 0.85rem; box-sizing: border-box; resize: vertical;"></textarea>
+                </div>
+
+                <div class="cal-status-row" id="cal-status-row" style="display: flex; justify-content: space-between; align-items: center; background: var(--surface-highest); border: 1px solid var(--outline); padding: 10px 15px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.8rem; margin: 1rem 0;">
+                    <span class="cal-status-badge inactive" id="cal-status-badge" style="background: rgba(255,255,255,0.05); color: var(--text-muted); padding: 4px 8px; border-radius: 4px; font-weight: bold;">NO PROFILE ACTIVE</span>
+                    <span class="cal-details" id="cal-details" style="color: var(--text-muted);">Standard response applied (flat)</span>
+                </div>
+
+                <div class="btn-group-row" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button id="btn-save-cal" class="rugged-btn-sm" style="flex: 1; padding: 10px; background: var(--primary); color: #000; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">APPLY & SAVE TO CLOUD</button>
+                    <button id="btn-clear-cal" class="rugged-btn-sm danger-btn-sm" style="flex: 0.5; padding: 10px; background: rgba(255,50,50,0.1); color: #ff5555; border: 1px solid #ff5555; border-radius: 4px; cursor: pointer;">CLEAR</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pro Upgrade Influence Modal -->
+    <div id="pro-upgrade-modal" class="modal-overlay hidden">
+        <div class="modal-content auth-modal-box" style="max-width: 480px; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">
+            <button id="btn-close-pro-upgrade" class="modal-close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); cursor: pointer; transition: color 0.2s;"><span class="material-symbols-outlined">close</span></button>
+            
+            <div style="margin-bottom: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(0, 240, 255, 0.1); border: 2px dashed var(--neon-blue);">
+                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--neon-blue); animation: pulse 2s infinite;">workspace_premium</span>
+            </div>
+            
+            <h2 style="font-family: var(--font-headline); font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem; color: #fff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);">Unlock SoundEngg Pro</h2>
+            <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 2rem; line-height: 1.4;">Take your acoustic tuning precision to the absolute limit with our full diagnostic hardware toolkit.</p>
+            
+            <div style="text-align: left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1.2rem; margin-bottom: 2rem;">
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span class="material-symbols-outlined" style="color: var(--neon-blue); font-size: 18px;">check_circle</span>
+                    <span style="font-size: 0.85rem; color: var(--text-light); font-family: var(--font-mono);">60FPS SPECTROGRAM WATERFALL</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span class="material-symbols-outlined" style="color: var(--neon-blue); font-size: 18px;">check_circle</span>
+                    <span style="font-size: 0.85rem; color: var(--text-light); font-family: var(--font-mono);">CUSTOM MIC CALIBRATION LOADER</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span class="material-symbols-outlined" style="color: var(--neon-blue); font-size: 18px;">check_circle</span>
+                    <span style="font-size: 0.85rem; color: var(--text-light); font-family: var(--font-mono);">10 MULTI-OVERLAY RTA SNAPSHOTS</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span class="material-symbols-outlined" style="color: var(--neon-blue); font-size: 18px;">check_circle</span>
+                    <span style="font-size: 0.85rem; color: var(--text-light); font-family: var(--font-mono);">1/6 ISO OCTAVE EAR TRAINING</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span class="material-symbols-outlined" style="color: var(--neon-blue); font-size: 18px;">check_circle</span>
+                    <span style="font-size: 0.85rem; color: var(--text-light); font-family: var(--font-mono);">CUSTOM REFERENCE TRACK LOADING</span>
+                </div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <a href="pro.html" class="pro-nav-redirect-btn" style="text-align: center !important; text-decoration: none !important; padding: 12px !important; font-weight: bold !important; font-family: var(--font-mono) !important; font-size: 0.9rem !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 0.5rem !important; border-radius: 4px !important; background: linear-gradient(135deg, var(--primary), var(--secondary)) !important; color: #ffffff !important; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4) !important; transition: all 0.2s ease !important;">
+                    <span class="material-symbols-outlined">payments</span> VIEW PRO SUBSCRIPTIONS
+                </a>
+                <button id="btn-maybe-later-pro" class="rugged-btn-sm" style="background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.1); padding: 10px; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; border-radius: 4px; transition: all 0.2s;">MAYBE LATER</button>
             </div>
         </div>
     </div>
@@ -1345,6 +1562,57 @@
                 <!-- Content injected via JS -->
             </div>
             <button class="btn-action" id="btn-help-understood" style="margin-top: 2rem; width: 100%;">UNDERSTOOD</button>
+        </div>
+    </div>
+
+    <!-- Rewarded Ad Modal for Fullscreen RTA -->
+    <div id="ad-reward-modal" class="ad-modal">
+        <div class="ad-modal-content">
+            <div class="ad-header">
+                <div class="ad-header-title">
+                    <span class="material-symbols-outlined">workspace_premium</span> SPONSOR AD REWARD UNLOCK
+                </div>
+                <button id="btn-close-ad-reward" class="modal-close-btn" style="background: none; border: none; color: var(--text-muted); cursor: pointer;"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="ad-body">
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.4; margin: 0;">
+                    Watch this 15-second sponsor showcase of premium engineering gear to unlock the **Pro View Fullscreen Analyzer** for this session.
+                </p>
+                
+                <div class="ad-sponsor-container">
+                    <!-- High-fidelity simulation waveform graphic -->
+                    <div class="ad-graphic-wave">
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                        <div class="ad-wave-bar"></div>
+                    </div>
+                    
+                    <div class="ad-sponsor-info">
+                        <div class="ad-sponsor-brand">TITAN AUDIO CONSOLE</div>
+                        <div class="ad-sponsor-tagline">Active Phase Alignment Engine v4.0</div>
+                    </div>
+                    
+                    <div class="ad-countdown-bar" id="ad-reward-countdown-bar" style="width: 100%;"></div>
+                </div>
+
+                <div class="ad-alert-box" id="ad-reward-alert" style="display: none;">
+                    ⚠️ Ad playback interrupted. Watch the complete show to claim your premium reward.
+                </div>
+
+                <div class="ad-actions">
+                    <button id="btn-ad-reward-claim" class="ad-btn ad-btn-claim" disabled>
+                        <span class="material-symbols-outlined" id="ad-reward-btn-icon">lock</span>
+                        <span id="ad-reward-btn-text">🔒 Skip Ad in 15s</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1380,7 +1648,7 @@
                 <div class="pro-upsell-box">
                     <h3>Upgrade to SoundEngg Pro</h3>
                     <p>Get permanent, unrestricted offline access to all tools and remove all ads forever.</p>
-                    <button class="btn btn-upgrade" id="btn-buy-pro">Upgrade Now - $9.99</button>
+                    <a href="pro.html" class="btn btn-upgrade" id="btn-buy-pro" style="text-decoration: none;">Upgrade Now - See Benefits</a>
                 </div>
 
                 <div class="grace-period-box">
@@ -1409,19 +1677,17 @@
       }
     </script>
 
-    <script src="assets/js/main.js"></script>
+    <script src="assets/js/main.js?v=3.2.2"></script>
     
-    <!-- Register PWA Service Worker -->
+    <!-- Unregister PWA Service Worker (Senior Fix: Avoid stale cache loops) -->
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let r of registrations) {
+                    r.unregister().then(() => {
+                        console.log('Stale Service Worker unregistered.');
                     });
+                }
             });
         }
     </script>

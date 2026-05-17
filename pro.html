@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SoundEngg Pro | Elevate Your Engineering Game</title>
+    <meta name="description" content="Unlock the full power of SoundEngg. Get Cloud Sync, Advanced RTA tools, and exclusive engineering content with SoundEngg Pro.">
+    
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <style>
+        .pro-hero {
+            padding: 120px 0 60px;
+            text-align: center;
+            background: radial-gradient(circle at center, rgba(20, 167, 181, 0.05) 0%, transparent 70%);
+        }
+        
+        .pro-badge {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: rgba(20, 167, 181, 0.1);
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            border-radius: 99px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+
+        .pro-title {
+            font-size: 3.5rem;
+            font-family: var(--font-headline);
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .pro-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.6;
+        }
+
+        /* Feature Grid */
+        .pro-feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 80px;
+        }
+
+        .pro-card {
+            background: var(--surface-higher);
+            border: 1px solid var(--outline);
+            padding: 2.5rem;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pro-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .pro-card .icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .pro-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            font-family: var(--font-headline);
+        }
+
+        .pro-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Comparison Table */
+        .comparison-section {
+            padding: 80px 0;
+            background: #050508;
+            border-top: 1px solid var(--outline);
+            border-bottom: 1px solid var(--outline);
+        }
+
+        .comp-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 3rem;
+            font-family: var(--font-mono);
+        }
+
+        .comp-table th, .comp-table td {
+            padding: 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .comp-table th {
+            color: var(--primary);
+            font-family: var(--font-headline);
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .comp-table .check { color: var(--primary); font-weight: bold; }
+        .comp-table .cross { color: rgba(255,255,255,0.2); }
+
+        /* Pricing Cards */
+        .pricing-section {
+            padding: 100px 0;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .price-card {
+            background: var(--surface-higher);
+            border: 2px solid var(--outline);
+            border-radius: 16px;
+            padding: 3rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .price-card.featured {
+            border-color: var(--primary);
+            background: linear-gradient(180deg, rgba(20, 167, 181, 0.05) 0%, transparent 100%);
+            transform: scale(1.05);
+        }
+
+        .price-val {
+            font-size: 3rem;
+            font-weight: 900;
+            margin: 1.5rem 0;
+            font-family: var(--font-headline);
+        }
+
+        .price-val span {
+            font-size: 1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+            white-space: nowrap;
+        }
+
+        .price-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+
+        .price-features li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .price-features .material-symbols-outlined {
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .pro-title { font-size: 2.5rem; }
+            .price-card.featured { transform: none; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
+            </a>
+            <div class="nav-links">
+                <a href="index.html#features">Features</a>
+                <a href="pro.html" class="active">Pro</a>
+                <a href="index.html#contact">Contact</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero -->
+        <section class="pro-hero">
+            <div class="container">
+                <div class="pro-badge">Mission Critical Tools</div>
+                <h1 class="pro-title">Eliminate Guesswork.<br>Master the Physics of the Gig.</h1>
+                <p class="pro-subtitle">SoundEngg Pro gives system technicians the precision tools required for high-profile tours, corporate summits, and complex acoustic environments. Cloud-connected. Phase-accurate. Show-ready.</p>
+                <a href="#pricing" class="btn btn-primary large">Upgrade to Pro Now</a>
+            </div>
+        </section>
+
+        <!-- Features Grid -->
+        <section class="container">
+            <div class="pro-feature-grid">
+                <div class="pro-card">
+                    <span class="material-symbols-outlined icon">cloud_sync</span>
+                    <h3>Cloud Project Sync</h3>
+                    <p>Never lose a configuration again. Save your sub-arrays and delay offsets to the cloud and recall them instantly when you walk onto the next site.</p>
+                </div>
+                <div class="pro-card">
+                    <span class="material-symbols-outlined icon">waterfall_chart</span>
+                    <h3>Advanced Spectrogram</h3>
+                    <p>Feedback doesn't stand a chance. Visualize frequency energy over time to hunt down resonances before the client even hears them.</p>
+                </div>
+                <div class="pro-card">
+                    <span class="material-symbols-outlined icon">settings_input_antenna</span>
+                    <h3>Mic Calibration</h3>
+                    <p>Your RTA is only as good as your mic. Import precision calibration profiles to ensure your measurement data is 100% trustworthy.</p>
+                </div>
+                <div class="pro-card">
+                    <span class="material-symbols-outlined icon">library_books</span>
+                    <h3>The Engineer's Vault</h3>
+                    <p>Stop Googling on-site. Access a curated library of hardware tuning guides and high-res references optimized for low-light environments.</p>
+                </div>
+                <div class="pro-card">
+                    <span class="material-symbols-outlined icon">analytics</span>
+                    <h3>Unlimited RTA Snapshots</h3>
+                    <p>Overlay and compare up to 10 RTA curves. Perfect for verifying system changes and room response before doors open.</p>
+                </div>
+                <div class="pro-card">
+                    <span class="material-symbols-outlined icon">block</span>
+                    <h3>100% Ad-Free</h3>
+                    <p>Focus entirely on the sound. Pro removes all advertisements for a cleaner, faster, and distraction-free workspace.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comparison Table -->
+        <section class="comparison-section">
+            <div class="container">
+                <h2 style="text-align: center; font-family: var(--font-headline);">Free vs. Pro Comparison</h2>
+                <table class="comp-table">
+                    <thead>
+                        <tr>
+                            <th>Feature</th>
+                            <th>Free</th>
+                            <th>Pro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Basic Calculators (Delay, Sub, etc)</td>
+                            <td class="check">YES</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Real-Time Spectrum Analyzer</td>
+                            <td class="check">YES</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Cloud Saving & Sync</td>
+                            <td class="cross">NO</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Custom Mic Calibration</td>
+                            <td class="cross">NO</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Spectrogram Waterfall Display</td>
+                            <td class="cross">NO</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Multi-Overlay Snapshots</td>
+                            <td class="cross">NO</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Premium Engineering Content</td>
+                            <td class="cross">NO</td>
+                            <td class="check">YES</td>
+                        </tr>
+                        <tr>
+                            <td>Ad-Free Interface</td>
+                            <td class="cross">NO</td>
+                            <td class="check">YES</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Pricing -->
+        <section id="pricing" class="pricing-section">
+            <div class="container">
+                <div class="pricing-grid">
+                    <!-- Monthly -->
+                    <div class="price-card">
+                        <h3>Monthly Pro</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Flexible power for the busy touring season.</p>
+                        <div class="price-val" id="price-monthly">$2.99<span>/month</span></div>
+                        <ul class="price-features">
+                            <li><span class="material-symbols-outlined">check_circle</span> All Pro Features Included</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> No Long-term Contract</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> Cancel Anytime</li>
+                        </ul>
+                        <button class="btn btn-outline pricing-btn" data-plan="monthly" style="width: 100%; border-radius: 4px; padding: 12px; font-weight: bold; cursor: pointer;">Start Monthly</button>
+                    </div>
+
+                    <!-- Yearly -->
+                    <div class="price-card featured">
+                        <div class="pro-badge" style="margin-bottom: 1rem;">Most Popular</div>
+                        <h3>Yearly Access</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">The ultimate setup. Save 20% and own every show.</p>
+                        <div class="price-val" id="price-yearly">$29.99<span>/year</span></div>
+                        <ul class="price-features">
+                            <li><span class="material-symbols-outlined">check_circle</span> All Pro Features Included</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> Priority Cloud Support</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> Early Access to New Modules</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> 2 Months Free Value</li>
+                        </ul>
+                        <button class="btn btn-primary pricing-btn" data-plan="yearly" style="width: 100%; border-radius: 4px; padding: 12px; font-weight: bold; cursor: pointer; background: var(--primary); border: none; color: #fff;">Get Started</button>
+                    </div>
+
+                    <!-- Lifetime -->
+                    <div class="price-card">
+                        <h3>Lifetime License</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.5rem;">Own it forever. No monthly limits, all future updates.</p>
+                        <div class="price-val" id="price-lifetime">$49.99<span>one-time</span></div>
+                        <ul class="price-features">
+                            <li><span class="material-symbols-outlined">check_circle</span> All Pro Features Included</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> Lifetime Updates & Features</li>
+                            <li><span class="material-symbols-outlined">check_circle</span> VIP Priority Engineering Support</li>
+                        </ul>
+                        <button class="btn btn-outline pricing-btn" data-plan="lifetime" style="width: 100%; border-radius: 4px; padding: 12px; font-weight: bold; cursor: pointer;">Get Lifetime</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer" style="background: #050508;">
+        <div class="container footer-bottom" style="padding: 40px 0; border-top: 1px solid var(--outline);">
+            <p style="text-align: center; color: var(--text-muted);">&copy; 2026 SoundEngg. Built for the high-stakes environment.</p>
+        </div>
+    </footer>
+
+    <script src="assets/js/main.js"></script>
+</body>
+</html>

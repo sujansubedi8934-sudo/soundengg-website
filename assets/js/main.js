@@ -1,3 +1,23 @@
+// --- MODAL UTILITIES (Senior Stability - Global Scope) ---
+function openModal(modal) {
+    if (!modal) return;
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    modal.style.visibility = 'visible';
+    modal.style.opacity = '1';
+    document.body.classList.add('modal-open');
+}
+
+function closeModal(modal) {
+    if (!modal) return;
+    modal.classList.add('hidden');
+    // Force wipe all inline styles used for the "frozen" fix
+    modal.style.display = '';
+    modal.style.visibility = '';
+    modal.style.opacity = '';
+    document.body.classList.remove('modal-open');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const safeInit = (fn, name) => {
         try {
@@ -21,6 +41,132 @@ document.addEventListener('DOMContentLoaded', () => {
     safeInit(initTuner, 'initTuner');
     safeInit(initSubCalc, 'initSubCalc');
     safeInit(initAdManager, 'initAdManager');
+    
+    // GLOBAL SIGN OUT DELEGATION
+    document.addEventListener('click', async (e) => {
+        const signOutBtn = e.target.closest('#btn-profile-signout');
+        if (signOutBtn) {
+            e.preventDefault();
+            console.log('Global Sign Out Triggered');
+            
+            if (!window.supabaseClient) {
+                alert('DEBUG: Supabase Client not found. Forcing logout...');
+                window.location.href = 'index.html?force=true';
+                return;
+            }
+
+            try {
+                // 1. Immediate Memory Wipe
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // 2. Trigger Database Signout (don't wait for it)
+                if (window.supabaseClient) {
+                    window.supabaseClient.auth.signOut();
+                }
+                
+                alert('Sign out successful! Returning to landing page.');
+                
+                // 3. Immediate Hard Reset
+                window.location.assign('index.html?logout=true&t=' + Date.now());
+            } catch (err) {
+                console.error('Sign out error:', err);
+                window.location.assign('index.html?force=true');
+            }
+        }
+    });
+
+    // GLOBAL AUTH ICON DELEGATION
+    document.addEventListener('click', async (e) => {
+        const authBtn = e.target.closest('#btn-auth-toggle');
+        if (authBtn) {
+            e.preventDefault();
+        
+        e.preventDefault();
+        console.log('Global Auth Icon Triggered');
+        
+        if (!window.supabaseClient) {
+            alert('Connection error. Please refresh.');
+            return;
+        }
+
+        const iconSpan = authBtn.querySelector('.material-symbols-outlined');
+        const isUserIcon = iconSpan && iconSpan.textContent === 'account_circle';
+
+        if (isUserIcon) {
+            openModal(document.getElementById('profile-modal'));
+        } else {
+            openModal(document.getElementById('auth-modal-overlay'));
+        }
+
+        // Perform background session check to correct UI if needed
+        window.supabaseClient.auth.getSession().then(({ data: { session } }) => {
+            if (!session && isUserIcon) {
+                // Oops, icon was wrong, user is actually logged out
+                const profileModal = document.getElementById('profile-modal');
+                if (profileModal) closeModal(profileModal);
+                const authModal = document.getElementById('auth-modal-overlay');
+                    if (authModal) authModal.classList.remove('hidden');
+                }
+            });
+        }
+    });
+    
+    // --- UNIFIED AUTHENTICATION MANAGER (Senior Consolidation) ---
+    async function handleAuthStateChange(event, session) {
+        console.group(`Auth Event: ${event}`);
+        const user = session?.user;
+
+        // 1. Sync Pro/Free State and Profile Data
+        await syncSubscriptionStatus(session);
+
+        // 2. Global UI Update (Icon, Text, Modals)
+        const btnAuthToggle = document.getElementById('btn-auth-toggle');
+        const authModalOverlay = document.getElementById('auth-modal-overlay');
+        const profileModal = document.getElementById('profile-modal');
+
+        if (btnAuthToggle) {
+            const authText = btnAuthToggle.querySelector('.btn-text');
+            const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
+            
+            if (user) {
+                if (authText) authText.textContent = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                if (authIcon) authIcon.textContent = 'account_circle';
+                btnAuthToggle.classList.add('logged-in');
+            } else {
+                if (authText) authText.textContent = 'LOGIN_SYSTEM';
+                if (authIcon) authIcon.textContent = 'login';
+                btnAuthToggle.classList.remove('logged-in', 'active');
+            }
+        }
+
+        // 3. Modal Cleanup (Force Close on Successful Login/Logout)
+        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+            [authModalOverlay, profileModal].forEach(modal => {
+                if (modal) closeModal(modal);
+            });
+        }
+
+        // 4. Signal Modules to refresh data
+        if (event === 'SIGNED_IN') {
+            document.dispatchEvent(new CustomEvent('authSuccess', { detail: session }));
+            console.log('Global authSuccess signal dispatched');
+        }
+        if (event === 'SIGNED_OUT') {
+            document.dispatchEvent(new CustomEvent('authCleared'));
+            console.log('Global authCleared signal dispatched');
+        }
+
+        console.groupEnd();
+    }
+
+    if (window.supabaseClient) {
+        window.supabaseClient.auth.onAuthStateChange(handleAuthStateChange);
+        // Run once on init (Senior Fix: always trigger to sync UI even if logged out)
+        window.supabaseClient.auth.getSession().then(({data}) => {
+            handleAuthStateChange('INITIAL_SESSION', data.session);
+        });
+    }
 });
 
 function setupThemeToggle() {
@@ -66,6 +212,75 @@ function applyAutoTheme() {
 
 
 let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
+window.isUserPro = false; // Global source of truth for subscription
+
+async function syncSubscriptionStatus(session) {
+    if (!window.supabaseClient) return;
+    if (!session) {
+        window.isUserPro = false;
+        document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: false }));
+        return;
+    }
+
+    try {
+        const user = session.user;
+        if (user) {
+            const emailDisplay = document.getElementById('profile-email-display');
+            if (emailDisplay) emailDisplay.textContent = user.email;
+        }
+
+        // Try to fetch with a timestamp to bypass any aggressive caching
+        const { data, error } = await window.supabaseClient
+            .from('profiles')
+            .select('is_pro, full_name, company')
+            .eq('id', session.user.id)
+            .single();
+
+        if (error) {
+            console.warn('Profile fetch error (might be schema cache):', error.message);
+            // Fallback: try fetching just is_pro if the new columns are the issue
+            if (error.code === '42703' || error.message.includes('not found')) {
+                const { data: fallbackData } = await window.supabaseClient
+                    .from('profiles')
+                    .select('is_pro')
+                    .eq('id', session.user.id)
+                    .single();
+                if (fallbackData) {
+                    window.isUserPro = !!fallbackData.is_pro;
+                }
+            }
+        }
+
+        if (data) {
+            window.isUserPro = !!data.is_pro;
+            console.log('Cloud Sync Success. Pro:', window.isUserPro);
+            
+            const profileTierBadge = document.getElementById('profile-tier-badge');
+            const inputFullname = document.getElementById('profile-fullname');
+            const inputCompany = document.getElementById('profile-company');
+            const btnProfileUpgrade = document.getElementById('btn-profile-upgrade');
+
+            if (profileTierBadge) {
+                profileTierBadge.className = window.isUserPro ? 'tier-badge pro' : 'tier-badge free';
+                profileTierBadge.textContent = window.isUserPro ? 'PRO TIER' : 'FREE TIER';
+                if (btnProfileUpgrade) btnProfileUpgrade.style.display = window.isUserPro ? 'none' : 'inline-block';
+            }
+            
+            // EMERGENCY BYPASS: If user is Pro, hide the ad/offline lock immediately
+            if (window.isUserPro) {
+                const adOverlay = document.getElementById('ad-manager-overlay');
+                if (adOverlay) adOverlay.classList.add('hidden');
+            }
+
+            if (inputFullname) inputFullname.value = data.full_name || '';
+            if (inputCompany) inputCompany.value = data.company || '';
+            
+            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: window.isUserPro }));
+        }
+    } catch (err) {
+        console.error('Fatal Sync Error:', err);
+    }
+}
 
 function initGlobalUnits() {
     const btnUnit = document.getElementById('btn-delaycalc-unit');
@@ -95,6 +310,70 @@ function initGlobalUnits() {
 
     document.addEventListener('unitsChanged', syncUI);
     syncUI();
+}
+
+// --- Cloud Sync UI Manager ---
+function updateSyncStatus(status) {
+    const el = document.getElementById('sync-status');
+    if (!el) return;
+
+    const icon = el.querySelector('.status-icon');
+    const text = el.querySelector('.status-text');
+
+    el.classList.remove('syncing', 'error');
+
+    switch (status) {
+        case 'syncing':
+            el.classList.add('syncing');
+            icon.textContent = 'sync';
+            text.textContent = 'SAVING...';
+            break;
+        case 'synced':
+            icon.textContent = 'cloud_done';
+            text.textContent = 'SYNCED';
+            break;
+        case 'error':
+            el.classList.add('error');
+            icon.textContent = 'cloud_off';
+            text.textContent = 'OFFLINE';
+            break;
+        case 'unsaved':
+            icon.textContent = 'cloud_upload';
+            text.textContent = 'UNSAVED';
+            break;
+    }
+}
+
+// --- Cloud Save Logic (Debounced) ---
+let saveTimeout;
+async function saveConfigToCloud(type, data) {
+    // Only proceed if supabaseClient is available
+    if (typeof supabaseClient === 'undefined') return;
+    
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (!session) return; // Only sync if logged in
+
+    updateSyncStatus('syncing');
+    
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(async () => {
+        try {
+            const { error } = await supabaseClient
+                .from('user_configs')
+                .upsert({ 
+                    user_id: session.user.id, 
+                    config_type: type, 
+                    data: data,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'user_id,config_type' });
+
+            if (error) throw error;
+            updateSyncStatus('synced');
+        } catch (err) {
+            console.error('Cloud Sync Error:', err);
+            updateSyncStatus('error');
+        }
+    }, 1500); // 1.5s debounce for industrial feel
 }
 
 function setupNavigation() {
@@ -286,76 +565,66 @@ function setupNavigation() {
     const inputFullname = document.getElementById('profile-fullname');
     const inputCompany = document.getElementById('profile-company');
 
-    if (btnAuthToggle && authModalOverlay && btnCloseAuth) {
-        // Open Modal (Auth or Profile)
-        btnAuthToggle.addEventListener('click', async () => {
-            if (!window.supabaseClient) {
-                alert('Supabase is not configured yet. Waiting for keys.');
-                return;
-            }
-            
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
-            if (user) {
-                // Populate Profile
-                if(profileEmailDisplay) profileEmailDisplay.textContent = user.email;
-                
-                // Check Tier
-                const unlockedUntil = localStorage.getItem('tools_unlocked_until');
-                const isPro = unlockedUntil && parseInt(unlockedUntil) > Date.now();
-                
-                if (profileTierBadge) {
-                    if (isPro) {
-                        profileTierBadge.className = 'tier-badge pro';
-                        profileTierBadge.textContent = 'PRO TIER';
-                        if(btnProfileUpgrade) btnProfileUpgrade.style.display = 'none';
-                    } else {
-                        profileTierBadge.className = 'tier-badge free';
-                        profileTierBadge.textContent = 'FREE TIER';
-                        if(btnProfileUpgrade) btnProfileUpgrade.style.display = 'inline-block';
-                    }
-                }
-
-                // Load saved local profile details
-                if (inputFullname) inputFullname.value = localStorage.getItem('profile_fullname') || '';
-                if (inputCompany) inputCompany.value = localStorage.getItem('profile_company') || '';
-
-                if(profileModal) profileModal.classList.remove('hidden');
-            } else {
-                authModalOverlay.classList.remove('hidden');
-            }
-        });
+    if (btnAuthToggle) {
+        // Handled by global delegation for robustness
+        console.log('Auth toggle logic migrated to global delegate');
+    }
 
         // Close Auth Modal
         btnCloseAuth.addEventListener('click', () => {
-            authModalOverlay.classList.add('hidden');
+            closeModal(authModalOverlay);
         });
 
         // Close on overlay click
         authModalOverlay.addEventListener('click', (e) => {
             if (e.target === authModalOverlay) {
-                authModalOverlay.classList.add('hidden');
+                closeModal(authModalOverlay);
             }
         });
 
         // Profile Modal Listeners
         if (profileModal) {
             if(btnCloseProfile) {
-                btnCloseProfile.addEventListener('click', () => profileModal.classList.add('hidden'));
+                btnCloseProfile.addEventListener('click', () => closeModal(profileModal));
             }
             profileModal.addEventListener('click', (e) => {
-                if (e.target === profileModal) profileModal.classList.add('hidden');
+                if (e.target === profileModal) closeModal(profileModal);
             });
 
             if (formUpdateProfile) {
-                formUpdateProfile.addEventListener('submit', (e) => {
+                formUpdateProfile.addEventListener('submit', async (e) => {
                     e.preventDefault();
-                    localStorage.setItem('profile_fullname', inputFullname.value);
-                    localStorage.setItem('profile_company', inputCompany.value);
-                    
-                    const btn = formUpdateProfile.querySelector('button[type="submit"]');
-                    const origText = btn.textContent;
-                    btn.textContent = 'SAVED!';
-                    setTimeout(() => btn.textContent = origText, 2000);
+                    const submitBtn = formUpdateProfile.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = 'SAVING...';
+                    submitBtn.disabled = true;
+
+                    try {
+                        const { data: { session } } = await window.supabaseClient.auth.getSession();
+                        if (!session) return;
+
+                        const { error } = await window.supabaseClient
+                            .from('profiles')
+                            .update({
+                                full_name: inputFullname.value,
+                                company: inputCompany.value
+                            })
+                            .eq('id', session.user.id);
+
+                        if (error) throw error;
+                        submitBtn.textContent = 'SAVED!';
+                        setTimeout(() => {
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        }, 2000);
+                    } catch (err) {
+                        console.error('Profile Save Error:', err);
+                        submitBtn.textContent = 'ERROR';
+                        setTimeout(() => {
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        }, 2000);
+                    }
                 });
             }
 
@@ -386,27 +655,29 @@ function setupNavigation() {
                 });
             }
 
-            if (btnProfileSignout) {
-                btnProfileSignout.addEventListener('click', async () => {
-                    if (confirm('Are you sure you want to sign out?')) {
-                        await window.supabaseClient.auth.signOut();
-                        profileModal.classList.add('hidden');
-                        alert('You have been signed out.');
-                    }
-                });
-            }
-
             if (btnProfileUpgrade) {
-                btnProfileUpgrade.addEventListener('click', async () => {
-                    const { data: { user } } = await window.supabaseClient.auth.getUser();
-                    if (!user) return;
-                    alert(`Redirecting to Stripe for ${user.email}...`);
-                    setTimeout(() => {
-                        alert('Mock Checkout: SoundEngg Pro purchased! Account upgraded.');
-                        localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
-                        profileModal.classList.add('hidden');
-                        if(typeof unlockApp === 'function') unlockApp();
-                    }, 1500);
+                btnProfileUpgrade.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (confirm('Upgrade to SoundEngg Pro? (Simulated for this demo)')) {
+                        localStorage.setItem('soundengg-pro-status', 'true');
+                        
+                        const { data: { session } } = await window.supabaseClient.auth.getSession();
+                        if (session) {
+                            await window.supabaseClient.from('profiles')
+                                .update({ is_pro: true })
+                                .eq('id', session.user.id);
+                        }
+                        
+                        await syncSubscriptionStatus(session);
+                        
+                        if (profileModal) {
+                            profileModal.classList.add('hidden');
+                            profileModal.style.visibility = 'hidden';
+                            profileModal.style.opacity = '0';
+                        }
+                        
+                        alert('Account upgraded to Pro! All features unlocked.');
+                    }
                 });
             }
         }
@@ -496,27 +767,6 @@ function setupNavigation() {
             });
         }
 
-        // Auth State Monitoring
-        if(window.supabaseClient) {
-            window.supabaseClient.auth.onAuthStateChange((event, session) => {
-                const user = session?.user;
-                const authText = btnAuthToggle.querySelector('.btn-text');
-                const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
-                
-                if (user) {
-                    // User is signed in
-                    if (authText) authText.textContent = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
-                    if (authIcon) authIcon.textContent = 'account_circle';
-                    btnAuthToggle.classList.add('logged-in');
-                } else {
-                    // User is signed out
-                    if (authText) authText.textContent = 'LOGIN_SYSTEM';
-                    if (authIcon) authIcon.textContent = 'login';
-                    btnAuthToggle.classList.remove('logged-in');
-                }
-            });
-        }
-    }
 
     // Gallery Zoom Logic
     const galleryBoxes = document.querySelectorAll('.gallery-img-box');
@@ -561,6 +811,44 @@ function setupNavigation() {
         });
     }
 
+    // --- DEEP LINKING / URL ROUTING ---
+    function handleDeepLink() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = urlParams.get('view') || window.location.hash.substring(1);
+        
+        if (viewParam) {
+            // Mapping of view keys to their DOM elements
+            const viewMap = {
+                'rta': rtaView,
+                'delay': moduleView,
+                'pinout': pinoutView,
+                'tuner': tunerView,
+                'subcalc': subcalcView,
+                'siggen': siggenView,
+                'ear-training': earTrainingView,
+                'author': authorView,
+                'blog': blogView
+            };
+
+            const target = viewMap[viewParam];
+            if (target) {
+                // Determine which nav button to highlight if any
+                let navBtn = null;
+                if (viewParam === 'author') navBtn = btnNavAuthor;
+                if (viewParam === 'blog') navBtn = btnNavBlog;
+                
+                // Small timeout ensures all other DOM initializations are settled
+                setTimeout(() => {
+                    showView(target, navBtn);
+                    console.log(`Deep link triggered: ${viewParam}`);
+                }, 100);
+            }
+        }
+    }
+
+    // Run on load and on hash change
+    handleDeepLink();
+    window.addEventListener('hashchange', handleDeepLink);
 }
 
 function initDelayCalc() {
@@ -573,7 +861,7 @@ function initDelayCalc() {
 
     if (!distInput || !tempInput || !outputEl || !progressEl) return;
 
-    function update() {
+    function update(skipCloudSave = false) {
         const dist = parseFloat(distInput.value) || 0;
         const temp = parseFloat(tempInput.value) || 0;
         const tUnit = tempUnitSelect.value;
@@ -582,33 +870,60 @@ function initDelayCalc() {
 
         if (globalUnitSystem === 'metric') {
             if (distLabel) distLabel.textContent = 'Distance (m)';
-            // Formula (m/s): 331.3 + (0.606 * TempCelsius)
             const tempC = (tUnit === 'F') ? (temp - 32) * 5/9 : temp;
             const speed = 331.3 + (0.606 * tempC);
             delayMs = (dist / speed) * 1000;
         } else {
             if (distLabel) distLabel.textContent = 'Distance (ft)';
-            // Formula (ft/s): 1052.3 + (1.106 * TempFahrenheit)
             const tempF = (tUnit === 'C') ? (temp * 9/5) + 32 : temp;
             const speed = 1052.3 + (1.106 * tempF);
             delayMs = (dist / speed) * 1000;
         }
 
-        // Update VFD display
         outputEl.innerHTML = `${delayMs.toFixed(2)}<span class="delay-unit">ms</span>`;
-
-        // Update progress bar (vis-ref capped at 50ms for detail)
         const progressPercent = Math.min(100, (delayMs / 50) * 100); 
         progressEl.style.width = `${progressPercent}%`;
+
+        // Trigger Cloud Save if not just loading
+        if (!skipCloudSave) {
+            saveConfigToCloud('delay', { dist, temp, tUnit });
+        }
     }
 
-    distInput.addEventListener('input', update);
-    tempInput.addEventListener('input', update);
-    tempUnitSelect.addEventListener('change', update);
-    document.addEventListener('unitsChanged', update);
+    // --- Pull from Cloud ---
+    async function pull() {
+        if (typeof supabaseClient === 'undefined') return;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return;
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('user_configs')
+                .select('data')
+                .eq('user_id', session.user.id)
+                .eq('config_type', 'delay')
+                .single();
+
+            if (data && data.data) {
+                distInput.value = data.data.dist;
+                tempInput.value = data.data.temp;
+                tempUnitSelect.value = data.data.tUnit;
+                update(true); // Initial UI sync without triggering a re-save
+            }
+        } catch (err) {
+            console.error('Cloud Pull Error (Delay):', err);
+        }
+    }
+
+    distInput.addEventListener('input', () => update());
+    tempInput.addEventListener('input', () => update());
+    tempUnitSelect.addEventListener('change', () => update());
+    document.addEventListener('unitsChanged', () => update(true));
     
-    // Initial run
-    update();
+    // Initial runs
+    update(true);
+    pull();
+    document.addEventListener('authSuccess', pull);
 }
 
 const RTA_BARS_COUNT = 24;
@@ -1043,6 +1358,9 @@ function initBlog() {
     function renderBlogList(filter = 'all') {
         blogIndex.innerHTML = '';
         
+        // Use verified global Pro status
+        const isPro = window.isUserPro;
+
         // Combine real articles and placeholders
         const allItems = [
             ...blogArticles.map(a => ({ ...a, type: 'live' })),
@@ -1050,28 +1368,42 @@ function initBlog() {
         ];
 
         allItems.forEach(item => {
-            if (filter !== 'all' && item.category !== filter && item.cat !== filter) return;
+            const itemCat = item.category || item.cat;
+            if (filter !== 'all' && itemCat !== filter) return;
+
+            const isLockedPro = item.isPro && !isPro;
 
             const card = document.createElement('article');
-            card.className = `article-card widget rugged-bevel brushed-metal ${item.type === 'locked' ? 'locked' : ''}`;
+            card.className = `article-card widget rugged-bevel brushed-metal ${item.type === 'locked' ? 'locked' : ''} ${isLockedPro ? 'pro-locked' : ''}`;
             if (item.id) card.setAttribute('data-id', item.id);
-            card.setAttribute('data-cat', item.category || item.cat);
+            card.setAttribute('data-cat', itemCat);
 
             card.innerHTML = `
+                ${isLockedPro ? `
+                <div class="pro-lock-overlay">
+                    <span class="material-symbols-outlined">lock</span>
+                    <h5>PRO VAULT CONTENT</h5>
+                    <p>Upgrade to SoundEngg Pro to access this technical guide.</p>
+                    <a href="pro.html" class="btn-unlock-small">GET_PRO_ACCESS</a>
+                </div>
+                ` : ''}
                 <div class="card-meta">
-                    <span class="cat-tag">${(item.categoryLabel || item.cat).toUpperCase()}</span>
+                    <span class="cat-tag ${item.isPro ? 'gold-tag' : ''}">${(item.categoryLabel || item.cat).toUpperCase()}</span>
                     <span class="${item.type === 'locked' ? 'status-tag' : 'read-time'}">${item.type === 'locked' ? 'UPCOMING' : item.readTime}</span>
                 </div>
                 <h3 class="article-title ${item.type === 'live' ? 'text-primary' : ''}">${item.title}</h3>
                 <p class="article-excerpt">${item.excerpt}</p>
-                ${item.type === 'live' ? `<button class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></button>` : ''}
+                ${(item.type === 'live' && !isLockedPro) ? `<button class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></button>` : ''}
             `;
 
-            if (item.type === 'live') {
-                card.querySelector('.read-more').addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    openArticle(item.id);
-                });
+            if (item.type === 'live' && !isLockedPro) {
+                const readBtn = card.querySelector('.read-more');
+                if(readBtn) {
+                    readBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openArticle(item.id);
+                    });
+                }
                 card.addEventListener('click', () => openArticle(item.id));
             }
 
@@ -1115,6 +1447,12 @@ function initBlog() {
 
     // Initial Render
     renderBlogList();
+
+    // Listen for Pro status changes to re-render gated content
+    document.addEventListener('proStatusChanged', () => {
+        const activeBtn = Array.from(catBtns).find(b => b.classList.contains('active'));
+        renderBlogList(activeBtn ? activeBtn.getAttribute('data-cat') : 'all');
+    });
 }
 
 // --- PROFESSIONAL RTA SUITE (1/6 OCTAVE REFINE) ---
@@ -1138,6 +1476,7 @@ function initProfessionalRTA() {
     const peakToggle = document.getElementById('btn-peak-toggle');
     const peakReset = document.getElementById('btn-peak-reset');
     const labelsContainer = document.getElementById('rta-labels');
+    const btnCapture = document.getElementById('btn-capture-snapshot');
     
     let audioCtx, analyser, source, stream;
     let dataArray, bufferLength;
@@ -1152,9 +1491,25 @@ function initProfessionalRTA() {
     let peakData = new Array(ISO_FREQS.length).fill(-100);
     let domFreqDisplay = "--- Hz";
 
-    // Snapshot state
-    let snapshotDataRTA = null;
-    let snapshotDataFFT = null;
+    // Fullscreen RTA & Ad Reward state variables
+    let isFullscreenActive = false;
+    let isAdRewardClaimed = false;
+    let adCountdownTimer = null;
+    let adSecondsRemaining = 15;
+
+    // Advanced Spectrogram Waterfall Variables
+    let waterfallCanvas = null;
+    let waterfallCtx = null;
+
+    // Custom Mic Calibration Variables
+    let calProfile = []; // Parsed { freq, offset } pairs
+    let calOffsets = null; // Precomputed Float32Array matching bufferLength
+    let calEnabled = false;
+
+    // Snapshot Memory Bank (PRO FEATURE)
+    let snapshots = []; // Array of { rta: [], fft: [], color: '', visible: true, id: 0 }
+    const SNAPSHOT_COLORS = ['#00FFFF', '#FF00FF', '#FFFF00', '#00FF00', '#FF8C00', '#1E90FF', '#FF4500', '#ADFF2F', '#7B68EE', '#F0E68C'];
+    const slotsContainer = document.getElementById('snapshot-slots-container');
 
     // A-Weighting Look-up Table for 1/6 octave (interpolated centers)
     const A_WEIGHTS = { 20:-50.5, 22.4:-48.0, 25:-44.7, 28:-41.6, 31.5:-39.4, 35.5:-37.0, 40:-34.6, 45:-32.4, 50:-30.2, 56:-28.2, 63:-26.2, 71:-24.1, 80:-22.5, 90:-20.8, 100:-19.1, 112:-17.5, 125:-16.1, 140:-14.7, 160:-13.4, 180:-12.2, 200:-10.9, 224:-9.6, 250:-8.6, 280:-7.5, 315:-6.6, 355:-5.7, 400:-4.8, 450:-4.0, 500:-3.2, 560:-2.5, 630:-1.9, 710:-1.3, 800:-0.8, 900:-0.4, 1000:0, 1120:0.3, 1250:0.6, 1400:0.8, 1600:1.0, 1800:1.1, 2000:1.2, 2240:1.3, 2500:1.3, 2800:1.3, 3150:1.2, 3550:1.1, 4000:1.0, 4500:0.8, 5000:0.5, 5600:0.2, 6300:-0.1, 7100:-0.5, 8000:-1.1, 9000:-1.7, 10000:-2.5, 11200:-3.3, 12500:-4.3, 14000:-5.4, 16000:-6.6, 18000:-7.9, 20000:-9.3 };
@@ -1204,6 +1559,9 @@ function initProfessionalRTA() {
             dataArray = new Float32Array(bufferLength);
             timeData = new Float32Array(analyser.fftSize);
             smoothedDataArray = new Float32Array(bufferLength).fill(-100);
+            
+            // Precompute calibration offsets matching the current bin count
+            precomputeCalibrationOffsets();
             
             isInitialized = true;
             isAnalyzing = true;
@@ -1272,15 +1630,22 @@ function initProfessionalRTA() {
             if (dataArray[i] < -120) dataArray[i] = -120;
             
             smoothedDataArray[i] = (dataArray[i] * alpha) + (smoothedDataArray[i] * (1 - alpha));
-            dataArray[i] = smoothedDataArray[i];
+            
+            // Apply Mic Calibration Correction if enabled
+            let calCorr = (calEnabled && calOffsets && calOffsets[i]) ? calOffsets[i] : 0;
+            dataArray[i] = smoothedDataArray[i] + calCorr;
         }
 
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (currentMode !== 'waterfall') {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
         
         if (currentMode === 'rta') {
             drawRTA();
         } else if (currentMode === 'fft') {
             drawFFT();
+        } else if (currentMode === 'waterfall') {
+            drawWaterfall();
         }
 
         drawGridAndLabels();
@@ -1329,6 +1694,7 @@ function initProfessionalRTA() {
         const nyquist = sampleRate / 2;
 
         ISO_FREQS.forEach((centerFreq, i) => {
+            const x = i * barWidth;
             const ratio = Math.pow(2, 1/12); // Half of 1/6 for band edges
             const lowFreq = centerFreq / ratio;
             const highFreq = centerFreq * ratio;
@@ -1345,39 +1711,46 @@ function initProfessionalRTA() {
             
             let db = count > 0 ? sum / count : -100;
             if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
+            
+            // Apply extra fine calibration correction to weighted RTA bands
+            if (calEnabled) {
+                db += getCalOffsetForFreq(centerFreq);
+            }
 
             if (db > peakData[i]) peakData[i] = db;
             
-            // Draw Reference Snapshot
-            if (snapshotDataRTA) {
-                const isLight = document.documentElement.classList.contains('light');
-                const snapFill = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.2)';
-                const snapStroke = isLight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.4)';
-                const snapDb = snapshotDataRTA[i];
+            // --- Draw Multi-Snapshots (RTA) ---
+            snapshots.forEach(snap => {
+                if (!snap.visible) return;
+                const snapDb = snap.rta[i];
                 if (snapDb > -100) {
                     const snapH = Math.max(0, (snapDb + 100) * (canvas.height / 100));
-                    ctx.fillStyle = snapFill;
+                    // Draw faint background fill
+                    ctx.fillStyle = snap.color + '22'; // 13% opacity
                     ctx.fillRect(x + 1, canvas.height - snapH, barWidth - 2, snapH);
+                    
                     // Snapshot line
                     ctx.beginPath();
-                    ctx.strokeStyle = snapStroke;
+                    ctx.strokeStyle = snap.color;
+                    ctx.globalAlpha = 0.6;
                     ctx.setLineDash([2, 2]);
                     ctx.moveTo(x, canvas.height - snapH);
                     ctx.lineTo(x + barWidth, canvas.height - snapH);
                     ctx.stroke();
                     ctx.setLineDash([]);
+                    ctx.globalAlpha = 1.0;
                 }
-            }
+            });
 
             const h = Math.max(2, (db + 100) * (canvas.height / 100));
             ctx.fillStyle = getSPLColor(db);
-            ctx.fillRect(i * barWidth + 1, canvas.height - h, barWidth - 2, h);
+            ctx.fillRect(x + 1, canvas.height - h, barWidth - 2, h);
 
             if (peakHoldEnabled) {
                 const isLight = document.documentElement.classList.contains('light');
                 const ph = (peakData[i] + 100) * (canvas.height / 100);
                 ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
-                ctx.fillRect(i * barWidth + 1, canvas.height - ph - 2, barWidth - 2, 2);
+                ctx.fillRect(x + 1, canvas.height - ph - 2, barWidth - 2, 2);
             }
         });
     }
@@ -1385,23 +1758,25 @@ function initProfessionalRTA() {
     function drawFFT() {
         const sliceWidth = canvas.width / bufferLength;
 
-        // Draw Reference Snapshot Line
-        if (snapshotDataFFT) {
-            const isLight = document.documentElement.classList.contains('light');
+        // --- Draw Multi-Snapshots (Curve) ---
+        snapshots.forEach(snap => {
+            if (!snap.visible) return;
             ctx.beginPath();
-            ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.3)' : 'rgba(255, 255, 255, 0.4)';
-            ctx.lineWidth = 1;
+            ctx.strokeStyle = snap.color;
+            ctx.lineWidth = 1.5;
+            ctx.globalAlpha = 0.7;
             ctx.setLineDash([4, 4]);
             for (let i = 0; i < bufferLength; i++) {
                 const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
-                const db = snapshotDataFFT[i];
+                const db = snap.fft[i];
                 const y = canvas.height - (db + 100) * (canvas.height / 100);
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
             }
             ctx.stroke();
             ctx.setLineDash([]);
-        }
+            ctx.globalAlpha = 1.0;
+        });
 
         ctx.beginPath();
         ctx.strokeStyle = '#14A7B5';
@@ -1449,30 +1824,262 @@ function initProfessionalRTA() {
         if (domFreqEl) domFreqEl.textContent = domFreqDisplay;
     }
 
-    // Event Listeners
+    // --- Helper: Render Snapshot Slots UI ---
+    function renderSnapshotSlots() {
+        if (!slotsContainer) return;
+        slotsContainer.innerHTML = '';
+        
+        const isPro = window.isUserPro;
+
+        for (let i = 0; i < 10; i++) {
+            const slot = snapshots[i];
+            const btn = document.createElement('div');
+            
+            // Allow slot 0 for everyone, lock others (1-9) for free users
+            const isSlotLocked = !isPro && i > 0;
+
+            if (isSlotLocked) {
+                // Locked State for Free Users (Slots 2-10)
+                btn.className = 'snapshot-slot locked-pro';
+                btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">lock</span>';
+                btn.title = `PRO FEATURE: Slot ${i+1} Locked (Upgrade to Unlock 10 slots)`;
+                btn.addEventListener('click', () => {
+                    showProUpgradeModal();
+                });
+            } else {
+                // Active State for Pro Users
+                btn.className = `snapshot-slot ${slot ? 'active' : ''} ${slot && !slot.visible ? 'hidden' : ''}`;
+                btn.style.color = slot ? slot.color : 'inherit';
+                btn.textContent = i + 1;
+                
+                if (slot) {
+                    btn.title = `Snapshot ${i+1} (Click to toggle, Right-click to delete)`;
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        slot.visible = !slot.visible;
+                        renderSnapshotSlots();
+                    });
+                    btn.addEventListener('contextmenu', (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        snapshots.splice(i, 1);
+                        saveConfigToCloud('rta_snapshots', { snapshots });
+                        renderSnapshotSlots();
+                    });
+                } else {
+                    btn.title = "Empty Slot (Click Capture New to save)";
+                }
+            }
+            slotsContainer.appendChild(btn);
+        }
+    }
+
+    // --- Core Logic: Capture New Snapshot ---
+    function captureNewSnapshot() {
+        if (!isInitialized) return;
+        
+        if (!window.isUserPro && snapshots.length >= 1) {
+            showProUpgradeModal();
+            return;
+        }
+
+        if (snapshots.length >= 10) {
+            alert("Snapshot Memory Full. Right-click a slot to delete it.");
+            return;
+        }
+
+        const currentRTA = ISO_FREQS.map(centerFreq => {
+            const ratio = Math.pow(2, 1/12);
+            const lowFreq = centerFreq / ratio;
+            const highFreq = centerFreq * ratio;
+            const nyquist = audioCtx.sampleRate / 2;
+            const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
+            const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
+            let sum = 0; let count = 0;
+            for (let b = lowBin; b <= highBin; b++) { sum += dataArray[b]; count++; }
+            let db = count > 0 ? sum / count : -100;
+            if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
+            return db;
+        });
+
+        const newSnap = {
+            rta: currentRTA,
+            fft: Array.from(dataArray),
+            color: SNAPSHOT_COLORS[snapshots.length],
+            visible: true,
+            id: Date.now()
+        };
+
+        snapshots.push(newSnap);
+        saveConfigToCloud('rta_snapshots', { snapshots });
+        renderSnapshotSlots();
+
+        if (btnCapture) {
+            btnCapture.innerHTML = '<span class="material-symbols-outlined">check_circle</span> CAPTURED';
+            btnCapture.classList.add('active');
+            setTimeout(() => {
+                btnCapture.innerHTML = '<span class="material-symbols-outlined">camera</span> CAPTURE_NEW';
+                btnCapture.classList.remove('active');
+            }, 1000);
+        }
+    }
+
+    // --- Custom Mic Calibration Parser & Interpolator ---
+    function parseCalibrationData(text) {
+        const lines = text.split('\n');
+        const parsed = [];
+        for (let line of lines) {
+            line = line.trim();
+            if (!line || line.startsWith(';') || line.startsWith('#') || line.startsWith('*')) {
+                continue;
+            }
+            
+            const parts = line.replace(/,/g, ' ').split(/\s+/);
+            if (parts.length >= 2) {
+                const freq = parseFloat(parts[0]);
+                const offset = parseFloat(parts[1]);
+                if (!isNaN(freq) && !isNaN(offset)) {
+                    parsed.push({ freq, offset });
+                }
+            }
+        }
+        return parsed;
+    }
+
+    function precomputeCalibrationOffsets() {
+        if (!bufferLength) return;
+        const nyquist = (audioCtx ? audioCtx.sampleRate : 48000) / 2;
+        calOffsets = new Float32Array(bufferLength).fill(0);
+        
+        if (calProfile.length === 0) return;
+
+        // Sort profile ascending by frequency
+        calProfile.sort((a, b) => a.freq - b.freq);
+
+        for (let i = 0; i < bufferLength; i++) {
+            const f = (i * nyquist) / bufferLength;
+            
+            if (f <= calProfile[0].freq) {
+                calOffsets[i] = calProfile[0].offset;
+            } else if (f >= calProfile[calProfile.length - 1].freq) {
+                calOffsets[i] = calProfile[calProfile.length - 1].offset;
+            } else {
+                let lowPt = calProfile[0];
+                let highPt = calProfile[calProfile.length - 1];
+                for (let j = 0; j < calProfile.length - 1; j++) {
+                    if (f >= calProfile[j].freq && f <= calProfile[j + 1].freq) {
+                        lowPt = calProfile[j];
+                        highPt = calProfile[j + 1];
+                        break;
+                    }
+                }
+                const logF = Math.log10(f || 1);
+                const logLow = Math.log10(lowPt.freq || 1);
+                const logHigh = Math.log10(highPt.freq || 1);
+                const pct = (logF - logLow) / (logHigh - logLow || 1);
+                calOffsets[i] = lowPt.offset + pct * (highPt.offset - lowPt.offset);
+            }
+        }
+    }
+
+    function getCalOffsetForFreq(f) {
+        if (calProfile.length === 0) return 0;
+        if (f <= calProfile[0].freq) return calProfile[0].offset;
+        if (f >= calProfile[calProfile.length - 1].freq) return calProfile[calProfile.length - 1].offset;
+        
+        for (let j = 0; j < calProfile.length - 1; j++) {
+            if (f >= calProfile[j].freq && f <= calProfile[j + 1].freq) {
+                const lowPt = calProfile[j];
+                const highPt = calProfile[j + 1];
+                const logF = Math.log10(f || 1);
+                const logLow = Math.log10(lowPt.freq || 1);
+                const logHigh = Math.log10(highPt.freq || 1);
+                const pct = (logF - logLow) / (logHigh - logLow || 1);
+                return lowPt.offset + pct * (highPt.offset - lowPt.offset);
+            }
+        }
+        return 0;
+    }
+
+    // --- Rolling Spectrogram Waterfall Visualizer ---
+    function getWaterfallColor(displayDB) {
+        const minDB = 45;
+        const maxDB = 110;
+        const norm = Math.max(0, Math.min(1, (displayDB - minDB) / (maxDB - minDB)));
+        
+        if (norm < 0.2) {
+            const p = norm / 0.2;
+            return `hsl(240, 100%, ${Math.floor(2 + p * 8)}%)`;
+        } else if (norm < 0.5) {
+            const p = (norm - 0.2) / 0.3;
+            return `hsl(${Math.floor(240 - p * 60)}, 100%, ${Math.floor(10 + p * 20)}%)`;
+        } else if (norm < 0.8) {
+            const p = (norm - 0.5) / 0.3;
+            return `hsl(${Math.floor(180 - p * 160)}, 100%, ${Math.floor(30 + p * 20)}%)`;
+        } else {
+            const p = (norm - 0.8) / 0.2;
+            return `hsl(${Math.floor(20 + p * 40)}, 100%, ${Math.floor(50 + p * 40)}%)`;
+        }
+    }
+
+    function drawWaterfall() {
+        if (!waterfallCanvas) {
+            waterfallCanvas = document.createElement('canvas');
+            waterfallCanvas.width = canvas.width;
+            waterfallCanvas.height = canvas.height;
+            waterfallCtx = waterfallCanvas.getContext('2d');
+            waterfallCtx.fillStyle = '#050508';
+            waterfallCtx.fillRect(0, 0, waterfallCanvas.width, waterfallCanvas.height);
+        }
+
+        const shiftY = 2;
+        waterfallCtx.drawImage(
+            waterfallCanvas, 
+            0, 0, waterfallCanvas.width, waterfallCanvas.height - shiftY,
+            0, shiftY, waterfallCanvas.width, waterfallCanvas.height - shiftY
+        );
+
+        for (let i = 0; i < bufferLength; i++) {
+            const dbVal = dataArray[i];
+            const color = getWaterfallColor(dbVal + calibrationOffset);
+            
+            const x1 = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
+            const x2 = (Math.log10(i + 2) / Math.log10(bufferLength)) * canvas.width;
+            
+            waterfallCtx.fillStyle = color;
+            waterfallCtx.fillRect(x1, 0, Math.max(1.5, x2 - x1), shiftY);
+        }
+
+        ctx.drawImage(waterfallCanvas, 0, 0);
+    }
+
+    // --- Listeners: Controls ---
     const avgSlider = document.getElementById('rta-averaging');
     const avgVal = document.getElementById('avg-val');
-
     if (avgSlider) {
         avgSlider.addEventListener('input', (e) => {
             averagingFactor = parseInt(e.target.value);
-            avgVal.textContent = averagingFactor;
+            if (avgVal) avgVal.textContent = averagingFactor;
         });
     }
 
-    startBtn.addEventListener('click', () => {
-        if (isAnalyzing) {
-            stopAnalyzer();
-        } else {
-            window.startAnalyzer();
-        }
-    });
+    if (startBtn) {
+        startBtn.addEventListener('click', () => {
+            if (isAnalyzing) stopAnalyzer();
+            else window.startAnalyzer();
+        });
+    }
     
     modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
+            const mode = btn.getAttribute('data-mode');
+            if (mode === 'waterfall' && !window.isUserPro) {
+                showProUpgradeModal();
+                return;
+            }
             modeBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            currentMode = btn.getAttribute('data-mode');
+            currentMode = mode;
         });
     });
 
@@ -1484,67 +2091,431 @@ function initProfessionalRTA() {
         });
     });
 
-    calSlider.addEventListener('input', () => {
-        calibrationOffset = parseFloat(calSlider.value);
-        calValue.textContent = calibrationOffset;
-    });
+    if (calSlider) {
+        calSlider.addEventListener('input', () => {
+            calibrationOffset = parseFloat(calSlider.value);
+            if (calValue) calValue.textContent = calibrationOffset;
+        });
+    }
 
-    peakToggle.addEventListener('click', () => {
-        peakHoldEnabled = !peakHoldEnabled;
-        peakToggle.classList.toggle('active', peakHoldEnabled);
-        peakToggle.textContent = peakHoldEnabled ? 'ON' : 'OFF';
-    });
+    if (peakToggle) {
+        peakToggle.addEventListener('click', () => {
+            peakHoldEnabled = !peakHoldEnabled;
+            peakToggle.classList.toggle('active', peakHoldEnabled);
+            peakToggle.textContent = peakHoldEnabled ? 'ON' : 'OFF';
+        });
+    }
 
-    peakReset.addEventListener('click', () => {
-        peakData.fill(-100);
-    });
-
-    const btnCapture = document.getElementById('btn-capture-snapshot');
-    const btnClear = document.getElementById('btn-clear-snapshot');
+    if (peakReset) {
+        peakReset.addEventListener('click', () => {
+            peakData.fill(-100);
+        });
+    }
 
     if (btnCapture) {
-        btnCapture.addEventListener('click', () => {
-            if (!isInitialized) return;
-            
-            // Capture FFT raw data
-            snapshotDataFFT = new Float32Array(dataArray);
+        btnCapture.addEventListener('click', captureNewSnapshot);
+    }
 
-            // Capture RTA band-calculated data
-            snapshotDataRTA = ISO_FREQS.map(centerFreq => {
-                const ratio = Math.pow(2, 1/12);
-                const lowFreq = centerFreq / ratio;
-                const highFreq = centerFreq * ratio;
-                const nyquist = audioCtx.sampleRate / 2;
-                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
-                const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
-                
-                let sum = 0;
-                let count = 0;
-                for (let b = lowBin; b <= highBin; b++) {
-                    sum += dataArray[b];
-                    count++;
-                }
-                let db = count > 0 ? sum / count : -100;
-                if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
-                return db;
+    const btnClearAll = document.getElementById('btn-clear-all-snapshots');
+    if (btnClearAll) {
+        btnClearAll.addEventListener('click', () => {
+            if (confirm("Clear all 10 snapshot slots?")) {
+                snapshots = [];
+                saveConfigToCloud('rta_snapshots', { snapshots });
+                renderSnapshotSlots();
+            }
+        });
+    }
+
+    // --- Mic Calibration Event Listeners ---
+    const micCalModal = document.getElementById('mic-cal-modal');
+    const btnMicCalModal = document.getElementById('btn-mic-cal-modal');
+    const btnCloseMicCal = document.getElementById('btn-close-mic-cal');
+    const calDropZone = document.getElementById('cal-drop-zone');
+    const calFileInput = document.getElementById('cal-file-input');
+    const calTextInput = document.getElementById('cal-text-input');
+    const btnSaveCal = document.getElementById('btn-save-cal');
+    const btnClearCal = document.getElementById('btn-clear-cal');
+    const calStatusBadge = document.getElementById('cal-status-badge');
+    const calDetails = document.getElementById('cal-details');
+
+    if (btnMicCalModal) {
+        btnMicCalModal.addEventListener('click', () => {
+            if (!window.isUserPro) {
+                showProUpgradeModal();
+                return;
+            }
+            openModal(micCalModal);
+        });
+    }
+
+    if (btnCloseMicCal) {
+        btnCloseMicCal.addEventListener('click', () => closeModal(micCalModal));
+    }
+
+    if (calDropZone) {
+        calDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            calDropZone.classList.add('dragover');
+        });
+
+        calDropZone.addEventListener('dragleave', () => {
+            calDropZone.classList.remove('dragover');
+        });
+
+        calDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            calDropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) loadCalFile(file);
+        });
+
+        calDropZone.addEventListener('click', () => {
+            calFileInput.click();
+        });
+    }
+
+    if (calFileInput) {
+        calFileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) loadCalFile(file);
+        });
+    }
+
+    function loadCalFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            calTextInput.value = e.target.result;
+            if (calDropZone) {
+                calDropZone.style.borderColor = 'var(--primary)';
+                setTimeout(() => calDropZone.style.borderColor = '', 1000);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    if (btnSaveCal) {
+        btnSaveCal.addEventListener('click', async () => {
+            const text = calTextInput.value.trim();
+            if (!text) {
+                alert("Please paste value pairs or drop a calibration file first.");
+                return;
+            }
+
+            const parsed = parseCalibrationData(text);
+            if (parsed.length === 0) {
+                alert("No valid calibration points found. Please verify the file format (frequency offset).");
+                return;
+            }
+
+            calProfile = parsed;
+            calEnabled = true;
+            precomputeCalibrationOffsets();
+
+            if (calStatusBadge) {
+                calStatusBadge.textContent = "ACTIVE";
+                calStatusBadge.className = "cal-status-badge active";
+            }
+            if (calDetails) {
+                calDetails.textContent = `${parsed.length} points applied`;
+            }
+
+            await saveConfigToCloud('mic_calibration', {
+                text: text,
+                enabled: true,
+                pointsCount: parsed.length
             });
 
-            btnCapture.innerHTML = '<span class="material-symbols-outlined">check_circle</span> SNAPSHOT_SAVED';
-            btnCapture.classList.add('active');
-            setTimeout(() => {
-                btnCapture.innerHTML = '<span class="material-symbols-outlined">camera</span> CAPTURE_SNAPSHOT';
-                btnCapture.classList.remove('active');
-            }, 2000);
+            closeModal(micCalModal);
         });
     }
 
-    if (btnClear) {
-        btnClear.addEventListener('click', () => {
-            snapshotDataRTA = null;
-            snapshotDataFFT = null;
+    if (btnClearCal) {
+        btnClearCal.addEventListener('click', async () => {
+            calProfile = [];
+            calOffsets = null;
+            calEnabled = false;
+            calTextInput.value = '';
+            
+            if (calStatusBadge) {
+                calStatusBadge.textContent = "NO PROFILE ACTIVE";
+                calStatusBadge.className = "cal-status-badge inactive";
+            }
+            if (calDetails) {
+                calDetails.textContent = "Standard response applied (flat)";
+            }
+
+            await saveConfigToCloud('mic_calibration', {
+                text: '',
+                enabled: false,
+                pointsCount: 0
+            });
+
+            closeModal(micCalModal);
         });
     }
 
+    async function pullCalibrationProfile() {
+        if (!window.isUserPro || !window.supabaseClient) return;
+        try {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) return;
+
+            const { data, error } = await window.supabaseClient
+                .from('user_configs')
+                .select('data')
+                .eq('user_id', session.user.id)
+                .eq('config_type', 'mic_calibration')
+                .single();
+
+            if (data && data.data && data.data.text) {
+                const text = data.data.text;
+                calTextInput.value = text;
+                const parsed = parseCalibrationData(text);
+                if (parsed.length > 0) {
+                    calProfile = parsed;
+                    calEnabled = data.data.enabled !== false;
+                    precomputeCalibrationOffsets();
+
+                    if (calStatusBadge) {
+                        calStatusBadge.textContent = calEnabled ? "ACTIVE" : "INACTIVE";
+                        calStatusBadge.className = calEnabled ? "cal-status-badge active" : "cal-status-badge inactive";
+                    }
+                    if (calDetails) {
+                        calDetails.textContent = `${parsed.length} points applied`;
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn("Could not pull calibration profile", err);
+        }
+    }
+
+    pullCalibrationProfile();
+    document.addEventListener('authSuccess', pullCalibrationProfile);
+
+    // --- Dynamic Pro Lock UI Synchronization ---
+    function syncProLockUI(isPro) {
+        const btnWaterfall = Array.from(modeBtns).find(btn => btn.getAttribute('data-mode') === 'waterfall');
+        if (btnWaterfall) {
+            btnWaterfall.classList.toggle('locked-pro', !isPro);
+            btnWaterfall.innerHTML = isPro 
+                ? 'WATERFALL' 
+                : '<span class="material-symbols-outlined" style="font-size:12px; margin-right:4px; vertical-align: middle;">lock</span>WATERFALL';
+        }
+
+        if (btnMicCalModal) {
+            btnMicCalModal.classList.toggle('locked-pro', !isPro);
+            btnMicCalModal.innerHTML = isPro 
+                ? '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">settings_input_antenna</span> LOAD PROFILE'
+                : '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">lock</span> LOAD PROFILE';
+        }
+    }
+
+    document.addEventListener('proStatusChanged', (e) => {
+        syncProLockUI(e.detail);
+        renderSnapshotSlots();
+    });
+
+    // Run initial sync on load
+    syncProLockUI(window.isUserPro);
+
+    // --- Cloud Sync ---
+    async function pullSnapshots() {
+        if (typeof supabaseClient === 'undefined') return;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return;
+
+        try {
+            const { data } = await supabaseClient
+                .from('user_configs')
+                .select('data')
+                .eq('user_id', session.user.id)
+                .eq('config_type', 'rta_snapshots')
+                .single();
+
+
+            if (data && data.data && data.data.snapshots) {
+                snapshots = data.data.snapshots;
+                renderSnapshotSlots();
+            }
+        } catch (err) {
+            console.error('Cloud Pull Error (RTA):', err);
+        }
+    }
+
+    pullSnapshots();
+    document.addEventListener('authSuccess', pullSnapshots);
+
+
+    // --- Premium Fullscreen & Rewarded Ad Features ---
+    function syncRtaCanvasSize() {
+        const wrapper = canvas.parentElement;
+        if (!wrapper) return;
+        if (isFullscreenActive) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        } else {
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+        }
+        
+        // Resize spectrogram waterfall cache canvas in lockstep
+        if (waterfallCanvas) {
+            waterfallCanvas.width = canvas.width;
+            waterfallCanvas.height = canvas.height;
+            if (waterfallCtx) {
+                waterfallCtx.fillStyle = '#050508';
+                waterfallCtx.fillRect(0, 0, waterfallCanvas.width, waterfallCanvas.height);
+            }
+        }
+    }
+
+    function toggleRtaFullscreen(forceState) {
+        const wrapper = canvas.parentElement;
+        if (!wrapper) return;
+        
+        const btnFullscreen = document.getElementById('btn-rta-fullscreen');
+        let targetState = (forceState !== undefined) ? forceState : !isFullscreenActive;
+        
+        if (targetState) {
+            isFullscreenActive = true;
+            wrapper.classList.add('fullscreen-canvas');
+            if (btnFullscreen) {
+                btnFullscreen.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">fullscreen_exit</span>';
+            }
+            document.body.style.overflow = 'hidden'; // Stop background scrolling
+        } else {
+            isFullscreenActive = false;
+            wrapper.classList.remove('fullscreen-canvas');
+            if (btnFullscreen) {
+                btnFullscreen.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">fullscreen</span>';
+            }
+            document.body.style.overflow = ''; // Restore background scrolling
+        }
+        
+        syncRtaCanvasSize();
+    }
+
+    function startAdPlayback() {
+        const modal = document.getElementById('ad-reward-modal');
+        const btnClaim = document.getElementById('btn-ad-reward-claim');
+        const countdownBar = document.getElementById('ad-reward-countdown-bar');
+        const btnText = document.getElementById('ad-reward-btn-text');
+        const btnIcon = document.getElementById('ad-reward-btn-icon');
+        const alertBox = document.getElementById('ad-reward-alert');
+
+        if (!modal) return;
+
+        adSecondsRemaining = 15;
+        if (alertBox) alertBox.style.display = 'none';
+        
+        if (btnClaim) {
+            btnClaim.disabled = true;
+            if (btnText) btnText.textContent = `🔒 Skip Ad in ${adSecondsRemaining}s`;
+            if (btnIcon) btnIcon.textContent = 'lock';
+        }
+        
+        if (countdownBar) {
+            countdownBar.style.transition = 'none';
+            countdownBar.style.width = '100%';
+            // Force reflow
+            countdownBar.offsetHeight;
+            countdownBar.style.transition = 'width 15s linear';
+            countdownBar.style.width = '0%';
+        }
+
+        modal.classList.add('active');
+
+        if (adCountdownTimer) clearInterval(adCountdownTimer);
+        
+        adCountdownTimer = setInterval(() => {
+            adSecondsRemaining--;
+            if (adSecondsRemaining > 0) {
+                if (btnText) btnText.textContent = `🔒 Skip Ad in ${adSecondsRemaining}s`;
+            } else {
+                clearInterval(adCountdownTimer);
+                adCountdownTimer = null;
+                
+                if (btnClaim) {
+                    btnClaim.disabled = false;
+                    if (btnText) btnText.textContent = '🎁 CLAIM REWARD: UNLOCK FULLSCREEN';
+                    if (btnIcon) btnIcon.textContent = 'redeem';
+                }
+            }
+        }, 1000);
+    }
+
+    function closeAdPlayback(isAborted) {
+        const modal = document.getElementById('ad-reward-modal');
+        const alertBox = document.getElementById('ad-reward-alert');
+        
+        if (adCountdownTimer) {
+            clearInterval(adCountdownTimer);
+            adCountdownTimer = null;
+        }
+
+        if (isAborted) {
+            if (alertBox) {
+                alertBox.style.display = 'block';
+                setTimeout(() => {
+                    if (modal) modal.classList.remove('active');
+                }, 1800);
+            } else {
+                if (modal) modal.classList.remove('active');
+            }
+        } else {
+            if (modal) modal.classList.remove('active');
+        }
+    }
+
+    // Floating Button Click Trigger
+    const btnFullscreen = document.getElementById('btn-rta-fullscreen');
+    if (btnFullscreen) {
+        btnFullscreen.addEventListener('click', (e) => {
+            e.stopPropagation();
+            
+            const isUserProTier = window.isUserPro;
+            
+            if (isUserProTier || isAdRewardClaimed) {
+                toggleRtaFullscreen();
+            } else {
+                startAdPlayback();
+            }
+        });
+    }
+
+    // Window Resize Handler for RTA view
+    window.addEventListener('resize', () => {
+        if (document.getElementById('rta-view').style.display !== 'none') {
+            syncRtaCanvasSize();
+        }
+    });
+
+    // Ad Modal Close & Skip logic
+    const btnCloseAdReward = document.getElementById('btn-close-ad-reward');
+    if (btnCloseAdReward) {
+        btnCloseAdReward.addEventListener('click', () => {
+            if (adSecondsRemaining > 0) {
+                if (confirm("Cancel ad playback? You will not unlock the premium fullscreen RTA view.")) {
+                    closeAdPlayback(true);
+                }
+            } else {
+                closeAdPlayback(false);
+            }
+        });
+    }
+
+    const btnClaimAdReward = document.getElementById('btn-ad-reward-claim');
+    if (btnClaimAdReward) {
+        btnClaimAdReward.addEventListener('click', () => {
+            isAdRewardClaimed = true;
+            closeAdPlayback(false);
+            toggleRtaFullscreen(true);
+        });
+    }
+
+    renderSnapshotSlots(); 
     getDevices();
 }
 
@@ -1565,14 +2536,15 @@ function initSignalGenerator() {
     const sweepSection = document.getElementById('siggen-sweep-section');
 
     let audioCtx;
-    let oscillator;
-    let noiseNode;
-    let gainNode;
-    let analyzer;
-    let isPlaying = false;
-    let currentWave = 'sine';
-    let currentFreq = 1000;
     let currentGain = -18;
+
+    function saveSignalGenState() {
+        saveConfigToCloud('siggen_config', {
+            wave: currentWave,
+            freq: currentFreq,
+            gain: currentGain
+        });
+    }
 
     function initAudio() {
         if (!audioCtx) {
@@ -1764,6 +2736,7 @@ function initSignalGenerator() {
         if (oscillator) {
             oscillator.frequency.setTargetAtTime(currentFreq, audioCtx.currentTime, 0.01);
         }
+        saveSignalGenState();
     });
 
     // Manual Frequency Input
@@ -1784,6 +2757,7 @@ function initSignalGenerator() {
         if (oscillator) {
             oscillator.frequency.setTargetAtTime(currentFreq, audioCtx.currentTime, 0.01);
         }
+        saveSignalGenState();
     });
 
     gainSlider.addEventListener('input', (e) => {
@@ -1793,6 +2767,7 @@ function initSignalGenerator() {
             const targetGain = Math.pow(10, currentGain / 20);
             gainNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.02);
         }
+        saveSignalGenState();
     });
 
     waveBtns.forEach(btn => {
@@ -1820,6 +2795,7 @@ function initSignalGenerator() {
             if (wasPlaying) {
                 setTimeout(startOutput, 100);
             }
+            saveSignalGenState();
         });
     });
 
@@ -1843,8 +2819,59 @@ function initSignalGenerator() {
             if (oscillator) {
                 oscillator.frequency.setTargetAtTime(currentFreq, audioCtx.currentTime, 0.05);
             }
+            saveSignalGenState();
         });
     });
+
+    // --- Pull from Cloud ---
+    async function pullSignalGen() {
+        if (typeof supabaseClient === 'undefined') return;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return;
+
+        try {
+            const { data } = await supabaseClient
+                .from('user_configs')
+                .select('data')
+                .eq('user_id', session.user.id)
+                .eq('config_type', 'siggen_config')
+                .single();
+
+            if (data && data.data) {
+                currentWave = data.data.wave || 'sine';
+                currentFreq = data.data.freq || 1000;
+                currentGain = data.data.gain || -18;
+
+                // Sync UI
+                freqInput.value = currentFreq;
+                gainSlider.value = currentGain;
+                gainVal.textContent = `${currentGain} dB`;
+                
+                const minFreq = 20;
+                const maxFreq = 20000;
+                freqSlider.value = Math.log(currentFreq / minFreq) / Math.log(maxFreq / minFreq);
+
+                waveBtns.forEach(btn => {
+                    btn.classList.toggle('active', btn.getAttribute('data-wave') === currentWave);
+                });
+
+                // Update sweep section visibility
+                if (currentWave === 'white' || currentWave === 'pink') {
+                    sweepSection.style.opacity = '0.3';
+                    sweepSection.style.pointerEvents = 'none';
+                } else {
+                    sweepSection.style.opacity = '1';
+                    sweepSection.style.pointerEvents = 'all';
+                }
+            }
+        } catch (err) {
+            console.error('Cloud Pull Error (SigGen):', err);
+        }
+    }
+
+    pullSignalGen();
+    document.addEventListener('authSuccess', pullSignalGen);
+
 }
 
 // --- EAR TRAINING LOGIC ---
@@ -1862,7 +2889,18 @@ function initEarTraining() {
     
     const optionsContainer = document.getElementById('train-options-container');
     const sourceBtns = document.querySelectorAll('.train-source-btn');
+    const tierBtns = document.querySelectorAll('.train-tier-btn');
     const boostBtns = document.querySelectorAll('.train-boost-btn');
+
+    // Pro Feature elements: Custom track uploader and seeker
+    const uploadContainer = document.getElementById('train-track-upload-container');
+    const uploadBtn = document.getElementById('btn-train-upload');
+    const fileInput = document.getElementById('train-track-file');
+    const statusLabel = document.getElementById('train-track-status');
+    const seekContainer = document.getElementById('train-track-seek-container');
+    const seekSlider = document.getElementById('train-track-seek-slider');
+    const timeCurrent = document.getElementById('train-track-time-current');
+    const timeTotal = document.getElementById('train-track-time-total');
 
     let audioCtx;
     let sourceNode;
@@ -1873,11 +2911,23 @@ function initEarTraining() {
     let currentTargetFreq = 0;
     let currentBoost = 6;
     let currentSource = 'pink';
+    let currentTier = 'octave';
     let currentChannel = 'B';
+    let customTrackBuffer = null;
+    let seekOffset = 0;
+    let startTime = 0;
+    let seekUpdateInterval = null;
+    let isUserSeeking = false;
     
     let sessionRound = 1;
     let questionsTotal = 0;
     let questionsCorrect = 0;
+
+    const OCTAVE_FREQS = [63, 125, 250, 500, 1000, 2000, 4000, 8000, 16000];
+    const THIRD_OCTAVE_FREQS = [50, 63, 80, 100, 125, 160, 200, 250, 315, 400, 500, 630, 800, 1000, 1250, 1600, 2000, 2500, 3150, 4000, 5000, 6300, 8000, 10000, 12500, 16000];
+    const SIXTH_OCTAVE_FREQS = [
+        50, 56, 63, 71, 80, 90, 100, 112, 125, 140, 160, 180, 200, 224, 250, 280, 315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 1120, 1250, 1400, 1600, 1800, 2000, 2240, 2500, 2800, 3150, 3550, 4000, 4500, 5000, 5600, 6300, 7100, 8000, 9000, 10000, 11200, 12500, 14000, 16000
+    ];
 
     function initAudio() {
         if (!audioCtx) {
@@ -1914,8 +2964,20 @@ function initEarTraining() {
         return node;
     }
 
+    function createWhiteNoise() {
+        const bufferSize = 4096;
+        const node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+        node.onaudioprocess = (e) => {
+            const output = e.outputBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                output[i] = Math.random() * 2 - 1;
+            }
+        };
+        return node;
+    }
+
     function setChannel(ch) {
-        if (!isTraining || currentSource !== 'pink') return;
+        if (!isTraining) return;
         currentChannel = ch;
         if (btnA) btnA.classList.toggle('active', ch === 'A');
         if (btnB) btnB.classList.toggle('active', ch === 'B');
@@ -1931,37 +2993,72 @@ function initEarTraining() {
         if (audioCtx.state === 'suspended') audioCtx.resume();
         stopAudio();
 
-        const idx = Math.floor(Math.random() * ISO_FREQS.length);
-        currentTargetFreq = ISO_FREQS[idx];
+        const freqList = (currentTier === 'octave') 
+            ? OCTAVE_FREQS 
+            : ((currentTier === 'third') ? THIRD_OCTAVE_FREQS : SIXTH_OCTAVE_FREQS);
+        const idx = Math.floor(Math.random() * freqList.length);
+        currentTargetFreq = freqList[idx];
         
         if (currentSource === 'pink') {
             sourceNode = createPinkNoise();
-            filterNode.frequency.value = currentTargetFreq;
-            filterNode.gain.value = (currentChannel === 'B') ? currentBoost : 0;
-            sourceNode.connect(filterNode);
-        } else {
+        } else if (currentSource === 'white') {
+            sourceNode = createWhiteNoise();
+        } else if (currentSource === 'sine') {
             sourceNode = audioCtx.createOscillator();
             sourceNode.type = 'sine';
             sourceNode.frequency.value = currentTargetFreq;
-            sourceNode.connect(gainNode);
+        } else if (currentSource === 'track') {
+            if (!customTrackBuffer) {
+                // Trigger file picker
+                if (fileInput) fileInput.click();
+                alert("Please select a reference audio track from your device first.");
+                stopAudio();
+                return;
+            }
+            sourceNode = audioCtx.createBufferSource();
+            sourceNode.buffer = customTrackBuffer;
+            sourceNode.loop = true;
         }
 
+        if (filterNode) {
+            filterNode.frequency.setTargetAtTime(currentTargetFreq, audioCtx.currentTime, 0.01);
+            filterNode.gain.setTargetAtTime((currentChannel === 'B') ? currentBoost : 0, audioCtx.currentTime, 0.01);
+            filterNode.Q.value = (currentTier === 'octave') 
+                ? 2.0 
+                : ((currentTier === 'third') ? 4.32 : 8.65);
+        }
+
+        if (sourceNode) {
+            sourceNode.connect(filterNode);
+        }
+        
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
         gainNode.gain.linearRampToValueAtTime(0.5, audioCtx.currentTime + 0.5);
         
-        if (sourceNode.start) sourceNode.start();
+        if (sourceNode && sourceNode.start) {
+            if (currentSource === 'track') {
+                sourceNode.start(0, seekOffset);
+                startTime = audioCtx.currentTime;
+                startSeekTracker();
+            } else {
+                sourceNode.start();
+            }
+        }
         
         isTraining = true;
         if (btnPlayToggle) btnPlayToggle.classList.add('playing');
         if (playIcon) playIcon.textContent = 'pause';
         
-        renderOptions(idx);
+        renderOptions(currentTargetFreq);
         updateStats();
     }
 
     function stopAudio() {
+        stopSeekTracker();
         if (sourceNode) {
-            if (sourceNode.stop) sourceNode.stop();
+            try {
+                sourceNode.stop();
+            } catch(e) {}
             sourceNode.disconnect();
             sourceNode = null;
         }
@@ -1985,19 +3082,28 @@ function initEarTraining() {
         if (statScore) statScore.textContent = `${percentage}%`;
     }
 
-    function renderOptions(correctIdx) {
+    function renderOptions(correctFreq) {
         if (!optionsContainer) return;
         optionsContainer.innerHTML = '';
         
-        let options = [];
-        for (let i = -2; i <= 2; i++) {
-            const idx = correctIdx + i;
-            if (idx >= 0 && idx < ISO_FREQS.length) {
-                options.push(ISO_FREQS[idx]);
+        const freqList = (currentTier === 'octave') 
+            ? OCTAVE_FREQS 
+            : ((currentTier === 'third') ? THIRD_OCTAVE_FREQS : SIXTH_OCTAVE_FREQS);
+        const correctIdx = freqList.indexOf(correctFreq);
+        
+        let options = [correctFreq];
+        
+        // Pick 4 additional random distractors from the list
+        while (options.length < 5) {
+            const randIdx = Math.floor(Math.random() * freqList.length);
+            const randFreq = freqList[randIdx];
+            if (!options.includes(randFreq)) {
+                options.push(randFreq);
             }
         }
 
-        options.sort(() => Math.random() - 0.5);
+        // Shuffle distractors
+        options.sort((a, b) => a - b); // Sort numerically for easier reading or shuffle for difficulty
 
         options.forEach(freq => {
             const btn = document.createElement('button');
@@ -2008,13 +3114,29 @@ function initEarTraining() {
         });
     }
 
+    async function saveTrainingScore() {
+        if (!window.supabaseClient) return;
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        if (!session) return;
+
+        try {
+            await saveConfigToCloud('training_stats', {
+                total: questionsTotal,
+                correct: questionsCorrect,
+                accuracy: questionsTotal > 0 ? (questionsCorrect / questionsTotal) * 100 : 0,
+                lastSession: new Date().toISOString()
+            });
+        } catch (err) {
+            console.error('Cloud Score Sync Error:', err);
+        }
+    }
+
     function handleAnswer(selectedFreq, btn) {
         if (!isTraining) return;
         
         questionsTotal++;
         const isCorrect = (Math.abs(selectedFreq - currentTargetFreq) < 0.1);
         
-        // Disable all buttons to prevent double-clicking
         const allBtns = optionsContainer.querySelectorAll('.train-option-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
         
@@ -2023,21 +3145,17 @@ function initEarTraining() {
             btn.classList.add('correct');
         } else {
             btn.classList.add('error');
-            // Highlight the correct one
             allBtns.forEach(b => {
                 const fText = currentTargetFreq >= 1000 ? (currentTargetFreq/1000).toFixed(2).replace(/\.00$/, '') + 'k' : currentTargetFreq.toString();
-                if (b.textContent === fText) {
-                    b.classList.add('correct');
-                }
+                if (b.textContent === fText) b.classList.add('correct');
             });
         }
 
         updateStats();
+        saveTrainingScore();
         
-        // Auto-advance after brief pause
         setTimeout(() => {
             if (questionsTotal >= 10) {
-                // End of round
                 stopAudio();
                 sessionRound++;
                 questionsTotal = 0;
@@ -2051,25 +3169,151 @@ function initEarTraining() {
     }
 
     // Listeners
-    if (btnPlayToggle) btnPlayToggle.addEventListener('click', togglePlay);
-    if (btnA) btnA.addEventListener('click', () => setChannel('A'));
-    if (btnB) btnB.addEventListener('click', () => setChannel('B'));
+    if (btnPlayToggle) btnPlayToggle.addEventListener('click', (e) => { if (e) e.preventDefault(); togglePlay(); });
+    if (btnA) btnA.addEventListener('click', (e) => { if (e) e.preventDefault(); setChannel('A'); });
+    if (btnB) btnB.addEventListener('click', (e) => { if (e) e.preventDefault(); setChannel('B'); });
 
-    sourceBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-            sourceBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentSource = btn.getAttribute('data-source');
-            if (currentSource === 'sine') {
-                if (btnA) btnA.style.opacity = '0.5';
-                if (btnB) btnB.style.opacity = '0.5';
-            } else {
-                if (btnA) btnA.style.opacity = '1';
-                if (btnB) btnB.style.opacity = '1';
+    tierBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            const tier = btn.getAttribute('data-tier');
+            if (btn.classList.contains('locked-pro') && tier === 'sixth' && !window.isUserPro) {
+                showProUpgradeModal();
+                return;
             }
+            tierBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentTier = tier;
             if (isTraining) startChallenge();
         });
     });
+
+    sourceBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            if (btn.classList.contains('locked-pro') && !window.isUserPro) {
+                showProUpgradeModal();
+                return;
+            }
+            sourceBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentSource = btn.getAttribute('data-source');
+            
+            // Dynamic container slide-toggle
+            if (uploadContainer) {
+                uploadContainer.style.display = (currentSource === 'track') ? 'block' : 'none';
+            }
+
+            if (isTraining) startAudio();
+        });
+    });
+
+    if (uploadBtn && fileInput) {
+        uploadBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            initAudio();
+            if (statusLabel) statusLabel.textContent = "Decoding...";
+            
+            const reader = new FileReader();
+            reader.onload = async (evt) => {
+                try {
+                    const arrayBuffer = evt.target.result;
+                    customTrackBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+                    if (statusLabel) statusLabel.textContent = file.name;
+                    console.log("Successfully decoded custom track:", file.name);
+                    
+                    // Show seek controls and populate duration
+                    if (seekContainer) seekContainer.style.display = 'flex';
+                    if (seekSlider) {
+                        seekSlider.max = customTrackBuffer.duration;
+                        seekSlider.value = 0;
+                    }
+                    if (timeTotal) timeTotal.textContent = formatTime(customTrackBuffer.duration);
+                    if (timeCurrent) timeCurrent.textContent = "0:00";
+                    seekOffset = 0;
+
+                    // If playing and source is TRACK, reload audio dynamically
+                    if (isTraining && currentSource === 'track') {
+                        startAudio();
+                    }
+                } catch (err) {
+                    alert("Error decoding audio file. Please try another standard format like MP3 or WAV.");
+                    if (statusLabel) statusLabel.textContent = "Error loading";
+                    customTrackBuffer = null;
+                    console.error("Audio Decode Error:", err);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+    }
+
+    function formatTime(secs) {
+        if (isNaN(secs)) return "0:00";
+        const m = Math.floor(secs / 60);
+        const s = Math.floor(secs % 60);
+        return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function startSeekTracker() {
+        stopSeekTracker();
+        seekUpdateInterval = setInterval(() => {
+            if (!isTraining || currentSource !== 'track' || !customTrackBuffer || isUserSeeking) return;
+            
+            const elapsed = audioCtx.currentTime - startTime + seekOffset;
+            const currentPos = elapsed % customTrackBuffer.duration;
+            
+            if (seekSlider) seekSlider.value = currentPos;
+            if (timeCurrent) timeCurrent.textContent = formatTime(currentPos);
+        }, 100);
+    }
+    
+    function stopSeekTracker() {
+        if (seekUpdateInterval) {
+            clearInterval(seekUpdateInterval);
+            seekUpdateInterval = null;
+        }
+    }
+
+    if (seekSlider) {
+        seekSlider.addEventListener('input', () => {
+            isUserSeeking = true;
+            if (timeCurrent) {
+                timeCurrent.textContent = formatTime(seekSlider.value);
+            }
+        });
+        
+        seekSlider.addEventListener('change', () => {
+            const newOffset = parseFloat(seekSlider.value);
+            seekOffset = newOffset;
+            
+            // If playing, we need to stop and start the buffer node at the new offset!
+            if (isTraining && currentSource === 'track' && sourceNode && customTrackBuffer) {
+                try {
+                    sourceNode.stop();
+                } catch(e) {}
+                sourceNode.disconnect();
+                
+                sourceNode = audioCtx.createBufferSource();
+                sourceNode.buffer = customTrackBuffer;
+                sourceNode.loop = true;
+                
+                if (filterNode) {
+                    sourceNode.connect(filterNode);
+                }
+                
+                sourceNode.start(0, seekOffset);
+                startTime = audioCtx.currentTime;
+            }
+            isUserSeeking = false;
+        });
+    }
 
     boostBtns.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -2078,6 +3322,23 @@ function initEarTraining() {
             currentBoost = parseInt(btn.getAttribute('data-boost'));
             if (isTraining && currentChannel === 'B' && filterNode) {
                 filterNode.gain.setTargetAtTime(currentBoost, audioCtx.currentTime, 0.05);
+            }
+        });
+    });
+
+    // Handle Pro Status Changed to update tier buttons
+    document.addEventListener('proStatusChanged', (e) => {
+        const isPro = e.detail;
+        tierBtns.forEach(btn => {
+            const tier = btn.getAttribute('data-tier');
+            // Only 1/6 Octave is Pro-locked now
+            if (tier === 'sixth') {
+                btn.classList.toggle('locked-pro', !isPro);
+            }
+        });
+        sourceBtns.forEach(btn => {
+            if (btn.getAttribute('data-source') === 'track') {
+                btn.classList.toggle('locked-pro', !isPro);
             }
         });
     });
@@ -2096,6 +3357,11 @@ function initEarTraining() {
             setChannel('B');
         }
     });
+
+    // Initialize container display state
+    if (uploadContainer) {
+        uploadContainer.style.display = 'none';
+    }
 }
 
 // --- TUNER LOGIC ---
@@ -2431,18 +3697,18 @@ function initSubCalc() {
         updateCalculations();
     }
 
-    function updateCalculations() {
+    function updateCalculations(skipCloudSave = false) {
+        const isMetric = window.globalUnitSystem === 'metric';
         let f = parseFloat(freqInput.value);
         let t = parseFloat(tempInput.value);
         if (isNaN(f) || f <= 0) f = 100;
-        if (isNaN(t)) t = window.globalUnitSystem === 'metric' ? 20 : 68;
+        if (isNaN(t)) t = isMetric ? 20 : 68;
 
         // Speed of Sound
         let c_ms = 0;
-        if (window.globalUnitSystem === 'metric') {
+        if (isMetric) {
             c_ms = 331.3 + (0.606 * t); // m/s
         } else {
-            // Convert °F to °C for the formula
             let t_c = (t - 32) * 5/9;
             c_ms = 331.3 + (0.606 * t_c); // still m/s internally
         }
@@ -2475,7 +3741,6 @@ function initSubCalc() {
             cardioidDelayMs = (cardioidSpaceM / c_ms) * 1000;
             document.getElementById('cardioid-space').textContent = (cardioidSpaceM * unit_mult).toFixed(3);
         } else {
-            // CSA or LAC use physical cabinet depth
             let depthRaw = parseFloat(cDepthInput.value) || (isMetric ? 0.8 : 2.6);
             let depthM = isMetric ? depthRaw : (depthRaw / 3.28084);
             cardioidDelayMs = (depthM / c_ms) * 1000;
@@ -2493,17 +3758,24 @@ function initSubCalc() {
         document.getElementById('broadside-half').textContent = w1_2.toFixed(3);
         document.getElementById('broadside-two-third').textContent = bt.toFixed(3);
 
+        // --- Trigger Cloud Save ---
+        if (!skipCloudSave) {
+            saveConfigToCloud('subcalc', { 
+                freq: f, 
+                temp: t, 
+                depth: cDepthInput.value,
+                cardioidType: currentCardioid
+            });
+        }
+
         // --- SVG ANIMATIONS ---
         let spacingPx = Math.max(15, Math.min(80, (lambda_m / 4) * 20)); 
 
         if (currentCardioid === 'gradient') {
-            let cSub1 = document.getElementById('svg-c-sub1'); // Rear sub
-            let cSub2 = document.getElementById('svg-c-sub2'); // Front sub
-            let cLine = document.getElementById('svg-c-line'); // Dashed line
+            let cSub1 = document.getElementById('svg-c-sub1'); 
+            let cSub2 = document.getElementById('svg-c-sub2'); 
+            let cLine = document.getElementById('svg-c-line'); 
             if (cSub1 && cSub2 && cLine) {
-                // Audience is on the Right
-                // Front sub moves right
-                // Rear sub stays fixed
                 let cx = 100 - (spacingPx / 2);
                 cSub1.setAttribute('transform', `translate(${cx}, 40)`);
                 cSub2.setAttribute('transform', `translate(${cx + spacingPx}, 40)`);
@@ -2656,9 +3928,43 @@ function initSubCalc() {
         }
         
         syncUI();
+        pull();
     });
 
+    // --- Pull from Cloud ---
+    async function pull() {
+        if (typeof supabaseClient === 'undefined') return;
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) return;
+
+        try {
+            const { data, error } = await supabaseClient
+                .from('user_configs')
+                .select('data')
+                .eq('user_id', session.user.id)
+                .eq('config_type', 'subcalc')
+                .single();
+
+            if (data && data.data) {
+                freqInput.value = data.data.freq;
+                tempInput.value = data.data.temp;
+                if(cDepthInput) cDepthInput.value = data.data.depth || (window.globalUnitSystem === 'metric' ? 0.8 : 2.6);
+                currentCardioid = data.data.cardioidType || 'gradient';
+                
+                const activeTab = Array.from(cTabs).find(t => t.getAttribute('data-ctype') === currentCardioid);
+                if (activeTab) activeTab.click();
+                
+                updateCalculations(true); 
+            }
+        } catch (err) {
+            console.error('Cloud Pull Error (SubCalc):', err);
+        }
+    }
+
     syncUI();
+    pull();
+
+    document.addEventListener('authSuccess', pull);
 }
 
 // ==========================================
@@ -2682,14 +3988,18 @@ function initAdManager() {
     let countdownVal = 15;
 
     function checkAdStatus() {
+        // If user is verified Pro via cloud, always unlocked
+        if (window.isUserPro) {
+            unlockApp();
+            return;
+        }
+
         const unlockedUntil = localStorage.getItem('tools_unlocked_until');
         const now = Date.now();
 
         if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
-            // Unlocked!
             unlockApp();
         } else {
-            // Locked!
             lockApp();
         }
     }
@@ -2791,6 +4101,11 @@ function initAdManager() {
         if (!modal.classList.contains('hidden')) {
             lockApp(); // Re-trigger lock to switch states
         }
+    });
+
+    // Listen for Pro status changes to instantly unlock
+    document.addEventListener('proStatusChanged', (e) => {
+        if (e.detail === true) unlockApp();
     });
 
     // Run initial check
@@ -3008,4 +4323,431 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         populateDevices();
     }
+});
+
+// --- GLOBAL PRO UPGRADE MODAL HANDLERS ---
+document.addEventListener('DOMContentLoaded', () => {
+    const proModal = document.getElementById('pro-upgrade-modal');
+    const btnClosePro = document.getElementById('btn-close-pro-upgrade');
+    const btnLaterPro = document.getElementById('btn-maybe-later-pro');
+    
+    window.showProUpgradeModal = function() {
+        if (proModal) proModal.classList.remove('hidden');
+    };
+    
+    window.closeProUpgradeModal = function() {
+        if (proModal) proModal.classList.add('hidden');
+    };
+    
+    if (btnClosePro) btnClosePro.addEventListener('click', window.closeProUpgradeModal);
+    if (btnLaterPro) btnLaterPro.addEventListener('click', window.closeProUpgradeModal);
+    
+    if (proModal) {
+        proModal.addEventListener('click', (e) => {
+            if (e.target === proModal) {
+                window.closeProUpgradeModal();
+            }
+        });
+    }
+});
+
+// ==========================================================================
+// --- CONSOLIDATED RAZORPAY PAYMENT GATEWAY & GEO-PRICING CONTROLLER ---
+// ==========================================================================
+
+window.isIndiaUser = false;
+window.sandboxLocationOverride = localStorage.getItem('soundengg-sandbox-location') || 'AUTO';
+
+// 1. Detect User Location (Geo-IP Lookup with Caching)
+async function detectUserCountry() {
+    if (window.sandboxLocationOverride !== 'AUTO') {
+        window.isIndiaUser = (window.sandboxLocationOverride === 'IN');
+        return window.isIndiaUser;
+    }
+    
+    const cachedLoc = sessionStorage.getItem('soundengg-user-country');
+    if (cachedLoc) {
+        window.isIndiaUser = (cachedLoc === 'IN');
+        return window.isIndiaUser;
+    }
+
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        const data = await response.json();
+        const country = data.country_code || 'US';
+        sessionStorage.setItem('soundengg-user-country', country);
+        window.isIndiaUser = (country === 'IN');
+    } catch (e) {
+        console.warn("Geo-IP lookup failed, defaulting to International USD.", e);
+        window.isIndiaUser = false;
+    }
+    return window.isIndiaUser;
+}
+
+// 2. Initialize Pricing Grid Dynamic Rendering
+async function initPricingPage() {
+    const priceMonthly = document.getElementById('price-monthly');
+    const priceYearly = document.getElementById('price-yearly');
+    const priceLifetime = document.getElementById('price-lifetime');
+    
+    // Check if we are on the pro.html subscription page
+    if (!priceMonthly && !priceYearly && !priceLifetime) return;
+
+    await detectUserCountry();
+
+    // Set prices dynamically based on country
+    if (window.isIndiaUser) {
+        if (priceMonthly) priceMonthly.innerHTML = '₹199<span>/month</span>';
+        if (priceYearly) priceYearly.innerHTML = '₹1,999<span>/year</span>';
+        if (priceLifetime) priceLifetime.innerHTML = '₹3,499<span>one-time</span>';
+    } else {
+        if (priceMonthly) priceMonthly.innerHTML = '$2.99<span>/month</span>';
+        if (priceYearly) priceYearly.innerHTML = '$29.99<span>/year</span>';
+        if (priceLifetime) priceLifetime.innerHTML = '$49.99<span>one-time</span>';
+    }
+
+    // Bind checkout click listeners
+    const pricingButtons = document.querySelectorAll('.pricing-btn');
+    pricingButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            if (e) e.preventDefault();
+            const plan = btn.getAttribute('data-plan') || 'yearly';
+
+            // Validate authentication before checkout
+            if (!window.supabaseClient) {
+                alert("Auth engine offline. Please refresh.");
+                return;
+            }
+
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) {
+                // Not Logged In: Redirect to app.html with query parameters to prompt auth and trigger checkout
+                alert("Please log in or create an account to subscribe.");
+                window.location.href = `app.html?checkout=true&plan=${plan}`;
+            } else {
+                // Logged In: Launch checkout immediately
+                showRazorpaySimOverlay(plan);
+            }
+        });
+    });
+}
+
+// 3. Simulated Razorpay Standard Checkout Overlay
+window.showRazorpaySimOverlay = function(plan) {
+    // Prevent duplicate overlays
+    const existing = document.getElementById('razorpay-sim-overlay');
+    if (existing) existing.remove();
+
+    // Determine values
+    let priceLabel = '';
+    let currencySymbol = window.isIndiaUser ? '₹' : '$';
+    let currencyCode = window.isIndiaUser ? 'INR' : 'USD';
+
+    if (window.isIndiaUser) {
+        if (plan === 'monthly') { priceLabel = '₹199 / month'; }
+        else if (plan === 'yearly') { priceLabel = '₹1,999 / year'; }
+        else { priceLabel = '₹3,499 one-time'; }
+    } else {
+        if (plan === 'monthly') { priceLabel = '$2.99 / month'; }
+        else if (plan === 'yearly') { priceLabel = '$29.99 / year'; }
+        else { priceLabel = '$49.99 one-time'; }
+    }
+
+    const overlay = document.createElement('div');
+    overlay.id = 'razorpay-sim-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(11, 12, 16, 0.95);
+        z-index: 15000;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(10px);
+        font-family: 'JetBrains Mono', monospace;
+        color: #ffffff;
+        box-sizing: border-box;
+    `;
+
+    overlay.innerHTML = `
+        <div style="background: #0f1015; border: 2px solid var(--primary); box-shadow: 0 0 25px rgba(20, 167, 181, 0.3); border-radius: 8px; width: 100%; max-width: 480px; padding: 2rem; position: relative;">
+            <button id="btn-close-rzp" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: rgba(255,255,255,0.4); cursor: pointer; font-size: 1.5rem;">&times;</button>
+            
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <div style="font-weight: 900; font-size: 1.3rem; letter-spacing: -0.05em; display: flex; align-items: center; gap: 5px;">
+                    <span class="material-symbols-outlined" style="color: var(--primary);">payments</span>
+                    RAZORPAY<span>SECURE</span>
+                </div>
+                <div style="background: rgba(20, 167, 181, 0.1); border: 1px solid var(--primary); color: var(--primary); padding: 0.2rem 0.5rem; font-size: 0.75rem; border-radius: 4px; text-transform: uppercase; font-weight: bold;">
+                    SANDBOX
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); padding: 1rem; border-radius: 4px;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">Product / License</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: #fff; margin-top: 2px;">SoundEngg Pro - ${plan.toUpperCase()} LICENSE</div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem;">
+                    <span style="font-size: 0.8rem; color: var(--text-muted);">Amount Due:</span>
+                    <span style="font-size: 1.3rem; font-weight: bold; color: var(--primary);">${priceLabel}</span>
+                </div>
+            </div>
+
+            <div id="rzp-status-box" style="margin-bottom: 2rem; font-size: 0.8rem; line-height: 1.5; min-height: 60px;">
+                <div style="color: var(--text-muted);">Select simulated authorization mode below:</div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button id="btn-rzp-success" style="width: 100%; background: linear-gradient(135deg, var(--primary), #008b9f); border: none; color: #fff; padding: 12px; font-weight: bold; border-radius: 4px; cursor: pointer; text-shadow: 0 1px 3px rgba(0,0,0,0.3); transition: all 0.2s;">
+                    SIMULATE SUCCESSFUL PAYMENT
+                </button>
+                <button id="btn-rzp-cancel" style="width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-dim); padding: 10px; font-weight: bold; border-radius: 4px; cursor: pointer; transition: all 0.2s;">
+                    CANCEL / ABORT TRANSACTION
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Wire simulated steps inside checkout box
+    const btnSuccess = overlay.querySelector('#btn-rzp-success');
+    const btnCancel = overlay.querySelector('#btn-rzp-cancel');
+    const btnClose = overlay.querySelector('#btn-close-rzp');
+    const statusBox = overlay.querySelector('#rzp-status-box');
+
+    const closeOverlay = () => overlay.remove();
+    btnClose.addEventListener('click', closeOverlay);
+    btnCancel.addEventListener('click', closeOverlay);
+
+    btnSuccess.addEventListener('click', async () => {
+        btnSuccess.disabled = true;
+        btnCancel.disabled = true;
+        
+        const steps = [
+            { text: '⚡ Establishing secure SSL Razorpay Order handshake...', delay: 400 },
+            { text: '🔒 Authorizing transaction via simulated digital banking node...', delay: 500 },
+            { text: '💾 Updating subscription status profiles securely on Supabase cloud...', delay: 600 },
+            { text: '✅ Transaction Completed! SoundEngg Pro unlocked.', delay: 400 }
+        ];
+
+        for (const step of steps) {
+            statusBox.innerHTML = `<div style="color: var(--primary); font-weight: bold; animation: pulse 1s infinite;">${step.text}</div>`;
+            await new Promise(r => setTimeout(r, step.delay));
+        }
+
+        // Apply dynamic upgrade sync to Supabase
+        if (window.supabaseClient) {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                if (session) {
+                    await window.supabaseClient.from('profiles')
+                        .update({ 
+                            is_pro: true,
+                            subscription_tier: 'pro',
+                            subscription_provider: 'razorpay',
+                            subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
+                            subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 Year Default
+                        })
+                        .eq('id', session.user.id);
+                    
+                    // Trigger global refresh
+                    await syncSubscriptionStatus(session);
+                }
+            } catch (err) {
+                console.error("Failed to sync simulated subscription to cloud database:", err);
+            }
+        } else {
+            // Local fallback if offline
+            window.isUserPro = true;
+            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: true }));
+        }
+
+        closeOverlay();
+        showCheckoutSuccessOverlay(plan);
+    });
+};
+
+// 4. Upgraded License Welcome Congratulations overlay
+function showCheckoutSuccessOverlay(plan) {
+    const existing = document.getElementById('checkout-success-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.id = 'checkout-success-overlay';
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(11, 12, 16, 0.98);
+        z-index: 16000;
+        display: flex; align-items: center; justify-content: center;
+        backdrop-filter: blur(15px);
+        font-family: 'JetBrains Mono', monospace;
+        color: #ffffff;
+        box-sizing: border-box;
+    `;
+
+    overlay.innerHTML = `
+        <div style="background: #0f1015; border: 2px solid #00ffcc; box-shadow: 0 0 35px rgba(0, 255, 200, 0.35); border-radius: 12px; width: 100%; max-width: 500px; padding: 3rem; text-align: center; position: relative;">
+            <div style="margin: 0 auto 1.5rem; width: 80px; height: 80px; background: rgba(0, 255, 200, 0.1); border: 2px dashed #00ffcc; border-radius: 50%; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
+                <span class="material-symbols-outlined" style="color: #00ffcc; font-size: 3rem; font-weight: bold;">workspace_premium</span>
+            </div>
+            
+            <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 2.2rem; font-weight: bold; color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,200,0.5); margin-bottom: 1rem;">
+                Welcome to Pro!
+            </h2>
+            
+            <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+                Your payment was successfully validated via Razorpay! The extreme high-fidelity SoundEngg Pro hardware diagnostic toolkit is now completely unlocked.
+            </p>
+
+            <div style="text-align: left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1.2rem; margin-bottom: 2rem; font-size: 0.85rem;">
+                <div style="color: #00ffcc; font-weight: bold; margin-bottom: 0.5rem; text-transform: uppercase; font-size: 0.75rem;">UNLOCKED CAPABILITIES:</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;"><span class="material-symbols-outlined" style="color: #00ffcc; font-size: 16px;">check_circle</span> 60FPS Logarithmic Waterfall Spectrogram</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;"><span class="material-symbols-outlined" style="color: #00ffcc; font-size: 16px;">check_circle</span> Unlimited Measurement Snapshot Overlays</div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.4rem;"><span class="material-symbols-outlined" style="color: #00ffcc; font-size: 16px;">check_circle</span> Custom Mic Calibration Profile Interpolator</div>
+                <div style="display: flex; align-items: center; gap: 8px;"><span class="material-symbols-outlined" style="color: #00ffcc; font-size: 16px;">check_circle</span> Surgical 1/6 Octave Ear Training Drills</div>
+            </div>
+
+            <button id="btn-success-dismiss" style="background: linear-gradient(135deg, #00ffcc, #00b386); border: none; color: #000; font-weight: 900; font-size: 1rem; width: 100%; padding: 14px; border-radius: 4px; cursor: pointer; box-shadow: 0 0 15px rgba(0, 255, 200, 0.4); transition: all 0.2s;">
+                LAUNCH PRO CONSOLE
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    overlay.querySelector('#btn-success-dismiss').addEventListener('click', () => {
+        overlay.remove();
+        // Redirect back to console view
+        if (window.showView && document.getElementById('dashboard-view')) {
+            window.showView(document.getElementById('dashboard-view'));
+        } else {
+            window.location.href = 'app.html';
+        }
+    });
+}
+
+// 5. Deep-Link URL Subscription Triggers
+async function handleUrlSubCheckout() {
+    const params = new URLSearchParams(window.location.search);
+    const checkout = params.get('checkout');
+    const plan = params.get('plan') || 'yearly';
+
+    if (checkout !== 'true') return;
+
+    // Clean query parameters so refreshes do not re-trigger checkout modal
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+
+    if (!window.supabaseClient) return;
+
+    const { data: { session } } = await window.supabaseClient.auth.getSession();
+    if (!session) {
+        // Not Logged In: Inject helper banner inside auth modal, then pop it!
+        const authModal = document.getElementById('auth-modal-overlay');
+        const loginForm = document.getElementById('form-login');
+        if (authModal && loginForm) {
+            let banner = document.getElementById('auth-checkout-helper-banner');
+            if (!banner) {
+                banner = document.createElement('div');
+                banner.id = 'auth-checkout-helper-banner';
+                banner.style.cssText = 'background: rgba(20, 167, 181, 0.1); border: 1px solid var(--primary); border-radius: 4px; color: var(--primary); padding: 10px; margin-bottom: 1.5rem; font-size: 0.8rem; font-family: var(--font-mono); text-align: center;';
+                banner.innerHTML = `<strong>SUBSCRIBE TO PRO TIER</strong><br>Please log in or register below to complete checkout for the ${plan.toUpperCase()} plan.`;
+                loginForm.insertBefore(banner, loginForm.firstChild);
+            }
+            openModal(authModal);
+
+            // Register temporary success callback to trigger checkout overlay upon login success
+            const onAuthSuccess = async (e) => {
+                document.removeEventListener('authSuccess', onAuthSuccess);
+                // Launch checkout with a slight delay to allow login modal transition to complete cleanly
+                setTimeout(() => {
+                    showRazorpaySimOverlay(plan);
+                }, 800);
+            };
+            document.addEventListener('authSuccess', onAuthSuccess);
+        }
+    } else {
+        // Logged In: Pop Checkout Simulator instantly
+        setTimeout(() => {
+            showRazorpaySimOverlay(plan);
+        }, 500);
+    }
+}
+
+// 6. Inject Location Sandbox Controls inside User Profile Modal
+function injectSandboxControls() {
+    const profileModal = document.getElementById('profile-modal');
+    if (!profileModal) return;
+
+    const profileSection = profileModal.querySelector('.profile-section');
+    if (!profileSection) return;
+
+    // Avoid duplicate insertions
+    if (document.getElementById('sandbox-controls-row')) return;
+
+    const row = document.createElement('div');
+    row.id = 'sandbox-controls-row';
+    row.className = 'profile-stat-row';
+    row.style.cssText = 'margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; display: flex; flex-direction: column; gap: 8px; text-align: left;';
+    row.innerHTML = `
+        <div class="profile-stat-label" style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">SANDBOX LOCATION SIMULATOR</div>
+        <div style="display: flex; gap: 8px; margin-top: 4px;">
+            <button id="btn-sandbox-auto" class="rugged-btn outline-primary small-btn ${window.sandboxLocationOverride === 'AUTO' ? 'active' : ''}" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 4px;">AUTO</button>
+            <button id="btn-sandbox-in" class="rugged-btn outline-primary small-btn ${window.sandboxLocationOverride === 'IN' ? 'active' : ''}" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 4px;">IN (₹)</button>
+            <button id="btn-sandbox-us" class="rugged-btn outline-primary small-btn ${window.sandboxLocationOverride === 'US' ? 'active' : ''}" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 4px;">INTL ($)</button>
+        </div>
+    `;
+
+    profileSection.appendChild(row);
+
+    // Add click listeners to location simulator buttons
+    const btnAuto = row.querySelector('#btn-sandbox-auto');
+    const btnIn = row.querySelector('#btn-sandbox-in');
+    const btnUs = row.querySelector('#btn-sandbox-us');
+
+    const updateBtns = (activeBtn) => {
+        [btnAuto, btnIn, btnUs].forEach(b => {
+            b.style.background = '';
+            b.style.color = '';
+            b.style.borderColor = '';
+        });
+        activeBtn.style.background = 'var(--primary)';
+        activeBtn.style.color = '#000';
+        activeBtn.style.borderColor = 'var(--primary)';
+    };
+
+    // Styling logic
+    const setOverride = async (val, activeBtn) => {
+        window.sandboxLocationOverride = val;
+        localStorage.setItem('soundengg-sandbox-location', val);
+        updateBtns(activeBtn);
+        
+        // Re-run location switcher
+        await detectUserCountry();
+        
+        // Trigger pricing elements re-render if present
+        initPricingPage();
+        console.log(`Sandbox Override applied: ${val}. isIndiaUser: ${window.isIndiaUser}`);
+    };
+
+    btnAuto.addEventListener('click', () => setOverride('AUTO', btnAuto));
+    btnIn.addEventListener('click', () => setOverride('IN', btnIn));
+    btnUs.addEventListener('click', () => setOverride('US', btnUs));
+
+    // Run first active styling
+    if (window.sandboxLocationOverride === 'AUTO') updateBtns(btnAuto);
+    else if (window.sandboxLocationOverride === 'IN') updateBtns(btnIn);
+    else updateBtns(btnUs);
+}
+
+// 7. Global Payment System Initialization DOM Trigger
+document.addEventListener('DOMContentLoaded', () => {
+    // Start dynamic pricing converter immediately
+    initPricingPage();
+
+    // Check query params for checkout deep-links
+    handleUrlSubCheckout();
+
+    // Inject sandbox controller row into user profile modal settings
+    injectSandboxControls();
 });
