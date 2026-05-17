@@ -56,14 +56,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             try {
-                // 1. Immediate Memory Wipe
+                // 1. Trigger and Await Database Signout to ensure network request completes before unloading (fixes Safari aborted connection)
+                if (window.supabaseClient) {
+                    try {
+                        await window.supabaseClient.auth.signOut();
+                    } catch (e) {
+                        console.warn('Supabase signOut request failed/aborted:', e);
+                    }
+                }
+
+                // 2. Immediate Memory Wipe
                 localStorage.clear();
                 sessionStorage.clear();
-                
-                // 2. Trigger Database Signout (don't wait for it)
-                if (window.supabaseClient) {
-                    window.supabaseClient.auth.signOut();
-                }
                 
                 alert('Sign out successful! Returning to landing page.');
                 
@@ -229,22 +233,41 @@ async function syncSubscriptionStatus(session) {
             if (emailDisplay) emailDisplay.textContent = user.email;
         }
 
-        // Try to fetch with a timestamp to bypass any aggressive caching
-        const { data, error } = await window.supabaseClient
+        // Try to fetch with headers that bypass Safari's aggressive local caches
+        let { data, error } = await window.supabaseClient
             .from('profiles')
             .select('is_pro, full_name, company')
             .eq('id', session.user.id)
-            .single();
+            .single()
+            .headers({ 'cache-control': 'no-cache, no-store, must-revalidate', 'pragma': 'no-cache' });
+
+        // If the row doesn't exist yet (PGRST116 or equivalent), defensively upsert a base profile row so all future updates succeed
+        if (error && (error.code === 'PGRST116' || error.message?.includes('no rows') || error.message?.includes('multiple or no rows'))) {
+            console.log('Defensively auto-creating public profiles row for:', session.user.id);
+            const { data: upsertedData, error: upsertError } = await window.supabaseClient
+                .from('profiles')
+                .upsert({ id: session.user.id, is_pro: false })
+                .select('is_pro, full_name, company')
+                .single();
+            
+            if (upsertedData) {
+                data = upsertedData;
+                error = null;
+            } else {
+                console.error('Defensive upsert failed:', upsertError);
+            }
+        }
 
         if (error) {
             console.warn('Profile fetch error (might be schema cache):', error.message);
-            // Fallback: try fetching just is_pro if the new columns are the issue
+            // Fallback: try fetching just is_pro if the new columns are the issue (with cache bust)
             if (error.code === '42703' || error.message.includes('not found')) {
                 const { data: fallbackData } = await window.supabaseClient
                     .from('profiles')
                     .select('is_pro')
                     .eq('id', session.user.id)
-                    .single();
+                    .single()
+                    .headers({ 'cache-control': 'no-cache, no-store, must-revalidate', 'pragma': 'no-cache' });
                 if (fallbackData) {
                     window.isUserPro = !!fallbackData.is_pro;
                 }
@@ -605,11 +628,11 @@ function setupNavigation() {
 
                         const { error } = await window.supabaseClient
                             .from('profiles')
-                            .update({
+                            .upsert({
+                                id: session.user.id,
                                 full_name: inputFullname.value,
                                 company: inputCompany.value
-                            })
-                            .eq('id', session.user.id);
+                            });
 
                         if (error) throw error;
                         submitBtn.textContent = 'SAVED!';
@@ -664,8 +687,7 @@ function setupNavigation() {
                         const { data: { session } } = await window.supabaseClient.auth.getSession();
                         if (session) {
                             await window.supabaseClient.from('profiles')
-                                .update({ is_pro: true })
-                                .eq('id', session.user.id);
+                                .upsert({ id: session.user.id, is_pro: true });
                         }
                         
                         await syncSubscriptionStatus(session);
@@ -4540,14 +4562,14 @@ window.showRazorpaySimOverlay = function(plan) {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
                 if (session) {
                     await window.supabaseClient.from('profiles')
-                        .update({ 
+                        .upsert({ 
+                            id: session.user.id,
                             is_pro: true,
                             subscription_tier: 'pro',
                             subscription_provider: 'razorpay',
                             subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
                             subscription_expires_at: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 Year Default
-                        })
-                        .eq('id', session.user.id);
+                        });
                     
                     // Trigger global refresh
                     await syncSubscriptionStatus(session);
