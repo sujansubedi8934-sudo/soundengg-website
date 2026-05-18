@@ -7,31 +7,38 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <style>
-        body {
-            background-color: var(--bg-main) !important;
-            color: #E2E8F0 !important;
-            font-family: var(--font-body);
+        /* Force dark theme background globally to prevent cache issues */
+        html, body {
+            background: #0A0A0A !important;
+            background-color: #0A0A0A !important;
+            color: #FFFFFF !important;
         }
+        
         main {
             padding: 140px 24px 80px 24px;
             max-width: 800px;
             margin: 0 auto;
         }
-        h1 {
+        
+        /* Solid bold headers, no transparency or blur */
+        .page-title {
             color: #FFFFFF !important;
             font-size: 2.8rem;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: -1px;
             margin-bottom: 0.5rem;
+            text-shadow: none !important;
         }
+        
         .version-tag {
             font-family: var(--font-mono);
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             color: var(--primary) !important;
             letter-spacing: 1px;
             margin-bottom: 2rem;
             text-transform: uppercase;
         }
+        
         .divider {
             height: 2px;
             width: 80px;
@@ -39,18 +46,23 @@
             margin-bottom: 3rem;
             border-radius: 2px;
         }
+        
         section {
             margin-bottom: 3.5rem;
         }
+        
+        /* Solid visible subheadings */
         h2 {
             color: #FFFFFF !important;
             font-size: 1.5rem;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 1.2rem;
             display: flex;
             align-items: center;
             gap: 10px;
+            text-shadow: none !important;
         }
+        
         h2::before {
             content: '';
             display: inline-block;
@@ -59,29 +71,35 @@
             background: var(--primary);
             border-radius: 50%;
         }
+        
+        /* Crisp high-contrast paragraph and bullet text */
         p {
-            color: #94A3B8 !important; /* Extremely high contrast grey-slate */
+            color: #E2E8F0 !important; /* Premium light slate for solid readability */
             font-size: 1.05rem;
             line-height: 1.75;
             margin-bottom: 1.2rem;
         }
+        
         strong {
             color: #FFFFFF !important;
-            font-weight: 600;
+            font-weight: 700;
         }
+        
         ul {
             list-style-type: none;
             padding-left: 0;
             margin: 1.5rem 0;
         }
+        
         li {
             position: relative;
             padding-left: 1.5rem;
             margin-bottom: 1rem;
-            color: #94A3B8 !important;
+            color: #E2E8F0 !important;
             font-size: 1.05rem;
             line-height: 1.6;
         }
+        
         li::before {
             content: "→";
             position: absolute;
@@ -89,38 +107,46 @@
             color: var(--primary);
             font-weight: bold;
         }
+        
         a {
             color: var(--primary) !important;
             text-decoration: none;
             border-bottom: 1px dashed var(--primary);
             transition: color 0.2s, border-color 0.2s;
         }
+        
         a:hover {
             color: #FFFFFF !important;
             border-bottom-color: #FFFFFF;
         }
+        
+        /* Beautiful solid dark box details */
         .card {
-            background: var(--surface-low) !important;
-            border: 1px solid var(--border-color) !important;
+            background: #121212 !important; /* Solid dark grey */
+            border: 1px solid #00264D !important; /* Deep navy border matching main.css */
             padding: 2.5rem;
             border-radius: 16px;
             margin: 2.5rem 0;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
+        
         .card h2::before {
-            background: #F59E0B; /* Warm orange dot for cookie settings */
+            background: #F59E0B !important; /* Orange accent */
         }
     </style>
 </head>
 <body class="landing-page brushed-metal">
-    <!-- Navbar -->
+    <!-- Navbar (Restructured to match Landing page exactly) -->
     <header class="landing-nav">
         <div class="container nav-container">
             <a href="index.html" class="logo-link">
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
             </a>
             <div class="nav-links">
-                <a href="index.html">Home</a>
+                <a href="index.html#features">Features</a>
+                <a href="pro.html">Pro</a>
+                <a href="app.html?view=blog">Blog</a>
+                <a href="index.html#contact">Contact</a>
                 <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
         </div>
@@ -128,7 +154,7 @@
 
     <!-- Main Content -->
     <main>
-        <h1 class="vfd-glow">Privacy Policy</h1>
+        <h1 class="page-title">Privacy Policy</h1>
         <div class="version-tag">VERSION_REF: 2026.05.15-ADSENSE-READY</div>
         <div class="divider"></div>
 
@@ -162,15 +188,50 @@
 
         <section>
             <h2>5. Technical Support</h2>
-            <p>For inquiries regarding data retention, policy parameters, or technical privacy regulations, please establish contact with our engineering desk at <a href="mailto:info@soundengg.com">info@soundengg.com</a>.</p>
+            <p>For inquiries regarding data retention, policy parameters, or technical privacy regulations, please establish contact with our engineering desk at <a href="mailto:sujansubedi8934@gmail.com">sujansubedi8934@gmail.com</a>.</p>
         </section>
     </main>
 
-    <!-- Footer -->
+    <!-- Footer (Restructured to match Landing page exactly) -->
     <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram"><span class="material-symbols-outlined">photo_camera</span></a>
+                    <a href="https://portfolio.soundengg.com" target="_blank" aria-label="Portfolio"><span class="material-symbols-outlined">person</span></a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>QUICK_TOOLS</h4>
+                <ul>
+                    <li><a href="app.html">Titan Console</a></li>
+                    <li><a href="app.html?view=rta">RTA Analyser</a></li>
+                    <li><a href="app.html?view=subcalc">Subwoofer Arrays</a></li>
+                    <li><a href="app.html?view=delay">Delay Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="index.html#features">Features</a></li>
+                    <li><a href="app.html?view=blog">Engineering Blog</a></li>
+                    <li><a href="index.html#contact">Contact Us</a></li>
+                    <li><a href="https://portfolio.soundengg.com" target="_blank">Author Profile</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
         <div class="footer-bottom">
             <div class="container">
-                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers.</p>
+                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers. [v2.4.0-PRO]</p>
             </div>
         </div>
     </footer>
