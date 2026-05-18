@@ -212,20 +212,29 @@
                     <h2 class="vfd-glow">CONTACT US</h2>
                     <p class="form-desc">REACH OUT FOR LIVE SOUND ENGINEERING, SYSTEM DESIGN, OR WIRELESS MANAGEMENT FOR YOUR NEXT EVENT.</p>
                     
-                    <form class="rich-contact-form">
+                    <form class="rich-contact-form" id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+                        <!-- Serverless Form Routing Config -->
+                        <input type="hidden" name="access_key" value="YOUR_WEB3FORMS_ACCESS_KEY_HERE">
+                        <input type="hidden" name="subject" value="New Inquiry from SoundEngg.com">
+                        <input type="hidden" name="from_name" value="SoundEngg Portal">
+                        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
                         <div class="form-field">
                             <label>YOUR FIRST NAME</label>
-                            <input type="text" placeholder="Enter your first name" class="vfd-input">
+                            <input type="text" name="name" placeholder="Enter your first name" class="vfd-input" required>
                         </div>
                         <div class="form-field">
                             <label>YOUR EMAIL ADDRESS*</label>
-                            <input type="email" placeholder="Enter your email address" class="vfd-input" required>
+                            <input type="email" name="email" placeholder="Enter your email address" class="vfd-input" required>
                         </div>
                         <div class="form-field">
                             <label>YOUR MESSAGE*</label>
-                            <textarea placeholder="Describe your sound needs" class="vfd-input" rows="5" required></textarea>
+                            <textarea name="message" placeholder="Describe your sound needs" class="vfd-input" rows="5" required></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary submit-btn">Submit Your Request</button>
+                        <button type="submit" class="btn btn-primary submit-btn" id="submit-btn">Submit Your Request</button>
+                        
+                        <!-- Real-time status report field -->
+                        <div id="form-status" style="margin-top: 1.5rem; font-family: var(--font-mono); font-size: 0.9rem; padding: 1rem; border-radius: 8px; display: none;"></div>
                     </form>
                 </div>
 
@@ -365,6 +374,79 @@
               }
           });
       });
+
+      // AJAX Contact Form Submission
+      const contactForm = document.getElementById('contact-form');
+      const submitBtn = document.getElementById('submit-btn');
+      const formStatus = document.getElementById('form-status');
+
+      if (contactForm) {
+          contactForm.addEventListener('submit', function(e) {
+              e.preventDefault();
+              
+              const key = contactForm.querySelector('input[name="access_key"]').value;
+              if (key === 'YOUR_WEB3FORMS_ACCESS_KEY_HERE') {
+                  formStatus.style.display = 'block';
+                  formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                  formStatus.style.color = '#EF4444';
+                  formStatus.style.border = '1px solid #EF4444';
+                  formStatus.innerHTML = '[ERROR] ACCESS_KEY NOT CONFIGURED. Please replace "YOUR_WEB3FORMS_ACCESS_KEY_HERE" in index.html with your free key from web3forms.com.';
+                  return;
+              }
+
+              // Visual Loading Feedback
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'TRANSMITTING MESSAGE...';
+              submitBtn.style.opacity = '0.7';
+              
+              formStatus.style.display = 'block';
+              formStatus.style.background = 'rgba(0, 170, 255, 0.1)';
+              formStatus.style.color = '#00AAFF';
+              formStatus.style.border = '1px solid #005588';
+              formStatus.innerHTML = '[SYSTEM] CONNECTING TO TELEMETRY ROUTER...';
+
+              const formData = new FormData(contactForm);
+              const object = Object.fromEntries(formData);
+              const json = JSON.stringify(object);
+
+              fetch('https://api.web3forms.com/submit', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                      'Accept': 'application/json'
+                  },
+                  body: json
+              })
+              .then(async (response) => {
+                  let res = await response.json();
+                  if (response.status == 200) {
+                      formStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+                      formStatus.style.color = '#10B981';
+                      formStatus.style.border = '1px solid #10B981';
+                      formStatus.innerHTML = '[SUCCESS] SECURE ROUTING COMPLETE. Your message has been sent directly to sujansubedi8934@gmail.com!';
+                      contactForm.reset();
+                  } else {
+                      console.log(response);
+                      formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                      formStatus.style.color = '#EF4444';
+                      formStatus.style.border = '1px solid #EF4444';
+                      formStatus.innerHTML = '[ERROR] ROUTING FAILED: ' + res.message;
+                  }
+              })
+              .catch(error => {
+                  console.log(error);
+                  formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                  formStatus.style.color = '#EF4444';
+                  formStatus.style.border = '1px solid #EF4444';
+                  formStatus.innerHTML = '[SYSTEM STATUS ERROR] Connection timed out. Please try again.';
+              })
+              .then(() => {
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'Submit Your Request';
+                  submitBtn.style.opacity = '1';
+              });
+          });
+      }
     </script>
 </body>
 </html>
