@@ -501,6 +501,9 @@ function setupNavigation() {
         
         // Common Reset
         window.scrollTo(0, 0);
+        if (typeof window.syncMobileNavDropdownLabel === 'function') {
+            window.syncMobileNavDropdownLabel(targetView.id);
+        }
 
         // Specific View Re-initialization
         if (targetView === rtaView) {
@@ -1319,60 +1322,167 @@ window.togglePinout = function(hdrEl) {
 function initGlobalSearch() {
     const searchInput = document.getElementById('global-search-input');
     const searchBtn = document.getElementById('btn-global-search');
-    const filterChips = document.querySelectorAll('.filter-chip');
     const widgets = document.querySelectorAll('.dashboard-grid .widget');
+    const dropdown = document.getElementById('search-results-dropdown');
 
-    if (!searchInput || !widgets.length) return;
+    if (!searchInput || !widgets.length || !dropdown) return;
 
-    let activeFilter = 'all';
     let searchQuery = '';
 
     function performFilter() {
-        // Filter Dashboard Widgets
+        // Filter Dashboard Widgets on screen
         widgets.forEach(widget => {
             const title = widget.querySelector('.widget-title')?.textContent.toLowerCase() || '';
             const subtitle = widget.querySelector('.widget-subtitle')?.textContent.toLowerCase() || '';
-            const category = widget.getAttribute('data-category');
-            
             const matchesSearch = title.includes(searchQuery) || subtitle.includes(searchQuery);
-            const matchesCategory = activeFilter === 'all' || category === activeFilter;
 
-            if (matchesSearch && matchesCategory) {
+            if (matchesSearch) {
                 widget.classList.remove('filtered-out');
             } else {
                 widget.classList.add('filtered-out');
             }
         });
-
-        // Filter Blog Articles
-        const articleCards = document.querySelectorAll('.article-card');
-        articleCards.forEach(card => {
-            const title = card.querySelector('.article-title')?.textContent.toLowerCase() || '';
-            const excerpt = card.querySelector('.article-excerpt')?.textContent.toLowerCase() || '';
-            const category = card.getAttribute('data-cat');
-
-            const matchesSearch = title.includes(searchQuery) || excerpt.includes(searchQuery);
-            
-            // Note: Blog has its own category filter in initBlog(), 
-            // but global search should still filter it.
-            if (matchesSearch) {
-                card.style.display = card.classList.contains('locked') ? 'none' : 'flex';
-            } else {
-                card.style.display = 'none';
-            }
-        });
     }
 
-    // Input Search (Real-time)
+    // Input Search (Real-time Dropdown + Filter)
     searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value.toLowerCase().trim();
         performFilter();
+
+        if (searchQuery.length < 2) {
+            dropdown.style.display = 'none';
+            dropdown.innerHTML = '';
+            return;
+        }
+
+        // 1. Search matching local widgets/tools
+        const matchedTools = [];
+        widgets.forEach(widget => {
+            const title = widget.querySelector('.widget-title')?.textContent || '';
+            const subtitle = widget.querySelector('.widget-subtitle')?.textContent || '';
+            if (title.toLowerCase().includes(searchQuery) || subtitle.toLowerCase().includes(searchQuery)) {
+                matchedTools.push({ title, subtitle, widget });
+            }
+        });
+
+        // 2. Search matching blog articles
+        const matchedBlogs = [];
+        if (typeof blogArticles !== 'undefined') {
+            blogArticles.forEach(item => {
+                const title = item.title || '';
+                const excerpt = item.excerpt || '';
+                const cat = item.categoryLabel || item.cat || '';
+                if (title.toLowerCase().includes(searchQuery) || excerpt.toLowerCase().includes(searchQuery) || cat.toLowerCase().includes(searchQuery)) {
+                    matchedBlogs.push({ title, excerpt, cat, id: item.id });
+                }
+            });
+        }
+
+        // 3. Render floating results
+        if (matchedTools.length === 0 && matchedBlogs.length === 0) {
+            dropdown.innerHTML = `<div class="search-no-results">No matching tools or blog articles found.</div>`;
+        } else {
+            let html = '';
+
+            if (matchedTools.length > 0) {
+                html += `
+                    <div class="search-results-section">
+                        <div class="search-results-header">
+                            <span>TOOLS & CALCULATORS</span>
+                            <span>${matchedTools.length} MATCHES</span>
+                        </div>
+                        <div class="search-results-list">
+                `;
+                matchedTools.forEach((tool, index) => {
+                    html += `
+                        <div class="search-result-item" data-type="tool" data-index="${index}">
+                            <div class="search-result-title">${tool.title}</div>
+                            <div class="search-result-subtitle">${tool.subtitle}</div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            if (matchedBlogs.length > 0) {
+                html += `
+                    <div class="search-results-section">
+                        <div class="search-results-header">
+                            <span>BLOG DEEP DIVES & GUIDES</span>
+                            <span>${matchedBlogs.length} MATCHES</span>
+                        </div>
+                        <div class="search-results-list">
+                `;
+                matchedBlogs.forEach((blog, index) => {
+                    html += `
+                        <div class="search-result-item" data-type="blog" data-index="${index}">
+                            <div class="search-result-title">${blog.title}</div>
+                            <div class="search-result-subtitle">${blog.cat.toUpperCase()} — ${blog.excerpt.substring(0, 75)}...</div>
+                        </div>
+                    `;
+                });
+                html += `</div></div>`;
+            }
+
+            dropdown.innerHTML = html;
+
+            // Add Click listeners dynamically
+            const resultItems = dropdown.querySelectorAll('.search-result-item');
+            resultItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const type = item.getAttribute('data-type');
+                    const index = parseInt(item.getAttribute('data-index'), 10);
+
+                    if (type === 'tool') {
+                        const tool = matchedTools[index];
+                        if (tool) {
+                            const btn = tool.widget.querySelector('button, .rugged-btn');
+                            if (btn) btn.click();
+                        }
+                    } else if (type === 'blog') {
+                        const blog = matchedBlogs[index];
+                        const blogView = document.getElementById('blog-view');
+                        const btnNavBlog = document.getElementById('btn-nav-blog');
+                        
+                        if (blogView && window.showView) {
+                            window.showView(blogView, btnNavBlog);
+                            
+                            // Highlight nav button active status
+                            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                            if (btnNavBlog) btnNavBlog.classList.add('active');
+
+                            // Open the specific article
+                            if (typeof window.openBlogArticle === 'function') {
+                                window.openBlogArticle(blog.id);
+                            }
+                        }
+                    }
+
+                    // Reset search input and hide dropdown
+                    searchInput.value = '';
+                    dropdown.style.display = 'none';
+                    dropdown.innerHTML = '';
+                    searchQuery = '';
+                    performFilter(); // Restore widgets display
+                });
+            });
+        }
+
+        dropdown.style.display = 'block';
+    });
+
+    // Dismiss search dropdown on click outside
+    document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target) && e.target !== searchInput) {
+            dropdown.style.display = 'none';
+        }
     });
 
     // Button Click
     searchBtn.addEventListener('click', () => {
         searchQuery = searchInput.value.toLowerCase().trim();
         performFilter();
+        dropdown.style.display = 'none';
     });
 
     // Enter Key
@@ -1380,20 +1490,8 @@ function initGlobalSearch() {
         if (e.key === 'Enter') {
             searchQuery = searchInput.value.toLowerCase().trim();
             performFilter();
+            dropdown.style.display = 'none';
         }
-    });
-
-    // Filter Chips
-    filterChips.forEach(chip => {
-        chip.addEventListener('click', () => {
-            // Update UI
-            filterChips.forEach(c => c.classList.remove('active'));
-            chip.classList.add('active');
-
-            // Set state and filter
-            activeFilter = chip.getAttribute('data-filter');
-            performFilter();
-        });
     });
 }
 function initBlog() {
@@ -1472,6 +1570,7 @@ function initBlog() {
         blogReader.style.display = 'block';
         window.scrollTo(0, 0);
     }
+    window.openBlogArticle = openArticle;
 
     // Category Filtering
     catBtns.forEach(btn => {
@@ -4846,6 +4945,75 @@ function injectSandboxControls() {
     else updateBtns(btnUs);
 }
 
+// 6.5 Mobile Selector Navigation and Label Sync
+function initMobileNavDropdown() {
+    const toggleBtn = document.getElementById('btn-mobile-nav-toggle');
+    const menu = document.getElementById('mobile-nav-dropdown-menu');
+    const navItems = document.querySelectorAll('.mobile-nav-item');
+
+    if (!toggleBtn || !menu) return;
+
+    toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isVisible = menu.style.display === 'flex';
+        menu.style.display = isVisible ? 'none' : 'flex';
+        toggleBtn.classList.toggle('active', !isVisible);
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!menu.contains(e.target) && e.target !== toggleBtn) {
+            menu.style.display = 'none';
+            toggleBtn.classList.remove('active');
+        }
+    });
+
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            menu.style.display = 'none';
+            toggleBtn.classList.remove('active');
+
+            const targetId = item.getAttribute('data-target');
+            const targetView = document.getElementById(targetId);
+            
+            if (targetView && window.showView) {
+                // Map to corresponding desktop header button to sync highlight
+                let navBtn = null;
+                if (targetId === 'dashboard-view') navBtn = document.getElementById('btn-nav-dashboard');
+                else if (targetId === 'author-view') navBtn = document.getElementById('btn-nav-author');
+                else if (targetId === 'blog-view') navBtn = document.getElementById('btn-nav-blog');
+
+                window.showView(targetView, navBtn);
+            }
+        });
+    });
+}
+
+function syncMobileNavDropdownLabel(viewId) {
+    const activeLabel = document.getElementById('mobile-nav-active-label');
+    const navItems = document.querySelectorAll('.mobile-nav-item');
+    if (!activeLabel) return;
+
+    let text = 'DASHBOARD';
+    if (viewId === 'author-view') text = 'AUTHOR';
+    else if (viewId === 'blog-view') text = 'BLOG';
+    else if (viewId !== 'dashboard-view') text = 'VIEWING TOOL'; // Fallback for secondary sub-views
+
+    activeLabel.textContent = text;
+
+    // Keep active highlight class accurate
+    navItems.forEach(item => {
+        const target = item.getAttribute('data-target');
+        if (target === viewId) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+}
+
+window.syncMobileNavDropdownLabel = syncMobileNavDropdownLabel;
+
 // 7. Global Payment System Initialization DOM Trigger
 document.addEventListener('DOMContentLoaded', () => {
     // Start dynamic pricing converter immediately
@@ -4856,4 +5024,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Inject sandbox controller row into user profile modal settings
     injectSandboxControls();
+
+    // Initialize custom mobile header selector nav dropdown
+    initMobileNavDropdown();
 });

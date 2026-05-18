@@ -3091,13 +3091,24 @@ html.light .auth-modal {
     padding: 1.5rem;
     margin-bottom: 1rem;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 2rem;
 }
 
+.config-card-body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    width: 100%;
+}
+
 .config-info {
     flex: 1;
+    min-width: 240px;
 }
 
 .config-visual {
@@ -3109,6 +3120,7 @@ html.light .auth-modal {
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
 }
 
 .cardioid-tabs {
@@ -3154,7 +3166,8 @@ html.light .auth-modal {
 
 .config-stats {
     display: flex;
-    gap: 2rem;
+    flex-wrap: wrap;
+    gap: 1.5rem 2rem;
 }
 
 .config-stat {
@@ -4976,4 +4989,316 @@ body.theme-red { --primary: #ff003c; }
     cursor: not-allowed;
     box-shadow: none;
 }
+
+/* ==========================================================================
+   SOUNDENGG GLOBAL SEARCH PALETTE & DYNAMIC RESPONSIVE REFINEMENTS
+   ========================================================================== */
+
+/* --- Search Input & Placeholder Typography Tuning --- */
+.global-search input {
+    font-size: 0.95rem !important; /* Refined smaller text size to avoid bulky appearance */
+}
+.global-search input::placeholder {
+    font-size: 0.85rem !important; /* Smaller, stylish placeholder */
+    opacity: 0.6 !important;
+    font-family: var(--font-mono);
+}
+
+/* --- Global Search Results Dropdown --- */
+.global-search-container {
+    position: relative; /* Context for absolute dropdown positioning */
+}
+
+.search-results-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    max-height: 380px;
+    background: rgba(13, 22, 35, 0.98);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid var(--outline);
+    border-radius: 12px;
+    z-index: 99999;
+    overflow-y: auto;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 242, 254, 0.12);
+    padding: 1.2rem;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.search-results-section {
+    margin-bottom: 1.2rem;
+}
+
+.search-results-section:last-child {
+    margin-bottom: 0;
+}
+
+.search-results-header {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: 1px dashed var(--outline);
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.search-result-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 8px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.search-result-item:hover {
+    background: rgba(0, 242, 254, 0.06);
+    border-color: rgba(0, 242, 254, 0.3);
+    transform: translateX(6px);
+}
+
+.search-result-title {
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.search-result-subtitle {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.search-no-results {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+}
+
+.search-results-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+.search-results-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+}
+.search-results-dropdown::-webkit-scrollbar-thumb {
+    background: var(--outline);
+    border-radius: 3px;
+}
+.search-results-dropdown::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
+
+/* --- Mobile Nav Dropdown Selector --- */
+.mobile-nav-dropdown-container {
+    position: relative;
+    display: none; /* Hidden on desktop viewports */
+}
+
+.mobile-nav-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    padding: 0.5rem 0.8rem;
+    color: var(--text-main);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.mobile-nav-toggle-btn:hover, .mobile-nav-toggle-btn.active {
+    background: rgba(0, 242, 254, 0.06);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+}
+
+.mobile-nav-toggle-btn .dropdown-arrow {
+    font-size: 1.1rem;
+    color: var(--primary);
+    transition: transform 0.2s ease;
+}
+
+.mobile-nav-toggle-btn.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.mobile-nav-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 170px;
+    background: rgba(10, 18, 29, 0.98);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 0.5rem;
+    z-index: 100000;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.65), 0 0 15px rgba(0, 242, 254, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    animation: dropdownOpen 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes dropdownOpen {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.mobile-nav-item {
+    padding: 0.6rem 0.8rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+}
+
+.mobile-nav-item:hover {
+    color: var(--primary);
+    background: rgba(0, 242, 254, 0.05);
+    padding-left: 0.95rem;
+}
+
+.mobile-nav-item.active {
+    color: #050508;
+    background: var(--primary);
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+}
+
+/* --- High-Fidelity Mobile and Tablet Adaptive Responsiveness Overrides --- */
+
+/* Mobile viewports (< 768px) */
+@media (max-width: 768px) {
+    /* Hide desktop nav and show hardware select-dropdown */
+    .top-nav {
+        display: none !important;
+    }
+    .mobile-nav-dropdown-container {
+        display: block !important;
+    }
+    
+    /* Make mobile menu button hidden */
+    .mobile-menu-btn, #btn-mobile-menu {
+        display: none !important;
+    }
+
+    /* Padding tuning to maximize width */
+    .main-content {
+        padding: 1rem !important;
+    }
+
+    .dashboard-title-container {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .dashboard-title {
+        font-size: 1.3rem !important;
+    }
+    .dashboard-subtitle {
+        font-size: 0.75rem !important;
+    }
+
+    /* Auto-scale Grid layout to single column */
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.2rem !important;
+    }
+
+    /* Make search wrapper not break layout */
+    .search-wrapper.global-search {
+        flex-direction: row;
+        width: 100% !important;
+        gap: 0.5rem;
+    }
+    
+    .global-search input {
+        font-size: 0.85rem !important;
+        padding: 0.5rem 0;
+    }
+    
+    .global-search input::placeholder {
+        font-size: 0.75rem !important;
+    }
+
+    .search-submit {
+        padding: 8px 12px !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* Scaling modular tools & sliders */
+    .analyzer-grid, .parameter-grid, .calc-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
+    }
+
+    /* Responsive tables */
+    .pinout-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Custom Tuner Center alignment */
+    .tuner-container {
+        padding: 1rem !important;
+    }
+
+    /* Responsive Array Configuration Visuals - Keep inside frame */
+    .config-card, .config-card-body {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        gap: 1.5rem !important;
+    }
+    
+    .config-visual {
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+}
+
+/* Tablet viewports (768px to 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.5rem !important;
+    }
+
+    .main-content {
+        padding: 1.5rem !important;
+    }
+}
+
 

@@ -37,7 +37,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="assets/css/styles.css">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.3.0">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
@@ -59,6 +59,20 @@
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
                 <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
             </a>
+            
+            <!-- Mobile View Navigation Select Dropdown -->
+            <div class="mobile-nav-dropdown-container">
+                <button id="btn-mobile-nav-toggle" class="mobile-nav-toggle-btn" aria-label="Toggle Navigation Dropdown">
+                    <span id="mobile-nav-active-label">DASHBOARD</span>
+                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                </button>
+                <div id="mobile-nav-dropdown-menu" class="mobile-nav-dropdown-menu" style="display: none;">
+                    <a href="#" class="mobile-nav-item active" data-target="dashboard-view">DASHBOARD</a>
+                    <a href="#" class="mobile-nav-item" data-target="author-view">AUTHOR</a>
+                    <a href="#" class="mobile-nav-item" data-target="blog-view">BLOG</a>
+                </div>
+            </div>
+
             <nav class="top-nav">
                 <a href="app.html" id="btn-nav-dashboard" class="active">Dashboard</a>
                 <a href="#" id="btn-nav-author">Author</a>
@@ -107,17 +121,10 @@
         <!-- Global Search Bar -->
         <div class="global-search-container">
             <div class="search-wrapper global-search">
-                <span class="material-symbols-outlined">search</span>
-                <input type="text" placeholder="Search parameters, modules, settings, authors, or docs..." id="global-search-input">
+                <input type="text" placeholder="Search modules, tools, blogs, settings..." id="global-search-input">
                 <button id="btn-global-search" class="rugged-btn search-submit">SEARCH</button>
             </div>
-            
-            <div class="filter-row">
-                <button class="filter-chip active" data-filter="all">ALL</button>
-                <button class="filter-chip" data-filter="tools">TOOLS</button>
-                <button class="filter-chip" data-filter="ref">REFERENCE</button>
-                <button class="filter-chip" data-filter="system">SYSTEM</button>
-            </div>
+            <div id="search-results-dropdown" class="search-results-dropdown" style="display: none;"></div>
         </div>
 
         <!-- Tool Grid -->
@@ -221,7 +228,7 @@
                     BACK_TO_HOMEPAGE
                 </button>
                 <div class="module-title-wrap">
-                    <h1 class="dashboard-title">TIME_DELAY_ANALYSIS <button class="btn-help" data-tool="delay" title="Tool Guide">
+                    <h1 class="dashboard-title">TIME DELAY ANALYSIS <button class="btn-help" data-tool="delay" title="Tool Guide">
                         <span class="material-symbols-outlined pulse-glow-help">help</span>
                         <span class="help-label">help</span>
                     </button></h1>
@@ -734,7 +741,7 @@
                 BACK_TO_DASHBOARD
             </button>
             <div class="module-title-wrap">
-                <h1 class="dashboard-title">SPECTRUM_ANALYZER_PRO <button class="btn-help" data-tool="rta" title="Tool Guide">
+                <h1 class="dashboard-title">SPECTRUM ANALYZER PRO <button class="btn-help" data-tool="rta" title="Tool Guide">
                     <span class="material-symbols-outlined pulse-glow-help">help</span>
                     <span class="help-label">help</span>
                 </button></h1>
@@ -1116,8 +1123,8 @@
                         <button class="c-tab" data-ctype="lac">L-Acoustics (4-Box)</button>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 2rem; width: 100%;">
-                        <div class="config-info" style="flex: 1;">
+                    <div class="config-card-body">
+                        <div class="config-info">
                             <h3 class="config-title" id="c-title-text">Cardioid (Gradient)</h3>
                             <p class="config-desc" id="c-desc-text">Horizontal deployment. Rear sub inverted + delayed by ¼λ travel time.</p>
                             
@@ -1145,7 +1152,7 @@
                             </div>
                         </div>
 
-                        <div class="config-visual" style="flex: 1;">
+                        <div class="config-visual">
                             <!-- Gradient SVG (Side Profile) -->
                             <svg id="svg-c-gradient" width="100%" height="80" viewBox="0 0 200 80" style="display: block;">
                                 <defs>
@@ -1705,6 +1712,28 @@
     
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
     <script>
+        // Force unregister and cache clear on version mismatch to bypass stale service worker caches
+        const CURRENT_VERSION = '3.3.0';
+        if (localStorage.getItem('soundengg-app-version') !== CURRENT_VERSION) {
+            localStorage.setItem('soundengg-app-version', CURRENT_VERSION);
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    for (let registration of registrations) {
+                        registration.unregister();
+                    }
+                    if (window.caches) {
+                        caches.keys().then(names => {
+                            Promise.all(names.map(name => caches.delete(name))).then(() => {
+                                window.location.reload(true);
+                            });
+                        });
+                    } else {
+                        window.location.reload(true);
+                    }
+                });
+            }
+        }
+
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
