@@ -5,9 +5,133 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Terms of Service | SoundEngg</title>
     <link rel="stylesheet" href="assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: var(--bg-main) !important;
+            color: #E2E8F0 !important;
+            font-family: var(--font-body);
+        }
+        main {
+            padding: 140px 24px 80px 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #FFFFFF !important;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+        .version-tag {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--primary) !important;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+        .divider {
+            height: 2px;
+            width: 80px;
+            background: var(--primary);
+            margin-bottom: 3rem;
+            border-radius: 2px;
+        }
+        section {
+            margin-bottom: 3.5rem;
+        }
+        h2 {
+            color: #FFFFFF !important;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        p {
+            color: #94A3B8 !important; /* Extremely high contrast grey-slate */
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin-bottom: 1.2rem;
+        }
+        strong {
+            color: #FFFFFF !important;
+            font-weight: 600;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 1.5rem 0;
+        }
+        li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #94A3B8 !important;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        a {
+            color: var(--primary) !important;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        a:hover {
+            color: #FFFFFF !important;
+            border-bottom-color: #FFFFFF;
+        }
+        .card {
+            background: var(--surface-low) !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin: 2.5rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        /* Critical Warning Theme */
+        .warning-card {
+            background: rgba(239, 68, 68, 0.05) !important;
+            border: 1px solid #EF4444 !important;
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin: 2.5rem 0;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.05);
+        }
+        .warning-card h2::before {
+            background: #EF4444 !important;
+        }
+        .warning-card p, .warning-card li {
+            color: #F87171 !important; /* Soft high-contrast light red */
+        }
+        .warning-card strong {
+            color: #FEE2E2 !important; /* Bright red-white */
+        }
+        .warning-card li::before {
+            color: #EF4444 !important;
+        }
+    </style>
 </head>
-<body class="landing-page">
+<body class="landing-page brushed-metal">
+    <!-- Navbar -->
     <header class="landing-nav">
         <div class="container nav-container">
             <a href="index.html" class="logo-link">
@@ -15,70 +139,73 @@
             </a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
-                <a href="app.html" class="btn btn-primary">Launch Console</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
         </div>
     </header>
 
-    <main class="container" style="padding: 120px 20px; max-width: 900px; line-height: 1.8;">
-        <h1 class="vfd-glow" style="margin-bottom: 2rem; font-size: 3rem;">TERMS_OF_SERVICE</h1>
-        <p style="margin-bottom: 3rem; color: var(--text-muted); font-family: var(--font-mono);">LAST_MODIFIED: 15_MAY_2026</p>
+    <!-- Main Content -->
+    <main>
+        <h1 class="vfd-glow">Terms of Service</h1>
+        <div class="version-tag">LAST_MODIFIED: 15_MAY_2026</div>
+        <div class="divider"></div>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">1. Agreement to Terms</h2>
-            <p>By accessing the SoundEngg website and the Titan Console application, you agree to be bound by these Terms of Service. These terms apply to all visitors, users, and others who access or use the Service.</p>
+        <section>
+            <h2>1. Agreement to Terms</h2>
+            <p>By accessing the SoundEngg website and the Titan Console application, you agree to be fully bound by these Terms of Service. These terms apply to all visitors, registered audio professionals, and others who deploy our system utilities.</p>
         </section>
 
-        <section style="margin-bottom: 3rem; background: rgba(234, 67, 53, 0.1); border: 1px solid var(--warning); padding: 2rem; border-radius: 12px;">
-            <h2 style="color: var(--warning); margin-bottom: 1.5rem;">2. Engineering & Safety Disclaimer</h2>
-            <p><strong>CRITICAL NOTICE:</strong> The calculators, RTA tools, and engineering articles provided by SoundEngg are for educational and advisory purposes only. Sound engineering involves physical energy that can cause permanent hearing damage or electrical failure if mismanaged.</p>
-            <p style="margin-top: 1rem;">SoundEngg, its developers, and affiliates are <strong>NOT liable</strong> for:</p>
-            <ul style="margin-left: 2rem; margin-top: 1rem; color: var(--text-muted);">
-                <li>Damage to loudspeakers, amplifiers, or other hardware.</li>
-                <li>Incorrect system tuning or phase alignment resulting in poor performance.</li>
-                <li>Hearing loss or physical injury arising from the use of our SPL or RTA tools.</li>
+        <section class="warning-card rugged-bevel">
+            <h2 style="color: #EF4444 !important;">2. Engineering & Safety Disclaimer</h2>
+            <p><strong>CRITICAL NOTICE:</strong> All calculators, RTA measurement tools, and technical articles provided by SoundEngg are strictly for educational and general advisory purposes. Live sound reinforcement involves significant electrical and physical acoustic energy. Incorrect calculations can lead to permanent driver failure or hearing damage.</p>
+            <p style="margin-top: 1rem;">SoundEngg, its lead developers, and corporate affiliates are <strong>NOT liable</strong> for:</p>
+            <ul>
+                <li><strong>Hardware damage</strong>, including blown voice coils, clipping amplifier blocks, or overloaded power distributors.</li>
+                <li><strong>System calibration failures</strong> resulting in poor venue tuning, comb filtering, or phase cancellation.</li>
+                <li><strong>Hearing loss</strong> or physical injury stemming from the usage of high-power SPL estimation tools.</li>
             </ul>
-            <p style="margin-top: 1rem;">Always verify your results with certified measurement hardware before applying high-power signals.</p>
+            <p style="margin-top: 1rem;"><strong>Always verify mathematical calculations with professional-grade calibration equipment prior to running high-voltage output blocks.</strong></p>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">3. Intellectual Property</h2>
-            <p>The original content, features, and technical formulas implemented in the Titan Console are the exclusive property of SoundEngg. Our blog articles and custom SVG diagrams are protected by copyright laws. You may not reproduce or scrape our content for commercial use without express permission.</p>
+        <section>
+            <h2>3. Intellectual Property Rights</h2>
+            <p>All original calculation formulas, SVG schematic structures, DSP simulation logic, and codebase templates implemented in the Titan Console are the exclusive proprietary property of SoundEngg. Our technical content is protected by international copyright laws. Any unauthorized scraping, commercial redistribution, or reproduction is strictly prohibited.</p>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">4. Use License</h2>
-            <p>Permission is granted to temporarily use the tools on SoundEngg for personal or professional audio engineering tasks. This is the grant of a license, not a transfer of title, and under this license, you may not:</p>
-            <ul style="margin-left: 2rem; margin-top: 1rem; color: var(--text-muted);">
-                <li>Modify or copy the proprietary source code of the RTA engine.</li>
-                <li>Attempt to decompile or reverse engineer any software contained on the website.</li>
-                <li>Remove any copyright or other proprietary notations from the materials.</li>
-            </ul>
-        </section>
-
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">5. Subscriptions, Payments & Refund Policy</h2>
-            <p>We offer Monthly, Yearly, and Lifetime premium tiers. All payments are processed securely through our authorized payment gateways (e.g. Razorpay).</p>
-            <p style="margin-top: 1rem;"><strong>Refund & Cancellation Policy:</strong></p>
-            <ul style="margin-left: 2rem; margin-top: 0.5rem; color: var(--text-muted);">
-                <li>Subscriptions can be cancelled at any time by contacting support at <strong>support@soundengg.com</strong>.</li>
-                <li>Since our premium tools are digital services with immediate access, we offer a <strong>7-day money-back guarantee</strong> on all new monthly and yearly subscriptions. If you are not satisfied with your purchase, please contact us within 7 days of the transaction date to request a full refund.</li>
-                <li>Refunds will be credited back to your original payment source within 5 to 7 working days, subject to the standard processing timeline of your card issuer or bank.</li>
-                <li>Lifetime subscriptions and renewal transactions are non-refundable after the 7-day window.</li>
+        <section>
+            <h2>4. Technical Use License</h2>
+            <p>Permission is granted to utilize our cloud applications for studio design, live calibration, and professional production workflow execution. Under this technical license, you are strictly prohibited from executing the following actions:</p>
+            <ul>
+                <li>Decompiling, scraping, or attempting to extract the DSP RTA rendering logic.</li>
+                <li>Modifying, hosting mirroring instances, or redistributing proprietary system assets.</li>
+                <li>Obscuring or removing any watermark tags or proprietary copyright declarations from output sheets.</li>
             </ul>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">6. Governing Law</h2>
-            <p>These terms shall be governed and construed in accordance with the laws of Nepal and India, without regard to its conflict of law provisions.</p>
+        <section class="card rugged-bevel">
+            <h2 style="color: var(--primary) !important;">5. Subscriptions, Payments & Refunds</h2>
+            <p>We provide standard Monthly, Yearly, and Lifetime access passes. All transactions are securely routed through certified payment gateways (e.g. Razorpay).</p>
+            <p style="margin-top: 1.5rem;"><strong>Refund & Cancellation Policy:</strong></p>
+            <ul>
+                <li><strong>Simple Management:</strong> Subscriptions can be terminated instantly inside your profile dashboard or by requesting assistance at <a href="mailto:support@soundengg.com">support@soundengg.com</a>.</li>
+                <li><strong>7-Day Guarantee:</strong> We offer a comprehensive <strong>7-day money-back guarantee</strong> for all Monthly and Yearly subscriptions. If you are not satisfied with your system upgrade, establish contact with us within 7 days of checkout to trigger a complete refund.</li>
+                <li><strong>Timeline:</strong> Verified refunds are automatically routed back to your original payment method within 5 to 7 working days, based on bank transaction speeds.</li>
+                <li><strong>Exclusions:</strong> Lifetime upgrades and renewal transactions outside the initial 7-day period are non-refundable.</li>
+            </ul>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">7. Changes to Terms</h2>
-            <p>We reserve the right to modify these terms at any time. We will provide notice of significant changes by posting the new terms on this page and updating the "Last Modified" date.</p>
+        <section>
+            <h2>6. Governing Law</h2>
+            <p>These terms and all operational profiles are governed by and construed under the legal frameworks of Nepal and India, without introducing conflicts with physical location parameters.</p>
+        </section>
+
+        <section>
+            <h2>7. Amendments to Service terms</h2>
+            <p>SoundEngg reserves the right to modify these parameters at any time. We will signal changes by publishing the updated draft on this portal and updating the "Last Modified" timestamp.</p>
         </section>
     </main>
 
+    <!-- Footer -->
     <footer class="landing-footer">
         <div class="footer-bottom">
             <div class="container">

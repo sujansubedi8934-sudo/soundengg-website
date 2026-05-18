@@ -4,6 +4,12 @@
     --on-primary: #FFFFFF;
     --secondary: #008B9F;
     
+    /* Missing Page Setup fallbacks */
+    --bg-main: #0A0A0A;
+    --border-color: #00264D;
+    --surface-low: #121212;
+    --warning: #ef4444;
+    
     /* Dark Mode Defaults */
     --background: #0A0A0A;
     --surface: #121212;
@@ -27,6 +33,13 @@
 html.light {
     --primary: #14A7B5;
     --on-primary: #FFFFFF;
+    
+    /* Missing Page Setup fallbacks for light mode */
+    --bg-main: #F8F9FA;
+    --border-color: #D4D4D8;
+    --surface-low: #FFFFFF;
+    --warning: #dc2626;
+    
     --background: #F8F9FA;
     --surface: #FFFFFF;
     --surface-higher: #F0F2F5;

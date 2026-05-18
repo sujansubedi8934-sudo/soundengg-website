@@ -5,9 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Privacy Policy | SoundEngg</title>
     <link rel="stylesheet" href="assets/css/styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: var(--bg-main) !important;
+            color: #E2E8F0 !important;
+            font-family: var(--font-body);
+        }
+        main {
+            padding: 140px 24px 80px 24px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #FFFFFF !important;
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+        .version-tag {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--primary) !important;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+        .divider {
+            height: 2px;
+            width: 80px;
+            background: var(--primary);
+            margin-bottom: 3rem;
+            border-radius: 2px;
+        }
+        section {
+            margin-bottom: 3.5rem;
+        }
+        h2 {
+            color: #FFFFFF !important;
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        p {
+            color: #94A3B8 !important; /* Extremely high contrast grey-slate */
+            font-size: 1.05rem;
+            line-height: 1.75;
+            margin-bottom: 1.2rem;
+        }
+        strong {
+            color: #FFFFFF !important;
+            font-weight: 600;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 1.5rem 0;
+        }
+        li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: #94A3B8 !important;
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+        li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        a {
+            color: var(--primary) !important;
+            text-decoration: none;
+            border-bottom: 1px dashed var(--primary);
+            transition: color 0.2s, border-color 0.2s;
+        }
+        a:hover {
+            color: #FFFFFF !important;
+            border-bottom-color: #FFFFFF;
+        }
+        .card {
+            background: var(--surface-low) !important;
+            border: 1px solid var(--border-color) !important;
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin: 2.5rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        .card h2::before {
+            background: #F59E0B; /* Warm orange dot for cookie settings */
+        }
+    </style>
 </head>
-<body class="landing-page">
+<body class="landing-page brushed-metal">
+    <!-- Navbar -->
     <header class="landing-nav">
         <div class="container nav-container">
             <a href="index.html" class="logo-link">
@@ -15,49 +121,52 @@
             </a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
-                <a href="app.html" class="btn btn-primary">Launch Console</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
         </div>
     </header>
 
-    <main class="container" style="padding: 120px 20px; max-width: 900px; line-height: 1.8;">
-        <h1 class="vfd-glow" style="margin-bottom: 2rem; font-size: 3rem;">PRIVACY_POLICY</h1>
-        <p style="margin-bottom: 3rem; color: var(--text-muted); font-family: var(--font-mono);">VERSION_REF: 2026.05.15-ADSENSE-READY</p>
+    <!-- Main Content -->
+    <main>
+        <h1 class="vfd-glow">Privacy Policy</h1>
+        <div class="version-tag">VERSION_REF: 2026.05.15-ADSENSE-READY</div>
+        <div class="divider"></div>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">1. Information Collection</h2>
-            <p>At SoundEngg, we prioritize the privacy of our visitors. We collect information in two ways:</p>
-            <ul style="margin-left: 2rem; margin-top: 1rem; color: var(--text-muted);">
-                <li><strong>Account Information:</strong> When you register via Supabase, we store your email address and profile details to sync your tool preferences.</li>
-                <li><strong>Log Files:</strong> We follow a standard procedure of using log files. These files log visitors when they visit websites. The information collected includes IP addresses, browser type, Internet Service Provider (ISP), date/time stamp, and referring/exit pages.</li>
+        <section>
+            <h2>1. Information Collection</h2>
+            <p>At SoundEngg, we prioritize the privacy of our visitors. We collect information in two ways to deliver a seamless audio engineering workspace:</p>
+            <ul>
+                <li><strong>Account Information:</strong> When you register via Supabase, we securely store your email address and profile preferences to synchronize your active toolkit setups.</li>
+                <li><strong>System Log Files:</strong> Following standard technical procedures, we log system diagnostic metrics. This includes encrypted IP addresses, browser agents, Internet Service Providers, timestamps, and active page flows to debug calculator math.</li>
             </ul>
         </section>
 
-        <section style="margin-bottom: 3rem; background: var(--surface-low); padding: 2rem; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">2. Google AdSense & Cookies</h2>
-            <p>SoundEngg uses Google AdSense to serve advertisements. Google, as a third-party vendor, uses cookies to serve ads on this site.</p>
-            <ul style="margin-left: 2rem; margin-top: 1rem; color: var(--text-muted);">
-                <li><strong>DART Cookie:</strong> Google's use of the DART cookie enables it to serve ads to our users based on their visit to SoundEngg and other sites on the Internet.</li>
-                <li><strong>Opt-out:</strong> Users may choose to decline the use of the DART cookie by visiting the Google Ad and Content Network privacy policy at <a href="https://policies.google.com/technologies/ads" target="_blank" style="color: var(--primary);">https://policies.google.com/technologies/ads</a></li>
+        <section class="card rugged-bevel">
+            <h2 style="color: #F59E0B !important;">2. Google AdSense & Cookies</h2>
+            <p>SoundEngg implements Google AdSense to serve non-disruptive advertisements. Google, as a third-party vendor, uses industry-standard cookies to display relevant ads to professionals.</p>
+            <ul>
+                <li><strong>DART Cookie:</strong> Google's DART cookie uses analytical parameters to display custom ads based on visits to SoundEngg and external audio engineering sites.</li>
+                <li><strong>User Controls:</strong> You maintain complete control over your data. You may opt out of the DART cookie by visiting the official Google Ad and Content Network privacy policy at <a href="https://policies.google.com/technologies/ads" target="_blank">Google Policies</a>.</li>
             </ul>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">3. Data Security (Supabase)</h2>
-            <p>Your authentication data is handled by <strong>Supabase</strong>, a professional-grade database infrastructure. We do not store your passwords in plain text. All connections between your browser and our toolset are encrypted via SSL/TLS.</p>
+        <section>
+            <h2>3. Enterprise-Grade Data Security</h2>
+            <p>Your authorization and authentication data are processed exclusively via <strong>Supabase</strong>, built on professional PostgreSQL database instances. We never store raw passwords or sensitive keys. All connections are secured under strict SSL/TLS encryption protocols.</p>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">4. Third-Party Links</h2>
-            <p>Our blog and tools may contain links to external sites (e.g., equipment manufacturers, technical documentation). We have no control over the privacy policies of these third-party sites.</p>
+        <section>
+            <h2>4. Third-Party Links & API Scope</h2>
+            <p>Our dashboard and blog articles contain links to external resources, industry standard specifications, and manufacturer manuals. SoundEngg does not maintain control over, and assumes no liability for, the content or policies of third-party domains.</p>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h2 style="color: var(--primary); margin-bottom: 1.5rem;">5. Contact Information</h2>
-            <p>If you have additional questions or require more information about our Privacy Policy, do not hesitate to contact us at <strong>info@soundengg.com</strong>.</p>
+        <section>
+            <h2>5. Technical Support</h2>
+            <p>For inquiries regarding data retention, policy parameters, or technical privacy regulations, please establish contact with our engineering desk at <a href="mailto:info@soundengg.com">info@soundengg.com</a>.</p>
         </section>
     </main>
 
+    <!-- Footer -->
     <footer class="landing-footer">
         <div class="footer-bottom">
             <div class="container">
