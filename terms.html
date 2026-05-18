@@ -155,6 +155,19 @@
         .warning-card li::before {
             color: #EF4444 !important;
         }
+        .social-links a.instagram-link:hover {
+            background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
+            color: #FFFFFF !important;
+            border-color: transparent !important;
+            box-shadow: 0 5px 15px rgba(220, 39, 67, 0.4) !important;
+        }
+        .social-links a.instagram-link svg {
+            display: block;
+            transition: stroke 0.3s ease;
+        }
+        .social-links a.instagram-link:hover svg {
+            stroke: #FFFFFF !important;
+        }
     </style>
 </head>
 <body class="landing-page brushed-metal">
@@ -242,8 +255,13 @@
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo">
                 <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
                 <div class="social-links">
-                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram"><span class="material-symbols-outlined">photo_camera</span></a>
-                    <a href="https://portfolio.soundengg.com" target="_blank" aria-label="Portfolio"><span class="material-symbols-outlined">person</span></a>
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
                 </div>
             </div>
             <div class="footer-col">
@@ -261,7 +279,7 @@
                     <li><a href="index.html#features">Features</a></li>
                     <li><a href="app.html?view=blog">Engineering Blog</a></li>
                     <li><a href="index.html#contact">Contact Us</a></li>
-                    <li><a href="https://portfolio.soundengg.com" target="_blank">Author Profile</a></li>
+                    <li><a href="app.html?view=author">Author Profile</a></li>
                 </ul>
             </div>
             <div class="footer-col">
