@@ -1,0 +1,21 @@
+{
+  "name": "soundengg-website",
+  "version": "1.0.0",
+  "description": "audio tools and blogs for soundengg",
+  "main": "service-worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sujansubedi8934-sudo/soundengg-website.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/sujansubedi8934-sudo/soundengg-website/issues"
+  },
+  "homepage": "https://github.com/sujansubedi8934-sudo/soundengg-website#readme"
+}
