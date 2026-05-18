@@ -1693,15 +1693,31 @@
 
     <script src="assets/js/main.js?v=3.3.0"></script>
     
-    <!-- Unregister PWA Service Worker (Senior Fix: Avoid stale cache loops) -->
+    <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
     <script>
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                for (let r of registrations) {
-                    r.unregister().then(() => {
-                        console.log('Stale Service Worker unregistered.');
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('SoundEngg SW registered:', registration.scope);
+                        
+                        // Automatically check for updates on page load
+                        registration.update();
+                        
+                        // If a new service worker is found, listen for activation and force reload
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('New update available! Force reloading to apply...');
+                                    window.location.reload();
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => {
+                        console.error('SW registration failed:', err);
                     });
-                }
             });
         }
     </script>
