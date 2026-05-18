@@ -233,26 +233,24 @@ async function syncSubscriptionStatus(session) {
             if (emailDisplay) emailDisplay.textContent = user.email;
         }
 
-        // Try to fetch with headers that bypass Safari's aggressive local caches
+        // Try to fetch securely using maybeSingle() which avoids 406 console errors
         let { data, error } = await window.supabaseClient
             .from('profiles')
             .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
             .eq('id', session.user.id)
-            .single()
-            .headers({ 'cache-control': 'no-cache, no-store, must-revalidate', 'pragma': 'no-cache' });
+            .maybeSingle();
 
-        // If the row doesn't exist yet (PGRST116 or equivalent), defensively upsert a base profile row so all future updates succeed
-        if (error && (error.code === 'PGRST116' || error.message?.includes('no rows') || error.message?.includes('multiple or no rows'))) {
+        // If the row doesn't exist yet, defensively upsert a base profile row so all future updates succeed
+        if (!data && !error) {
             console.log('Defensively auto-creating public profiles row for:', session.user.id);
             const { data: upsertedData, error: upsertError } = await window.supabaseClient
                 .from('profiles')
                 .upsert({ id: session.user.id, is_pro: false, subscription_tier: 'free' })
                 .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
-                .single();
+                .maybeSingle();
             
             if (upsertedData) {
                 data = upsertedData;
-                error = null;
             } else {
                 console.error('Defensive upsert failed:', upsertError);
             }
@@ -260,14 +258,13 @@ async function syncSubscriptionStatus(session) {
 
         if (error) {
             console.warn('Profile fetch error (might be schema cache):', error.message);
-            // Fallback: try fetching just is_pro if the new columns are the issue (with cache bust)
+            // Fallback: try fetching just is_pro if the new columns are the issue
             if (error.code === '42703' || error.message.includes('not found') || error.message.includes('column')) {
                 const { data: fallbackData } = await window.supabaseClient
                     .from('profiles')
                     .select('is_pro')
                     .eq('id', session.user.id)
-                    .single()
-                    .headers({ 'cache-control': 'no-cache, no-store, must-revalidate', 'pragma': 'no-cache' });
+                    .maybeSingle();
                 if (fallbackData) {
                     window.isUserPro = !!fallbackData.is_pro;
                     data = { is_pro: fallbackData.is_pro };
@@ -948,7 +945,7 @@ function initDelayCalc() {
                 .select('data')
                 .eq('user_id', session.user.id)
                 .eq('config_type', 'delay')
-                .single();
+                .maybeSingle();
 
             if (data && data.data) {
                 distInput.value = data.data.dist;
@@ -2312,7 +2309,7 @@ function initProfessionalRTA() {
                 .select('data')
                 .eq('user_id', session.user.id)
                 .eq('config_type', 'mic_calibration')
-                .single();
+                .maybeSingle();
 
             if (data && data.data && data.data.text) {
                 const text = data.data.text;
@@ -2378,7 +2375,7 @@ function initProfessionalRTA() {
                 .select('data')
                 .eq('user_id', session.user.id)
                 .eq('config_type', 'rta_snapshots')
-                .single();
+                .maybeSingle();
 
 
             if (data && data.data && data.data.snapshots) {
@@ -2881,7 +2878,7 @@ function initSignalGenerator() {
                 .select('data')
                 .eq('user_id', session.user.id)
                 .eq('config_type', 'siggen_config')
-                .single();
+                .maybeSingle();
 
             if (data && data.data) {
                 currentWave = data.data.wave || 'sine';
@@ -3989,7 +3986,7 @@ function initSubCalc() {
                 .select('data')
                 .eq('user_id', session.user.id)
                 .eq('config_type', 'subcalc')
-                .single();
+                .maybeSingle();
 
             if (data && data.data) {
                 freqInput.value = data.data.freq;
