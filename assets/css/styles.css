@@ -4464,7 +4464,8 @@ body.theme-red { --primary: #ff003c; }
 }
 
 .map-link:hover {
-    text-decoration: underline;
+    text-decoration: none;
+    opacity: 0.8;
 }
 
 @media (max-width: 768px) {
