@@ -143,7 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (authIcon) authIcon.textContent = 'account_circle';
                 btnAuthToggle.classList.add('logged-in');
             } else {
-                if (authText) authText.textContent = 'LOG IN';
+                if (authText) {
+                    authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
+                }
                 if (authIcon) authIcon.textContent = 'login';
                 btnAuthToggle.classList.remove('logged-in', 'active');
             }

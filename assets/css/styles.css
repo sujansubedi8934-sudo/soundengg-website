@@ -5225,7 +5225,7 @@ body.theme-red { --primary: #ff003c; }
     .cloud-sync-status .status-text {
         display: none !important;
     }
-    .auth-toggle-btn .btn-text {
+    .top-bar-right .auth-toggle-btn .btn-text {
         display: none !important;
     }
 
