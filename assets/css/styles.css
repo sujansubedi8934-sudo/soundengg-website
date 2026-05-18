@@ -2461,9 +2461,10 @@ html.light .rugged-input:focus {
 
 .gain-strip {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    gap: 1.25rem;
     height: 100%;
 }
 
@@ -2523,21 +2524,33 @@ html.light .rugged-input:focus {
 /* VFD Input Styling */
 .vfd-input-wrap {
     display: flex;
-    align-items: baseline;
-    gap: 4px;
+    align-items: center;
+    gap: 6px;
+    background: #000000 !important;
+    border: 1px solid rgba(20, 167, 181, 0.3) !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 0 10px rgba(0, 240, 255, 0.1) !important;
+    transition: all 0.2s ease;
 }
 
 .vfd-input {
-    background: transparent;
-    border: none;
-    color: var(--primary);
-    font-family: var(--font-mono);
-    font-size: 0.9rem;
-    font-weight: bold;
-    width: 80px;
-    text-align: right;
-    outline: none;
-    padding: 0;
+    background: transparent !important;
+    border: none !important;
+    color: #00f0ff !important;
+    text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;
+    font-family: 'JetBrains Mono', var(--font-mono) !important;
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    width: 60px !important;
+    text-align: right !important;
+    outline: none !important;
+    padding: 0 !important;
+}
+
+.vfd-input-wrap:focus-within {
+    border-color: #00f0ff !important;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 0 12px rgba(0, 240, 255, 0.3) !important;
 }
 
 /* Hide spin buttons for Chrome, Safari, Edge, Opera */

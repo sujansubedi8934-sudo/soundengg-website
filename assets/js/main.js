@@ -2580,6 +2580,13 @@ function initSignalGenerator() {
 
     let audioCtx;
     let currentGain = -18;
+    let currentWave = 'sine';
+    let currentFreq = 1000;
+    let isPlaying = false;
+    let gainNode = null;
+    let analyzer = null;
+    let oscillator = null;
+    let noiseNode = null;
 
     function saveSignalGenState() {
         saveConfigToCloud('siggen_config', {
