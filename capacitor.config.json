@@ -1,0 +1,6 @@
+{
+  "appId": "com.soundengg.app",
+  "appName": "SoundEngg Console",
+  "webDir": "./",
+  "bundledWebRuntime": false
+}

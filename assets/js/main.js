@@ -236,7 +236,7 @@ async function syncSubscriptionStatus(session) {
         // Try to fetch with headers that bypass Safari's aggressive local caches
         let { data, error } = await window.supabaseClient
             .from('profiles')
-            .select('is_pro, full_name, company')
+            .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
             .eq('id', session.user.id)
             .single()
             .headers({ 'cache-control': 'no-cache, no-store, must-revalidate', 'pragma': 'no-cache' });
@@ -246,8 +246,8 @@ async function syncSubscriptionStatus(session) {
             console.log('Defensively auto-creating public profiles row for:', session.user.id);
             const { data: upsertedData, error: upsertError } = await window.supabaseClient
                 .from('profiles')
-                .upsert({ id: session.user.id, is_pro: false })
-                .select('is_pro, full_name, company')
+                .upsert({ id: session.user.id, is_pro: false, subscription_tier: 'free' })
+                .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
                 .single();
             
             if (upsertedData) {
@@ -261,7 +261,7 @@ async function syncSubscriptionStatus(session) {
         if (error) {
             console.warn('Profile fetch error (might be schema cache):', error.message);
             // Fallback: try fetching just is_pro if the new columns are the issue (with cache bust)
-            if (error.code === '42703' || error.message.includes('not found')) {
+            if (error.code === '42703' || error.message.includes('not found') || error.message.includes('column')) {
                 const { data: fallbackData } = await window.supabaseClient
                     .from('profiles')
                     .select('is_pro')
@@ -270,12 +270,17 @@ async function syncSubscriptionStatus(session) {
                     .headers({ 'cache-control': 'no-cache, no-store, must-revalidate', 'pragma': 'no-cache' });
                 if (fallbackData) {
                     window.isUserPro = !!fallbackData.is_pro;
+                    data = { is_pro: fallbackData.is_pro };
                 }
             }
         }
 
         if (data) {
-            window.isUserPro = !!data.is_pro;
+            const now = new Date();
+            const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
+            const isExpired = expiresAt && expiresAt < now;
+
+            window.isUserPro = !!data.is_pro && !isExpired;
             console.log('Cloud Sync Success. Pro:', window.isUserPro);
             
             const profileTierBadge = document.getElementById('profile-tier-badge');
@@ -285,7 +290,20 @@ async function syncSubscriptionStatus(session) {
 
             if (profileTierBadge) {
                 profileTierBadge.className = window.isUserPro ? 'tier-badge pro' : 'tier-badge free';
-                profileTierBadge.textContent = window.isUserPro ? 'PRO TIER' : 'FREE TIER';
+                
+                if (window.isUserPro) {
+                    const tierName = (data.subscription_tier || 'PRO').toUpperCase();
+                    let expiryLabel = '';
+                    if (expiresAt) {
+                        expiryLabel = ` (Expires: ${expiresAt.toLocaleDateString()})`;
+                    } else {
+                        expiryLabel = ` (LIFETIME)`;
+                    }
+                    profileTierBadge.textContent = `${tierName} TIER${expiryLabel}`;
+                } else {
+                    profileTierBadge.textContent = 'FREE TIER';
+                }
+                
                 if (btnProfileUpgrade) btnProfileUpgrade.style.display = window.isUserPro ? 'none' : 'inline-block';
             }
             
@@ -293,6 +311,12 @@ async function syncSubscriptionStatus(session) {
             if (window.isUserPro) {
                 const adOverlay = document.getElementById('ad-manager-overlay');
                 if (adOverlay) adOverlay.classList.add('hidden');
+                
+                // Hide all standard Google AdSense and bottom sponsor elements globally
+                document.querySelectorAll('.adsbygoogle, .ad-banner-bottom, .ad-placeholder, #bottom-sponsor-banner').forEach(el => {
+                    el.classList.add('hidden');
+                    el.style.display = 'none';
+                });
             }
 
             if (inputFullname) inputFullname.value = data.full_name || '';
@@ -4561,11 +4585,26 @@ window.showRazorpaySimOverlay = function(plan) {
             try {
                 const { data: { session } } = await window.supabaseClient.auth.getSession();
                 if (session) {
-                    await window.supabaseClient.from('profiles')
-                        .upsert({ 
-                            id: session.user.id,
-                            is_pro: true
-                        });
+                    try {
+                        const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
+                        const { error: upsertErr } = await window.supabaseClient.from('profiles')
+                            .upsert({ 
+                                id: session.user.id,
+                                is_pro: true,
+                                subscription_tier: plan,
+                                subscription_provider: 'razorpay',
+                                subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
+                                subscription_expires_at: expiresAt
+                            });
+                        if (upsertErr) throw upsertErr;
+                    } catch (dbErr) {
+                        console.warn('Advanced subscription fields write failed. Falling back to basic is_pro write:', dbErr.message);
+                        await window.supabaseClient.from('profiles')
+                            .upsert({ 
+                                id: session.user.id,
+                                is_pro: true
+                            });
+                    }
                     
                     // Trigger global refresh
                     await syncSubscriptionStatus(session);

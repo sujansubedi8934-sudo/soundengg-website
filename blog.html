@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- Google AdSense Universal Tag (Replace ca-pub-XXXXXXXXXXXXXXXX with your actual AdSense ID) -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
 </head>
 <body class="landing-page">
     <header class="landing-nav">
@@ -35,12 +37,38 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="assets/js/blog-data.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const contentEl = document.getElementById('blog-content');
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
+
+            let isUserPro = false;
+            if (window.supabase) {
+                const SUPABASE_URL = 'https://ewudkzyjcvjxxqpqnqiy.supabase.co';
+                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dWRrenlqY3ZqeHhxcHFucWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDM0MTQsImV4cCI6MjA5NDM3OTQxNH0.jLSCEjzAxR_pjlZsjJqQgGk4L-_c5Ls3STxDedOn2KM';
+                try {
+                    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    const { data: { session } } = await client.auth.getSession();
+                    if (session) {
+                        const { data } = await client
+                            .from('profiles')
+                            .select('is_pro, subscription_expires_at')
+                            .eq('id', session.user.id)
+                            .single();
+                        if (data) {
+                            const now = new Date();
+                            const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
+                            const isExpired = expiresAt && expiresAt < now;
+                            isUserPro = !!data.is_pro && !isExpired;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("Auth check in blog failed, defaulting to showing ads:", e);
+                }
+            }
 
             if (articleId) {
                 renderArticle(articleId);
@@ -55,7 +83,7 @@
                     <div class="blog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
                 `;
 
-                blogArticles.forEach(post => {
+                blogArticles.forEach((post, index) => {
                     html += `
                         <div class="blog-card" style="background: var(--surface-low); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: transform 0.3s ease;">
                             <div style="padding: 2rem;">
@@ -66,6 +94,24 @@
                             </div>
                         </div>
                     `;
+
+                    // Inject themed inside-grid sponsor block after the second post for free-tier users
+                    if (index === 1 && !isUserPro) {
+                        html += `
+                            <div class="blog-card ad-placeholder" style="background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 300px; padding: 2rem; box-sizing: border-box; text-align: center;">
+                                <span style="color: var(--text-muted); font-size: 0.65rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">SPONSOR_ADVERTISEMENT</span>
+                                <ins class="adsbygoogle"
+                                     style="display:block; width:100%; height:250px;"
+                                     data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                                     data-ad-slot="9876543210"
+                                     data-ad-format="auto"
+                                     data-full-width-responsive="true"></ins>
+                                <script>
+                                     (adsbygoogle = window.adsbygoogle || []).push({});
+                                </script>
+                            </div>
+                        `;
+                    }
                 });
 
                 html += `</div>`;
@@ -82,19 +128,39 @@
                 // Update Title
                 document.title = `${article.title} | SoundEngg Blog`;
 
+                let adHtml = '';
+                if (!isUserPro) {
+                    adHtml = `
+                        <!-- Google AdSense Native Article Ad Unit -->
+                        <div class="ad-placeholder adsbygoogle-container" style="margin-top: 3rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center;">
+                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;">SPONSOR_ADVERTISEMENT</div>
+                            <ins class="adsbygoogle"
+                                 style="display:block; text-align:center;"
+                                 data-ad-layout="in-article"
+                                 data-ad-format="fluid"
+                                 data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                                 data-ad-slot="1234567890"></ins>
+                            <script>
+                                 (adsbygoogle = window.adsbygoogle || []).push({});
+                            </script>
+                        </div>
+                    `;
+                }
+
                 contentEl.innerHTML = `
                     <div class="article-reader" style="max-width: 800px; margin: 0 auto;">
-                        <a href="blog.html" style="display: inline-flex; align-items: center; color: var(--primary); text-decoration: none; margin-bottom: 2rem; font-size: 0.9rem;">
-                            <span class="material-symbols-outlined" style="margin-right: 0.5rem;">arrow_back</span> BACK_TO_INDEX
-                        </a>
-                        ${article.content}
-                        <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
-                            <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
-                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                                <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
-                                <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
-                            </div>
-                        </div>
+                         <a href="blog.html" style="display: inline-flex; align-items: center; color: var(--primary); text-decoration: none; margin-bottom: 2rem; font-size: 0.9rem;">
+                             <span class="material-symbols-outlined" style="margin-right: 0.5rem;">arrow_back</span> BACK_TO_INDEX
+                         </a>
+                         ${article.content}
+                         ${adHtml}
+                         <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+                             <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
+                             <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                                 <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
+                                 <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
+                             </div>
+                         </div>
                     </div>
                 `;
             }
