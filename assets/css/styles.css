@@ -5207,6 +5207,37 @@ body.theme-red { --primary: #ff003c; }
     }
     .mobile-nav-dropdown-container {
         display: block !important;
+        z-index: 1000 !important; /* Stack way above logo scale to guarantee clickability */
+    }
+    
+    /* Compact branding and top-bar layout */
+    .top-bar {
+        padding: 0 0.8rem !important;
+        height: 4.5rem !important;
+    }
+    .brand-logo {
+        transform: scale(1.1) !important;
+        top: 0px !important;
+        height: 2.2rem !important;
+    }
+
+    /* Hide heavy texts on mobile top bar */
+    .cloud-sync-status .status-text {
+        display: none !important;
+    }
+    .auth-toggle-btn .btn-text {
+        display: none !important;
+    }
+
+    /* Tighten spacing */
+    .top-bar-right {
+        gap: 0.5rem !important;
+    }
+    .actions {
+        gap: 0.5rem !important;
+    }
+    .system-actions {
+        gap: 0.5rem !important;
     }
     
     /* Make mobile menu button hidden */
