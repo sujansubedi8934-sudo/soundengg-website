@@ -3426,17 +3426,18 @@ html.light .auth-modal {
 }
 
 .ad-banner-bottom {
-    position: fixed;
-    bottom: 0;
-    left: 0;
+    position: relative;
+    margin: 3rem auto 1rem auto;
     width: 100%;
+    max-width: 1200px;
     height: 60px;
     background: var(--surface-higher);
-    border-top: 1px solid var(--border-color);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 900;
+    z-index: 10;
 }
 
 .ad-banner-bottom.hidden {

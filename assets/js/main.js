@@ -509,6 +509,13 @@ function setupNavigation() {
                 canvas.width = canvas.parentElement.clientWidth;
                 canvas.height = canvas.parentElement.clientHeight;
             }
+        } else if (targetView === tunerView) {
+            if (window.resizeTunerCanvas) {
+                window.resizeTunerCanvas();
+            }
+            if (window.drawTunerVisualizer) {
+                window.drawTunerVisualizer(null);
+            }
         }
     }
 
@@ -3426,6 +3433,7 @@ function initTuner() {
     
     let currentMode = 'needle'; // needle, strobe, bar
     let strobePhase = 0;
+    let noiseThreshold = 0.040; // Default noise gate threshold (40 RMS = -28.0 dB FS) to filter room noise
 
     const btnStart = document.getElementById('btn-start-tuner');
     const a4Input = document.getElementById('tuner-a4-ref');
@@ -3451,7 +3459,7 @@ function initTuner() {
             rms += val * val;
         }
         rms = Math.sqrt(rms / SIZE);
-        if (rms < 0.01) return -1;
+        if (rms < noiseThreshold) return -1;
 
         let r1 = 0, r2 = SIZE - 1, thres = 0.2;
         for (let i = 0; i < SIZE / 2; i++) if (Math.abs(buf[i]) < thres) { r1 = i; break; }
@@ -3518,7 +3526,7 @@ function initTuner() {
             if (smoothedPitch === -1 || Math.abs(smoothedPitch - pitch) > 30) {
                 smoothedPitch = pitch;
             } else {
-                smoothedPitch = smoothedPitch * 0.85 + pitch * 0.15; // 85% old, 15% new
+                smoothedPitch = smoothedPitch * 0.80 + pitch * 0.20; // 80% old, 20% new
             }
 
             let note = noteFromPitch(smoothedPitch);
@@ -3564,7 +3572,7 @@ function initTuner() {
             ctx.beginPath();
             ctx.arc(w/2, h + 50, h, Math.PI + 0.2, Math.PI * 2 - 0.2);
             ctx.lineWidth = 4;
-            ctx.strokeStyle = isLight ? '#e2e8f0' : '#4a5568';
+            ctx.strokeStyle = isLight ? '#94a3b8' : '#4a5568';
             ctx.stroke();
             
             ctx.beginPath();
@@ -3586,7 +3594,7 @@ function initTuner() {
                 let needleColor = Math.abs(cents) <= 3 ? colorSuccess : colorDanger;
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
-                ctx.lineTo(0, -h + 20);
+                ctx.lineTo(0, -h + 10);
                 ctx.lineWidth = 6;
                 ctx.lineCap = 'round';
                 ctx.strokeStyle = needleColor;
@@ -3715,6 +3723,36 @@ function initTuner() {
         });
     }
 
+    const thresholdInput = document.getElementById('tuner-threshold');
+    const thresholdValDisplay = document.getElementById('tuner-threshold-val');
+    
+    if (thresholdInput) {
+        const rmsToDb = (rms) => {
+            if (rms <= 0) return "-∞";
+            return (20 * Math.log10(rms)).toFixed(1);
+        };
+
+        // Load custom threshold from localStorage if available
+        const savedThresh = localStorage.getItem('soundengg-tuner-threshold');
+        if (savedThresh) {
+            noiseThreshold = parseFloat(savedThresh);
+            thresholdInput.value = savedThresh;
+        } else {
+            noiseThreshold = 0.040;
+            thresholdInput.value = 0.040;
+        }
+
+        if (thresholdValDisplay) {
+            thresholdValDisplay.textContent = `${rmsToDb(noiseThreshold)} dB`;
+        }
+
+        thresholdInput.addEventListener('input', (e) => {
+            noiseThreshold = parseFloat(e.target.value) || 0.040;
+            if (thresholdValDisplay) thresholdValDisplay.textContent = `${rmsToDb(noiseThreshold)} dB`;
+            localStorage.setItem('soundengg-tuner-threshold', noiseThreshold.toFixed(3));
+        });
+    }
+
     modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             modeBtns.forEach(b => b.classList.remove('active'));
@@ -3723,6 +3761,13 @@ function initTuner() {
             if (!isTuning) drawVisualizer(null);
         });
     });
+
+    window.resizeTunerCanvas = resizeCanvas;
+    window.drawTunerVisualizer = drawVisualizer;
+    
+    // Initial resize and draw
+    resizeCanvas();
+    drawVisualizer(null);
 }
 
 // --- SUB CALCULATOR LOGIC ---

@@ -311,16 +311,17 @@
         <!-- MODULE VIEW: Pinout Connection -->
         <div id="pinout-view" class="view-container" style="display: none;">
             <!-- Breadcrumb Header -->
-            <header class="dashboard-header module-header">
-                <div class="dashboard-title-container">
-                    <button class="btn-back" id="btn-back-pinout"><span class="material-symbols-outlined">arrow_back</span></button>
-                    <div>
-                        <h1 class="dashboard-title">PINOUT_REFERENCE <button class="btn-help" data-tool="pinout" title="Tool Guide">
-                            <span class="material-symbols-outlined pulse-glow-help">help</span>
-                            <span class="help-label">help</span>
-                        </button></h1>
-                        <p class="dashboard-subtitle">Hardware Wiring & Interfaces // <span id="pinout-count-badge">0 CONNECTORS</span></p>
-                    </div>
+            <header class="module-header">
+                <button class="back-link btn-back-home" id="btn-back-pinout">
+                    <span class="material-symbols-outlined">arrow_back</span>
+                    BACK_TO_DASHBOARD
+                </button>
+                <div class="module-title-wrap">
+                    <h1 class="dashboard-title">PINOUT_REFERENCE <button class="btn-help" data-tool="pinout" title="Tool Guide">
+                        <span class="material-symbols-outlined pulse-glow-help">help</span>
+                        <span class="help-label">help</span>
+                    </button></h1>
+                    <p class="dashboard-subtitle">Hardware Wiring & Interfaces // <span id="pinout-count-badge">0 CONNECTORS</span></p>
                 </div>
             </header>
 
@@ -510,14 +511,6 @@
             </div>
         </div>
 
-        <!-- Small Footer for Legal Compliance -->
-        <footer style="margin-top: 4rem; padding: 2rem 0; border-top: 1px solid var(--outline); opacity: 0.6; font-size: 0.8rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
-            <a href="privacy.html" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
-            <a href="terms.html" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
-            <a href="#" onclick="if(window.showView) { window.showView(document.getElementById('author-view'), document.getElementById('btn-nav-author')); } return false;" style="color: var(--text-muted); text-decoration: none;">Author</a>
-            <span>&copy; 2026 SoundEngg</span>
-        </footer>
-    </main>
 
 
 
@@ -997,6 +990,13 @@
                     <input type="number" id="tuner-a4-ref" class="rugged-input" value="440" min="400" max="480" step="1" style="width: 100px; text-align: center; font-size: 1.1rem;">
                 </div>
                 <div class="train-control-group">
+                    <span class="train-label">NOISE GATE THRESHOLD</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="range" id="tuner-threshold" min="0.005" max="0.100" step="0.005" value="0.040" style="width: 120px; cursor: pointer; accent-color: var(--primary); outline: none;">
+                        <span id="tuner-threshold-val" style="font-family: var(--font-mono); color: var(--primary); font-size: 1rem; min-width: 75px;">-28.0 dB</span>
+                    </div>
+                </div>
+                <div class="train-control-group">
                     <span class="train-label">VISUAL MODE</span>
                     <button class="train-source-btn active tuner-mode-btn" data-mode="needle">Classic</button>
                     <button class="train-source-btn tuner-mode-btn" data-mode="strobe">Strobe</button>
@@ -1333,6 +1333,23 @@
         </div>
     </div>
 
+    <!-- Ad Integration / Monetization -->
+    <div id="bottom-sponsor-banner" class="ad-banner-bottom hidden">
+        <a href="#" target="_blank" class="sponsor-link">
+            <span class="sponsor-text">Sponsored by</span>
+            <img src="assets/img/sponsor-placeholder.png" alt="Sponsor Logo" class="sponsor-logo">
+        </a>
+    </div>
+
+    <!-- Small Footer for Legal Compliance -->
+    <footer style="margin-top: 4rem; padding: 2rem 0; border-top: 1px solid var(--outline); opacity: 0.6; font-size: 0.8rem; display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap;">
+        <a href="privacy.html" style="color: var(--text-muted); text-decoration: none;">Privacy Policy</a>
+        <a href="terms.html" style="color: var(--text-muted); text-decoration: none;">Terms of Service</a>
+        <a href="#" onclick="if(window.showView) { window.showView(document.getElementById('author-view'), document.getElementById('btn-nav-author')); } return false;" style="color: var(--text-muted); text-decoration: none;">Author</a>
+        <span>&copy; 2026 SoundEngg</span>
+    </footer>
+    </main>
+
     <!-- Image Zoom Modal -->
     <div id="image-zoom-overlay" class="modal-overlay hidden">
         <button id="btn-close-zoom" style="position: absolute; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--surface-higher); color: var(--text-main); cursor: pointer; transition: all 0.2s ease;"><span class="material-symbols-outlined">close</span></button>
@@ -1412,13 +1429,7 @@
             </button>
         </div>
     </div>
-    <!-- Ad Integration / Monetization -->
-    <div id="bottom-sponsor-banner" class="ad-banner-bottom hidden">
-        <a href="#" target="_blank" class="sponsor-link">
-            <span class="sponsor-text">Sponsored by</span>
-            <img src="assets/img/sponsor-placeholder.png" alt="Sponsor Logo" class="sponsor-logo">
-        </a>
-    </div>
+
 
     <!-- Ad Manager Full-Screen Lock Modal -->
     <!-- User Profile & Settings Modal -->
