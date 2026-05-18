@@ -82,34 +82,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // GLOBAL AUTH ICON DELEGATION
     document.addEventListener('click', async (e) => {
-        const authBtn = e.target.closest('#btn-auth-toggle');
+        const authBtn = e.target.closest('.auth-toggle-btn');
         if (authBtn) {
             e.preventDefault();
-        
-        e.preventDefault();
-        console.log('Global Auth Icon Triggered');
-        
-        if (!window.supabaseClient) {
-            alert('Connection error. Please refresh.');
-            return;
-        }
+            
+            // Auto close mobile menu on selection
+            const menu = document.getElementById('mobile-nav-dropdown-menu');
+            const toggleBtn = document.getElementById('btn-mobile-nav-toggle');
+            if (menu) menu.style.display = 'none';
+            if (toggleBtn) toggleBtn.classList.remove('active');
+            
+            console.log('Global Auth Icon Triggered');
+            
+            if (!window.supabaseClient) {
+                alert('Connection error. Please refresh.');
+                return;
+            }
 
-        const iconSpan = authBtn.querySelector('.material-symbols-outlined');
-        const isUserIcon = iconSpan && iconSpan.textContent === 'account_circle';
+            const iconSpan = authBtn.querySelector('.material-symbols-outlined');
+            const isUserIcon = iconSpan && iconSpan.textContent === 'account_circle';
 
-        if (isUserIcon) {
-            openModal(document.getElementById('profile-modal'));
-        } else {
-            openModal(document.getElementById('auth-modal-overlay'));
-        }
+            if (isUserIcon) {
+                openModal(document.getElementById('profile-modal'));
+            } else {
+                openModal(document.getElementById('auth-modal-overlay'));
+            }
 
-        // Perform background session check to correct UI if needed
-        window.supabaseClient.auth.getSession().then(({ data: { session } }) => {
-            if (!session && isUserIcon) {
-                // Oops, icon was wrong, user is actually logged out
-                const profileModal = document.getElementById('profile-modal');
-                if (profileModal) closeModal(profileModal);
-                const authModal = document.getElementById('auth-modal-overlay');
+            // Perform background session check to correct UI if needed
+            window.supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                if (!session && isUserIcon) {
+                    // Oops, icon was wrong, user is actually logged out
+                    const profileModal = document.getElementById('profile-modal');
+                    if (profileModal) closeModal(profileModal);
+                    const authModal = document.getElementById('auth-modal-overlay');
                     if (authModal) authModal.classList.remove('hidden');
                 }
             });
@@ -125,11 +130,11 @@ document.addEventListener('DOMContentLoaded', () => {
         await syncSubscriptionStatus(session);
 
         // 2. Global UI Update (Icon, Text, Modals)
-        const btnAuthToggle = document.getElementById('btn-auth-toggle');
+        const btnAuthToggles = document.querySelectorAll('.auth-toggle-btn');
         const authModalOverlay = document.getElementById('auth-modal-overlay');
         const profileModal = document.getElementById('profile-modal');
 
-        if (btnAuthToggle) {
+        btnAuthToggles.forEach(btnAuthToggle => {
             const authText = btnAuthToggle.querySelector('.btn-text');
             const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
             
@@ -142,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (authIcon) authIcon.textContent = 'login';
                 btnAuthToggle.classList.remove('logged-in', 'active');
             }
-        }
+        });
 
         // 3. Modal Cleanup (Force Close on Successful Login/Logout)
         if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
@@ -587,13 +592,19 @@ function setupNavigation() {
     });
 
     // Settings Toggle Logic (Non-exclusive view)
-    const btnSettings = document.getElementById('btn-settings');
     const settingsPanel = document.getElementById('settings-panel');
     const btnCloseSettings = document.getElementById('btn-close-settings');
 
-    if (btnSettings && settingsPanel && btnCloseSettings) {
-        btnSettings.addEventListener('click', () => {
-            settingsPanel.classList.add('open');
+    if (settingsPanel && btnCloseSettings) {
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('#btn-settings, #btn-mobile-settings')) {
+                settingsPanel.classList.add('open');
+                // Auto close mobile menu on selection
+                const menu = document.getElementById('mobile-nav-dropdown-menu');
+                const toggleBtn = document.getElementById('btn-mobile-nav-toggle');
+                if (menu) menu.style.display = 'none';
+                if (toggleBtn) toggleBtn.classList.remove('active');
+            }
         });
         btnCloseSettings.addEventListener('click', () => {
             settingsPanel.classList.remove('open');
@@ -4994,12 +5005,7 @@ function syncMobileNavDropdownLabel(viewId) {
     const navItems = document.querySelectorAll('.mobile-nav-item');
     if (!activeLabel) return;
 
-    let text = 'DASHBOARD';
-    if (viewId === 'author-view') text = 'AUTHOR';
-    else if (viewId === 'blog-view') text = 'BLOG';
-    else if (viewId !== 'dashboard-view') text = 'VIEWING TOOL'; // Fallback for secondary sub-views
-
-    activeLabel.textContent = text;
+    activeLabel.textContent = 'MENU';
 
     // Keep active highlight class accurate
     navItems.forEach(item => {

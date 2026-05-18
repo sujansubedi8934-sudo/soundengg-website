@@ -37,7 +37,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="assets/css/styles.css?v=3.4.0">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.5.0">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
@@ -59,19 +59,6 @@
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
                 <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
             </a>
-            
-            <!-- Mobile View Navigation Select Dropdown -->
-            <div class="mobile-nav-dropdown-container">
-                <button id="btn-mobile-nav-toggle" class="mobile-nav-toggle-btn" aria-label="Toggle Navigation Dropdown">
-                    <span id="mobile-nav-active-label">DASHBOARD</span>
-                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
-                </button>
-                <div id="mobile-nav-dropdown-menu" class="mobile-nav-dropdown-menu" style="display: none;">
-                    <a href="#" class="mobile-nav-item active" data-target="dashboard-view">DASHBOARD</a>
-                    <a href="#" class="mobile-nav-item" data-target="author-view">AUTHOR</a>
-                    <a href="#" class="mobile-nav-item" data-target="blog-view">BLOG</a>
-                </div>
-            </div>
 
             <nav class="top-nav">
                 <a href="app.html" id="btn-nav-dashboard" class="active">Dashboard</a>
@@ -80,7 +67,44 @@
             </nav>
         </div>
         <div class="top-bar-right">
-            <div class="actions">
+            <!-- Consolidated Mobile Menu (Right-Aligned) -->
+            <div class="mobile-nav-dropdown-container header-single-menu">
+                <button id="btn-mobile-nav-toggle" class="mobile-nav-toggle-btn" aria-label="Toggle Navigation Dropdown">
+                    <span id="mobile-nav-active-label">MENU</span>
+                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                </button>
+                <div id="mobile-nav-dropdown-menu" class="mobile-nav-dropdown-menu header-single-dropdown" style="display: none;">
+                    <div class="dropdown-section-title">NAVIGATION</div>
+                    <a href="#" class="mobile-nav-item active" data-target="dashboard-view">
+                        <span class="material-symbols-outlined dropdown-icon">dashboard</span>DASHBOARD
+                    </a>
+                    <a href="#" class="mobile-nav-item" data-target="author-view">
+                        <span class="material-symbols-outlined dropdown-icon">person</span>AUTHOR
+                    </a>
+                    <a href="#" class="mobile-nav-item" data-target="blog-view">
+                        <span class="material-symbols-outlined dropdown-icon">menu_book</span>BLOG
+                    </a>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="dropdown-section-title">SYSTEM</div>
+                    <button id="btn-mobile-settings" class="mobile-dropdown-btn">
+                        <span class="material-symbols-outlined dropdown-icon">settings</span>SETTINGS
+                    </button>
+                    <button id="btn-mobile-auth-toggle" class="mobile-dropdown-btn auth-toggle-btn">
+                        <span class="material-symbols-outlined dropdown-icon">login</span><span class="btn-text">LOG IN</span>
+                    </button>
+                    
+                    <div class="dropdown-divider"></div>
+                    
+                    <div class="mobile-dropdown-sync" id="mobile-sync-status">
+                        <span class="material-symbols-outlined status-icon">cloud_done</span>
+                        <span class="status-text">SYNCED</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions desktop-actions">
                 <div class="theme-toggle">
                     <button id="btn-light" aria-label="Light Mode">
                         <span class="material-symbols-outlined">light_mode</span>
@@ -1708,7 +1732,7 @@
       }
     </script>
 
-    <script src="assets/js/main.js?v=3.3.0"></script>
+    <script src="assets/js/main.js?v=3.5.0"></script>
     
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
     <script>
