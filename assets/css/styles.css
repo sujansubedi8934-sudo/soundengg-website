@@ -339,6 +339,40 @@ html.light .top-nav a:hover, html.light .top-nav a.active { color: var(--text-ma
 .system-actions button:hover { color: var(--primary); }
 .system-actions button.power-btn:hover { color: #f44336; }
 
+/* Custom Premium Auth Button styling */
+.system-actions .auth-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: var(--primary) !important;
+    padding: 6px 12px !important;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s ease-in-out;
+}
+.system-actions .auth-toggle-btn:hover {
+    background: var(--primary) !important;
+    color: #121214 !important;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
+}
+.system-actions .auth-toggle-btn.logged-in {
+    background: rgba(0, 170, 255, 0.1) !important;
+    border: 1px solid rgba(0, 170, 255, 0.3) !important;
+    color: #00AAFF !important;
+}
+.system-actions .auth-toggle-btn.logged-in:hover {
+    background: #00AAFF !important;
+    color: #121214 !important;
+    box-shadow: 0 0 12px rgba(0, 170, 255, 0.4);
+}
+
+
 /* --- Sidebar --- */
 
 .sidebar {
