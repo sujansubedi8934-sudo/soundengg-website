@@ -2534,7 +2534,7 @@ html.light .rugged-input:focus {
     transition: all 0.2s ease;
 }
 
-.vfd-input {
+.vfd-input-wrap .vfd-input {
     background: transparent !important;
     border: none !important;
     color: #00f0ff !important;
@@ -4380,27 +4380,34 @@ body.theme-red { --primary: #ff003c; }
     opacity: 0.8;
 }
 
-.vfd-input {
-    width: 100%;
-    background: #0a0a0f;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 2px; /* Sharper, more professional */
-    padding: 1rem 1.25rem;
-    color: var(--text-main);
-    font-family: var(--font-mono);
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-    box-shadow: none;
+.rich-contact-form .vfd-input {
+    width: 100% !important;
+    background: #050508 !important;
+    border: 1px solid rgba(20, 167, 181, 0.4) !important;
+    border-radius: 4px !important;
+    padding: 1rem 1.25rem !important;
+    color: rgba(0, 240, 255, 0.85) !important; /* normal cyan and a bit faint */
+    text-shadow: none !important;
+    font-family: var(--font-mono) !important;
+    font-size: 0.95rem !important;
+    font-weight: 500 !important;
+    text-align: left !important;
+    outline: none !important;
+    transition: all 0.2s ease !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 5px rgba(20, 167, 181, 0.05) !important;
 }
 
-.vfd-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    background: #0d0d14;
+.rich-contact-form .vfd-input:focus {
+    outline: none !important;
+    border-color: #00f0ff !important;
+    background: #09090e !important;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.8), 0 0 10px rgba(0, 240, 255, 0.2) !important;
+    color: #00f0ff !important;
 }
 
-.vfd-input::placeholder {
-    color: rgba(255, 255, 255, 0.2);
+.rich-contact-form .vfd-input::placeholder {
+    color: rgba(20, 167, 181, 0.45) !important;
+    text-shadow: none !important;
 }
 
 .submit-btn {
