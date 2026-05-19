@@ -90,43 +90,6 @@ const initAuthAndCore = () => {
     safeInit(initTapTempoDelay, 'initTapTempoDelay');
     safeInit(initAdManager, 'initAdManager');
     
-    // GLOBAL SIGN OUT DELEGATION
-    document.addEventListener('click', async (e) => {
-        const signOutBtn = e.target.closest('#btn-profile-signout');
-        if (signOutBtn) {
-            e.preventDefault();
-            console.log('Global Sign Out Triggered');
-            
-            if (!window.supabaseClient) {
-                alert('DEBUG: Supabase Client not found. Forcing logout...');
-                window.location.href = 'index.html?force=true';
-                return;
-            }
-
-            try {
-                // 1. Trigger and Await Database Signout to ensure network request completes before unloading (fixes Safari aborted connection)
-                if (window.supabaseClient) {
-                    try {
-                        await window.supabaseClient.auth.signOut();
-                    } catch (e) {
-                        console.warn('Supabase signOut request failed/aborted:', e);
-                    }
-                }
-
-                // 2. Immediate Memory Wipe
-                safeStorage.clear();
-                sessionStorage.clear();
-                
-                alert('Sign out successful! Returning to landing page.');
-                
-                // 3. Immediate Hard Reset
-                window.location.assign('index.html?logout=true&t=' + Date.now());
-            } catch (err) {
-                console.error('Sign out error:', err);
-                window.location.assign('index.html?force=true');
-            }
-        }
-    });
 
     // GLOBAL AUTH ICON DELEGATION
     document.addEventListener('click', async (e) => {
@@ -925,6 +888,38 @@ function setupNavigation() {
                         window.showRazorpaySimOverlay('yearly');
                     } else {
                         alert('Payment gateway offline. Please try again.');
+                    }
+                });
+            }
+
+            if (btnProfileSignout) {
+                btnProfileSignout.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    console.log('Direct Sign Out Triggered');
+                    
+                    if (!window.supabaseClient) {
+                        alert('DEBUG: Supabase Client not found. Forcing logout...');
+                        window.location.href = 'index.html?force=true';
+                        return;
+                    }
+
+                    try {
+                        if (window.supabaseClient) {
+                            try {
+                                await window.supabaseClient.auth.signOut();
+                            } catch (e) {
+                                console.warn('Supabase signOut request failed/aborted:', e);
+                            }
+                        }
+
+                        safeStorage.clear();
+                        sessionStorage.clear();
+                        
+                        alert('Sign out successful! Returning to landing page.');
+                        window.location.assign('index.html?logout=true&t=' + Date.now());
+                    } catch (err) {
+                        console.error('Sign out error:', err);
+                        window.location.assign('index.html?force=true');
                     }
                 });
             }
