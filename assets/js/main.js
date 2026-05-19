@@ -226,17 +226,29 @@ function applyAutoTheme() {
 let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
 window.isUserPro = false; // Global source of truth for subscription
 
-window.isPremiumActive = function() {
+window.isPremiumActive = function(featureKey) {
     if (window.isUserPro) return true;
+    
+    // Check specific feature unlock
+    if (featureKey) {
+        const tempFeatureUntil = localStorage.getItem(`soundengg_temp_pro_until_${featureKey}`);
+        if (tempFeatureUntil && Date.now() < parseInt(tempFeatureUntil, 10)) {
+            return true;
+        }
+    }
+    
+    // Fallback/General: check global temp pro
     const tempProUntil = localStorage.getItem('soundengg_temp_pro_until');
     if (tempProUntil && Date.now() < parseInt(tempProUntil, 10)) {
         return true;
     }
+    
     return false;
 };
 
 window.updatePremiumUI = function() {
-    const isActive = window.isPremiumActive();
+    const isAnyPro = window.isUserPro || 
+                     ['spectrogram', 'snapshots', 'mic_calibration', 'ear_training'].some(k => window.isPremiumActive(k));
     
     // Sync Pro navigation badge
     const profileTierBadge = document.getElementById('profile-tier-badge');
@@ -245,7 +257,7 @@ window.updatePremiumUI = function() {
         if (window.isUserPro) {
             profileTierBadge.textContent = 'PRO TIER';
             profileTierBadge.className = 'tier-badge pro';
-        } else if (window.isPremiumActive()) {
+        } else if (isAnyPro) {
             profileTierBadge.textContent = '🎁 TEMP PRO';
             profileTierBadge.className = 'tier-badge pro';
         } else {
@@ -254,11 +266,12 @@ window.updatePremiumUI = function() {
         }
     }
     if (btnProfileUpgrade) {
-        btnProfileUpgrade.style.display = isActive ? 'none' : 'inline-block';
+        btnProfileUpgrade.style.display = window.isUserPro ? 'none' : 'inline-block';
     }
 
     // Hide locks/overlays
-    if (isActive) {
+    const isFullProActive = window.isUserPro || (localStorage.getItem('soundengg_temp_pro_until') && Date.now() < parseInt(localStorage.getItem('soundengg_temp_pro_until'), 10));
+    if (isFullProActive) {
         const adOverlay = document.getElementById('ad-manager-overlay');
         const adLockModal = document.getElementById('ad-lock-modal');
         const appContent = document.querySelector('.main-content');
@@ -278,7 +291,7 @@ window.updatePremiumUI = function() {
 
     // Sync specific modules
     if (typeof syncProLockUI === 'function') {
-        syncProLockUI(isActive);
+        syncProLockUI();
     }
     if (typeof renderSnapshotSlots === 'function') {
         renderSnapshotSlots();
@@ -2103,7 +2116,7 @@ function initProfessionalRTA() {
         if (!slotsContainer) return;
         slotsContainer.innerHTML = '';
         
-        const isPro = window.isPremiumActive();
+        const isPro = window.isPremiumActive('snapshots');
 
         for (let i = 0; i < 10; i++) {
             const slot = snapshots[i];
@@ -2118,7 +2131,7 @@ function initProfessionalRTA() {
                 btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">lock</span>';
                 btn.title = `PRO FEATURE: Slot ${i+1} Locked (Upgrade to Unlock 10 slots)`;
                 btn.addEventListener('click', () => {
-                    showProUpgradeModal();
+                    showProUpgradeModal('snapshots');
                 });
             } else {
                 // Active State for Pro Users
@@ -2152,8 +2165,8 @@ function initProfessionalRTA() {
     function captureNewSnapshot() {
         if (!isInitialized) return;
         
-        if (!window.isPremiumActive() && snapshots.length >= 1) {
-            showProUpgradeModal();
+        if (!window.isPremiumActive('snapshots') && snapshots.length >= 1) {
+            showProUpgradeModal('snapshots');
             return;
         }
 
@@ -2347,8 +2360,8 @@ function initProfessionalRTA() {
     modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const mode = btn.getAttribute('data-mode');
-            if (mode === 'waterfall' && !window.isPremiumActive()) {
-                showProUpgradeModal();
+            if (mode === 'waterfall' && !window.isPremiumActive('spectrogram')) {
+                showProUpgradeModal('spectrogram');
                 return;
             }
             modeBtns.forEach(b => b.classList.remove('active'));
@@ -2415,8 +2428,8 @@ function initProfessionalRTA() {
 
     if (btnMicCalModal) {
         btnMicCalModal.addEventListener('click', () => {
-            if (!window.isPremiumActive()) {
-                showProUpgradeModal();
+            if (!window.isPremiumActive('mic_calibration')) {
+                showProUpgradeModal('mic_calibration');
                 return;
             }
             openModal(micCalModal);
@@ -2569,25 +2582,27 @@ function initProfessionalRTA() {
     document.addEventListener('authSuccess', pullCalibrationProfile);
 
     // --- Dynamic Pro Lock UI Synchronization ---
-    function syncProLockUI(isPro) {
+    function syncProLockUI() {
+        const isWaterfallPro = window.isPremiumActive('spectrogram');
         const btnWaterfall = Array.from(modeBtns).find(btn => btn.getAttribute('data-mode') === 'waterfall');
         if (btnWaterfall) {
-            btnWaterfall.classList.toggle('locked-pro', !isPro);
-            btnWaterfall.innerHTML = isPro 
+            btnWaterfall.classList.toggle('locked-pro', !isWaterfallPro);
+            btnWaterfall.innerHTML = isWaterfallPro 
                 ? 'WATERFALL' 
                 : '<span class="material-symbols-outlined" style="font-size:12px; margin-right:4px; vertical-align: middle;">lock</span>WATERFALL';
         }
 
+        const isCalPro = window.isPremiumActive('mic_calibration');
         if (btnMicCalModal) {
-            btnMicCalModal.classList.toggle('locked-pro', !isPro);
-            btnMicCalModal.innerHTML = isPro 
+            btnMicCalModal.classList.toggle('locked-pro', !isCalPro);
+            btnMicCalModal.innerHTML = isCalPro 
                 ? '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">settings_input_antenna</span> LOAD PROFILE'
                 : '<span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">lock</span> LOAD PROFILE';
         }
     }
 
     document.addEventListener('proStatusChanged', (e) => {
-        syncProLockUI(e.detail);
+        syncProLockUI();
         renderSnapshotSlots();
     });
 
@@ -2806,7 +2821,23 @@ function initProfessionalRTA() {
             closeAdPlayback(false);
             if (isAdRewardForPro) {
                 const duration = 4 * 60 * 60 * 1000; // 4 Hours
-                localStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
+                
+                let unlockedFeatureName = "SoundEngg Pro Features";
+                if (currentUnlockFeatureKey) {
+                    localStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
+                    
+                    if (currentUnlockFeatureKey === 'spectrogram') {
+                        unlockedFeatureName = "60FPS Spectrogram Waterfall";
+                    } else if (currentUnlockFeatureKey === 'snapshots') {
+                        unlockedFeatureName = "10 Multi-Overlay RTA Snapshots";
+                    } else if (currentUnlockFeatureKey === 'mic_calibration') {
+                        unlockedFeatureName = "Custom Mic Calibration Loader";
+                    } else if (currentUnlockFeatureKey === 'ear_training') {
+                        unlockedFeatureName = "1/6 ISO Octave Ear Training";
+                    }
+                } else {
+                    localStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
+                }
                 
                 // Hide any active upgrade modals
                 const proUpgradeModal = document.getElementById('pro-upgrade-modal');
@@ -2817,7 +2848,7 @@ function initProfessionalRTA() {
                     window.updatePremiumUI();
                 }
                 
-                alert("🎉 Awesome! You have successfully unlocked SoundEngg Pro features and tools for the next 4 hours.");
+                alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
             } else {
                 isAdRewardClaimed = true;
                 toggleRtaFullscreen(true);
@@ -3502,8 +3533,8 @@ function initEarTraining() {
         btn.addEventListener('click', (e) => {
             if (e) e.preventDefault();
             const tier = btn.getAttribute('data-tier');
-            if (btn.classList.contains('locked-pro') && tier === 'sixth' && !window.isPremiumActive()) {
-                showProUpgradeModal();
+            if (btn.classList.contains('locked-pro') && tier === 'sixth' && !window.isPremiumActive('ear_training')) {
+                showProUpgradeModal('ear_training');
                 return;
             }
             tierBtns.forEach(b => b.classList.remove('active'));
@@ -3516,8 +3547,8 @@ function initEarTraining() {
     sourceBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             if (e) e.preventDefault();
-            if (btn.classList.contains('locked-pro') && !window.isPremiumActive()) {
-                showProUpgradeModal();
+            if (btn.classList.contains('locked-pro') && !window.isPremiumActive('ear_training')) {
+                showProUpgradeModal('ear_training');
                 return;
             }
             sourceBtns.forEach(b => b.classList.remove('active'));
@@ -4702,12 +4733,44 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // --- GLOBAL PRO UPGRADE MODAL HANDLERS ---
+let currentUnlockFeatureKey = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     const proModal = document.getElementById('pro-upgrade-modal');
     const btnClosePro = document.getElementById('btn-close-pro-upgrade');
     const btnLaterPro = document.getElementById('btn-maybe-later-pro');
     
-    window.showProUpgradeModal = function() {
+    window.showProUpgradeModal = function(featureKey) {
+        currentUnlockFeatureKey = featureKey || null;
+        
+        // Dynamic title and button copy updates based on which feature requested the modal
+        const modalTitle = document.querySelector('#pro-upgrade-modal h2');
+        const watchAdBtn = document.getElementById('btn-watch-ad-pro-unlock');
+        
+        let featureName = "SoundEngg Pro Features";
+        let buttonText = "🎁 UNLOCK ALL PRO FOR 4 HOURS (WATCH AD)";
+        
+        if (featureKey === 'spectrogram') {
+            featureName = "60FPS Spectrogram Waterfall";
+            buttonText = "🎁 UNLOCK WATERFALL FOR 4 HOURS (WATCH AD)";
+        } else if (featureKey === 'snapshots') {
+            featureName = "10 Multi-Overlay RTA Snapshots";
+            buttonText = "🎁 UNLOCK SNAPSHOTS FOR 4 HOURS (WATCH AD)";
+        } else if (featureKey === 'mic_calibration') {
+            featureName = "Custom Mic Calibration Loader";
+            buttonText = "🎁 UNLOCK CALIBRATION FOR 4 HOURS (WATCH AD)";
+        } else if (featureKey === 'ear_training') {
+            featureName = "1/6 ISO Octave Ear Training";
+            buttonText = "🎁 UNLOCK EAR TRAINING FOR 4 HOURS (WATCH AD)";
+        }
+        
+        if (modalTitle) {
+            modalTitle.textContent = `Unlock ${featureName}`;
+        }
+        if (watchAdBtn) {
+            watchAdBtn.innerHTML = `<span class="material-symbols-outlined">workspace_premium</span> ${buttonText}`;
+        }
+        
         if (proModal) proModal.classList.remove('hidden');
     };
     
@@ -4732,21 +4795,59 @@ document.addEventListener('DOMContentLoaded', () => {
 // ==========================================================================
 
 window.isIndiaUser = false;
-window.sandboxLocationOverride = localStorage.getItem('soundengg-sandbox-location') || 'AUTO';
 
-// 1. Detect User Location (Geo-IP Lookup with Caching)
+// 1. Detect User Location (HTML5 Browser Geolocation with reliable fallbacks)
 async function detectUserCountry() {
-    if (window.sandboxLocationOverride !== 'AUTO') {
-        window.isIndiaUser = (window.sandboxLocationOverride === 'IN');
-        return window.isIndiaUser;
-    }
-    
     const cachedLoc = sessionStorage.getItem('soundengg-user-country');
     if (cachedLoc) {
         window.isIndiaUser = (cachedLoc === 'IN');
         return window.isIndiaUser;
     }
 
+    // Try HTML5 Geolocation API
+    if (navigator.geolocation) {
+        try {
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { 
+                    enableHighAccuracy: false, 
+                    timeout: 4000, 
+                    maximumAge: 86400000 
+                });
+            });
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            
+            // Bounding coordinates of India: Lat (8.0 to 38.0), Lon (68.0 to 98.0)
+            if (lat >= 8.0 && lat <= 38.0 && lon >= 68.0 && lon <= 98.0) {
+                console.log("[Location] HTML5 Geolocation coordinates resolved to India:", lat, lon);
+                sessionStorage.setItem('soundengg-user-country', 'IN');
+                window.isIndiaUser = true;
+                return true;
+            } else {
+                console.log("[Location] HTML5 Geolocation coordinates resolved outside India:", lat, lon);
+                sessionStorage.setItem('soundengg-user-country', 'US');
+                window.isIndiaUser = false;
+                return false;
+            }
+        } catch (geoErr) {
+            console.log("[Location] Geolocation permission denied or timed out. Falling back to timezone/IP check.", geoErr.message);
+        }
+    }
+
+    // Timezone check fallback (extremely accurate for India users)
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (tz && (tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata') || tz.includes('Asia/Calcutta'))) {
+            console.log("[Location] Timezone matched India:", tz);
+            sessionStorage.setItem('soundengg-user-country', 'IN');
+            window.isIndiaUser = true;
+            return true;
+        }
+    } catch (tzErr) {
+        console.warn("[Location] Timezone check failed:", tzErr);
+    }
+
+    // Geo-IP Lookup fallback
     try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
@@ -4754,7 +4855,7 @@ async function detectUserCountry() {
         sessionStorage.setItem('soundengg-user-country', country);
         window.isIndiaUser = (country === 'IN');
     } catch (e) {
-        console.warn("Geo-IP lookup failed, defaulting to International USD.", e);
+        console.warn("[Location] Geo-IP lookup failed. Defaulting to International.", e);
         window.isIndiaUser = false;
     }
     return window.isIndiaUser;
@@ -5064,68 +5165,7 @@ async function handleUrlSubCheckout() {
 
 // 6. Inject Location Sandbox Controls inside User Profile Modal
 function injectSandboxControls() {
-    const profileModal = document.getElementById('profile-modal');
-    if (!profileModal) return;
-
-    const profileSection = profileModal.querySelector('.profile-section');
-    if (!profileSection) return;
-
-    // Avoid duplicate insertions
-    if (document.getElementById('sandbox-controls-row')) return;
-
-    const row = document.createElement('div');
-    row.id = 'sandbox-controls-row';
-    row.className = 'profile-stat-row';
-    row.style.cssText = 'margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; display: flex; flex-direction: column; gap: 8px; text-align: left;';
-    row.innerHTML = `
-        <div class="profile-stat-label" style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">SANDBOX LOCATION SIMULATOR</div>
-        <div style="display: flex; gap: 8px; margin-top: 4px;">
-            <button id="btn-sandbox-auto" class="rugged-btn outline-primary small-btn ${window.sandboxLocationOverride === 'AUTO' ? 'active' : ''}" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 4px;">AUTO</button>
-            <button id="btn-sandbox-in" class="rugged-btn outline-primary small-btn ${window.sandboxLocationOverride === 'IN' ? 'active' : ''}" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 4px;">IN (₹)</button>
-            <button id="btn-sandbox-us" class="rugged-btn outline-primary small-btn ${window.sandboxLocationOverride === 'US' ? 'active' : ''}" style="padding: 4px 10px; font-size: 0.75rem; border-radius: 4px;">INTL ($)</button>
-        </div>
-    `;
-
-    profileSection.appendChild(row);
-
-    // Add click listeners to location simulator buttons
-    const btnAuto = row.querySelector('#btn-sandbox-auto');
-    const btnIn = row.querySelector('#btn-sandbox-in');
-    const btnUs = row.querySelector('#btn-sandbox-us');
-
-    const updateBtns = (activeBtn) => {
-        [btnAuto, btnIn, btnUs].forEach(b => {
-            b.style.background = '';
-            b.style.color = '';
-            b.style.borderColor = '';
-        });
-        activeBtn.style.background = 'var(--primary)';
-        activeBtn.style.color = '#000';
-        activeBtn.style.borderColor = 'var(--primary)';
-    };
-
-    // Styling logic
-    const setOverride = async (val, activeBtn) => {
-        window.sandboxLocationOverride = val;
-        localStorage.setItem('soundengg-sandbox-location', val);
-        updateBtns(activeBtn);
-        
-        // Re-run location switcher
-        await detectUserCountry();
-        
-        // Trigger pricing elements re-render if present
-        initPricingPage();
-        console.log(`Sandbox Override applied: ${val}. isIndiaUser: ${window.isIndiaUser}`);
-    };
-
-    btnAuto.addEventListener('click', () => setOverride('AUTO', btnAuto));
-    btnIn.addEventListener('click', () => setOverride('IN', btnIn));
-    btnUs.addEventListener('click', () => setOverride('US', btnUs));
-
-    // Run first active styling
-    if (window.sandboxLocationOverride === 'AUTO') updateBtns(btnAuto);
-    else if (window.sandboxLocationOverride === 'IN') updateBtns(btnIn);
-    else updateBtns(btnUs);
+    // Legacy sandbox location simulator deactivated. Native HTML5 browser geolocation permissions used instead.
 }
 
 // 6.5 Mobile Selector Navigation and Label Sync

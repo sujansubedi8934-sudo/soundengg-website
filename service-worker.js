@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v3.3';
+const CACHE_NAME = 'soundengg-cache-v3.4';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -10,8 +10,7 @@ const URLS_TO_CACHE = [
     '/assets/js/main.js',
     '/assets/js/blog-data.js',
     '/assets/img/logo.png',
-    '/assets/img/logo-dark.png',
-    '/assets/img/sponsor-placeholder.png'
+    '/assets/img/logo-dark.png'
 ];
 
 // Install Event: Cache critical assets
@@ -20,7 +19,14 @@ self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME).then(cache => {
             console.log('[Service Worker] Pre-caching offline assets...');
-            return cache.addAll(URLS_TO_CACHE);
+            // Resilient individual caching: prevents one 404 from failing the entire registration
+            return Promise.allSettled(
+                URLS_TO_CACHE.map(url => {
+                    return cache.add(url).catch(err => {
+                        console.warn(`[Service Worker] Failed to cache asset: ${url}`, err);
+                    });
+                })
+            );
         })
     );
 });
