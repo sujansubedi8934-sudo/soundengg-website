@@ -369,42 +369,31 @@ async function syncSubscriptionStatus(session) {
             if (emailDisplay) emailDisplay.textContent = user.email;
         }
 
-        // Try to fetch securely using maybeSingle() which avoids 406 console errors
-        let { data, error } = await window.supabaseClient
-            .from('profiles')
-            .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
-            .eq('id', session.user.id)
-            .maybeSingle();
+        // Try to fetch securely with a resilient retry loop to eliminate the JWT/RLS timing race condition.
+        // We query the database up to 4 times (spaced 200ms apart) to allow session headers to fully register.
+        // We do not need the client-side defensive insert because the database trigger 'handle_new_user'
+        // already guarantees that every active user has an associated row in 'public.profiles'.
+        let data = null;
+        let error = null;
 
-        // If the row doesn't exist yet, defensively insert a base profile row so all future updates succeed
-        // (Using .insert instead of .upsert guarantees that we NEVER overwrite an existing subscription/profile!)
-        if (!data && !error) {
-            console.log('Defensively auto-creating public profiles row for:', session.user.id);
-            const { data: insertedData, error: insertError } = await window.supabaseClient
+        for (let attempt = 1; attempt <= 4; attempt++) {
+            const response = await window.supabaseClient
                 .from('profiles')
-                .insert({ 
-                    id: session.user.id, 
-                    is_pro: false, 
-                    subscription_tier: 'free',
-                    full_name: 'EMPTY',
-                    company: 'EMPTY'
-                })
                 .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
+                .eq('id', session.user.id)
                 .maybeSingle();
             
-            if (insertedData) {
-                data = insertedData;
-            } else {
-                console.warn('Defensive profile insert skipped/conflicted (row likely already exists):', insertError?.message);
-                // Re-fetch to be absolutely certain we didn't hit a race condition
-                const { data: refetchedData } = await window.supabaseClient
-                    .from('profiles')
-                    .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-                if (refetchedData) {
-                    data = refetchedData;
-                }
+            data = response.data;
+            error = response.error;
+
+            if (data) {
+                console.log(`[syncSubscriptionStatus] Profile successfully loaded on attempt ${attempt}/4.`);
+                break;
+            }
+
+            if (attempt < 4) {
+                console.warn(`[syncSubscriptionStatus] Profile fetch returned empty (attempt ${attempt}/4). Retrying in 200ms...`);
+                await new Promise(r => setTimeout(r, 200));
             }
         }
 
@@ -4747,24 +4736,83 @@ function initAdManager() {
         });
     }
 
-    function initiateRazorpayCheckout(user) {
+    function initiateRazorpayCheckout(user, plan = 'lifetime') {
         // Safe check for configured Razorpay Key, falls back to a sandbox test key
         const keyId = window.RAZORPAY_KEY_ID || "rzp_test_K29Kx2SjK9X9Kk";
         
+        // Determine currency, amount, and description dynamically based on geolocation and plan
+        let amount = 349900; // Default INR Lifetime
+        let currency = "INR";
+        let planDescription = "Lifetime SoundEngg Pro Access";
+
+        if (window.isIndiaUser) {
+            currency = "INR";
+            if (plan === 'monthly') {
+                amount = 19900; // ₹199
+                planDescription = "Monthly SoundEngg Pro Subscription";
+            } else if (plan === 'yearly') {
+                amount = 199900; // ₹1,999
+                planDescription = "Yearly SoundEngg Pro Subscription";
+            } else {
+                amount = 349900; // ₹3,499
+                planDescription = "Lifetime SoundEngg Pro Access";
+            }
+        } else {
+            currency = "USD";
+            if (plan === 'monthly') {
+                amount = 299; // $2.99
+                planDescription = "Monthly SoundEngg Pro Subscription";
+            } else if (plan === 'yearly') {
+                amount = 2999; // $29.99
+                planDescription = "Yearly SoundEngg Pro Subscription";
+            } else {
+                amount = 4999; // $49.99
+                planDescription = "Lifetime SoundEngg Pro Access";
+            }
+        }
+
         const options = {
             key: keyId,
-            amount: 9900, // ₹99.00 in Paise
-            currency: "INR",
+            amount: amount,
+            currency: currency,
             name: "SoundEngg Console",
-            description: "Lifetime SoundEngg Pro Access",
+            description: planDescription,
             image: "assets/img/logo.png",
-            handler: function (response) {
+            handler: async function (response) {
                 console.log("Razorpay Payment Successful:", response.razorpay_payment_id);
                 
-                // Unlock Pro lifetime access (10 years)
-                safeStorage.setItem('tools_unlocked_until', Date.now() + (10 * 365 * 24 * 60 * 60 * 1000));
+                // Calculate expiration date
+                const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
                 
-                // Update premium status elements
+                // Perform robust Supabase profile update on successful checkout
+                if (window.supabaseClient) {
+                    try {
+                        const { data: { session } } = await window.supabaseClient.auth.getSession();
+                        if (session) {
+                            const { error: updateErr } = await window.supabaseClient.from('profiles')
+                                .update({ 
+                                    is_pro: true,
+                                    subscription_tier: plan,
+                                    subscription_provider: 'razorpay',
+                                    subscription_id: response.razorpay_payment_id || response.razorpay_subscription_id || 'rzp_pay_' + Date.now().toString().slice(-8),
+                                    subscription_expires_at: expiresAt
+                                })
+                                .eq('id', session.user.id);
+                            
+                            if (updateErr) throw updateErr;
+                            
+                            // Trigger global refresh so that the dashboard reloads all permissions immediately
+                            await syncSubscriptionStatus(session);
+                        }
+                    } catch (dbErr) {
+                        console.error("Database update failed, falling back to local storage:", dbErr.message);
+                    }
+                }
+                
+                // Also update local storage for absolute resilience
+                safeStorage.setItem('tools_unlocked_until', (plan === 'lifetime') ? (Date.now() + (10 * 365 * 24 * 60 * 60 * 1000)) : (Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000));
+                
+                // Close standard upgrade modal if open
                 const proUpgradeModal = document.getElementById('pro-upgrade-modal');
                 if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
                 
@@ -4773,14 +4821,14 @@ function initAdManager() {
                 }
                 
                 unlockApp();
-                alert(`🎉 Thank you! SoundEngg Pro Lifetime Access has been unlocked successfully. (Payment ID: ${response.razorpay_payment_id})`);
+                showCheckoutSuccessOverlay(plan);
             },
             prefill: {
                 name: user.email ? user.email.split('@')[0] : "Audio Engineer",
                 email: user.email || ""
             },
             theme: {
-                color: "#0F172A" // Deep slate matching brand theme
+                color: "#14A7B5" // Bright primary matching soundengg console brand
             }
         };
 
@@ -5253,8 +5301,18 @@ async function initPricingPage() {
                 alert("Please log in or create an account to subscribe.");
                 window.location.href = `app.html?checkout=true&plan=${plan}`;
             } else {
-                // Logged In: Launch checkout immediately
-                showRazorpaySimOverlay(plan);
+                // Logged In: Launch real Razorpay checkout immediately
+                const user = session.user;
+                if (typeof Razorpay === 'undefined') {
+                    console.log("Loading Razorpay SDK dynamically...");
+                    const script = document.createElement('script');
+                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                    script.onload = () => initiateRazorpayCheckout(user, plan);
+                    script.onerror = () => alert("Failed to load Razorpay payment SDK. Check your internet connection.");
+                    document.head.appendChild(script);
+                } else {
+                    initiateRazorpayCheckout(user, plan);
+                }
             }
         });
     });
@@ -5497,19 +5555,42 @@ async function handleUrlSubCheckout() {
             openModal(authModal);
 
             // Register temporary success callback to trigger checkout overlay upon login success
-            const onAuthSuccess = async (e) => {
+            const onAuthSuccess = async (ev) => {
                 document.removeEventListener('authSuccess', onAuthSuccess);
-                // Launch checkout with a slight delay to allow login modal transition to complete cleanly
-                setTimeout(() => {
-                    showRazorpaySimOverlay(plan);
-                }, 800);
+                // Extract session or user object gracefully
+                const user = ev.detail?.user || ev.detail;
+                if (user) {
+                    // Launch checkout with a slight delay to allow login modal transition to complete cleanly
+                    setTimeout(() => {
+                        if (typeof Razorpay === 'undefined') {
+                            console.log("Loading Razorpay SDK dynamically...");
+                            const script = document.createElement('script');
+                            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                            script.onload = () => initiateRazorpayCheckout(user, plan);
+                            script.onerror = () => alert("Failed to load Razorpay payment SDK.");
+                            document.head.appendChild(script);
+                        } else {
+                            initiateRazorpayCheckout(user, plan);
+                        }
+                    }, 800);
+                }
             };
             document.addEventListener('authSuccess', onAuthSuccess);
         }
     } else {
-        // Logged In: Pop Checkout Simulator instantly
+        // Logged In: Pop Checkout instantly
         setTimeout(() => {
-            showRazorpaySimOverlay(plan);
+            const user = session.user;
+            if (typeof Razorpay === 'undefined') {
+                console.log("Loading Razorpay SDK dynamically...");
+                const script = document.createElement('script');
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.onload = () => initiateRazorpayCheckout(user, plan);
+                script.onerror = () => alert("Failed to load Razorpay payment SDK.");
+                document.head.appendChild(script);
+            } else {
+                initiateRazorpayCheckout(user, plan);
+            }
         }, 500);
     }
 }
