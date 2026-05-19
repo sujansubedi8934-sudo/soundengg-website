@@ -114,7 +114,33 @@ const initAuthAndCore = () => {
             const isUserIcon = iconSpan && iconSpan.textContent === 'account_circle';
 
             if (isUserIcon) {
-                openModal(document.getElementById('profile-modal'));
+                const profileModal = document.getElementById('profile-modal');
+                openModal(profileModal);
+                
+                // Fetch and populate latest profile details in real-time on modal open!
+                if (window.supabaseClient) {
+                    window.supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
+                        if (session) {
+                            try {
+                                const { data, error } = await window.supabaseClient
+                                    .from('profiles')
+                                    .select('full_name, company')
+                                    .eq('id', session.user.id)
+                                    .maybeSingle();
+                                    
+                                if (data) {
+                                    const inputFullname = document.getElementById('profile-fullname');
+                                    const inputCompany = document.getElementById('profile-company');
+                                    if (inputFullname) inputFullname.value = data.full_name || '';
+                                    if (inputCompany) inputCompany.value = data.company || '';
+                                    console.log('Real-time profile details loaded on modal open:', data);
+                                }
+                            } catch (err) {
+                                console.error('Error fetching profile on open:', err);
+                            }
+                        }
+                    });
+                }
             } else {
                 openModal(document.getElementById('auth-modal-overlay'));
             }
