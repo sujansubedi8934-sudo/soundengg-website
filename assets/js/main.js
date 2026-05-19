@@ -5164,9 +5164,13 @@ async function initPricingPage() {
     const priceMonthly = document.getElementById('price-monthly');
     const priceYearly = document.getElementById('price-yearly');
     const priceLifetime = document.getElementById('price-lifetime');
+
+    const modalMonthly = document.getElementById('modal-price-monthly');
+    const modalYearly = document.getElementById('modal-price-yearly');
+    const modalLifetime = document.getElementById('modal-price-lifetime');
     
-    // Check if we are on the pro.html subscription page
-    if (!priceMonthly && !priceYearly && !priceLifetime) return;
+    // Check if we are either on pro.html or app.html plan selector modal
+    if (!priceMonthly && !priceYearly && !priceLifetime && !modalMonthly && !modalYearly && !modalLifetime) return;
 
     await detectUserCountry();
 
@@ -5175,10 +5179,18 @@ async function initPricingPage() {
         if (priceMonthly) priceMonthly.innerHTML = '₹199<span>/month</span>';
         if (priceYearly) priceYearly.innerHTML = '₹1,999<span>/year</span>';
         if (priceLifetime) priceLifetime.innerHTML = '₹3,499<span>one-time</span>';
+
+        if (modalMonthly) modalMonthly.innerHTML = '₹199<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span>';
+        if (modalYearly) modalYearly.innerHTML = '₹1,999<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
+        if (modalLifetime) modalLifetime.innerHTML = '₹3,499';
     } else {
         if (priceMonthly) priceMonthly.innerHTML = '$2.99<span>/month</span>';
         if (priceYearly) priceYearly.innerHTML = '$29.99<span>/year</span>';
         if (priceLifetime) priceLifetime.innerHTML = '$49.99<span>one-time</span>';
+
+        if (modalMonthly) modalMonthly.innerHTML = '$2.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span>';
+        if (modalYearly) modalYearly.innerHTML = '$29.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
+        if (modalLifetime) modalLifetime.innerHTML = '$49.99';
     }
 
     // Bind checkout click listeners
