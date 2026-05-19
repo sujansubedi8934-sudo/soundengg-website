@@ -994,17 +994,32 @@ function setupNavigation() {
                     }
 
                     try {
-                        if (window.supabaseClient) {
+                        // 1. Unregister all service workers to clear offline caches/state completely
+                        if ('serviceWorker' in navigator) {
                             try {
-                                await window.supabaseClient.auth.signOut();
-                            } catch (e) {
-                                console.warn('Supabase signOut request failed/aborted:', e);
+                                const registrations = await navigator.serviceWorker.getRegistrations();
+                                for (let registration of registrations) {
+                                    await registration.unregister();
+                                    console.log('Service Worker unregistered during sign out');
+                                }
+                            } catch (swErr) {
+                                console.warn('Failed to unregister Service Worker:', swErr);
                             }
                         }
 
+                        // 2. Clear local storage and session cache immediately
                         safeStorage.clear();
                         sessionStorage.clear();
-                        
+
+                        // 3. Fire Supabase signOut asynchronously so a network/ServiceWorker hang doesn't block the client
+                        try {
+                            window.supabaseClient.auth.signOut().catch(e => {
+                                console.warn('Background signOut failed:', e);
+                            });
+                        } catch (e) {
+                            console.warn('Background signOut invocation failed:', e);
+                        }
+
                         alert('Sign out successful! Returning to landing page.');
                         window.location.assign('index.html?logout=true&t=' + Date.now());
                     } catch (err) {
