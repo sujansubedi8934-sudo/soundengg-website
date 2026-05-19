@@ -191,6 +191,13 @@ const initAuthAndCore = () => {
         window.supabaseClient.auth.getSession().then(({data}) => {
             handleAuthStateChange('INITIAL_SESSION', data.session);
         });
+
+        // Safari Back-Forward Cache (bfcache) wake-up fix
+        window.addEventListener('pageshow', (event) => {
+            window.supabaseClient.auth.getSession().then(({data}) => {
+                handleAuthStateChange('INITIAL_SESSION', data.session);
+            });
+        });
     }
 };
 
