@@ -979,14 +979,21 @@ function setupNavigation() {
                 
                 // Clicking plan cards inside modal triggers checkout
                 planSelectorModal.querySelectorAll('.plan-card-option').forEach(card => {
-                    card.addEventListener('click', () => {
+                    card.addEventListener('click', async () => {
                         const plan = card.getAttribute('data-plan') || 'yearly';
                         closeModal(planSelectorModal);
                         
-                        if (window.showRazorpaySimOverlay) {
-                            window.showRazorpaySimOverlay(plan);
+                        if (window.supabaseClient) {
+                            const { data: { session } } = await window.supabaseClient.auth.getSession();
+                            if (session) {
+                                showCheckoutConfirmModal(session.user, plan);
+                            } else {
+                                alert('Please sign in or register to complete your purchase.');
+                                const authModalOverlay = document.getElementById('auth-modal-overlay');
+                                if (authModalOverlay) authModalOverlay.classList.remove('hidden');
+                            }
                         } else {
-                            alert('Payment gateway offline. Please try again.');
+                            alert('Authentication client not initialized.');
                         }
                     });
                 });
@@ -5321,18 +5328,8 @@ async function initPricingPage() {
                 alert("Please log in or create an account to subscribe.");
                 window.location.href = `app.html?checkout=true&plan=${plan}`;
             } else {
-                // Logged In: Launch real Razorpay checkout immediately
-                const user = session.user;
-                if (typeof Razorpay === 'undefined') {
-                    console.log("Loading Razorpay SDK dynamically...");
-                    const script = document.createElement('script');
-                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-                    script.onload = () => initiateRazorpayCheckout(user, plan);
-                    script.onerror = () => alert("Failed to load Razorpay payment SDK. Check your internet connection.");
-                    document.head.appendChild(script);
-                } else {
-                    initiateRazorpayCheckout(user, plan);
-                }
+                // Logged In: Launch the blocker-proof checkout confirmation modal
+                showCheckoutConfirmModal(session.user, plan);
             }
         });
     });
@@ -5550,13 +5547,29 @@ function showCheckoutConfirmModal(user, plan) {
     if (existing) existing.remove();
 
     let planTitle = "Lifetime Pro Access";
-    let planCost = "₹3,499 / $49.99";
-    if (plan === 'monthly') {
-        planTitle = "Monthly Pro Subscription";
-        planCost = "₹199 / $2.99";
-    } else if (plan === 'yearly') {
-        planTitle = "Yearly Pro Subscription";
-        planCost = "₹1,999 / $29.99";
+    let planCost = "₹3,499";
+    if (window.isIndiaUser) {
+        if (plan === 'monthly') {
+            planTitle = "Monthly Pro Subscription";
+            planCost = "₹199";
+        } else if (plan === 'yearly') {
+            planTitle = "Yearly Pro Subscription";
+            planCost = "₹1,999";
+        } else {
+            planTitle = "Lifetime Pro Access";
+            planCost = "₹3,499";
+        }
+    } else {
+        if (plan === 'monthly') {
+            planTitle = "Monthly Pro Subscription";
+            planCost = "$2.99";
+        } else if (plan === 'yearly') {
+            planTitle = "Yearly Pro Subscription";
+            planCost = "$29.99";
+        } else {
+            planTitle = "Lifetime Pro Access";
+            planCost = "$49.99";
+        }
     }
 
     const modal = document.createElement('div');
