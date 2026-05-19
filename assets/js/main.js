@@ -414,7 +414,34 @@ async function syncSubscriptionStatus(session) {
             }
         }
 
-        if (error) {
+        // Defensive creation of profile row on the fly if it does not exist in public.profiles
+        if (!data) {
+            console.log('[syncSubscriptionStatus] Profile row not found in database. Creating defensively on the fly...');
+            try {
+                const defaultProfile = {
+                    id: session.user.id,
+                    email: session.user.email,
+                    is_pro: false,
+                    subscription_tier: 'free',
+                    full_name: 'EMPTY',
+                    company: 'EMPTY'
+                };
+                const { error: insertErr } = await window.supabaseClient
+                    .from('profiles')
+                    .insert([defaultProfile]);
+                
+                if (!insertErr) {
+                    console.log('[syncSubscriptionStatus] Profile row successfully created client-side.');
+                    data = defaultProfile;
+                } else {
+                    console.warn('[syncSubscriptionStatus] Client-side profile insert error:', insertErr.message);
+                }
+            } catch (insertEx) {
+                console.error('[syncSubscriptionStatus] Exception during client-side profile creation:', insertEx);
+            }
+        }
+
+        if (error && !data) {
             console.warn('Profile fetch error (might be schema cache):', error.message);
             // Ultra Fallback: try fetching just is_pro if everything else fails
             const { data: fallbackData } = await window.supabaseClient
@@ -481,8 +508,8 @@ async function syncSubscriptionStatus(session) {
             }
 
             const now = new Date();
-            const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
-            const isExpired = expiresAt && expiresAt < now;
+            const expiresAt = (data.subscription_expires_at && data.subscription_expires_at !== 'null') ? new Date(data.subscription_expires_at) : null;
+            const isExpired = expiresAt && !isNaN(expiresAt.getTime()) && expiresAt < now;
 
             const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
             window.isUserPro = !!data.is_pro && isTierPro && !isExpired;
@@ -499,7 +526,7 @@ async function syncSubscriptionStatus(session) {
                 if (window.isUserPro) {
                     const tierName = (data.subscription_tier || 'PRO').toUpperCase();
                     let expiryLabel = '';
-                    if (expiresAt) {
+                    if (expiresAt && !isNaN(expiresAt.getTime())) {
                         expiryLabel = ` (Expires: ${expiresAt.toLocaleDateString()})`;
                     } else {
                         expiryLabel = ` (LIFETIME)`;
@@ -897,11 +924,12 @@ function setupNavigation() {
 
                         const { error } = await window.supabaseClient
                             .from('profiles')
-                            .update({
+                            .upsert({
+                                id: session.user.id,
+                                email: session.user.email,
                                 full_name: inputFullname.value || 'EMPTY',
                                 company: inputCompany.value || 'EMPTY'
-                            })
-                            .eq('id', session.user.id);
+                            });
 
                         if (error) throw error;
                         submitBtn.textContent = 'SAVED!';
@@ -4817,14 +4845,15 @@ function initAdManager() {
                         const { data: { session } } = await window.supabaseClient.auth.getSession();
                         if (session) {
                             const { error: updateErr } = await window.supabaseClient.from('profiles')
-                                .update({ 
+                                .upsert({ 
+                                    id: session.user.id,
+                                    email: session.user.email,
                                     is_pro: true,
                                     subscription_tier: plan,
                                     subscription_provider: 'razorpay',
                                     subscription_id: response.razorpay_payment_id || response.razorpay_subscription_id || 'rzp_pay_' + Date.now().toString().slice(-8),
                                     subscription_expires_at: expiresAt
-                                })
-                                .eq('id', session.user.id);
+                                });
                             
                             if (updateErr) throw updateErr;
                             
@@ -5445,22 +5474,24 @@ window.showRazorpaySimOverlay = function(plan) {
                     try {
                         const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
                         const { error: updateErr } = await window.supabaseClient.from('profiles')
-                            .update({ 
+                            .upsert({ 
+                                id: session.user.id,
+                                email: session.user.email,
                                 is_pro: true,
                                 subscription_tier: plan,
                                 subscription_provider: 'razorpay',
                                 subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
                                 subscription_expires_at: expiresAt
-                            })
-                            .eq('id', session.user.id);
+                            });
                         if (updateErr) throw updateErr;
                     } catch (dbErr) {
                         console.warn('Advanced subscription fields write failed. Falling back to basic is_pro write:', dbErr.message);
                         await window.supabaseClient.from('profiles')
-                            .update({ 
+                            .upsert({ 
+                                id: session.user.id,
+                                email: session.user.email,
                                 is_pro: true
-                            })
-                            .eq('id', session.user.id);
+                            });
                     }
                     
                     // Trigger global refresh
