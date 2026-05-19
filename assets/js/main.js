@@ -2739,8 +2739,119 @@ function initProfessionalRTA() {
 
     let isAdRewardForPro = false;
 
+    // Capacitor Native AdMob integration helpers
+    window.isNativeMobile = function() {
+        return typeof window !== 'undefined' && window.Capacitor !== undefined;
+    };
+
+    let nativeRewardedAdLoaded = false;
+
+    async function preloadNativeRewardedAd() {
+        if (!window.isNativeMobile()) return;
+        try {
+            const { AdMob } = window.Capacitor.Plugins;
+            if (!AdMob) return;
+            const isAndroid = window.Capacitor.getPlatform() === 'android';
+            const adId = isAndroid 
+                ? 'ca-app-pub-3940256099942544/5224354917' 
+                : 'ca-app-pub-3940256099942544/1712485313';
+            console.log('Preloading native rewarded ad with unit ID:', adId);
+            await AdMob.prepareRewardVideoAd({ adId: adId });
+            nativeRewardedAdLoaded = true;
+        } catch (err) {
+            console.error('Error preloading native rewarded video ad:', err);
+            nativeRewardedAdLoaded = false;
+        }
+    }
+
+    async function showNativeRewardedAd(onRewardCallback, onFailureCallback) {
+        if (!window.isNativeMobile()) {
+            if (onFailureCallback) onFailureCallback();
+            return;
+        }
+        try {
+            const { AdMob } = window.Capacitor.Plugins;
+            if (!AdMob) {
+                if (onFailureCallback) onFailureCallback();
+                return;
+            }
+            const rewardListener = await AdMob.addListener('onRewardVideoAdRewarded', (info) => {
+                console.log('Native AdMob rewarded reward received:', info);
+                rewardListener.remove();
+                if (onRewardCallback) onRewardCallback();
+            });
+            const closeListener = await AdMob.addListener('onRewardVideoAdClosed', () => {
+                closeListener.remove();
+                preloadNativeRewardedAd();
+            });
+            if (!nativeRewardedAdLoaded) {
+                await preloadNativeRewardedAd();
+            }
+            await AdMob.showRewardVideoAd();
+        } catch (err) {
+            console.error('Failed to show native AdMob rewarded ad:', err);
+            if (onFailureCallback) onFailureCallback();
+        }
+    }
+
     function startAdPlayback(forPro = false) {
         isAdRewardForPro = !!forPro;
+        
+        if (window.isNativeMobile()) {
+            console.log('Native mobile detected. Launching native AdMob Rewarded Video...');
+            showNativeRewardedAd(
+                () => {
+                    console.log('Native AdMob Reward granted!');
+                    grantAdRewardSuccess();
+                },
+                () => {
+                    console.warn('Native AdMob unavailable. Reverting to web countdown flow.');
+                    triggerBrowserAdPlayback();
+                }
+            );
+            return;
+        }
+        
+        triggerBrowserAdPlayback();
+    }
+
+    function grantAdRewardSuccess() {
+        if (isAdRewardForPro) {
+            const duration = 4 * 60 * 60 * 1000; // 4 Hours
+            let unlockedFeatureName = "SoundEngg Pro Features";
+            if (currentUnlockFeatureKey) {
+                safeStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
+                if (currentUnlockFeatureKey === 'spectrogram') {
+                    unlockedFeatureName = "60FPS Spectrogram Waterfall";
+                } else if (currentUnlockFeatureKey === 'snapshots') {
+                    unlockedFeatureName = "10 Multi-Overlay RTA Snapshots";
+                } else if (currentUnlockFeatureKey === 'mic_calibration') {
+                    unlockedFeatureName = "Custom Mic Calibration Loader";
+                } else if (currentUnlockFeatureKey === 'ear_training') {
+                    unlockedFeatureName = "1/6 ISO Octave Ear Training";
+                }
+            } else {
+                safeStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
+            }
+            
+            const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+            if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+            
+            const dynamicUpgradeModal = document.getElementById('dynamic-upgrade-modal');
+            if (dynamicUpgradeModal) dynamicUpgradeModal.classList.add('hidden');
+            
+            if (window.updatePremiumUI) {
+                window.updatePremiumUI();
+            }
+            
+            alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
+        } else {
+            isAdRewardClaimed = true;
+            toggleRtaFullscreen(true);
+        }
+    }
+
+    function triggerBrowserAdPlayback() {
         const modal = document.getElementById('ad-reward-modal');
         const btnClaim = document.getElementById('btn-ad-reward-claim');
         const countdownBar = document.getElementById('ad-reward-countdown-bar');
@@ -2771,13 +2882,17 @@ function initProfessionalRTA() {
         if (countdownBar) {
             countdownBar.style.transition = 'none';
             countdownBar.style.width = '100%';
-            // Force reflow
-            countdownBar.offsetHeight;
+            countdownBar.offsetHeight; // Force reflow
             countdownBar.style.transition = 'width 15s linear';
             countdownBar.style.width = '0%';
         }
 
         modal.classList.add('active');
+
+        // Dynamically request AdSense render if available
+        try {
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        } catch (e) {}
 
         if (adCountdownTimer) clearInterval(adCountdownTimer);
         
@@ -2869,40 +2984,7 @@ function initProfessionalRTA() {
     if (btnClaimAdReward) {
         btnClaimAdReward.addEventListener('click', () => {
             closeAdPlayback(false);
-            if (isAdRewardForPro) {
-                const duration = 4 * 60 * 60 * 1000; // 4 Hours
-                
-                let unlockedFeatureName = "SoundEngg Pro Features";
-                if (currentUnlockFeatureKey) {
-                    safeStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
-                    
-                    if (currentUnlockFeatureKey === 'spectrogram') {
-                        unlockedFeatureName = "60FPS Spectrogram Waterfall";
-                    } else if (currentUnlockFeatureKey === 'snapshots') {
-                        unlockedFeatureName = "10 Multi-Overlay RTA Snapshots";
-                    } else if (currentUnlockFeatureKey === 'mic_calibration') {
-                        unlockedFeatureName = "Custom Mic Calibration Loader";
-                    } else if (currentUnlockFeatureKey === 'ear_training') {
-                        unlockedFeatureName = "1/6 ISO Octave Ear Training";
-                    }
-                } else {
-                    safeStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
-                }
-                
-                // Hide any active upgrade modals
-                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
-                if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
-                
-                // Trigger global UI updates
-                if (window.updatePremiumUI) {
-                    window.updatePremiumUI();
-                }
-                
-                alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
-            } else {
-                isAdRewardClaimed = true;
-                toggleRtaFullscreen(true);
-            }
+            grantAdRewardSuccess();
         });
     }
 
@@ -4431,6 +4513,22 @@ function initAdManager() {
 
     if (!modal) return;
 
+    if (window.isNativeMobile()) {
+        console.log("Initializing native AdMob system inside Ad Manager...");
+        try {
+            const { AdMob } = window.Capacitor.Plugins;
+            if (AdMob) {
+                AdMob.initialize({
+                    requestTrackingAuthorization: true
+                }).then(() => {
+                    preloadNativeRewardedAd();
+                });
+            }
+        } catch (e) {
+            console.error("Capacitor AdMob initialization error: ", e);
+        }
+    }
+
     let countdownInterval;
     let countdownVal = 15;
 
@@ -4457,11 +4555,36 @@ function initAdManager() {
         if (sidebar) sidebar.classList.add('app-blurred');
         if (bottomBanner) bottomBanner.classList.add('hidden');
         
+        if (window.isNativeMobile()) {
+            console.log('Native Mobile locked state. Triggering native AdMob Rewarded/Interstitial fallback.');
+            showNativeRewardedAd(
+                () => {
+                    console.log('Native Lock Ad completed successfully!');
+                    grantAccess(6);
+                },
+                () => {
+                    console.log('Native Lock Ad failed, showing browser lock modal.');
+                    triggerBrowserLock();
+                }
+            );
+            return;
+        }
+
+        triggerBrowserLock();
+    }
+
+    function triggerBrowserLock() {
         modal.classList.remove('hidden');
 
         if (navigator.onLine) {
             stateOnline.classList.remove('hidden');
             stateOffline.classList.add('hidden');
+            
+            // Dynamically request AdSense render if available
+            try {
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            } catch (e) {}
+
             startAdCountdown();
         } else {
             stateOnline.classList.add('hidden');
