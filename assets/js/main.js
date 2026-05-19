@@ -53,7 +53,7 @@ function closeModal(modal) {
     document.body.classList.remove('modal-open');
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+const initAuthAndCore = () => {
     // Pre-populate authentication header display using cached name to avoid initial page load flash/delay
     const cachedName = safeStorage.getItem('soundengg_user_display_name');
     if (cachedName) {
@@ -229,7 +229,13 @@ document.addEventListener('DOMContentLoaded', () => {
             handleAuthStateChange('INITIAL_SESSION', data.session);
         });
     }
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAuthAndCore);
+} else {
+    initAuthAndCore();
+}
 
 function setupThemeToggle() {
     const btnLight = document.getElementById('btn-light');
@@ -914,24 +920,11 @@ function setupNavigation() {
             if (btnProfileUpgrade) {
                 btnProfileUpgrade.addEventListener('click', async (e) => {
                     e.preventDefault();
-                    if (confirm('Upgrade to SoundEngg Pro? (Simulated for this demo)')) {
-                        safeStorage.setItem('soundengg-pro-status', 'true');
-                        
-                        const { data: { session } } = await window.supabaseClient.auth.getSession();
-                        if (session) {
-                            await window.supabaseClient.from('profiles')
-                                .upsert({ id: session.user.id, is_pro: true });
-                        }
-                        
-                        await syncSubscriptionStatus(session);
-                        
-                        if (profileModal) {
-                            profileModal.classList.add('hidden');
-                            profileModal.style.visibility = 'hidden';
-                            profileModal.style.opacity = '0';
-                        }
-                        
-                        alert('Account upgraded to Pro! All features unlocked.');
+                    if (profileModal) closeModal(profileModal);
+                    if (window.showRazorpaySimOverlay) {
+                        window.showRazorpaySimOverlay('yearly');
+                    } else {
+                        alert('Payment gateway offline. Please try again.');
                     }
                 });
             }
@@ -5478,7 +5471,7 @@ function syncMobileNavDropdownLabel(viewId) {
 window.syncMobileNavDropdownLabel = syncMobileNavDropdownLabel;
 
 // 7. Global Payment System Initialization DOM Trigger
-document.addEventListener('DOMContentLoaded', () => {
+const initPageSystems = () => {
     // Start dynamic pricing converter immediately
     initPricingPage();
 
@@ -5490,7 +5483,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize custom mobile header selector nav dropdown
     initMobileNavDropdown();
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPageSystems);
+} else {
+    initPageSystems();
+}
 
 // =========================================================================
 // TAP TEMPO DELAY LIVE UTILITY MODULE
