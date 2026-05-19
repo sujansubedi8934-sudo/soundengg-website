@@ -40,6 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     safeInit(initEarTraining, 'initEarTraining');
     safeInit(initTuner, 'initTuner');
     safeInit(initSubCalc, 'initSubCalc');
+    safeInit(initTapTempoDelay, 'initTapTempoDelay');
     safeInit(initAdManager, 'initAdManager');
     
     // GLOBAL SIGN OUT DELEGATION
@@ -225,6 +226,65 @@ function applyAutoTheme() {
 let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
 window.isUserPro = false; // Global source of truth for subscription
 
+window.isPremiumActive = function() {
+    if (window.isUserPro) return true;
+    const tempProUntil = localStorage.getItem('soundengg_temp_pro_until');
+    if (tempProUntil && Date.now() < parseInt(tempProUntil, 10)) {
+        return true;
+    }
+    return false;
+};
+
+window.updatePremiumUI = function() {
+    const isActive = window.isPremiumActive();
+    
+    // Sync Pro navigation badge
+    const profileTierBadge = document.getElementById('profile-tier-badge');
+    const btnProfileUpgrade = document.getElementById('btn-profile-upgrade');
+    if (profileTierBadge) {
+        if (window.isUserPro) {
+            profileTierBadge.textContent = 'PRO TIER';
+            profileTierBadge.className = 'tier-badge pro';
+        } else if (window.isPremiumActive()) {
+            profileTierBadge.textContent = '🎁 TEMP PRO';
+            profileTierBadge.className = 'tier-badge pro';
+        } else {
+            profileTierBadge.textContent = 'FREE TIER';
+            profileTierBadge.className = 'tier-badge free';
+        }
+    }
+    if (btnProfileUpgrade) {
+        btnProfileUpgrade.style.display = isActive ? 'none' : 'inline-block';
+    }
+
+    // Hide locks/overlays
+    if (isActive) {
+        const adOverlay = document.getElementById('ad-manager-overlay');
+        const adLockModal = document.getElementById('ad-lock-modal');
+        const appContent = document.querySelector('.main-content');
+        const sidebar = document.querySelector('.top-bar');
+        
+        if (adOverlay) adOverlay.classList.add('hidden');
+        if (adLockModal) adLockModal.classList.add('hidden');
+        if (appContent) appContent.classList.remove('app-blurred');
+        if (sidebar) sidebar.classList.remove('app-blurred');
+        
+        // Collapse all AdSense slots completely
+        document.querySelectorAll('.adsbygoogle, .ad-banner-bottom, .ad-placeholder, #bottom-sponsor-banner').forEach(el => {
+            el.classList.add('hidden');
+            el.style.display = 'none';
+        });
+    }
+
+    // Sync specific modules
+    if (typeof syncProLockUI === 'function') {
+        syncProLockUI(isActive);
+    }
+    if (typeof renderSnapshotSlots === 'function') {
+        renderSnapshotSlots();
+    }
+};
+
 async function syncSubscriptionStatus(session) {
     if (!window.supabaseClient) return;
     if (!session) {
@@ -243,7 +303,7 @@ async function syncSubscriptionStatus(session) {
         // Try to fetch securely using maybeSingle() which avoids 406 console errors
         let { data, error } = await window.supabaseClient
             .from('profiles')
-            .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
+            .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
             .eq('id', session.user.id)
             .maybeSingle();
 
@@ -253,7 +313,7 @@ async function syncSubscriptionStatus(session) {
             const { data: upsertedData, error: upsertError } = await window.supabaseClient
                 .from('profiles')
                 .upsert({ id: session.user.id, is_pro: false, subscription_tier: 'free' })
-                .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
+                .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
                 .maybeSingle();
             
             if (upsertedData) {
@@ -280,6 +340,52 @@ async function syncSubscriptionStatus(session) {
         }
 
         if (data) {
+            // Check device limits (Max 3 concurrent devices)
+            let deviceIds = data.device_ids || [];
+            if (!Array.isArray(deviceIds)) {
+                try {
+                    deviceIds = typeof deviceIds === 'string' ? JSON.parse(deviceIds) : [];
+                } catch(e) {
+                    deviceIds = [];
+                }
+            }
+            
+            let currentClientId = localStorage.getItem('soundengg_device_id');
+            if (!currentClientId) {
+                currentClientId = 'dev_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now().toString(36);
+                localStorage.setItem('soundengg_device_id', currentClientId);
+            }
+            
+            if (!deviceIds.includes(currentClientId)) {
+                if (deviceIds.length < 3) {
+                    deviceIds.push(currentClientId);
+                    await window.supabaseClient
+                        .from('profiles')
+                        .update({ device_ids: deviceIds })
+                        .eq('id', session.user.id);
+                } else {
+                    // Force session sign-out
+                    await window.supabaseClient.auth.signOut();
+                    
+                    // Trigger instant session lock overlay
+                    const deviceLimitModal = document.getElementById('device-limit-modal');
+                    if (deviceLimitModal) deviceLimitModal.classList.remove('hidden');
+                    
+                    // Wire dynamic logout refresh button on the fly
+                    const btnDeviceLogout = document.getElementById('btn-device-limit-logout');
+                    if (btnDeviceLogout) {
+                        btnDeviceLogout.onclick = () => {
+                            if (deviceLimitModal) deviceLimitModal.classList.add('hidden');
+                            window.location.reload();
+                        };
+                    }
+                    
+                    window.isUserPro = false;
+                    if (window.updatePremiumUI) window.updatePremiumUI();
+                    return;
+                }
+            }
+
             const now = new Date();
             const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
             const isExpired = expiresAt && expiresAt < now;
@@ -293,7 +399,7 @@ async function syncSubscriptionStatus(session) {
             const btnProfileUpgrade = document.getElementById('btn-profile-upgrade');
 
             if (profileTierBadge) {
-                profileTierBadge.className = window.isUserPro ? 'tier-badge pro' : 'tier-badge free';
+                profileTierBadge.className = window.isPremiumActive() ? 'tier-badge pro' : 'tier-badge free';
                 
                 if (window.isUserPro) {
                     const tierName = (data.subscription_tier || 'PRO').toUpperCase();
@@ -304,15 +410,17 @@ async function syncSubscriptionStatus(session) {
                         expiryLabel = ` (LIFETIME)`;
                     }
                     profileTierBadge.textContent = `${tierName} TIER${expiryLabel}`;
+                } else if (window.isPremiumActive()) {
+                    profileTierBadge.textContent = '🎁 TEMPORARY PRO';
                 } else {
                     profileTierBadge.textContent = 'FREE TIER';
                 }
                 
-                if (btnProfileUpgrade) btnProfileUpgrade.style.display = window.isUserPro ? 'none' : 'inline-block';
+                if (btnProfileUpgrade) btnProfileUpgrade.style.display = window.isPremiumActive() ? 'none' : 'inline-block';
             }
             
-            // EMERGENCY BYPASS: If user is Pro, hide the ad/offline lock immediately
-            if (window.isUserPro) {
+            // EMERGENCY BYPASS: If premium is active, hide the ad/offline lock immediately
+            if (window.isPremiumActive()) {
                 const adOverlay = document.getElementById('ad-manager-overlay');
                 if (adOverlay) adOverlay.classList.add('hidden');
                 
@@ -326,7 +434,8 @@ async function syncSubscriptionStatus(session) {
             if (inputFullname) inputFullname.value = data.full_name || '';
             if (inputCompany) inputCompany.value = data.company || '';
             
-            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: window.isUserPro }));
+            if (window.updatePremiumUI) window.updatePremiumUI();
+            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: window.isPremiumActive() }));
         }
     } catch (err) {
         console.error('Fatal Sync Error:', err);
@@ -438,12 +547,14 @@ function setupNavigation() {
     const earTrainingView = document.getElementById('ear-training-view');
     const tunerView = document.getElementById('tuner-view');
     const subcalcView = document.getElementById('sub-calc-view');
+    const tapdelayView = document.getElementById('tap-delay-view');
     
     // IDs for ALL primary views to manage visibility
-    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView, subcalcView];
+    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView, subcalcView, tapdelayView];
 
     const btnLaunchRta = document.getElementById('btn-launch-rta');
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
+    const btnLaunchTapdelay = document.getElementById('btn-launch-tapdelay');
     const btnLaunchPinout = document.getElementById('btn-launch-pinout');
     const btnLaunchTuner = document.getElementById('btn-launch-tuner');
     const btnLaunchSubcalc = document.getElementById('btn-launch-subcalc');
@@ -532,6 +643,7 @@ function setupNavigation() {
     // Dashboard Launcher Listeners
     if (btnLaunchRta) btnLaunchRta.addEventListener('click', () => showView(rtaView));
     if (btnLaunchDelay) btnLaunchDelay.addEventListener('click', () => showView(moduleView));
+    if (btnLaunchTapdelay) btnLaunchTapdelay.addEventListener('click', () => showView(tapdelayView));
     if (btnLaunchPinout) btnLaunchPinout.addEventListener('click', () => showView(pinoutView));
     if (btnLaunchTuner) btnLaunchTuner.addEventListener('click', () => showView(tunerView));
     if (btnLaunchSubcalc) btnLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
@@ -1520,7 +1632,7 @@ function initBlog() {
         blogIndex.innerHTML = '';
         
         // Use verified global Pro status
-        const isPro = window.isUserPro;
+        const isPro = window.isPremiumActive();
 
         // Combine real articles and placeholders
         const allItems = [
@@ -1991,7 +2103,7 @@ function initProfessionalRTA() {
         if (!slotsContainer) return;
         slotsContainer.innerHTML = '';
         
-        const isPro = window.isUserPro;
+        const isPro = window.isPremiumActive();
 
         for (let i = 0; i < 10; i++) {
             const slot = snapshots[i];
@@ -2040,7 +2152,7 @@ function initProfessionalRTA() {
     function captureNewSnapshot() {
         if (!isInitialized) return;
         
-        if (!window.isUserPro && snapshots.length >= 1) {
+        if (!window.isPremiumActive() && snapshots.length >= 1) {
             showProUpgradeModal();
             return;
         }
@@ -2235,7 +2347,7 @@ function initProfessionalRTA() {
     modeBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const mode = btn.getAttribute('data-mode');
-            if (mode === 'waterfall' && !window.isUserPro) {
+            if (mode === 'waterfall' && !window.isPremiumActive()) {
                 showProUpgradeModal();
                 return;
             }
@@ -2303,7 +2415,7 @@ function initProfessionalRTA() {
 
     if (btnMicCalModal) {
         btnMicCalModal.addEventListener('click', () => {
-            if (!window.isUserPro) {
+            if (!window.isPremiumActive()) {
                 showProUpgradeModal();
                 return;
             }
@@ -2480,7 +2592,8 @@ function initProfessionalRTA() {
     });
 
     // Run initial sync on load
-    syncProLockUI(window.isUserPro);
+    syncProLockUI(window.isPremiumActive());
+    if (window.updatePremiumUI) window.updatePremiumUI();
 
     // --- Cloud Sync ---
     async function pullSnapshots() {
@@ -2559,18 +2672,30 @@ function initProfessionalRTA() {
         syncRtaCanvasSize();
     }
 
-    function startAdPlayback() {
+    let isAdRewardForPro = false;
+
+    function startAdPlayback(forPro = false) {
+        isAdRewardForPro = !!forPro;
         const modal = document.getElementById('ad-reward-modal');
         const btnClaim = document.getElementById('btn-ad-reward-claim');
         const countdownBar = document.getElementById('ad-reward-countdown-bar');
         const btnText = document.getElementById('ad-reward-btn-text');
         const btnIcon = document.getElementById('ad-reward-btn-icon');
         const alertBox = document.getElementById('ad-reward-alert');
+        const descText = document.getElementById('ad-reward-text-desc');
 
         if (!modal) return;
 
         adSecondsRemaining = 15;
         if (alertBox) alertBox.style.display = 'none';
+        
+        if (descText) {
+            if (isAdRewardForPro) {
+                descText.innerHTML = 'Watch this 15-second sponsor showcase of premium engineering gear to unlock **all Pro features and tools** for the next **4 hours**.';
+            } else {
+                descText.innerHTML = 'Watch this 15-second sponsor showcase of premium engineering gear to unlock the **Pro View Fullscreen Analyzer** for this session.';
+            }
+        }
         
         if (btnClaim) {
             btnClaim.disabled = true;
@@ -2601,7 +2726,11 @@ function initProfessionalRTA() {
                 
                 if (btnClaim) {
                     btnClaim.disabled = false;
-                    if (btnText) btnText.textContent = '🎁 CLAIM REWARD: UNLOCK FULLSCREEN';
+                    if (btnText) {
+                        btnText.textContent = isAdRewardForPro 
+                            ? '🎁 CLAIM REWARD: UNLOCK 4-HOUR PRO' 
+                            : '🎁 CLAIM REWARD: UNLOCK FULLSCREEN';
+                    }
                     if (btnIcon) btnIcon.textContent = 'redeem';
                 }
             }
@@ -2637,12 +2766,12 @@ function initProfessionalRTA() {
         btnFullscreen.addEventListener('click', (e) => {
             e.stopPropagation();
             
-            const isUserProTier = window.isUserPro;
+            const isUserPremium = window.isPremiumActive();
             
-            if (isUserProTier || isAdRewardClaimed) {
+            if (isUserPremium || isAdRewardClaimed) {
                 toggleRtaFullscreen();
             } else {
-                startAdPlayback();
+                startAdPlayback(false);
             }
         });
     }
@@ -2659,7 +2788,10 @@ function initProfessionalRTA() {
     if (btnCloseAdReward) {
         btnCloseAdReward.addEventListener('click', () => {
             if (adSecondsRemaining > 0) {
-                if (confirm("Cancel ad playback? You will not unlock the premium fullscreen RTA view.")) {
+                const promptMsg = isAdRewardForPro 
+                    ? "Cancel ad playback? You will not unlock the 4-Hour Pro access."
+                    : "Cancel ad playback? You will not unlock the premium fullscreen RTA view.";
+                if (confirm(promptMsg)) {
                     closeAdPlayback(true);
                 }
             } else {
@@ -2671,9 +2803,33 @@ function initProfessionalRTA() {
     const btnClaimAdReward = document.getElementById('btn-ad-reward-claim');
     if (btnClaimAdReward) {
         btnClaimAdReward.addEventListener('click', () => {
-            isAdRewardClaimed = true;
             closeAdPlayback(false);
-            toggleRtaFullscreen(true);
+            if (isAdRewardForPro) {
+                const duration = 4 * 60 * 60 * 1000; // 4 Hours
+                localStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
+                
+                // Hide any active upgrade modals
+                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+                
+                // Trigger global UI updates
+                if (window.updatePremiumUI) {
+                    window.updatePremiumUI();
+                }
+                
+                alert("🎉 Awesome! You have successfully unlocked SoundEngg Pro features and tools for the next 4 hours.");
+            } else {
+                isAdRewardClaimed = true;
+                toggleRtaFullscreen(true);
+            }
+        });
+    }
+
+    const btnWatchAdProUnlock = document.getElementById('btn-watch-ad-pro-unlock');
+    if (btnWatchAdProUnlock) {
+        btnWatchAdProUnlock.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            startAdPlayback(true);
         });
     }
 
@@ -3346,7 +3502,7 @@ function initEarTraining() {
         btn.addEventListener('click', (e) => {
             if (e) e.preventDefault();
             const tier = btn.getAttribute('data-tier');
-            if (btn.classList.contains('locked-pro') && tier === 'sixth' && !window.isUserPro) {
+            if (btn.classList.contains('locked-pro') && tier === 'sixth' && !window.isPremiumActive()) {
                 showProUpgradeModal();
                 return;
             }
@@ -3360,7 +3516,7 @@ function initEarTraining() {
     sourceBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
             if (e) e.preventDefault();
-            if (btn.classList.contains('locked-pro') && !window.isUserPro) {
+            if (btn.classList.contains('locked-pro') && !window.isPremiumActive()) {
                 showProUpgradeModal();
                 return;
             }
@@ -4195,8 +4351,8 @@ function initAdManager() {
     let countdownVal = 15;
 
     function checkAdStatus() {
-        // If user is verified Pro via cloud, always unlocked
-        if (window.isUserPro) {
+        // If user is premium active, always unlocked
+        if (window.isPremiumActive()) {
             unlockApp();
             return;
         }
@@ -4418,6 +4574,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     <li>Select the type of array you want to build to keep bass off the stage.</li>
                     <li>Follow the spacing dimensions provided by the calculator when placing your physical boxes.</li>
                     <li>Apply the suggested delay times to the rear subwoofers in your DSP.</li>
+                </ul>
+            `
+        },
+        'tapdelay': {
+            title: 'TAP TEMPO DELAY',
+            content: `
+                <h3>What it does</h3>
+                <p>Computes beats per minute (BPM) and provides standard delay subdivisions in milliseconds to align effects processors, delays, and mixing consoles.</p>
+                <h3>How to use it</h3>
+                <ul>
+                    <li>Tap the center button in sync with the song's beat.</li>
+                    <li>The system computes the tempo using a rolling average of your taps.</li>
+                    <li>Select and copy the desired millisecond subdivision (2x, 1x, 1/2, 1/4, or 1/8) to configure your console or FX processor.</li>
                 </ul>
             `
         }
@@ -4776,6 +4945,7 @@ window.showRazorpaySimOverlay = function(plan) {
         } else {
             // Local fallback if offline
             window.isUserPro = true;
+            if (window.updatePremiumUI) window.updatePremiumUI();
             document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: true }));
         }
 
@@ -5036,3 +5206,124 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize custom mobile header selector nav dropdown
     initMobileNavDropdown();
 });
+
+// =========================================================================
+// TAP TEMPO DELAY LIVE UTILITY MODULE
+// =========================================================================
+function initTapTempoDelay() {
+    const btnTrigger = document.getElementById('btn-tap-delay-trigger');
+    const btnReset = document.getElementById('btn-tap-delay-reset');
+    const bpmDisplay = document.getElementById('tap-delay-bpm-display');
+    const statusText = document.getElementById('tap-delay-status');
+
+    // Values Elements
+    const sub2x = document.getElementById('tap-sub-2x-val');
+    const sub1x = document.getElementById('tap-sub-1x-val');
+    const subHalf = document.getElementById('tap-sub-half-val');
+    const subQuarter = document.getElementById('tap-sub-quarter-val');
+    const subEighth = document.getElementById('tap-sub-eighth-val');
+
+    // Blink Fill Elements
+    const fills = document.querySelectorAll('.bpm-pulse-fill');
+
+    let tapTimes = [];
+    let blinkInterval = null;
+
+    if (!btnTrigger) return;
+
+    // 1. Tapping Trigger click listener
+    btnTrigger.addEventListener('click', (e) => {
+        if (e) e.preventDefault();
+        
+        // Push micro tactile animation
+        btnTrigger.style.transform = 'scale(0.95)';
+        setTimeout(() => { btnTrigger.style.transform = 'scale(1)'; }, 50);
+
+        const now = Date.now();
+        
+        // Filter out taps older than 2.0 seconds to support auto-resetting
+        tapTimes = tapTimes.filter(t => now - t < 2000);
+        tapTimes.push(now);
+
+        if (tapTimes.length < 2) {
+            statusText.textContent = `TAP AGAIN TO MEASURE...`;
+            bpmDisplay.textContent = '---';
+            return;
+        }
+
+        // Calculate rolling interval average
+        let intervals = [];
+        for (let i = 1; i < tapTimes.length; i++) {
+            intervals.push(tapTimes[i] - tapTimes[i - 1]);
+        }
+        
+        const avg = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+        const bpm = Math.round(60000 / avg);
+
+        // Clamp validation to standard musical tempos
+        if (bpm >= 30 && bpm <= 300) {
+            bpmDisplay.textContent = `${bpm} BPM`;
+            statusText.textContent = `LISTENING... (TAPS: ${tapTimes.length})`;
+
+            // Output precise subdivisions
+            if (sub2x) sub2x.innerHTML = `${Math.round(2 * avg)} <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+            if (sub1x) sub1x.innerHTML = `${Math.round(avg)} <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+            if (subHalf) subHalf.innerHTML = `${Math.round(avg / 2)} <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+            if (subQuarter) subQuarter.innerHTML = `${Math.round(avg / 4)} <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+            if (subEighth) subEighth.innerHTML = `${Math.round(avg / 8)} <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+
+            // Active visual pulse sync
+            if (blinkInterval) clearInterval(blinkInterval);
+            let active = true;
+            blinkInterval = setInterval(() => {
+                fills.forEach(f => {
+                    f.style.opacity = active ? '0.2' : '0';
+                });
+                active = !active;
+            }, avg / 2);
+        }
+    });
+
+    // 2. Reset Trigger
+    btnReset.addEventListener('click', (e) => {
+        if (e) e.preventDefault();
+        
+        tapTimes = [];
+        if (blinkInterval) {
+            clearInterval(blinkInterval);
+            blinkInterval = null;
+        }
+
+        bpmDisplay.textContent = '---';
+        statusText.textContent = 'TAP BUTTON TO START CALCULATING';
+
+        if (sub2x) sub2x.innerHTML = `--- <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+        if (sub1x) sub1x.innerHTML = `--- <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+        if (subHalf) subHalf.innerHTML = `--- <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+        if (subQuarter) subQuarter.innerHTML = `--- <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+        if (subEighth) subEighth.innerHTML = `--- <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
+
+        fills.forEach(f => { f.style.opacity = '0'; });
+    });
+
+    // 3. Clipboard helper integration
+    const copyButtons = document.querySelectorAll('.btn-copy-delay');
+    copyButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            const targetId = btn.getAttribute('data-target');
+            const targetEl = document.getElementById(targetId);
+            if (targetEl) {
+                const numeric = parseInt(targetEl.textContent, 10);
+                if (!isNaN(numeric)) {
+                    navigator.clipboard.writeText(numeric.toString()).then(() => {
+                        const original = btn.innerHTML;
+                        btn.innerHTML = `<span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">check</span> COPIED`;
+                        setTimeout(() => { btn.innerHTML = original; }, 1200);
+                    });
+                }
+            }
+        });
+    });
+}
+
