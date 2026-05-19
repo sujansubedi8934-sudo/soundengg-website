@@ -5238,66 +5238,47 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.isIndiaUser = false;
 
-// 1. Detect User Location (HTML5 Browser Geolocation with reliable fallbacks)
+// 1. Detect User Location (Exact Timezone check with reliable Geo-IP fallback)
 async function detectUserCountry() {
+    // 1. Timezone Check (strictly for India timezone) - local, instantaneous, and extremely accurate
+    try {
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const offset = new Date().getTimezoneOffset(); // e.g., India is -330
+        if (
+            (tz && (
+                tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata') || tz.includes('Asia/Calcutta')
+            )) ||
+            (offset === -330)
+        ) {
+            console.log("[Location] Timezone or offset matched India:", tz, offset);
+            localStorage.setItem('soundengg-user-country', 'IN');
+            window.isIndiaUser = true;
+            return true;
+        } else if (
+            (tz && (
+                tz.includes('Kathmandu') || tz.includes('Asia/Kathmandu') || tz.includes('Colombo') || tz.includes('Asia/Colombo') ||
+                tz.includes('Dhaka') || tz.includes('Asia/Dhaka')
+            )) ||
+            (offset === -345 || offset === -360)
+        ) {
+            // Explicitly classify other South Asian countries outside India (like Nepal) as International (USD)
+            console.log("[Location] Timezone or offset matched South Asia outside India:", tz, offset);
+            localStorage.setItem('soundengg-user-country', 'US');
+            window.isIndiaUser = false;
+            return false;
+        }
+    } catch (tzErr) {
+        console.warn("[Location] Timezone check failed:", tzErr);
+    }
+
+    // Read cache fallback (if not overwritten by explicit timezone matching above)
     const cachedLoc = localStorage.getItem('soundengg-user-country');
     if (cachedLoc) {
         window.isIndiaUser = (cachedLoc === 'IN');
         return window.isIndiaUser;
     }
 
-    // Try HTML5 Geolocation API
-    if (navigator.geolocation) {
-        try {
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, { 
-                    enableHighAccuracy: false, 
-                    timeout: 4000, 
-                    maximumAge: 86400000 
-                });
-            });
-            const lat = position.coords.latitude;
-            const lon = position.coords.longitude;
-            
-            // Bounding coordinates of India: Lat (8.0 to 38.0), Lon (68.0 to 98.0)
-            if (lat >= 8.0 && lat <= 38.0 && lon >= 68.0 && lon <= 98.0) {
-                console.log("[Location] HTML5 Geolocation coordinates resolved to India:", lat, lon);
-                localStorage.setItem('soundengg-user-country', 'IN');
-                window.isIndiaUser = true;
-                return true;
-            } else {
-                console.log("[Location] HTML5 Geolocation coordinates resolved outside India:", lat, lon);
-                localStorage.setItem('soundengg-user-country', 'US');
-                window.isIndiaUser = false;
-                return false;
-            }
-        } catch (geoErr) {
-            console.log("[Location] Geolocation permission denied or timed out. Falling back to timezone/IP check.", geoErr.message);
-        }
-    }
-
-    // Timezone check fallback (extremely accurate for India/South Asia/Nepal users)
-    try {
-        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const offset = new Date().getTimezoneOffset(); // e.g., India is -330, Nepal is -345, Bangladesh is -360
-        if (
-            (tz && (
-                tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata') || tz.includes('Asia/Calcutta') ||
-                tz.includes('Kathmandu') || tz.includes('Asia/Kathmandu') || tz.includes('Colombo') || tz.includes('Asia/Colombo') ||
-                tz.includes('Dhaka') || tz.includes('Asia/Dhaka')
-            )) ||
-            (offset === -330 || offset === -345 || offset === -360)
-        ) {
-            console.log("[Location] Timezone or offset matched India/South Asia/Nepal:", tz, offset);
-            localStorage.setItem('soundengg-user-country', 'IN');
-            window.isIndiaUser = true;
-            return true;
-        }
-    } catch (tzErr) {
-        console.warn("[Location] Timezone check failed:", tzErr);
-    }
-
-    // Geo-IP Lookup fallback
+    // 2. Geo-IP Lookup fallback
     try {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
@@ -5310,6 +5291,7 @@ async function detectUserCountry() {
     }
     return window.isIndiaUser;
 }
+
 
 // 2. Initialize Pricing Grid Dynamic Rendering
 async function initPricingPage() {
