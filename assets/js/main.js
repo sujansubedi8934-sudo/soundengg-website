@@ -5276,11 +5276,19 @@ async function detectUserCountry() {
         }
     }
 
-    // Timezone check fallback (extremely accurate for India users)
+    // Timezone check fallback (extremely accurate for India/South Asia/Nepal users)
     try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        if (tz && (tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata') || tz.includes('Asia/Calcutta'))) {
-            console.log("[Location] Timezone matched India:", tz);
+        const offset = new Date().getTimezoneOffset(); // e.g., India is -330, Nepal is -345, Bangladesh is -360
+        if (
+            (tz && (
+                tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata') || tz.includes('Asia/Calcutta') ||
+                tz.includes('Kathmandu') || tz.includes('Asia/Kathmandu') || tz.includes('Colombo') || tz.includes('Asia/Colombo') ||
+                tz.includes('Dhaka') || tz.includes('Asia/Dhaka')
+            )) ||
+            (offset === -330 || offset === -345 || offset === -360)
+        ) {
+            console.log("[Location] Timezone or offset matched India/South Asia/Nepal:", tz, offset);
             localStorage.setItem('soundengg-user-country', 'IN');
             window.isIndiaUser = true;
             return true;
@@ -5708,8 +5716,12 @@ async function handleUrlSubCheckout() {
     if (checkout !== 'true') return;
 
     // Clean query parameters so refreshes do not re-trigger checkout modal
-    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
-    window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    try {
+        const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+        window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+    } catch (historyErr) {
+        console.warn('[handleUrlSubCheckout] Bypassing history state replacement on local file origin:', historyErr.message);
+    }
 
     if (!window.supabaseClient) return;
 
