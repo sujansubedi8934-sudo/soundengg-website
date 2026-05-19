@@ -475,7 +475,8 @@ async function syncSubscriptionStatus(session) {
             const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
             const isExpired = expiresAt && expiresAt < now;
 
-            window.isUserPro = !!data.is_pro && !isExpired;
+            const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
+            window.isUserPro = !!data.is_pro && isTierPro && !isExpired;
             console.log('Cloud Sync Success. Pro:', window.isUserPro);
             
             const profileTierBadge = document.getElementById('profile-tier-badge');

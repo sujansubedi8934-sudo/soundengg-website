@@ -108,14 +108,15 @@
                     if (session) {
                         const { data } = await client
                             .from('profiles')
-                            .select('is_pro, subscription_expires_at')
+                            .select('is_pro, subscription_tier, subscription_expires_at')
                             .eq('id', session.user.id)
                             .single();
                         if (data) {
                             const now = new Date();
                             const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
                             const isExpired = expiresAt && expiresAt < now;
-                            isUserPro = !!data.is_pro && !isExpired;
+                            const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
+                            isUserPro = !!data.is_pro && isTierPro && !isExpired;
                         }
                     }
                 } catch (e) {
