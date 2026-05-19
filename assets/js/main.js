@@ -5240,7 +5240,7 @@ window.isIndiaUser = false;
 
 // 1. Detect User Location (HTML5 Browser Geolocation with reliable fallbacks)
 async function detectUserCountry() {
-    const cachedLoc = sessionStorage.getItem('soundengg-user-country');
+    const cachedLoc = localStorage.getItem('soundengg-user-country');
     if (cachedLoc) {
         window.isIndiaUser = (cachedLoc === 'IN');
         return window.isIndiaUser;
@@ -5262,12 +5262,12 @@ async function detectUserCountry() {
             // Bounding coordinates of India: Lat (8.0 to 38.0), Lon (68.0 to 98.0)
             if (lat >= 8.0 && lat <= 38.0 && lon >= 68.0 && lon <= 98.0) {
                 console.log("[Location] HTML5 Geolocation coordinates resolved to India:", lat, lon);
-                sessionStorage.setItem('soundengg-user-country', 'IN');
+                localStorage.setItem('soundengg-user-country', 'IN');
                 window.isIndiaUser = true;
                 return true;
             } else {
                 console.log("[Location] HTML5 Geolocation coordinates resolved outside India:", lat, lon);
-                sessionStorage.setItem('soundengg-user-country', 'US');
+                localStorage.setItem('soundengg-user-country', 'US');
                 window.isIndiaUser = false;
                 return false;
             }
@@ -5281,7 +5281,7 @@ async function detectUserCountry() {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         if (tz && (tz.includes('Kolkata') || tz.includes('Calcutta') || tz.includes('Asia/Kolkata') || tz.includes('Asia/Calcutta'))) {
             console.log("[Location] Timezone matched India:", tz);
-            sessionStorage.setItem('soundengg-user-country', 'IN');
+            localStorage.setItem('soundengg-user-country', 'IN');
             window.isIndiaUser = true;
             return true;
         }
@@ -5294,7 +5294,7 @@ async function detectUserCountry() {
         const response = await fetch('https://ipapi.co/json/');
         const data = await response.json();
         const country = data.country_code || 'US';
-        sessionStorage.setItem('soundengg-user-country', country);
+        localStorage.setItem('soundengg-user-country', country);
         window.isIndiaUser = (country === 'IN');
     } catch (e) {
         console.warn("[Location] Geo-IP lookup failed. Defaulting to International.", e);
@@ -5673,6 +5673,32 @@ function showCheckoutConfirmModal(user, plan) {
     };
 }
 
+// 4.5 Helper to Highlight the Pre-selected Plan inside Selector Modal
+function highlightPlanCard(plan) {
+    const planSelectorModal = document.getElementById('plan-selector-modal');
+    if (!planSelectorModal) return;
+    
+    // Clear previous highlighting style triggers
+    planSelectorModal.querySelectorAll('.plan-card-option').forEach(card => {
+        card.style.transform = 'none';
+        card.style.boxShadow = 'none';
+        if (card.getAttribute('data-plan') !== 'yearly') {
+            card.style.borderColor = 'var(--outline)';
+        } else {
+            card.style.borderColor = 'var(--primary)';
+        }
+    });
+
+    const targetCard = planSelectorModal.querySelector(`.plan-card-option[data-plan="${plan}"]`);
+    if (targetCard) {
+        // Apply beautiful scaling, primary glow, and smooth scroll focus
+        targetCard.style.transform = 'scale(1.03)';
+        targetCard.style.boxShadow = '0 0 20px rgba(0, 255, 204, 0.25)';
+        targetCard.style.borderColor = 'var(--primary)';
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+
 // 5. Deep-Link URL Subscription Triggers
 async function handleUrlSubCheckout() {
     const params = new URLSearchParams(window.location.search);
@@ -5687,6 +5713,8 @@ async function handleUrlSubCheckout() {
 
     if (!window.supabaseClient) return;
 
+    const planSelectorModal = document.getElementById('plan-selector-modal');
+
     const { data: { session } } = await window.supabaseClient.auth.getSession();
     if (!session) {
         // Not Logged In: Inject helper banner inside auth modal, then pop it!
@@ -5698,29 +5726,31 @@ async function handleUrlSubCheckout() {
                 banner = document.createElement('div');
                 banner.id = 'auth-checkout-helper-banner';
                 banner.style.cssText = 'background: rgba(20, 167, 181, 0.1); border: 1px solid var(--primary); border-radius: 4px; color: var(--primary); padding: 10px; margin-bottom: 1.5rem; font-size: 0.8rem; font-family: var(--font-mono); text-align: center;';
-                banner.innerHTML = `<strong>SUBSCRIBE TO PRO TIER</strong><br>Please log in or register below to complete checkout for the ${plan.toUpperCase()} plan.`;
+                banner.innerHTML = `<strong>SUBSCRIBE TO PRO TIER</strong><br>Please log in or register below to access the plan selector modal.`;
                 loginForm.insertBefore(banner, loginForm.firstChild);
             }
             openModal(authModal);
 
-            // Register temporary success callback to trigger checkout overlay upon login success
+            // Register temporary success callback to trigger plan selector upon login success
             const onAuthSuccess = async (ev) => {
                 document.removeEventListener('authSuccess', onAuthSuccess);
-                const user = ev.detail?.user || ev.detail;
-                if (user) {
+                if (planSelectorModal) {
                     setTimeout(() => {
-                        showCheckoutConfirmModal(user, plan);
+                        openModal(planSelectorModal);
+                        highlightPlanCard(plan);
                     }, 800);
                 }
             };
             document.addEventListener('authSuccess', onAuthSuccess);
         }
     } else {
-        // Logged In: Pop Checkout instantly
-        setTimeout(() => {
-            const user = session.user;
-            showCheckoutConfirmModal(user, plan);
-        }, 500);
+        // Logged In: Pop Plan Selector instantly
+        if (planSelectorModal) {
+            setTimeout(() => {
+                openModal(planSelectorModal);
+                highlightPlanCard(plan);
+            }, 500);
+        }
     }
 }
 
