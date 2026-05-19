@@ -131,8 +131,12 @@ const initAuthAndCore = () => {
                                 if (data) {
                                     const inputFullname = document.getElementById('profile-fullname');
                                     const inputCompany = document.getElementById('profile-company');
-                                    if (inputFullname) inputFullname.value = data.full_name || '';
-                                    if (inputCompany) inputCompany.value = data.company || '';
+                                    if (inputFullname) {
+                                        inputFullname.value = (data.full_name === 'EMPTY' ? '' : data.full_name) || '';
+                                    }
+                                    if (inputCompany) {
+                                        inputCompany.value = (data.company === 'EMPTY' ? '' : data.company) || '';
+                                    }
                                     console.log('Real-time profile details loaded on modal open:', data);
                                 }
                             } catch (err) {
@@ -372,19 +376,35 @@ async function syncSubscriptionStatus(session) {
             .eq('id', session.user.id)
             .maybeSingle();
 
-        // If the row doesn't exist yet, defensively upsert a base profile row so all future updates succeed
+        // If the row doesn't exist yet, defensively insert a base profile row so all future updates succeed
+        // (Using .insert instead of .upsert guarantees that we NEVER overwrite an existing subscription/profile!)
         if (!data && !error) {
             console.log('Defensively auto-creating public profiles row for:', session.user.id);
-            const { data: upsertedData, error: upsertError } = await window.supabaseClient
+            const { data: insertedData, error: insertError } = await window.supabaseClient
                 .from('profiles')
-                .upsert({ id: session.user.id, is_pro: false, subscription_tier: 'free' })
+                .insert({ 
+                    id: session.user.id, 
+                    is_pro: false, 
+                    subscription_tier: 'free',
+                    full_name: 'EMPTY',
+                    company: 'EMPTY'
+                })
                 .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
                 .maybeSingle();
             
-            if (upsertedData) {
-                data = upsertedData;
+            if (insertedData) {
+                data = insertedData;
             } else {
-                console.error('Defensive upsert failed:', upsertError);
+                console.warn('Defensive profile insert skipped/conflicted (row likely already exists):', insertError?.message);
+                // Re-fetch to be absolutely certain we didn't hit a race condition
+                const { data: refetchedData } = await window.supabaseClient
+                    .from('profiles')
+                    .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+                if (refetchedData) {
+                    data = refetchedData;
+                }
             }
         }
 
@@ -496,8 +516,12 @@ async function syncSubscriptionStatus(session) {
                 });
             }
 
-            if (inputFullname) inputFullname.value = data.full_name || '';
-            if (inputCompany) inputCompany.value = data.company || '';
+            if (inputFullname) {
+                inputFullname.value = (data.full_name === 'EMPTY' ? '' : data.full_name) || '';
+            }
+            if (inputCompany) {
+                inputCompany.value = (data.company === 'EMPTY' ? '' : data.company) || '';
+            }
             
             if (window.updatePremiumUI) window.updatePremiumUI();
             document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: window.isPremiumActive() }));
@@ -863,11 +887,11 @@ function setupNavigation() {
 
                         const { error } = await window.supabaseClient
                             .from('profiles')
-                            .upsert({
-                                id: session.user.id,
-                                full_name: inputFullname.value,
-                                company: inputCompany.value
-                            });
+                            .update({
+                                full_name: inputFullname.value || 'EMPTY',
+                                company: inputCompany.value || 'EMPTY'
+                            })
+                            .eq('id', session.user.id);
 
                         if (error) throw error;
                         submitBtn.textContent = 'SAVED!';
@@ -5329,23 +5353,23 @@ window.showRazorpaySimOverlay = function(plan) {
                 if (session) {
                     try {
                         const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
-                        const { error: upsertErr } = await window.supabaseClient.from('profiles')
-                            .upsert({ 
-                                id: session.user.id,
+                        const { error: updateErr } = await window.supabaseClient.from('profiles')
+                            .update({ 
                                 is_pro: true,
                                 subscription_tier: plan,
                                 subscription_provider: 'razorpay',
                                 subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
                                 subscription_expires_at: expiresAt
-                            });
-                        if (upsertErr) throw upsertErr;
+                            })
+                            .eq('id', session.user.id);
+                        if (updateErr) throw updateErr;
                     } catch (dbErr) {
                         console.warn('Advanced subscription fields write failed. Falling back to basic is_pro write:', dbErr.message);
                         await window.supabaseClient.from('profiles')
-                            .upsert({ 
-                                id: session.user.id,
+                            .update({ 
                                 is_pro: true
-                            });
+                            })
+                            .eq('id', session.user.id);
                     }
                     
                     // Trigger global refresh
