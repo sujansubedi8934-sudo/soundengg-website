@@ -4738,7 +4738,7 @@ function initAdManager() {
 
     function initiateRazorpayCheckout(user, plan = 'lifetime') {
         // Safe check for configured Razorpay Key, falls back to a sandbox test key
-        const keyId = window.RAZORPAY_KEY_ID || "rzp_test_K29Kx2SjK9X9Kk";
+        const keyId = window.RAZORPAY_KEY_ID || "rzp_test_SrF0fu6ZZuNFbC";
         
         // Determine currency, amount, and description dynamically based on geolocation and plan
         let amount = 349900; // Default INR Lifetime
