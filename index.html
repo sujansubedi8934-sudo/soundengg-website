@@ -449,12 +449,25 @@
           }
       });
 
+      // Pre-populate buttons with cached display name instantly
+      const cachedName = window.safeStorage.getItem('soundengg_user_display_name');
+      const consoleBtns = document.querySelectorAll('a[href="app.html"]');
+      if (cachedName) {
+          consoleBtns.forEach(btn => {
+              if (!btn.hasAttribute('data-original-text')) {
+                  btn.setAttribute('data-original-text', btn.textContent);
+              }
+              btn.textContent = `Open Console (${cachedName})`;
+              btn.classList.add('logged-in-btn');
+          });
+      }
+
       // Listen for auth state changes on the landing page
       supabaseClient.auth.onAuthStateChange((event, session) => {
           const user = session?.user;
-          const consoleBtns = document.querySelectorAll('a[href="app.html"]');
+          const currentBtns = document.querySelectorAll('a[href="app.html"]');
           
-          consoleBtns.forEach(btn => {
+          currentBtns.forEach(btn => {
               // Store original text on first load if not set
               if (!btn.hasAttribute('data-original-text')) {
                   btn.setAttribute('data-original-text', btn.textContent);
@@ -462,9 +475,11 @@
 
               if (user) {
                   const name = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                  window.safeStorage.setItem('soundengg_user_display_name', name);
                   btn.textContent = `Open Console (${name})`;
                   btn.classList.add('logged-in-btn');
               } else {
+                  window.safeStorage.removeItem('soundengg_user_display_name');
                   btn.textContent = btn.getAttribute('data-original-text');
                   btn.classList.remove('logged-in-btn');
               }

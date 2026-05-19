@@ -54,6 +54,18 @@ function closeModal(modal) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Pre-populate authentication header display using cached name to avoid initial page load flash/delay
+    const cachedName = safeStorage.getItem('soundengg_user_display_name');
+    if (cachedName) {
+        document.querySelectorAll('.auth-toggle-btn').forEach(btn => {
+            const authText = btn.querySelector('.btn-text');
+            const authIcon = btn.querySelector('.material-symbols-outlined');
+            if (authText) authText.textContent = cachedName;
+            if (authIcon) authIcon.textContent = 'account_circle';
+            btn.classList.add('logged-in');
+        });
+    }
+
     const safeInit = (fn, name) => {
         try {
             fn();
@@ -175,10 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
             
             if (user) {
-                if (authText) authText.textContent = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                const name = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                safeStorage.setItem('soundengg_user_display_name', name);
+                if (authText) authText.textContent = name;
                 if (authIcon) authIcon.textContent = 'account_circle';
                 btnAuthToggle.classList.add('logged-in');
             } else {
+                safeStorage.removeItem('soundengg_user_display_name');
                 if (authText) {
                     authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
                 }
