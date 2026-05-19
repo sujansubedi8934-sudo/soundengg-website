@@ -4638,6 +4638,55 @@ function initAdManager() {
         });
     }
 
+    function initiateRazorpayCheckout(user) {
+        // Safe check for configured Razorpay Key, falls back to a sandbox test key
+        const keyId = window.RAZORPAY_KEY_ID || "rzp_test_K29Kx2SjK9X9Kk";
+        
+        const options = {
+            key: keyId,
+            amount: 9900, // ₹99.00 in Paise
+            currency: "INR",
+            name: "SoundEngg Console",
+            description: "Lifetime SoundEngg Pro Access",
+            image: "assets/img/logo.png",
+            handler: function (response) {
+                console.log("Razorpay Payment Successful:", response.razorpay_payment_id);
+                
+                // Unlock Pro lifetime access (10 years)
+                safeStorage.setItem('tools_unlocked_until', Date.now() + (10 * 365 * 24 * 60 * 60 * 1000));
+                
+                // Update premium status elements
+                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+                
+                if (window.updatePremiumUI) {
+                    window.updatePremiumUI();
+                }
+                
+                unlockApp();
+                alert(`🎉 Thank you! SoundEngg Pro Lifetime Access has been unlocked successfully. (Payment ID: ${response.razorpay_payment_id})`);
+            },
+            prefill: {
+                name: user.email ? user.email.split('@')[0] : "Audio Engineer",
+                email: user.email || ""
+            },
+            theme: {
+                color: "#0F172A" // Deep slate matching brand theme
+            }
+        };
+
+        try {
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (resp) {
+                alert("❌ Payment Failed: " + resp.error.description);
+            });
+            rzp.open();
+        } catch (e) {
+            console.error("Razorpay open error:", e);
+            alert("Could not load checkout. Please try again.");
+        }
+    }
+
     if (btnBuyPro) {
         btnBuyPro.addEventListener('click', async () => {
             if(!window.supabaseClient) return alert('Auth not configured.');
@@ -4645,18 +4694,22 @@ function initAdManager() {
             
             if (!user) {
                 alert('Please log in to purchase SoundEngg Pro.');
-                authModalOverlay.classList.remove('hidden');
+                const authModalOverlay = document.getElementById('auth-modal-overlay');
+                if (authModalOverlay) authModalOverlay.classList.remove('hidden');
                 return;
             }
 
-            // Simulate Stripe Checkout
-            alert(`Redirecting to Stripe for ${user.email}...`);
-            setTimeout(() => {
-                alert('Mock Checkout: SoundEngg Pro purchased! Account upgraded.');
-                // In a real app, this would be handled by a webhook updating Supabase profiles table
-                safeStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
-                unlockApp();
-            }, 1500);
+            // Dynamically load Razorpay SDK if not already in document
+            if (typeof Razorpay === 'undefined') {
+                console.log("Loading Razorpay SDK dynamically...");
+                const script = document.createElement('script');
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.onload = () => initiateRazorpayCheckout(user);
+                script.onerror = () => alert("Failed to load Razorpay payment SDK. Check your internet connection.");
+                document.head.appendChild(script);
+            } else {
+                initiateRazorpayCheckout(user);
+            }
         });
     }
 
