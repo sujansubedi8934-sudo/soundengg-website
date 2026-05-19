@@ -5464,5 +5464,24 @@ body.theme-red { --primary: #ff003c; }
     }
 }
 
+/* --- PLAN SELECTOR MODAL CUSTOM STYLING --- */
+.plan-card-option {
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.plan-card-option:hover {
+    border-color: var(--primary) !important;
+    transform: translateY(-2px) !important;
+    background: rgba(0, 242, 254, 0.06) !important;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.15) !important;
+}
+
+.plan-card-option.featured-option:hover {
+    border-color: #00ffcc !important;
+    transform: translateY(-2px) !important;
+    background: rgba(0, 255, 204, 0.1) !important;
+    box-shadow: 0 6px 20px rgba(0, 255, 204, 0.3) !important;
+}
+
 
 

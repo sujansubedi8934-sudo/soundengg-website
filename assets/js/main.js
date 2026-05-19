@@ -922,15 +922,39 @@ function setupNavigation() {
                 });
             }
 
-            if (btnProfileUpgrade) {
-                btnProfileUpgrade.addEventListener('click', async (e) => {
+            // Wire the gorgeous new Plan Selection Modal
+            const planSelectorModal = document.getElementById('plan-selector-modal');
+            const btnClosePlanSelector = document.getElementById('btn-close-plan-selector');
+            
+            if (btnProfileUpgrade && planSelectorModal) {
+                btnProfileUpgrade.addEventListener('click', (e) => {
                     e.preventDefault();
                     if (profileModal) closeModal(profileModal);
-                    if (window.showRazorpaySimOverlay) {
-                        window.showRazorpaySimOverlay('yearly');
-                    } else {
-                        alert('Payment gateway offline. Please try again.');
-                    }
+                    openModal(planSelectorModal);
+                });
+            }
+            
+            if (btnClosePlanSelector && planSelectorModal) {
+                btnClosePlanSelector.addEventListener('click', () => closeModal(planSelectorModal));
+            }
+            
+            if (planSelectorModal) {
+                planSelectorModal.addEventListener('click', (e) => {
+                    if (e.target === planSelectorModal) closeModal(planSelectorModal);
+                });
+                
+                // Clicking plan cards inside modal triggers checkout
+                planSelectorModal.querySelectorAll('.plan-card-option').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const plan = card.getAttribute('data-plan') || 'yearly';
+                        closeModal(planSelectorModal);
+                        
+                        if (window.showRazorpaySimOverlay) {
+                            window.showRazorpaySimOverlay(plan);
+                        } else {
+                            alert('Payment gateway offline. Please try again.');
+                        }
+                    });
                 });
             }
 

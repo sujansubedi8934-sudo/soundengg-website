@@ -422,5 +422,15 @@
     </footer>
 
     <script src="assets/js/main.js?v=3.6.1"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.pricing-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const plan = btn.getAttribute('data-plan') || 'yearly';
+                    window.location.href = `app.html?checkout=true&plan=${plan}`;
+                });
+            });
+        });
+    </script>
 </body>
 </html>
