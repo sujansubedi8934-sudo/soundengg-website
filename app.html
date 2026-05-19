@@ -1875,13 +1875,55 @@
     <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+      // Safe Storage Wrapper to completely avoid Safari DOM SecurityError exception in Private Browsing / strict cookie blocks
+      window.safeStorage = {
+          getItem: function(key) {
+              try {
+                  return localStorage.getItem(key);
+              } catch (e) {
+                  if (!window.localStorageFallback) window.localStorageFallback = {};
+                  return window.localStorageFallback[key] || null;
+              }
+          },
+          setItem: function(key, value) {
+              try {
+                  localStorage.setItem(key, value);
+              } catch (e) {
+                  if (!window.localStorageFallback) window.localStorageFallback = {};
+                  window.localStorageFallback[key] = String(value);
+              }
+          },
+          removeItem: function(key) {
+              try {
+                  localStorage.removeItem(key);
+              } catch (e) {
+                  if (!window.localStorageFallback) window.localStorageFallback = {};
+                  delete window.localStorageFallback[key];
+              }
+          },
+          clear: function() {
+              try {
+                  localStorage.clear();
+              } catch (e) {
+                  window.localStorageFallback = {};
+              }
+          }
+      };
+
       // TODO: Replace these with your actual Supabase Project URL and Anon Key
       const SUPABASE_URL = 'https://ewudkzyjcvjxxqpqnqiy.supabase.co';
       const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dWRrenlqY3ZqeHhxcHFucWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDM0MTQsImV4cCI6MjA5NDM3OTQxNH0.jLSCEjzAxR_pjlZsjJqQgGk4L-_c5Ls3STxDedOn2KM';
 
-      // Initialize Supabase Client
+      // Initialize Supabase Client with Safe Storage to survive Safari Private Browsing restrictions
       if (SUPABASE_URL && SUPABASE_ANON_KEY) {
-          window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+              auth: {
+                  storage: window.safeStorage,
+                  persistSession: true,
+                  autoRefreshToken: true,
+                  detectSessionInUrl: true
+              }
+          });
       } else {
           console.warn("Supabase keys missing. Auth disabled.");
           window.supabaseClient = null;
@@ -1894,8 +1936,8 @@
     <script>
         // Force unregister and cache clear on version mismatch to bypass stale service worker caches
         const CURRENT_VERSION = '3.3.0';
-        if (localStorage.getItem('soundengg-app-version') !== CURRENT_VERSION) {
-            localStorage.setItem('soundengg-app-version', CURRENT_VERSION);
+        if (window.safeStorage.getItem('soundengg-app-version') !== CURRENT_VERSION) {
+            window.safeStorage.setItem('soundengg-app-version', CURRENT_VERSION);
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.getRegistrations().then(registrations => {
                     for (let registration of registrations) {

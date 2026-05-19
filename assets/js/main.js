@@ -1,3 +1,38 @@
+// --- SAFE STORAGE PROXY (Safari Protection) ---
+const safeStorage = window.safeStorage || {
+    getItem: function(key) {
+        try {
+            return window.localStorage.getItem(key);
+        } catch (e) {
+            if (!window.localStorageFallback) window.localStorageFallback = {};
+            return window.localStorageFallback[key] || null;
+        }
+    },
+    setItem: function(key, value) {
+        try {
+            window.localStorage.setItem(key, value);
+        } catch (e) {
+            if (!window.localStorageFallback) window.localStorageFallback = {};
+            window.localStorageFallback[key] = String(value);
+        }
+    },
+    removeItem: function(key) {
+        try {
+            window.localStorage.removeItem(key);
+        } catch (e) {
+            if (!window.localStorageFallback) window.localStorageFallback = {};
+            delete window.localStorageFallback[key];
+        }
+    },
+    clear: function() {
+        try {
+            window.localStorage.clear();
+        } catch (e) {
+            window.localStorageFallback = {};
+        }
+    }
+};
+
 // --- MODAL UTILITIES (Senior Stability - Global Scope) ---
 function openModal(modal) {
     if (!modal) return;
@@ -67,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // 2. Immediate Memory Wipe
-                localStorage.clear();
+                safeStorage.clear();
                 sessionStorage.clear();
                 
                 alert('Sign out successful! Returning to landing page.');
@@ -231,14 +266,14 @@ window.isPremiumActive = function(featureKey) {
     
     // Check specific feature unlock
     if (featureKey) {
-        const tempFeatureUntil = localStorage.getItem(`soundengg_temp_pro_until_${featureKey}`);
+        const tempFeatureUntil = safeStorage.getItem(`soundengg_temp_pro_until_${featureKey}`);
         if (tempFeatureUntil && Date.now() < parseInt(tempFeatureUntil, 10)) {
             return true;
         }
     }
     
     // Fallback/General: check global temp pro
-    const tempProUntil = localStorage.getItem('soundengg_temp_pro_until');
+    const tempProUntil = safeStorage.getItem('soundengg_temp_pro_until');
     if (tempProUntil && Date.now() < parseInt(tempProUntil, 10)) {
         return true;
     }
@@ -270,7 +305,7 @@ window.updatePremiumUI = function() {
     }
 
     // Hide locks/overlays
-    const isFullProActive = window.isUserPro || (localStorage.getItem('soundengg_temp_pro_until') && Date.now() < parseInt(localStorage.getItem('soundengg_temp_pro_until'), 10));
+    const isFullProActive = window.isUserPro || (safeStorage.getItem('soundengg_temp_pro_until') && Date.now() < parseInt(safeStorage.getItem('soundengg_temp_pro_until'), 10));
     if (isFullProActive) {
         const adOverlay = document.getElementById('ad-manager-overlay');
         const adLockModal = document.getElementById('ad-lock-modal');
@@ -363,10 +398,10 @@ async function syncSubscriptionStatus(session) {
                 }
             }
             
-            let currentClientId = localStorage.getItem('soundengg_device_id');
+            let currentClientId = safeStorage.getItem('soundengg_device_id');
             if (!currentClientId) {
                 currentClientId = 'dev_' + Math.random().toString(36).substring(2, 15) + '_' + Date.now().toString(36);
-                localStorage.setItem('soundengg_device_id', currentClientId);
+                safeStorage.setItem('soundengg_device_id', currentClientId);
             }
             
             if (!deviceIds.includes(currentClientId)) {
@@ -472,7 +507,7 @@ function initGlobalUnits() {
     btnUnit.addEventListener('click', () => {
         const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
         window.globalUnitSystem = nextSystem;
-        localStorage.setItem('soundengg-units', nextSystem);
+        safeStorage.setItem('soundengg-units', nextSystem);
         
         // Also update the global select if it exists
         const unitSelect = document.getElementById('global-unit-select');
@@ -614,6 +649,20 @@ function setupNavigation() {
      */
     function showView(targetView, navButton = null) {
         if (!targetView) return;
+        
+        // Deactivate inactive loops and generators to save CPU/battery and eliminate sluggishness
+        if (targetView !== rtaView && typeof window.stopAnalyzer === 'function') {
+            window.stopAnalyzer();
+        }
+        if (targetView !== tunerView && typeof window.stopTuner === 'function') {
+            window.stopTuner();
+        }
+        if (targetView !== siggenView && typeof window.stopSignalGenerator === 'function') {
+            window.stopSignalGenerator();
+        }
+        if (targetView !== earTrainingView && typeof window.stopEarTraining === 'function') {
+            window.stopEarTraining();
+        }
         
         // Hide ALL other views first
         ALL_VIEWS.forEach(v => {
@@ -851,7 +900,7 @@ function setupNavigation() {
                 btnProfileUpgrade.addEventListener('click', async (e) => {
                     e.preventDefault();
                     if (confirm('Upgrade to SoundEngg Pro? (Simulated for this demo)')) {
-                        localStorage.setItem('soundengg-pro-status', 'true');
+                        safeStorage.setItem('soundengg-pro-status', 'true');
                         
                         const { data: { session } } = await window.supabaseClient.auth.getSession();
                         if (session) {
@@ -1821,7 +1870,7 @@ function initProfessionalRTA() {
     
     window.startAnalyzer = async function startAnalyzer(deviceId) {
         if (isAnalyzing) return;
-        deviceId = deviceId || localStorage.getItem('soundengg-mic-id') || 'default';
+        deviceId = deviceId || safeStorage.getItem('soundengg-mic-id') || 'default';
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
         }
@@ -1882,6 +1931,7 @@ function initProfessionalRTA() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawGridAndLabels();
     }
+    window.stopAnalyzer = stopAnalyzer;
 
     function getSPLColor(db) {
         const val = db + calibrationOffset;
@@ -2824,7 +2874,7 @@ function initProfessionalRTA() {
                 
                 let unlockedFeatureName = "SoundEngg Pro Features";
                 if (currentUnlockFeatureKey) {
-                    localStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
+                    safeStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
                     
                     if (currentUnlockFeatureKey === 'spectrogram') {
                         unlockedFeatureName = "60FPS Spectrogram Waterfall";
@@ -2836,7 +2886,7 @@ function initProfessionalRTA() {
                         unlockedFeatureName = "1/6 ISO Octave Ear Training";
                     }
                 } else {
-                    localStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
+                    safeStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
                 }
                 
                 // Hide any active upgrade modals
@@ -3003,6 +3053,7 @@ function initSignalGenerator() {
         statusBadge.textContent = 'STATUS: STANDBY';
         statusBadge.classList.remove('active');
     }
+    window.stopSignalGenerator = stopOutput;
 
     function updateVisuals() {
         if (!isPlaying) {
@@ -3422,6 +3473,7 @@ function initEarTraining() {
         if (btnPlayToggle) btnPlayToggle.classList.remove('playing');
         if (playIcon) playIcon.textContent = 'play_arrow';
     }
+    window.stopEarTraining = stopAudio;
 
     function togglePlay() {
         if (isTraining) {
@@ -3973,7 +4025,7 @@ function initTuner() {
 
     window.startTuner = function(deviceId) {
         if (isTuning) return;
-        deviceId = deviceId || localStorage.getItem('soundengg-mic-id') || 'default';
+        deviceId = deviceId || safeStorage.getItem('soundengg-mic-id') || 'default';
         const constraints = { audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true };
         navigator.mediaDevices.getUserMedia(constraints).then(stream => {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -4006,6 +4058,7 @@ function initTuner() {
         statusText.textContent = "TUNER INACTIVE";
         statusText.style.color = "var(--text-muted)";
     }
+    window.stopTuner = stopTuner;
 
     btnStart.addEventListener('click', () => {
         if (isTuning) {
@@ -4031,8 +4084,8 @@ function initTuner() {
             return (20 * Math.log10(rms)).toFixed(1);
         };
 
-        // Load custom threshold from localStorage if available
-        const savedThresh = localStorage.getItem('soundengg-tuner-threshold');
+        // Load custom threshold from safeStorage if available
+        const savedThresh = safeStorage.getItem('soundengg-tuner-threshold');
         if (savedThresh) {
             noiseThreshold = parseFloat(savedThresh);
             thresholdInput.value = savedThresh;
@@ -4048,7 +4101,7 @@ function initTuner() {
         thresholdInput.addEventListener('input', (e) => {
             noiseThreshold = parseFloat(e.target.value) || 0.040;
             if (thresholdValDisplay) thresholdValDisplay.textContent = `${rmsToDb(noiseThreshold)} dB`;
-            localStorage.setItem('soundengg-tuner-threshold', noiseThreshold.toFixed(3));
+            safeStorage.setItem('soundengg-tuner-threshold', noiseThreshold.toFixed(3));
         });
     }
 
@@ -4281,7 +4334,7 @@ function initSubCalc() {
     unitBtn.addEventListener('click', () => {
         const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
         window.globalUnitSystem = nextSystem;
-        localStorage.setItem('soundengg-units', nextSystem);
+        safeStorage.setItem('soundengg-units', nextSystem);
         
         const globalSelect = document.getElementById('global-unit-select');
         if (globalSelect) globalSelect.value = nextSystem;
@@ -4388,7 +4441,7 @@ function initAdManager() {
             return;
         }
 
-        const unlockedUntil = localStorage.getItem('tools_unlocked_until');
+        const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
         const now = Date.now();
 
         if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
@@ -4425,7 +4478,7 @@ function initAdManager() {
 
     function grantAccess(hours) {
         const ms = hours * 60 * 60 * 1000;
-        localStorage.setItem('tools_unlocked_until', Date.now() + ms);
+        safeStorage.setItem('tools_unlocked_until', Date.now() + ms);
         unlockApp();
     }
 
@@ -4478,7 +4531,7 @@ function initAdManager() {
             setTimeout(() => {
                 alert('Mock Checkout: SoundEngg Pro purchased! Account upgraded.');
                 // In a real app, this would be handled by a webhook updating Supabase profiles table
-                localStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
+                safeStorage.setItem('tools_unlocked_until', Date.now() + (365 * 24 * 60 * 60 * 1000));
                 unlockApp();
             }, 1500);
         });
@@ -4660,7 +4713,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. Theme Selection
     const themeSelect = document.getElementById('global-theme-select');
     if (themeSelect) {
-        const savedTheme = localStorage.getItem('soundengg-theme') || 'theme-cyan';
+        const savedTheme = safeStorage.getItem('soundengg-theme') || 'theme-cyan';
         themeSelect.value = savedTheme;
         document.body.classList.add(savedTheme);
         
@@ -4668,21 +4721,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const newTheme = e.target.value;
             document.body.classList.remove('theme-cyan', 'theme-amber', 'theme-green', 'theme-red');
             document.body.classList.add(newTheme);
-            localStorage.setItem('soundengg-theme', newTheme);
+            safeStorage.setItem('soundengg-theme', newTheme);
         });
     }
 
     // 2. Global Units
     const unitSelect = document.getElementById('global-unit-select');
     if (unitSelect) {
-        const savedUnit = localStorage.getItem('soundengg-units') || 'metric';
+        const savedUnit = safeStorage.getItem('soundengg-units') || 'metric';
         unitSelect.value = savedUnit;
         window.globalUnitSystem = savedUnit; // Export globally
         
         unitSelect.addEventListener('change', (e) => {
             const system = e.target.value;
             window.globalUnitSystem = system; 
-            localStorage.setItem('soundengg-units', system);
+            safeStorage.setItem('soundengg-units', system);
             document.dispatchEvent(new CustomEvent('unitsChanged'));
         });
     }
@@ -4700,7 +4753,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 micSelect.innerHTML = '<option value="default">Default System Microphone</option>' + 
                     inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
                 
-                const savedMic = localStorage.getItem('soundengg-mic-id');
+                const savedMic = safeStorage.getItem('soundengg-mic-id');
                 if (savedMic) micSelect.value = savedMic;
             }
         } catch (e) {
@@ -4725,7 +4778,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (micSelect) {
         micSelect.addEventListener('change', (e) => {
-            localStorage.setItem('soundengg-mic-id', e.target.value);
+            safeStorage.setItem('soundengg-mic-id', e.target.value);
             document.dispatchEvent(new CustomEvent('deviceChanged', { detail: e.target.value }));
         });
         populateDevices();
