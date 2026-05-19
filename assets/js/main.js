@@ -833,7 +833,7 @@ function setupNavigation() {
 
                     try {
                         const { data: { session } } = await window.supabaseClient.auth.getSession();
-                        if (!session) return;
+                        if (!session) throw new Error('No active user session found.');
 
                         const { error } = await window.supabaseClient
                             .from('profiles')
@@ -845,13 +845,22 @@ function setupNavigation() {
 
                         if (error) throw error;
                         submitBtn.textContent = 'SAVED!';
-                        setTimeout(() => {
-                            submitBtn.textContent = originalText;
-                            submitBtn.disabled = false;
-                        }, 2000);
+                        
+                        // Update cached user display name instantly!
+                        if (inputFullname.value) {
+                            const shortName = inputFullname.value.split(' ')[0];
+                            safeStorage.setItem('soundengg_user_display_name', shortName);
+                            
+                            // Synchronize other header buttons across page instantly
+                            document.querySelectorAll('.auth-toggle-btn').forEach(btn => {
+                                const authText = btn.querySelector('.btn-text');
+                                if (authText) authText.textContent = shortName;
+                            });
+                        }
                     } catch (err) {
                         console.error('Profile Save Error:', err);
                         submitBtn.textContent = 'ERROR';
+                    } finally {
                         setTimeout(() => {
                             submitBtn.textContent = originalText;
                             submitBtn.disabled = false;
