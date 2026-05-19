@@ -5121,7 +5121,8 @@ async function initPricingPage() {
 
             // Validate authentication before checkout
             if (!window.supabaseClient) {
-                alert("Auth engine offline. Please refresh.");
+                // If on static marketing page (like pro.html) where Supabase is not loaded, redirect to app.html to login/checkout
+                window.location.href = `app.html?checkout=true&plan=${plan}`;
                 return;
             }
 
