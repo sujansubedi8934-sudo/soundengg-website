@@ -391,6 +391,23 @@ async function syncSubscriptionStatus(session) {
                 break;
             }
 
+            // Omission Fallback: If device_ids column does not exist in user's Supabase DB, fetch all other fields cleanly
+            if (error && (error.code === '42703' || error.message.includes('not found') || error.message.includes('column'))) {
+                console.warn('[syncSubscriptionStatus] Column error detected. Retrying profile fetch without device_ids...');
+                const responseNoDevices = await window.supabaseClient
+                    .from('profiles')
+                    .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
+                    .eq('id', session.user.id)
+                    .maybeSingle();
+                
+                if (responseNoDevices.data) {
+                    data = responseNoDevices.data;
+                    error = null;
+                    console.log(`[syncSubscriptionStatus] Profile loaded successfully without device_ids on attempt ${attempt}/4.`);
+                    break;
+                }
+            }
+
             if (attempt < 4) {
                 console.warn(`[syncSubscriptionStatus] Profile fetch returned empty (attempt ${attempt}/4). Retrying in 200ms...`);
                 await new Promise(r => setTimeout(r, 200));
@@ -399,17 +416,15 @@ async function syncSubscriptionStatus(session) {
 
         if (error) {
             console.warn('Profile fetch error (might be schema cache):', error.message);
-            // Fallback: try fetching just is_pro if the new columns are the issue
-            if (error.code === '42703' || error.message.includes('not found') || error.message.includes('column')) {
-                const { data: fallbackData } = await window.supabaseClient
-                    .from('profiles')
-                    .select('is_pro')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-                if (fallbackData) {
-                    window.isUserPro = !!fallbackData.is_pro;
-                    data = { is_pro: fallbackData.is_pro };
-                }
+            // Ultra Fallback: try fetching just is_pro if everything else fails
+            const { data: fallbackData } = await window.supabaseClient
+                .from('profiles')
+                .select('is_pro')
+                .eq('id', session.user.id)
+                .maybeSingle();
+            if (fallbackData) {
+                window.isUserPro = !!fallbackData.is_pro;
+                data = { is_pro: fallbackData.is_pro };
             }
         }
 
@@ -430,13 +445,18 @@ async function syncSubscriptionStatus(session) {
                 safeStorage.setItem('soundengg_device_id', currentClientId);
             }
             
-            if (!deviceIds.includes(currentClientId)) {
+            if (data.hasOwnProperty('device_ids') && !deviceIds.includes(currentClientId)) {
                 if (deviceIds.length < 3) {
                     deviceIds.push(currentClientId);
-                    await window.supabaseClient
-                        .from('profiles')
-                        .update({ device_ids: deviceIds })
-                        .eq('id', session.user.id);
+                    try {
+                        const { error: devUpdateErr } = await window.supabaseClient
+                            .from('profiles')
+                            .update({ device_ids: deviceIds })
+                            .eq('id', session.user.id);
+                        if (devUpdateErr) throw devUpdateErr;
+                    } catch (e) {
+                        console.warn('[syncSubscriptionStatus] Bypassing device_ids update due to missing column:', e.message);
+                    }
                 } else {
                     // Force session sign-out
                     await window.supabaseClient.auth.signOut();
@@ -5524,6 +5544,91 @@ function showCheckoutSuccessOverlay(plan) {
     });
 }
 
+// 4.8 Premium Checkout Confirmation Modal to completely bypass Browser Popup Blockers
+function showCheckoutConfirmModal(user, plan) {
+    const existing = document.getElementById('checkout-confirm-modal');
+    if (existing) existing.remove();
+
+    let planTitle = "Lifetime Pro Access";
+    let planCost = "₹3,499 / $49.99";
+    if (plan === 'monthly') {
+        planTitle = "Monthly Pro Subscription";
+        planCost = "₹199 / $2.99";
+    } else if (plan === 'yearly') {
+        planTitle = "Yearly Pro Subscription";
+        planCost = "₹1,999 / $29.99";
+    }
+
+    const modal = document.createElement('div');
+    modal.id = 'checkout-confirm-modal';
+    modal.className = 'modal-overlay';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,8,0.92); display: flex; align-items: center; justify-content: center; z-index: 10000; font-family: var(--font-mono), monospace; color: #fff;';
+
+    modal.innerHTML = `
+        <div class="modal-content auth-modal-box" style="max-width: 440px; width: 90%; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">
+            <button id="btn-close-checkout-confirm" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px;"><span class="material-symbols-outlined">close</span></button>
+            
+            <div style="margin-bottom: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(20, 167, 181, 0.1); border: 2px dashed var(--primary);">
+                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--primary);">shopping_cart</span>
+            </div>
+            
+            <h2 style="font-family: var(--font-headline); font-size: 1.6rem; font-weight: bold; margin-bottom: 0.5rem; color: #fff; text-shadow: 0 0 10px rgba(20, 167, 181, 0.4);">Secure Checkout</h2>
+            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.4;">Unlock full acoustic precision. Review your purchase order details below:</p>
+            
+            <div style="text-align: left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1.2rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">UPGRADE PLAN</span>
+                    <span style="font-size: 0.85rem; color: #fff; font-weight: bold; text-transform: uppercase;">${planTitle}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">PRICE RATE</span>
+                    <span style="font-size: 0.85rem; color: var(--primary); font-weight: bold;">${planCost}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding-top: 0.25rem;">
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">ACCOUNT EMAIL</span>
+                    <span style="font-size: 0.85rem; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 200px;">${user.email}</span>
+                </div>
+            </div>
+            
+            <button id="btn-proceed-to-payment" style="width: 100%; border: none; padding: 14px; font-weight: bold; font-family: var(--font-mono); font-size: 0.95rem; cursor: pointer; border-radius: 4px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
+                <span class="material-symbols-outlined">lock</span> PROCEED TO SECURE PAYMENT
+            </button>
+            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">shield</span> Secured by Razorpay Payment Gateway
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.querySelector('#btn-close-checkout-confirm').onclick = () => modal.remove();
+
+    const proceedBtn = modal.querySelector('#btn-proceed-to-payment');
+    proceedBtn.onclick = () => {
+        proceedBtn.disabled = true;
+        proceedBtn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s infinite linear;">sync</span> LAUNCHING SECURE GATEWAY...`;
+        
+        if (typeof Razorpay === 'undefined') {
+            console.log("Loading Razorpay SDK dynamically...");
+            const script = document.createElement('script');
+            script.src = "https://checkout.razorpay.com/v1/checkout.js";
+            script.onload = () => {
+                modal.remove();
+                initiateRazorpayCheckout(user, plan);
+            };
+            script.onerror = () => {
+                proceedBtn.disabled = false;
+                proceedBtn.innerHTML = `<span class="material-symbols-outlined">lock</span> PROCEED TO SECURE PAYMENT`;
+                alert("Failed to load Razorpay payment SDK.");
+            };
+            document.head.appendChild(script);
+        } else {
+            modal.remove();
+            initiateRazorpayCheckout(user, plan);
+        }
+    };
+}
+
 // 5. Deep-Link URL Subscription Triggers
 async function handleUrlSubCheckout() {
     const params = new URLSearchParams(window.location.search);
@@ -5557,21 +5662,10 @@ async function handleUrlSubCheckout() {
             // Register temporary success callback to trigger checkout overlay upon login success
             const onAuthSuccess = async (ev) => {
                 document.removeEventListener('authSuccess', onAuthSuccess);
-                // Extract session or user object gracefully
                 const user = ev.detail?.user || ev.detail;
                 if (user) {
-                    // Launch checkout with a slight delay to allow login modal transition to complete cleanly
                     setTimeout(() => {
-                        if (typeof Razorpay === 'undefined') {
-                            console.log("Loading Razorpay SDK dynamically...");
-                            const script = document.createElement('script');
-                            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-                            script.onload = () => initiateRazorpayCheckout(user, plan);
-                            script.onerror = () => alert("Failed to load Razorpay payment SDK.");
-                            document.head.appendChild(script);
-                        } else {
-                            initiateRazorpayCheckout(user, plan);
-                        }
+                        showCheckoutConfirmModal(user, plan);
                     }, 800);
                 }
             };
@@ -5581,16 +5675,7 @@ async function handleUrlSubCheckout() {
         // Logged In: Pop Checkout instantly
         setTimeout(() => {
             const user = session.user;
-            if (typeof Razorpay === 'undefined') {
-                console.log("Loading Razorpay SDK dynamically...");
-                const script = document.createElement('script');
-                script.src = "https://checkout.razorpay.com/v1/checkout.js";
-                script.onload = () => initiateRazorpayCheckout(user, plan);
-                script.onerror = () => alert("Failed to load Razorpay payment SDK.");
-                document.head.appendChild(script);
-            } else {
-                initiateRazorpayCheckout(user, plan);
-            }
+            showCheckoutConfirmModal(user, plan);
         }, 500);
     }
 }
