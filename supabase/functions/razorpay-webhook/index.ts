@@ -131,7 +131,7 @@ serve(async (req) => {
 
         if (error) throw error;
 
-      } else if (event === "subscription.halted" || event === "subscription.expired") {
+      } else if (event === "subscription.halted" || event === "subscription.completed") {
         console.log(`[Webhook] Processing ${event} (Immediate cancellation) for user: ${profileId}`);
 
         const { error } = await supabaseAdmin
