@@ -144,16 +144,15 @@ serve(async (req) => {
       const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
       const { error } = await supabaseAdmin
         .from('profiles')
-        .upsert({ 
-          id: user.id, 
-          email: user.email,
+        .update({ 
           is_pro: true, 
           subscription_tier: plan,
           subscription_provider: 'razorpay',
           subscription_id: subscription_id || payment_id,
           subscription_expires_at: expiresAt,
           updated_at: new Date().toISOString()
-        });
+        })
+        .eq('id', user.id);
 
       if (error) throw error;
 

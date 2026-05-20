@@ -485,8 +485,14 @@ async function syncSubscriptionStatus(session) {
                         console.warn('[syncSubscriptionStatus] Bypassing device_ids update due to missing column:', e.message);
                     }
                 } else {
-                    // Force session sign-out
-                    await window.supabaseClient.auth.signOut();
+                    // Force session sign-out asynchronously to prevent GoTrue state deadlocks
+                    setTimeout(async () => {
+                        try {
+                            await window.supabaseClient.auth.signOut();
+                        } catch (signOutErr) {
+                            console.warn('[syncSubscriptionStatus] Asynchronous device-limit signOut failed:', signOutErr);
+                        }
+                    }, 100);
                     
                     // Trigger instant session lock overlay
                     const deviceLimitModal = document.getElementById('device-limit-modal');
@@ -924,12 +930,11 @@ function setupNavigation() {
 
                         const { error } = await window.supabaseClient
                             .from('profiles')
-                            .upsert({
-                                id: session.user.id,
-                                email: session.user.email,
+                            .update({
                                 full_name: inputFullname.value || 'EMPTY',
                                 company: inputCompany.value || 'EMPTY'
-                            });
+                            })
+                            .eq('id', session.user.id);
 
                         if (error) throw error;
                         submitBtn.textContent = 'SAVED!';
@@ -5514,24 +5519,22 @@ window.showRazorpaySimOverlay = function(plan) {
                     try {
                         const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
                         const { error: updateErr } = await window.supabaseClient.from('profiles')
-                            .upsert({ 
-                                id: session.user.id,
-                                email: session.user.email,
+                            .update({ 
                                 is_pro: true,
                                 subscription_tier: plan,
                                 subscription_provider: 'razorpay',
                                 subscription_id: 'rzp_mock_' + Date.now().toString().slice(-8),
                                 subscription_expires_at: expiresAt
-                            });
+                            })
+                            .eq('id', session.user.id);
                         if (updateErr) throw updateErr;
                     } catch (dbErr) {
                         console.warn('Advanced subscription fields write failed. Falling back to basic is_pro write:', dbErr.message);
                         await window.supabaseClient.from('profiles')
-                            .upsert({ 
-                                id: session.user.id,
-                                email: session.user.email,
+                            .update({ 
                                 is_pro: true
-                            });
+                            })
+                            .eq('id', session.user.id);
                     }
                     
                     // Trigger global refresh
