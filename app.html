@@ -1983,7 +1983,7 @@
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
     <script>
         // Force unregister and cache clear on version mismatch to bypass stale service worker caches
-        const CURRENT_VERSION = '3.3.0';
+        const CURRENT_VERSION = '3.6.2';
         if (window.safeStorage.getItem('soundengg-app-version') !== CURRENT_VERSION) {
             window.safeStorage.setItem('soundengg-app-version', CURRENT_VERSION);
             if ('serviceWorker' in navigator) {
