@@ -163,56 +163,63 @@ const initAuthAndCore = () => {
     });
     
     // --- UNIFIED AUTHENTICATION MANAGER (Senior Consolidation) ---
-    async function handleAuthStateChange(event, session) {
-        console.group(`Auth Event: ${event}`);
-        const user = session?.user;
+    function handleAuthStateChange(event, session) {
+        // Decouple execution asynchronously to prevent GoTrue thread/lock deadlocks
+        setTimeout(async () => {
+            console.group(`Auth Event: ${event}`);
+            try {
+                const user = session?.user;
 
-        // 1. Sync Pro/Free State and Profile Data
-        await syncSubscriptionStatus(session);
+                // 1. Sync Pro/Free State and Profile Data
+                await syncSubscriptionStatus(session);
 
-        // 2. Global UI Update (Icon, Text, Modals)
-        const btnAuthToggles = document.querySelectorAll('.auth-toggle-btn');
-        const authModalOverlay = document.getElementById('auth-modal-overlay');
-        const profileModal = document.getElementById('profile-modal');
+                // 2. Global UI Update (Icon, Text, Modals)
+                const btnAuthToggles = document.querySelectorAll('.auth-toggle-btn');
+                const authModalOverlay = document.getElementById('auth-modal-overlay');
+                const profileModal = document.getElementById('profile-modal');
 
-        btnAuthToggles.forEach(btnAuthToggle => {
-            const authText = btnAuthToggle.querySelector('.btn-text');
-            const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
-            
-            if (user) {
-                const name = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
-                safeStorage.setItem('soundengg_user_display_name', name);
-                if (authText) authText.textContent = name;
-                if (authIcon) authIcon.textContent = 'account_circle';
-                btnAuthToggle.classList.add('logged-in');
-            } else {
-                safeStorage.removeItem('soundengg_user_display_name');
-                if (authText) {
-                    authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
+                btnAuthToggles.forEach(btnAuthToggle => {
+                    const authText = btnAuthToggle.querySelector('.btn-text');
+                    const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
+                    
+                    if (user) {
+                        const name = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
+                        safeStorage.setItem('soundengg_user_display_name', name);
+                        if (authText) authText.textContent = name;
+                        if (authIcon) authIcon.textContent = 'account_circle';
+                        btnAuthToggle.classList.add('logged-in');
+                    } else {
+                        safeStorage.removeItem('soundengg_user_display_name');
+                        if (authText) {
+                            authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
+                        }
+                        if (authIcon) authIcon.textContent = 'login';
+                        btnAuthToggle.classList.remove('logged-in', 'active');
+                    }
+                });
+
+                // 3. Modal Cleanup (Force Close on Successful Login/Logout)
+                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                    [authModalOverlay, profileModal].forEach(modal => {
+                        if (modal) closeModal(modal);
+                    });
                 }
-                if (authIcon) authIcon.textContent = 'login';
-                btnAuthToggle.classList.remove('logged-in', 'active');
+
+                // 4. Signal Modules to refresh data
+                if (event === 'SIGNED_IN') {
+                    document.dispatchEvent(new CustomEvent('authSuccess', { detail: session }));
+                    console.log('Global authSuccess signal dispatched');
+                }
+                if (event === 'SIGNED_OUT') {
+                    document.dispatchEvent(new CustomEvent('authCleared'));
+                    console.log('Global authCleared signal dispatched');
+                }
+            } catch (err) {
+                console.error('[handleAuthStateChange] Error in callback:', err);
+            } finally {
+                console.groupEnd();
             }
-        });
-
-        // 3. Modal Cleanup (Force Close on Successful Login/Logout)
-        if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-            [authModalOverlay, profileModal].forEach(modal => {
-                if (modal) closeModal(modal);
-            });
-        }
-
-        // 4. Signal Modules to refresh data
-        if (event === 'SIGNED_IN') {
-            document.dispatchEvent(new CustomEvent('authSuccess', { detail: session }));
-            console.log('Global authSuccess signal dispatched');
-        }
-        if (event === 'SIGNED_OUT') {
-            document.dispatchEvent(new CustomEvent('authCleared'));
-            console.log('Global authCleared signal dispatched');
-        }
-
-        console.groupEnd();
+        }, 0);
     }
 
     if (window.supabaseClient) {
