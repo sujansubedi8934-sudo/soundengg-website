@@ -363,6 +363,38 @@ window.updatePremiumUI = function() {
     }
 };
 
+function getDeviceMetadata() {
+    const ua = navigator.userAgent;
+    let os = 'Unknown OS';
+    if (ua.indexOf('Win') !== -1) os = 'Windows';
+    else if (ua.indexOf('Mac') !== -1) os = 'macOS';
+    else if (ua.indexOf('X11') !== -1) os = 'Linux';
+    else if (ua.indexOf('Linux') !== -1) os = 'Linux';
+    else if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) os = 'iOS';
+    else if (ua.indexOf('Android') !== -1) os = 'Android';
+
+    let browser = 'Unknown Browser';
+    if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+    else if (ua.indexOf('SamsungBrowser') !== -1) browser = 'Samsung Browser';
+    else if (ua.indexOf('Opera') !== -1 || ua.indexOf('OPR') !== -1) browser = 'Opera';
+    else if (ua.indexOf('Trident') !== -1) browser = 'Internet Explorer';
+    else if (ua.indexOf('Edge') !== -1 || ua.indexOf('Edg') !== -1) browser = 'Edge';
+    else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
+    else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
+
+    return { os, browser };
+}
+
+function parseDeviceString(deviceStr) {
+    if (!deviceStr) return null;
+    const parts = deviceStr.split('|');
+    const id = parts[0];
+    const os = parts[1] || 'Legacy OS';
+    const browser = parts[2] || 'Legacy Browser';
+    const lastActive = parts[3] ? parseInt(parts[3], 10) : Date.now();
+    return { id, os, browser, lastActive, raw: deviceStr };
+}
+
 async function syncSubscriptionStatus(session) {
     if (!window.supabaseClient) return;
     if (!session) {
@@ -481,9 +513,17 @@ async function syncSubscriptionStatus(session) {
                 safeStorage.setItem('soundengg_device_id', currentClientId);
             }
             
-            if (data.hasOwnProperty('device_ids') && !deviceIds.includes(currentClientId)) {
+            const meta = getDeviceMetadata();
+            const currentDeviceStr = `${currentClientId}|${meta.os}|${meta.browser}|${Date.now()}`;
+            
+            const findDeviceIndex = (list, clientId) => {
+                return list.findIndex(item => item.split('|')[0] === clientId);
+            };
+            const existingIdx = findDeviceIndex(deviceIds, currentClientId);
+            
+            if (data.hasOwnProperty('device_ids') && existingIdx === -1) {
                 if (deviceIds.length < 3) {
-                    deviceIds.push(currentClientId);
+                    deviceIds.push(currentDeviceStr);
                     try {
                         const { error: devUpdateErr } = await window.supabaseClient
                             .from('profiles')
@@ -494,25 +534,139 @@ async function syncSubscriptionStatus(session) {
                         console.warn('[syncSubscriptionStatus] Bypassing device_ids update due to missing column:', e.message);
                     }
                 } else {
-                    // Force session sign-out asynchronously to prevent GoTrue state deadlocks
-                    setTimeout(async () => {
-                        try {
-                            await window.supabaseClient.auth.signOut();
-                        } catch (signOutErr) {
-                            console.warn('[syncSubscriptionStatus] Asynchronous device-limit signOut failed:', signOutErr);
-                        }
-                    }, 100);
-                    
                     // Trigger instant session lock overlay
                     const deviceLimitModal = document.getElementById('device-limit-modal');
-                    if (deviceLimitModal) deviceLimitModal.classList.remove('hidden');
+                    const deviceListContainer = document.getElementById('device-limit-list');
+                    const errDisplay = document.getElementById('device-limit-error');
                     
-                    // Wire dynamic logout refresh button on the fly
+                    if (deviceLimitModal) {
+                        deviceLimitModal.classList.remove('hidden');
+                        deviceLimitModal.style.display = 'flex';
+                    }
+                    
+                    // Render Device List for Selective Deauthorization
+                    if (deviceListContainer) {
+                        deviceListContainer.innerHTML = '';
+                        
+                        deviceIds.forEach((devStr) => {
+                            const dev = parseDeviceString(devStr);
+                            if (!dev) return;
+                            
+                            const item = document.createElement('div');
+                            item.style.cssText = `
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                                background: rgba(255, 255, 255, 0.03);
+                                border: 1px solid rgba(255, 255, 255, 0.08);
+                                padding: 0.75rem 1rem;
+                                border-radius: 6px;
+                                margin-bottom: 0.5rem;
+                            `;
+                            
+                            const details = document.createElement('div');
+                            details.style.cssText = `
+                                display: flex;
+                                flex-direction: column;
+                                text-align: left;
+                            `;
+                            
+                            const name = document.createElement('span');
+                            name.style.cssText = 'font-weight: bold; font-size: 0.9rem; color: #fff;';
+                            name.textContent = `${dev.browser} on ${dev.os}`;
+                            
+                            const activeTime = document.createElement('span');
+                            activeTime.style.cssText = 'font-size: 0.75rem; color: var(--text-dim); margin-top: 0.2rem;';
+                            activeTime.textContent = `Last Active: ${new Date(dev.lastActive).toLocaleString()}`;
+                            
+                            details.appendChild(name);
+                            details.appendChild(activeTime);
+                            
+                            const deauthBtn = document.createElement('button');
+                            deauthBtn.className = 'rugged-btn-sm';
+                            deauthBtn.style.cssText = 'background: #ff3333; color: #fff; border: none; padding: 6px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; cursor: pointer;';
+                            deauthBtn.textContent = 'DEAUTHORIZE';
+                            
+                            deauthBtn.onclick = async () => {
+                                deauthBtn.disabled = true;
+                                deauthBtn.textContent = 'WAIT...';
+                                if (errDisplay) errDisplay.style.display = 'none';
+                                
+                                try {
+                                    // Remove selected device, append current device metadata
+                                    const updatedDevices = deviceIds
+                                        .filter(d => d.split('|')[0] !== dev.id);
+                                    updatedDevices.push(currentDeviceStr);
+                                    
+                                    const { error: updateErr } = await window.supabaseClient
+                                        .from('profiles')
+                                        .update({ device_ids: updatedDevices })
+                                        .eq('id', session.user.id);
+                                        
+                                    if (updateErr) throw updateErr;
+                                    
+                                    // Success: Hide and reload
+                                    if (deviceLimitModal) deviceLimitModal.classList.add('hidden');
+                                    window.location.reload();
+                                } catch (err) {
+                                    console.error('[syncSubscriptionStatus] Selective deauth failed:', err.message);
+                                    deauthBtn.disabled = false;
+                                    deauthBtn.textContent = 'DEAUTHORIZE';
+                                    if (errDisplay) {
+                                        errDisplay.textContent = 'Failed to deauthorize device: ' + err.message;
+                                        errDisplay.style.display = 'block';
+                                    }
+                                }
+                            };
+                            
+                            item.appendChild(details);
+                            item.appendChild(deauthBtn);
+                            deviceListContainer.appendChild(item);
+                        });
+                    }
+                    
+                    // Wire dynamic deauthorize-all button
+                    const btnDeauthorizeAll = document.getElementById('btn-device-limit-deauthorize-all');
+                    if (btnDeauthorizeAll) {
+                        btnDeauthorizeAll.onclick = async () => {
+                            btnDeauthorizeAll.disabled = true;
+                            btnDeauthorizeAll.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite;">sync</span> DEAUTHORIZING ALL...';
+                            if (errDisplay) errDisplay.style.display = 'none';
+                            
+                            try {
+                                const { error: devUpdateErr } = await window.supabaseClient
+                                    .from('profiles')
+                                    .update({ device_ids: [currentDeviceStr] })
+                                    .eq('id', session.user.id);
+                                    
+                                if (devUpdateErr) throw devUpdateErr;
+                                
+                                if (deviceLimitModal) deviceLimitModal.classList.add('hidden');
+                                window.location.reload();
+                            } catch (e) {
+                                console.error('[syncSubscriptionStatus] Deauthorize-all failed:', e.message);
+                                btnDeauthorizeAll.disabled = false;
+                                btnDeauthorizeAll.textContent = 'DEAUTHORIZE ALL OTHER DEVICES';
+                                if (errDisplay) {
+                                    errDisplay.textContent = 'Failed to reset sessions: ' + e.message;
+                                    errDisplay.style.display = 'block';
+                                }
+                            }
+                        };
+                    }
+                    
+                    // Wire dynamic logout button
                     const btnDeviceLogout = document.getElementById('btn-device-limit-logout');
                     if (btnDeviceLogout) {
-                        btnDeviceLogout.onclick = () => {
-                            if (deviceLimitModal) deviceLimitModal.classList.add('hidden');
-                            window.location.reload();
+                        btnDeviceLogout.onclick = async () => {
+                            try {
+                                if (deviceLimitModal) deviceLimitModal.classList.add('hidden');
+                                await window.supabaseClient.auth.signOut();
+                                window.location.reload();
+                            } catch (signOutErr) {
+                                console.warn('[syncSubscriptionStatus] Manual device-limit signOut failed:', signOutErr);
+                                window.location.reload();
+                            }
                         };
                     }
                     
