@@ -1,3 +1,7 @@
+# Dependency & Distribution Folders
+node_modules/
+www/
+
 # Miscellaneous
 *.class
 *.lock

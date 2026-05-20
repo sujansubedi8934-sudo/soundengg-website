@@ -4,6 +4,7 @@
   "description": "audio tools and blogs for soundengg",
   "main": "service-worker.js",
   "scripts": {
+    "build": "node build-app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,5 +18,13 @@
   "bugs": {
     "url": "https://github.com/sujansubedi8934-sudo/soundengg-website/issues"
   },
-  "homepage": "https://github.com/sujansubedi8934-sudo/soundengg-website#readme"
+  "homepage": "https://github.com/sujansubedi8934-sudo/soundengg-website#readme",
+  "dependencies": {
+    "@capacitor/android": "^8.3.4",
+    "@capacitor/core": "^8.3.4",
+    "@capacitor/ios": "^8.3.4"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.3.4"
+  }
 }
