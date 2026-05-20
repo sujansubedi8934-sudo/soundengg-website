@@ -25,6 +25,16 @@ serve(async (req) => {
     // ACTION 1: INITIALIZE CHECKOUT (GENERATE SECURE IDs)
     // ==========================================
     if (action === "create_checkout") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) throw new Error("Missing Authorization header");
+      const token = authHeader.replace("Bearer ", "");
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL") || "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
+      );
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      if (!user) throw new Error("Unauthorized Access");
+
       const isUSD = user_currency === "USD";
       
       if (plan === "lifetime") {
@@ -42,7 +52,10 @@ serve(async (req) => {
           body: JSON.stringify({
             amount: amount,
             currency: currency,
-            receipt: `rcpt_${Date.now()}`
+            receipt: `rcpt_${Date.now()}`,
+            notes: {
+              user_id: user.id
+            }
           })
         });
         
@@ -73,7 +86,10 @@ serve(async (req) => {
             plan_id: planId,
             total_count: totalCount,
             quantity: 1,
-            customer_notify: 1
+            customer_notify: 1,
+            notes: {
+              user_id: user.id
+            }
           })
         });
 
