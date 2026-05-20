@@ -4948,6 +4948,7 @@ function initAdManager() {
             alert(`Could not launch secure payment gateway:\n${e.message}`);
         }
     }
+    window.initiateRazorpayCheckout = initiateRazorpayCheckout;
 
     if (btnBuyPro) {
         btnBuyPro.addEventListener('click', async () => {
@@ -5697,7 +5698,12 @@ function showCheckoutConfirmModal(user, plan) {
             script.src = "https://checkout.razorpay.com/v1/checkout.js";
             script.onload = () => {
                 modal.remove();
-                initiateRazorpayCheckout(user, plan);
+                if (typeof window.initiateRazorpayCheckout === 'function') {
+                    window.initiateRazorpayCheckout(user, plan);
+                } else {
+                    console.error("window.initiateRazorpayCheckout is not defined");
+                    alert("Error: Checkout handler not initialized properly. Please refresh the page.");
+                }
             };
             script.onerror = () => {
                 proceedBtn.disabled = false;
@@ -5707,7 +5713,12 @@ function showCheckoutConfirmModal(user, plan) {
             document.head.appendChild(script);
         } else {
             modal.remove();
-            initiateRazorpayCheckout(user, plan);
+            if (typeof window.initiateRazorpayCheckout === 'function') {
+                window.initiateRazorpayCheckout(user, plan);
+            } else {
+                console.error("window.initiateRazorpayCheckout is not defined");
+                alert("Error: Checkout handler not initialized properly. Please refresh the page.");
+            }
         }
     };
 }
