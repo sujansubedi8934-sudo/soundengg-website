@@ -1207,6 +1207,40 @@ function setupNavigation() {
                     }
 
                     try {
+                        // Deauthorize this device from database to free up concurrent slot
+                        const currentClientId = safeStorage.getItem('soundengg_device_id');
+                        if (currentClientId && window.supabaseClient) {
+                            try {
+                                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                                if (session) {
+                                    const { data: profile } = await window.supabaseClient
+                                        .from('profiles')
+                                        .select('device_ids')
+                                        .eq('id', session.user.id)
+                                        .maybeSingle();
+                                    
+                                    if (profile && profile.device_ids) {
+                                        let deviceIds = profile.device_ids || [];
+                                        if (!Array.isArray(deviceIds)) {
+                                            try {
+                                                deviceIds = typeof deviceIds === 'string' ? JSON.parse(deviceIds) : [];
+                                            } catch(e) {
+                                                deviceIds = [];
+                                            }
+                                        }
+                                        const updatedDevices = deviceIds.filter(d => d.split('|')[0] !== currentClientId);
+                                        await window.supabaseClient
+                                            .from('profiles')
+                                            .update({ device_ids: updatedDevices })
+                                            .eq('id', session.user.id);
+                                        console.log('Device successfully deauthorized on voluntary sign out.');
+                                    }
+                                }
+                            } catch (dbErr) {
+                                console.warn('Could not deauthorize device from DB during sign out:', dbErr);
+                            }
+                        }
+
                         // 1. Unregister all service workers to clear offline caches/state completely
                         if ('serviceWorker' in navigator) {
                             try {
