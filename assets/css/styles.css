@@ -4070,6 +4070,13 @@ html.light .auth-modal {
     box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
 }
 
+.tier-badge.cancelled {
+    background: rgba(255, 179, 0, 0.15);
+    color: #ffb300;
+    border: 1px solid #ffb300;
+    box-shadow: 0 0 10px rgba(255, 179, 0, 0.3);
+}
+
 .outline-warning {
     background: transparent;
     border: 1px solid #ffcc00;

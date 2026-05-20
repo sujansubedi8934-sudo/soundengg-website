@@ -160,6 +160,8 @@ serve(async (req) => {
           .from("profiles")
           .update({
             is_pro: isStillActive,
+            subscription_tier: isStillActive ? tier : null,
+            subscription_provider: isStillActive ? "razorpay_cancelled" : "razorpay",
             subscription_expires_at: expiresAt,
             updated_at: new Date().toISOString()
           })

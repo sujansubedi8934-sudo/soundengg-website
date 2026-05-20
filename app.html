@@ -1619,6 +1619,51 @@
                 </div>
             </div>
 
+            <!-- Subscription & Billing Portal Card -->
+            <div class="profile-section" id="profile-subscription-portal" style="border: 1px solid rgba(255, 255, 255, 0.08); padding: 1.25rem; border-radius: 8px; background: rgba(255, 255, 255, 0.02); margin-top: 1rem; box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+                <h3 class="section-sub-title" style="margin-top: 0; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; color: var(--primary); font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;">
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem;">credit_card</span> BILLING_GATEWAY_PORTAL
+                </h3>
+                
+                <div id="sub-portal-loading" style="display: none; text-align: center; padding: 1rem 0;">
+                    <span class="material-symbols-outlined" style="animation: spin 1s linear infinite; color: var(--primary); font-size: 1.5rem;">sync</span>
+                    <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.5rem; font-family: var(--font-mono); letter-spacing: 1px;">SYNCING BILLING LEDGER...</p>
+                </div>
+
+                <div id="sub-portal-details" style="display: block;">
+                    <!-- Active Subscription Details -->
+                    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                        <div class="profile-stat-row" style="border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 0.5rem; padding-top: 0; border-top: none;">
+                            <div class="profile-stat-label" style="font-size: 0.7rem; color: var(--text-muted);">ACTIVE PASS</div>
+                            <div class="profile-stat-value" id="sub-portal-tier" style="font-weight: 700; color: #fff;">FREE TIER</div>
+                        </div>
+                        
+                        <div class="profile-stat-row" id="row-sub-billing" style="border-bottom: 1px dashed rgba(255,255,255,0.06); padding-bottom: 0.5rem; border-top: none; display: none;">
+                            <div class="profile-stat-label" id="sub-billing-label" style="font-size: 0.7rem; color: var(--text-muted);">NEXT RECURRING</div>
+                            <div class="profile-stat-value" id="sub-portal-date" style="font-family: var(--font-mono); color: #fff;">N/A</div>
+                        </div>
+
+                        <div class="profile-stat-row" id="row-sub-provider" style="padding-bottom: 0; border-bottom: none; border-top: none; display: none;">
+                            <div class="profile-stat-label" style="font-size: 0.7rem; color: var(--text-muted);">LEDGER REF</div>
+                            <div class="profile-stat-value" style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); text-align: right;">
+                                <span id="sub-portal-provider" style="text-transform: uppercase;">RAZORPAY</span>: 
+                                <span id="sub-portal-id" style="color: var(--text-muted);">sub_xyz</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Manage Actions -->
+                    <div id="sub-portal-actions" style="margin-top: 1.25rem; display: flex; gap: 10px;">
+                        <a href="pro.html" id="btn-sub-upgrade" class="auth-submit-btn" style="text-align: center; text-decoration: none; display: inline-block; width: 100%; font-size: 0.85rem; padding: 10px 0; margin-top: 0; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.2);">
+                            UPGRADE TO PRO PASS
+                        </a>
+                        <button type="button" id="btn-sub-manage" class="auth-submit-btn outline-warning" style="display: none; width: 100%; font-size: 0.85rem; padding: 10px 0; margin-top: 0; cursor: pointer;">
+                            MANAGE SUBSCRIPTION
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <hr class="rugged-divider">
 
             <div class="profile-section">
@@ -1655,6 +1700,38 @@
             <div class="profile-section" style="margin-top: 2rem; position: relative; z-index: 9999;">
                 <button type="button" id="btn-profile-signout" class="auth-submit-btn danger-btn" style="position: relative; z-index: 10000; cursor: pointer !important;">
                     <span class="material-symbols-outlined">logout</span> SECURE SIGN OUT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Billing Cancellation Confirmation Modal -->
+    <div id="billing-cancel-confirm-modal" class="modal-overlay hidden" style="z-index: 10010;">
+        <div class="modal-content auth-modal-box" style="max-width: 400px; padding: 2rem;">
+            <button id="btn-close-billing-cancel" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            
+            <div class="auth-header" style="margin-bottom: 1.5rem; text-align: center;">
+                <span class="material-symbols-outlined" style="font-size: 3rem; color: #ffcc00; display: inline-block;">warning</span>
+                <h2 class="vfd-glow" style="color: #ffcc00; margin-top: 0.5rem; letter-spacing: 1px;">CANCEL_PASS_CONFIRM</h2>
+                <p style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--text-secondary);">Are you sure you want to cancel automated renewal?</p>
+            </div>
+
+            <div style="background: rgba(255, 204, 0, 0.05); border: 1px solid rgba(255, 204, 0, 0.2); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: left;">
+                <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                    <li>Your <strong>Pro features will remain active</strong> until the end of your current billing period.</li>
+                    <li>No further automatic charges will occur.</li>
+                    <li>You can reactivate your subscription at any time.</li>
+                </ul>
+            </div>
+
+            <div id="billing-cancel-error" style="display: none; color: #ff4444; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 1rem; text-align: center; background: rgba(255, 68, 68, 0.05); border: 1px solid rgba(255, 68, 68, 0.2); padding: 0.5rem; border-radius: 4px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="btn-billing-cancel-execute" class="auth-submit-btn danger-btn" style="width: 100%; font-size: 0.85rem; padding: 12px 0; cursor: pointer;">
+                    CONFIRM CANCELLATION
+                </button>
+                <button type="button" id="btn-billing-cancel-abort" class="auth-submit-btn outline-warning" style="width: 100%; font-size: 0.85rem; padding: 12px 0; border-color: rgba(255,255,255,0.2); color: #fff; cursor: pointer;">
+                    KEEP MY PRO PASS
                 </button>
             </div>
         </div>

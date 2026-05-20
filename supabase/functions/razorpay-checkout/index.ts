@@ -179,6 +179,92 @@ serve(async (req) => {
       });
     }
 
+    // ==========================================
+    // ACTION 3: CANCEL SUBSCRIPTION (SECURE REQ VIA GATEWAY)
+    // ==========================================
+    if (action === "cancel_subscription") {
+      const authHeader = req.headers.get("Authorization");
+      if (!authHeader) throw new Error("Missing Authorization header");
+      const token = authHeader.replace("Bearer ", "");
+      const supabaseAdmin = createClient(
+        Deno.env.get("SUPABASE_URL") || "",
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
+      );
+      const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+      if (!user) throw new Error("Unauthorized Access");
+
+      // Fetch user profile to check subscription ID and provider
+      const { data: profile, error: profileErr } = await supabaseAdmin
+        .from("profiles")
+        .select("subscription_id, subscription_provider, is_pro, subscription_tier")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileErr || !profile) {
+        throw new Error("Unable to retrieve profile details.");
+      }
+
+      if (!profile.subscription_id || profile.subscription_provider !== "razorpay") {
+        throw new Error("No active auto-renewing Razorpay subscription found for cancellation.");
+      }
+
+      // Call Razorpay API to cancel subscription at the end of the current cycle
+      // If we cancel with cancel_at_cycle_end: 1, Razorpay will keep it active until the end of the paid duration!
+      const response = await fetch(`https://api.razorpay.com/v1/subscriptions/${profile.subscription_id}/cancel`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Basic " + btoa(`${RZP_KEY_ID}:${RZP_KEY_SECRET}`)
+        },
+        body: JSON.stringify({
+          cancel_at_cycle_end: 1
+        })
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        // If subscription is already cancelled or has error, handle gracefully
+        if (responseData.error && (responseData.error.description.includes("cancelled") || responseData.error.description.includes("completed"))) {
+          // Already cancelled, let's update profile just in case
+          await supabaseAdmin
+            .from("profiles")
+            .update({ 
+              is_pro: false,
+              subscription_tier: null,
+              subscription_expires_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq("id", user.id);
+          return new Response(JSON.stringify({ success: true, message: "Subscription already cancelled." }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" }
+          });
+        }
+        throw new Error(responseData.error ? responseData.error.description : "Failed to cancel subscription in Razorpay");
+      }
+
+      // Update database profile
+      // Note: Razorpay webhook subscription.cancelled will also capture and sync this,
+      // but doing it synchronously here guarantees instant UI response and superior user experience!
+      const currentEnd = responseData.current_end;
+      const expiresAt = currentEnd ? new Date(currentEnd * 1000).toISOString() : new Date().toISOString();
+      const isStillActive = new Date(expiresAt) > new Date();
+
+      await supabaseAdmin
+        .from("profiles")
+        .update({
+          is_pro: isStillActive,
+          subscription_tier: isStillActive ? profile.subscription_tier : null,
+          subscription_provider: isStillActive ? "razorpay_cancelled" : "razorpay",
+          subscription_expires_at: expiresAt,
+          updated_at: new Date().toISOString()
+        })
+        .eq("id", user.id);
+
+      return new Response(JSON.stringify({ success: true, message: "Subscription cancelled successfully at end of cycle.", expires_at: expiresAt }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
   } catch (err) {
     return new Response(JSON.stringify({ success: false, error: err.message }), {
       status: 500,

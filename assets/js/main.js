@@ -117,30 +117,15 @@ const initAuthAndCore = () => {
                 const profileModal = document.getElementById('profile-modal');
                 openModal(profileModal);
                 
-                // Fetch and populate latest profile details in real-time on modal open!
+                // Fetch and populate latest profile details and billing ledger in real-time on modal open!
                 if (window.supabaseClient) {
                     window.supabaseClient.auth.getSession().then(async ({ data: { session } }) => {
                         if (session) {
                             try {
-                                const { data, error } = await window.supabaseClient
-                                    .from('profiles')
-                                    .select('full_name, company')
-                                    .eq('id', session.user.id)
-                                    .maybeSingle();
-                                    
-                                if (data) {
-                                    const inputFullname = document.getElementById('profile-fullname');
-                                    const inputCompany = document.getElementById('profile-company');
-                                    if (inputFullname) {
-                                        inputFullname.value = (data.full_name === 'EMPTY' ? '' : data.full_name) || '';
-                                    }
-                                    if (inputCompany) {
-                                        inputCompany.value = (data.company === 'EMPTY' ? '' : data.company) || '';
-                                    }
-                                    console.log('Real-time profile details loaded on modal open:', data);
-                                }
+                                await syncSubscriptionStatus(session);
+                                console.log('Real-time subscription status and profile details fully synced on modal open.');
                             } catch (err) {
-                                console.error('Error fetching profile on open:', err);
+                                console.error('Error syncing profile on open:', err);
                             }
                         }
                     });
@@ -689,25 +674,117 @@ async function syncSubscriptionStatus(session) {
             const inputCompany = document.getElementById('profile-company');
             const btnProfileUpgrade = document.getElementById('btn-profile-upgrade');
 
+            // --- EXPANDED BILLING PORTAL HYDRATION ---
+            const subPortalTier = document.getElementById('sub-portal-tier');
+            const rowSubBilling = document.getElementById('row-sub-billing');
+            const subBillingLabel = document.getElementById('sub-billing-label');
+            const subPortalDate = document.getElementById('sub-portal-date');
+            const rowSubProvider = document.getElementById('row-sub-provider');
+            const subPortalProvider = document.getElementById('sub-portal-provider');
+            const subPortalId = document.getElementById('sub-portal-id');
+            const btnSubUpgrade = document.getElementById('btn-sub-upgrade');
+            const btnSubManage = document.getElementById('btn-sub-manage');
+
+            const isCancelled = data.subscription_provider === 'razorpay_cancelled';
+
             if (profileTierBadge) {
-                profileTierBadge.className = window.isPremiumActive() ? 'tier-badge pro' : 'tier-badge free';
-                
                 if (window.isUserPro) {
                     const tierName = (data.subscription_tier || 'PRO').toUpperCase();
                     let expiryLabel = '';
-                    if (expiresAt && !isNaN(expiresAt.getTime())) {
-                        expiryLabel = ` (Expires: ${expiresAt.toLocaleDateString()})`;
+                    if (isCancelled) {
+                        profileTierBadge.className = 'tier-badge cancelled';
+                        if (expiresAt && !isNaN(expiresAt.getTime())) {
+                            expiryLabel = ` (Active until: ${expiresAt.toLocaleDateString()})`;
+                        }
+                        profileTierBadge.textContent = `${tierName} PASS${expiryLabel}`;
                     } else {
-                        expiryLabel = ` (LIFETIME)`;
+                        profileTierBadge.className = 'tier-badge pro';
+                        if (expiresAt && !isNaN(expiresAt.getTime())) {
+                            expiryLabel = ` (Next billing: ${expiresAt.toLocaleDateString()})`;
+                        } else {
+                            expiryLabel = ` (LIFETIME)`;
+                        }
+                        profileTierBadge.textContent = `${tierName} PASS${expiryLabel}`;
                     }
-                    profileTierBadge.textContent = `${tierName} TIER${expiryLabel}`;
                 } else if (window.isPremiumActive()) {
+                    profileTierBadge.className = 'tier-badge pro';
                     profileTierBadge.textContent = '🎁 TEMPORARY PRO';
                 } else {
+                    profileTierBadge.className = 'tier-badge free';
                     profileTierBadge.textContent = 'FREE TIER';
                 }
                 
                 if (btnProfileUpgrade) btnProfileUpgrade.style.display = window.isPremiumActive() ? 'none' : 'inline-block';
+            }
+
+            // Hydrate the expanded billing portal card details
+            if (subPortalTier) {
+                if (window.isUserPro) {
+                    const tierClean = (data.subscription_tier || 'PRO').toUpperCase() + ' PASS';
+                    subPortalTier.textContent = tierClean;
+                    
+                    // Expiration/Renewal Row
+                    if (rowSubBilling && subBillingLabel && subPortalDate) {
+                        if (expiresAt && !isNaN(expiresAt.getTime())) {
+                            rowSubBilling.style.display = 'flex';
+                            subPortalDate.textContent = expiresAt.toLocaleDateString();
+                            
+                            if (isCancelled) {
+                                subBillingLabel.textContent = 'ACCESS UNTIL';
+                                subPortalDate.style.color = '#ffb300'; // Amber
+                            } else {
+                                subBillingLabel.textContent = 'NEXT RECURRING';
+                                subPortalDate.style.color = '#00ffcc'; // Neon cyan/green
+                            }
+                        } else {
+                            rowSubBilling.style.display = 'flex';
+                            subBillingLabel.textContent = 'ACCESS UNTIL';
+                            subPortalDate.textContent = 'LIFETIME ACCESS';
+                            subPortalDate.style.color = '#00ffcc';
+                        }
+                    }
+
+                    // Provider Reference Row
+                    if (rowSubProvider && subPortalProvider && subPortalId && data.subscription_id) {
+                        rowSubProvider.style.display = 'flex';
+                        subPortalProvider.textContent = data.subscription_provider ? data.subscription_provider.split('_')[0].toUpperCase() : 'GATEWAY';
+                        subPortalId.textContent = data.subscription_id;
+                    }
+
+                    // Action buttons
+                    if (btnSubUpgrade) btnSubUpgrade.style.display = 'none';
+                    if (btnSubManage) {
+                        btnSubManage.style.display = 'inline-block';
+                        
+                        if (isCancelled) {
+                            btnSubManage.disabled = true;
+                            btnSubManage.textContent = 'CANCELLATION PENDING';
+                            btnSubManage.className = 'auth-submit-btn outline-warning';
+                            btnSubManage.style.opacity = '0.5';
+                            btnSubManage.style.cursor = 'not-allowed';
+                        } else if (data.subscription_tier === 'lifetime') {
+                            btnSubManage.disabled = true;
+                            btnSubManage.textContent = 'LIFETIME IS PERMANENT';
+                            btnSubManage.className = 'auth-submit-btn outline-warning';
+                            btnSubManage.style.opacity = '0.5';
+                            btnSubManage.style.cursor = 'not-allowed';
+                        } else {
+                            btnSubManage.disabled = false;
+                            btnSubManage.textContent = 'MANAGE SUBSCRIPTION';
+                            btnSubManage.className = 'auth-submit-btn outline-warning';
+                            btnSubManage.style.opacity = '1';
+                            btnSubManage.style.cursor = 'pointer';
+                        }
+                    }
+                } else {
+                    // Free Tier / Temporary Pro
+                    subPortalTier.textContent = window.isPremiumActive() ? '🎁 TEMPORARY PRO' : 'FREE TIER';
+                    if (rowSubBilling) rowSubBilling.style.display = 'none';
+                    if (rowSubProvider) rowSubProvider.style.display = 'none';
+                    
+                    if (btnSubUpgrade) btnSubUpgrade.style.display = 'inline-block';
+                    if (btnSubManage) btnSubManage.style.display = 'none';
+                }
             }
             
             // EMERGENCY BYPASS: If premium is active, hide the ad/offline lock immediately
@@ -1053,6 +1130,14 @@ function setupNavigation() {
     const inputFullname = document.getElementById('profile-fullname');
     const inputCompany = document.getElementById('profile-company');
 
+    // Billing portal & cancellation modal elements
+    const btnSubManage = document.getElementById('btn-sub-manage');
+    const billingCancelConfirmModal = document.getElementById('billing-cancel-confirm-modal');
+    const btnCloseBillingCancel = document.getElementById('btn-close-billing-cancel');
+    const btnBillingCancelExecute = document.getElementById('btn-billing-cancel-execute');
+    const btnBillingCancelAbort = document.getElementById('btn-billing-cancel-abort');
+    const billingCancelError = document.getElementById('billing-cancel-error');
+
     if (btnAuthToggle) {
         // Handled by global delegation for robustness
         console.log('Auth toggle logic migrated to global delegate');
@@ -1078,6 +1163,91 @@ function setupNavigation() {
             profileModal.addEventListener('click', (e) => {
                 if (e.target === profileModal) closeModal(profileModal);
             });
+
+            // Wire Subscription Cancellation handlers inside Profile Modal context
+            if (btnSubManage && billingCancelConfirmModal) {
+                btnSubManage.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (billingCancelError) {
+                        billingCancelError.style.display = 'none';
+                        billingCancelError.textContent = '';
+                    }
+                    openModal(billingCancelConfirmModal);
+                });
+            }
+
+            if (btnCloseBillingCancel && billingCancelConfirmModal) {
+                btnCloseBillingCancel.addEventListener('click', () => closeModal(billingCancelConfirmModal));
+            }
+
+            if (btnBillingCancelAbort && billingCancelConfirmModal) {
+                btnBillingCancelAbort.addEventListener('click', () => closeModal(billingCancelConfirmModal));
+            }
+
+            if (billingCancelConfirmModal) {
+                billingCancelConfirmModal.addEventListener('click', (e) => {
+                    if (e.target === billingCancelConfirmModal) {
+                        closeModal(billingCancelConfirmModal);
+                    }
+                });
+            }
+
+            if (btnBillingCancelExecute && billingCancelConfirmModal) {
+                btnBillingCancelExecute.addEventListener('click', async () => {
+                    const originalText = btnBillingCancelExecute.textContent;
+                    btnBillingCancelExecute.textContent = 'PROCESSING...';
+                    btnBillingCancelExecute.disabled = true;
+                    if (btnBillingCancelAbort) btnBillingCancelAbort.disabled = true;
+                    if (billingCancelError) {
+                        billingCancelError.style.display = 'none';
+                        billingCancelError.textContent = '';
+                    }
+
+                    try {
+                        if (!window.supabaseClient) {
+                            throw new Error('Supabase client not initialized.');
+                        }
+                        const { data: { session } } = await window.supabaseClient.auth.getSession();
+                        if (!session) {
+                            throw new Error('No active session found. Please sign in again.');
+                        }
+
+                        const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/razorpay-checkout";
+                        const response = await fetch(edgeFuncUrl, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${session.access_token}`
+                            },
+                            body: JSON.stringify({
+                                action: "cancel_subscription"
+                            })
+                        });
+
+                        const resData = await response.json();
+                        if (!response.ok) {
+                            throw new Error(resData.error || "Failed to cancel subscription.");
+                        }
+
+                        // Sync state immediately in real-time
+                        await syncSubscriptionStatus(session);
+
+                        closeModal(billingCancelConfirmModal);
+
+                        alert("Recurring billing successfully deactivated! Your PRO PASS will remain active until the end of your paid cycle.");
+                    } catch (err) {
+                        console.error('[Billing Cancellation Error]:', err);
+                        if (billingCancelError) {
+                            billingCancelError.textContent = err.message || "An unexpected error occurred.";
+                            billingCancelError.style.display = 'block';
+                        }
+                    } finally {
+                        btnBillingCancelExecute.textContent = originalText;
+                        btnBillingCancelExecute.disabled = false;
+                        if (btnBillingCancelAbort) btnBillingCancelAbort.disabled = false;
+                    }
+                });
+            }
 
             if (formUpdateProfile) {
                 formUpdateProfile.addEventListener('submit', async (e) => {
