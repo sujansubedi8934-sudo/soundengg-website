@@ -3324,14 +3324,21 @@ function initProfessionalRTA() {
         
         if (window.isNativeMobile()) {
             console.log('Native mobile detected. Launching native AdMob Rewarded Video...');
+            const { AdMob } = window.Capacitor?.Plugins || {};
+            if (!AdMob) {
+                console.log('AdMob native plugin not found/configured. Auto-granting reward for local mobile debugging.');
+                grantAdRewardSuccess();
+                return;
+            }
+
             showNativeRewardedAd(
                 () => {
                     console.log('Native AdMob Reward granted!');
                     grantAdRewardSuccess();
                 },
                 () => {
-                    console.warn('Native AdMob unavailable. Reverting to web countdown flow.');
-                    triggerBrowserAdPlayback();
+                    console.warn('Native AdMob failed. Auto-granting reward to prevent lockout in mobile.');
+                    grantAdRewardSuccess();
                 }
             );
             return;
@@ -5075,26 +5082,37 @@ function initAdManager() {
     }
 
     function lockApp() {
-        // Blur app
-        if (appContent) appContent.classList.add('app-blurred');
-        if (sidebar) sidebar.classList.add('app-blurred');
-        if (bottomBanner) bottomBanner.classList.add('hidden');
-        
         if (window.isNativeMobile()) {
-            console.log('Native Mobile locked state. Triggering native AdMob Rewarded/Interstitial fallback.');
+            console.log('Native Mobile detected. Checking for native AdMob plugin...');
+            const { AdMob } = window.Capacitor?.Plugins || {};
+            if (!AdMob) {
+                console.log('AdMob native plugin not found/configured. Bypassing lock screen for local mobile debug.');
+                unlockApp();
+                return;
+            }
+
+            // Only apply blur if we actually have AdMob to show, preventing permanent blur on failure
+            if (appContent) appContent.classList.add('app-blurred');
+            if (sidebar) sidebar.classList.add('app-blurred');
+            if (bottomBanner) bottomBanner.classList.add('hidden');
+
             showNativeRewardedAd(
                 () => {
                     console.log('Native Lock Ad completed successfully!');
                     grantAccess(6);
                 },
                 () => {
-                    console.log('Native Lock Ad failed, showing browser lock modal.');
-                    triggerBrowserLock();
+                    console.warn('Native AdMob failed to play. Unlocking app to prevent lockout.');
+                    unlockApp();
                 }
             );
             return;
         }
 
+        // Standard Web Browser Flow
+        if (appContent) appContent.classList.add('app-blurred');
+        if (sidebar) sidebar.classList.add('app-blurred');
+        if (bottomBanner) bottomBanner.classList.add('hidden');
         triggerBrowserLock();
     }
 
