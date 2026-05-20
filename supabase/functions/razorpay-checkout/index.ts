@@ -61,6 +61,8 @@ serve(async (req) => {
           ? (Deno.env.get("RAZORPAY_PLAN_MONTHLY") || "plan_MONTHLY_PLAN_ID")
           : (Deno.env.get("RAZORPAY_PLAN_YEARLY") || "plan_YEARLY_PLAN_ID");
 
+        const totalCount = plan === "monthly" ? 120 : 10; // 10 years max duration (120 months or 10 years)
+
         const response = await fetch("https://api.razorpay.com/v1/subscriptions", {
           method: "POST",
           headers: {
@@ -69,7 +71,7 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             plan_id: planId,
-            total_count: 120, // 10 Years max duration
+            total_count: totalCount,
             quantity: 1,
             customer_notify: 1
           })
