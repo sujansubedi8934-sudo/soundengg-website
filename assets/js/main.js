@@ -4791,11 +4791,9 @@ function initAdManager() {
         });
     }
 
-    function initiateRazorpayCheckout(user, plan = 'lifetime') {
-        // Safe check for configured Razorpay Key, falls back to a sandbox test key
+    async function initiateRazorpayCheckout(user, plan = 'lifetime') {
         const keyId = window.RAZORPAY_KEY_ID || "rzp_test_SrF0fu6ZZuNFbC";
         
-        // Determine currency, amount, and description dynamically based on geolocation and plan
         let amount = 349900; // Default INR Lifetime
         let currency = "INR";
         let planDescription = "Lifetime SoundEngg Pro Access";
@@ -4803,100 +4801,151 @@ function initAdManager() {
         if (window.isIndiaUser) {
             currency = "INR";
             if (plan === 'monthly') {
-                amount = 19900; // ₹199
+                amount = 19900;
                 planDescription = "Monthly SoundEngg Pro Subscription";
             } else if (plan === 'yearly') {
-                amount = 199900; // ₹1,999
+                amount = 199900;
                 planDescription = "Yearly SoundEngg Pro Subscription";
             } else {
-                amount = 349900; // ₹3,499
+                amount = 349900;
                 planDescription = "Lifetime SoundEngg Pro Access";
             }
         } else {
             currency = "USD";
             if (plan === 'monthly') {
-                amount = 299; // $2.99
+                amount = 299;
                 planDescription = "Monthly SoundEngg Pro Subscription";
             } else if (plan === 'yearly') {
-                amount = 2999; // $29.99
+                amount = 2999;
                 planDescription = "Yearly SoundEngg Pro Subscription";
             } else {
-                amount = 4999; // $49.99
+                amount = 4999;
                 planDescription = "Lifetime SoundEngg Pro Access";
             }
         }
 
-        const options = {
-            key: keyId,
-            amount: amount,
-            currency: currency,
-            name: "SoundEngg Console",
-            description: planDescription,
-            image: "assets/img/logo.png",
-            handler: async function (response) {
-                console.log("Razorpay Payment Successful:", response.razorpay_payment_id);
-                
-                // Calculate expiration date
-                const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
-                
-                // Perform robust Supabase profile update on successful checkout
-                if (window.supabaseClient) {
-                    try {
-                        const { data: { session } } = await window.supabaseClient.auth.getSession();
-                        if (session) {
-                            const { error: updateErr } = await window.supabaseClient.from('profiles')
-                                .upsert({ 
-                                    id: session.user.id,
-                                    email: session.user.email,
-                                    is_pro: true,
-                                    subscription_tier: plan,
-                                    subscription_provider: 'razorpay',
-                                    subscription_id: response.razorpay_payment_id || response.razorpay_subscription_id || 'rzp_pay_' + Date.now().toString().slice(-8),
-                                    subscription_expires_at: expiresAt
-                                });
-                            
-                            if (updateErr) throw updateErr;
-                            
-                            // Trigger global refresh so that the dashboard reloads all permissions immediately
-                            await syncSubscriptionStatus(session);
-                        }
-                    } catch (dbErr) {
-                        console.error("Database update failed, falling back to local storage:", dbErr.message);
-                    }
-                }
-                
-                // Also update local storage for absolute resilience
-                safeStorage.setItem('tools_unlocked_until', (plan === 'lifetime') ? (Date.now() + (10 * 365 * 24 * 60 * 60 * 1000)) : (Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000));
-                
-                // Close standard upgrade modal if open
-                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
-                if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
-                
-                if (window.updatePremiumUI) {
-                    window.updatePremiumUI();
-                }
-                
-                unlockApp();
-                showCheckoutSuccessOverlay(plan);
-            },
-            prefill: {
-                name: user.email ? user.email.split('@')[0] : "Audio Engineer",
-                email: user.email || ""
-            },
-            theme: {
-                color: "#14A7B5" // Bright primary matching soundengg console brand
-            }
-        };
+        // Show checkout overlay spinner
+        let loadingOverlay = document.createElement('div');
+        loadingOverlay.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10,15,20,0.85); backdrop-filter: blur(10px); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif;";
+        loadingOverlay.innerHTML = `
+            <div style="width: 50px; height: 50px; border: 4px solid var(--primary, #14A7B5); border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px;"></div>
+            <div style="font-size: 1.1rem; font-weight: 500; letter-spacing: 0.5px;">Establishing secure handshake...</div>
+            <div style="font-size: 0.85rem; color: #888; margin-top: 8px;">Contacting Razorpay gateway securely</div>
+        `;
+        document.body.appendChild(loadingOverlay);
 
         try {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) throw new Error("No active session found. Please log in.");
+
+            // 1. Backend handshake to pre-create Razorpay Order / Subscription securely
+            const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/razorpay-checkout";
+            const response = await fetch(edgeFuncUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({
+                    action: "create_checkout",
+                    plan: plan,
+                    user_currency: currency
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to initialize payment handshake with server.");
+            }
+
+            loadingOverlay.remove();
+
+            const options = {
+                key: keyId,
+                name: "SoundEngg Console",
+                description: planDescription,
+                image: "assets/img/logo.png",
+                prefill: {
+                    name: user.email ? user.email.split('@')[0] : "Audio Engineer",
+                    email: user.email || ""
+                },
+                theme: {
+                    color: "#14A7B5"
+                },
+                handler: async function (verifyResponse) {
+                    // Show a secure verification overlay
+                    let verifyOverlay = document.createElement('div');
+                    verifyOverlay.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10,15,20,0.85); backdrop-filter: blur(10px); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif;";
+                    verifyOverlay.innerHTML = `
+                        <div style="width: 50px; height: 50px; border: 4px solid var(--primary, #14A7B5); border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px;"></div>
+                        <div style="font-size: 1.1rem; font-weight: 500; letter-spacing: 0.5px;">Verifying payment signature...</div>
+                        <div style="font-size: 0.85rem; color: #888; margin-top: 8px;">Synchronizing subscription data securely...</div>
+                    `;
+                    document.body.appendChild(verifyOverlay);
+
+                    try {
+                        const verifyResultRaw = await fetch(edgeFuncUrl, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${session.access_token}`
+                            },
+                            body: JSON.stringify({
+                                action: "verify_payment",
+                                plan: plan,
+                                payment_id: verifyResponse.razorpay_payment_id,
+                                order_id: verifyResponse.razorpay_order_id || data.order_id,
+                                subscription_id: verifyResponse.razorpay_subscription_id || data.subscription_id,
+                                signature: verifyResponse.razorpay_signature
+                            })
+                        });
+
+                        const verifyResult = await verifyResultRaw.json();
+                        if (!verifyResultRaw.ok || !verifyResult.success) {
+                            throw new Error(verifyResult.error || "Payment signature mismatch.");
+                        }
+
+                        // Success! Update local storage for absolute resilience
+                        safeStorage.setItem('tools_unlocked_until', (plan === 'lifetime') ? (Date.now() + (10 * 365 * 24 * 60 * 60 * 1000)) : (Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000));
+                        
+                        await syncSubscriptionStatus(session);
+                        
+                        const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                        if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+                        
+                        if (window.updatePremiumUI) {
+                            window.updatePremiumUI();
+                        }
+                        
+                        unlockApp();
+                        verifyOverlay.remove();
+                        showCheckoutSuccessOverlay(plan);
+
+                    } catch (verifyErr) {
+                        verifyOverlay.remove();
+                        console.error("Signature verification failed:", verifyErr);
+                        alert(`❌ Verification Failed: ${verifyErr.message}\nPlease contact support@soundengg.com with your payment ID: ${verifyResponse.razorpay_payment_id}`);
+                    }
+                }
+            };
+
+            // Dynamically assign order or subscription ID based on response
+            if (data.order_id) {
+                options.order_id = data.order_id;
+            } else if (data.subscription_id) {
+                options.subscription_id = data.subscription_id;
+            }
+
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (resp) {
                 alert("❌ Payment Failed: " + resp.error.description);
             });
             rzp.open();
+
         } catch (e) {
-            console.error("Razorpay open error:", e);
-            alert("Could not load checkout. Please try again.");
+            loadingOverlay.remove();
+            console.error("Secure Checkout handshake error:", e);
+            alert(`Could not launch secure payment gateway:\n${e.message}`);
         }
     }
 
