@@ -169,15 +169,24 @@ const initAuthAndCore = () => {
             console.group(`Auth Event: ${event}`);
             try {
                 const user = session?.user;
-
-                // 1. Sync Pro/Free State and Profile Data
-                await syncSubscriptionStatus(session);
-
-                // 2. Global UI Update (Icon, Text, Modals)
-                const btnAuthToggles = document.querySelectorAll('.auth-toggle-btn');
                 const authModalOverlay = document.getElementById('auth-modal-overlay');
                 const profileModal = document.getElementById('profile-modal');
 
+                // A. Close modals immediately on auth state change (Senior UI Snappiness)
+                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
+                    if (authModalOverlay) closeModal(authModalOverlay);
+                    if (profileModal) closeModal(profileModal);
+                }
+
+                // B. Sync Pro/Free State and Profile Data in background (does not block UI/modals)
+                try {
+                    await syncSubscriptionStatus(session);
+                } catch (syncErr) {
+                    console.error('[handleAuthStateChange] Background syncSubscriptionStatus failed:', syncErr);
+                }
+
+                // C. Global UI Update (Icon, Text)
+                const btnAuthToggles = document.querySelectorAll('.auth-toggle-btn');
                 btnAuthToggles.forEach(btnAuthToggle => {
                     const authText = btnAuthToggle.querySelector('.btn-text');
                     const authIcon = btnAuthToggle.querySelector('.material-symbols-outlined');
@@ -198,14 +207,7 @@ const initAuthAndCore = () => {
                     }
                 });
 
-                // 3. Modal Cleanup (Force Close on Successful Login/Logout)
-                if (event === 'SIGNED_IN' || event === 'SIGNED_OUT') {
-                    [authModalOverlay, profileModal].forEach(modal => {
-                        if (modal) closeModal(modal);
-                    });
-                }
-
-                // 4. Signal Modules to refresh data
+                // D. Signal Modules to refresh data
                 if (event === 'SIGNED_IN') {
                     document.dispatchEvent(new CustomEvent('authSuccess', { detail: session }));
                     console.log('Global authSuccess signal dispatched');
@@ -1116,7 +1118,7 @@ function setupNavigation() {
                     btn.disabled = true;
                     const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
                     if (error) throw error;
-                    authModalOverlay.classList.add('hidden');
+                    closeModal(authModalOverlay);
                 } catch (error) {
                     alert('Login failed: ' + error.message);
                 } finally {
@@ -1140,7 +1142,7 @@ function setupNavigation() {
                     btn.disabled = true;
                     const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
                     if (error) throw error;
-                    authModalOverlay.classList.add('hidden');
+                    closeModal(authModalOverlay);
                     alert('Account created! You can now log in.');
                 } catch (error) {
                     alert('Signup failed: ' + error.message);
