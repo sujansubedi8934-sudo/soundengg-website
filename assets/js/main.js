@@ -5488,10 +5488,14 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- CONSOLIDATED RAZORPAY PAYMENT GATEWAY & GEO-PRICING CONTROLLER ---
 // ==========================================================================
 
-window.isIndiaUser = false;
+window.isIndiaUser = true;
 
 // 1. Detect User Location (Exact Timezone check with reliable Geo-IP fallback)
 async function detectUserCountry() {
+    // TEMPORARY: Force INR pricing and payment globally for all users
+    // because Razorpay international (USD) payment is currently not active.
+    window.isIndiaUser = true;
+    return true;
     // 1. Timezone Check (strictly for India timezone) - local, instantaneous, and extremely accurate
     try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
