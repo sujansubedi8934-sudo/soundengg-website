@@ -123,6 +123,7 @@ async function syncToolState(userId, configType, stateData) {
 - [x] **Native AdMob Fail-Safe:** Screen-blur lockouts in simulators or during App Store reviews are bypassed, automatically granting console access if the native AdMob plugin is not initialized.
 - [x] **Git Workspace Sanitation:** All Android Studio `.idea` folders and system clutter are cleanly ignored in `.gitignore`.
 - [x] **Payment Webhooks:** Secure transactional checkout and webhook listener functions are written and deployed.
+- [x] **Safari WebKit Audio Output Fallback:** Implemented robust graceful degradation for Safari/WebKit where `setSinkId` is unsupported. Dynamically locks and disables the Audio Output dropdown, changes the mouse cursor style, and displays a premium, custom warning box instructing users to route their output via macOS/iOS System Settings.
 
 ### Next Steps & Operational Playbook
 1. **Razorpay Live Gateway Swap:**
