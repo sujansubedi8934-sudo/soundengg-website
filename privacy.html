@@ -223,7 +223,6 @@
     <!-- Main Content -->
     <main>
         <h1 class="page-title">Privacy Policy</h1>
-        <div class="version-tag">VERSION_REF: 2026.05.15-ADSENSE-READY</div>
         <div class="divider"></div>
 
         <section>
@@ -235,26 +234,47 @@
             </ul>
         </section>
 
+        <section>
+            <h2>2. Real-Time Audio &amp; Microphone Processing</h2>
+            <p>For mobile and web-based applications, SoundEngg requests device microphone access (utilizing the <code>RECORD_AUDIO</code> permission on mobile devices). This signal is captured purely in volatile memory to perform ephemeral mathematical calculations locally on your device:</p>
+            <ul>
+                <li><strong>Fast Fourier Transform (FFT):</strong> Computes real-time spectral frequency distributions for the Real-Time Analyzer (RTA).</li>
+                <li><strong>Pitch Tracking:</strong> Detects fundamental frequencies for visual pitch tuning capabilities.</li>
+            </ul>
+            <p><strong>Zero audio data is recorded, stored, cached, or transmitted</strong> to our servers or any third-party entities. The processing is entirely local and instantaneous; the audio buffer is discarded immediately after the mathematical analysis completes.</p>
+        </section>
+
         <section class="card rugged-bevel">
-            <h2 style="color: #F59E0B !important;">2. Google AdSense & Cookies</h2>
-            <p>SoundEngg implements Google AdSense to serve non-disruptive advertisements. Google, as a third-party vendor, uses industry-standard cookies to display relevant ads to professionals.</p>
+            <h2 style="color: #F59E0B !important;">3. Google AdSense, AdMob &amp; Identifiers</h2>
+            <p>SoundEngg implements Google AdSense and Google AdMob to serve non-disruptive advertisements. For mobile installations, AdMob utilizes standard mobile Advertising Identifiers—specifically the Android Advertising ID (AAID) and Apple Identifier for Advertisers (IDFA)—to deliver relevant ads, prevent ad fraud, control frequency capping, and compile anonymous performance analytics.</p>
             <ul>
                 <li><strong>DART Cookie:</strong> Google's DART cookie uses analytical parameters to display custom ads based on visits to SoundEngg and external audio engineering sites.</li>
+                <li><strong>Opt-Out:</strong> Mobile users can reset or disable personalization of their advertising identifiers directly through their system privacy settings (e.g., Google Ads Settings or iOS Tracking Preferences).</li>
             </ul>
         </section>
 
         <section>
-            <h2>3. Enterprise-Grade Data Security</h2>
+            <h2>4. Enterprise-Grade Data Security</h2>
             <p>Your authorization and authentication data are processed exclusively via <strong>Supabase</strong>, built on professional PostgreSQL database instances. We never store raw passwords or sensitive keys. All connections are secured under strict SSL/TLS encryption protocols.</p>
         </section>
 
         <section>
-            <h2>4. Third-Party Links & API Scope</h2>
+            <h2>5. Third-Party Links &amp; API Scope</h2>
             <p>Our dashboard and blog articles contain links to external resources, industry standard specifications, and manufacturer manuals. SoundEngg does not maintain control over, and assumes no liability for, the content or policies of third-party domains.</p>
         </section>
 
         <section>
-            <h2>5. Technical Support</h2>
+            <h2>6. User Data Deletion Rights</h2>
+            <p>SoundEngg respects your right to control your personal data. In compliance with developer protection policies, we provide a transparent data deletion flow:</p>
+            <ul>
+                <li><strong>In-App Deletion:</strong> You can initiate complete erasure by using the in-app "Delete Account" feature under your Profile/Settings panel.</li>
+                <li><strong>Cascading Database Purge:</strong> This action triggers a cascading deletion across our <strong>Supabase</strong> relational database structure, permanently erasing your profile, user configuration records (<code>user_configs</code>), and history.</li>
+                <li><strong>Manual Requests:</strong> If you are unable to access your account, you can submit an explicit data deletion request by emailing <a href="mailto:legal@soundengg.com">legal@soundengg.com</a>. We will process your request and fully purge all associated backend records within 30 days.</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>7. Technical Support</h2>
             <p>For inquiries regarding data retention, policy parameters, or technical privacy regulations, please establish contact with our engineering desk at <a href="mailto:legal@soundengg.com">legal@soundengg.com</a>.</p>
         </section>
     </main>
