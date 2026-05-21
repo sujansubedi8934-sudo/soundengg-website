@@ -124,6 +124,8 @@ async function syncToolState(userId, configType, stateData) {
 - [x] **Git Workspace Sanitation:** All Android Studio `.idea` folders and system clutter are cleanly ignored in `.gitignore`.
 - [x] **Payment Webhooks:** Secure transactional checkout and webhook listener functions are written and deployed.
 - [x] **Safari WebKit Audio Output Fallback:** Implemented robust graceful degradation for Safari/WebKit where `setSinkId` is unsupported. Dynamically locks and disables the Audio Output dropdown, changes the mouse cursor style, and displays a premium, custom warning box instructing users to route their output via macOS/iOS System Settings.
+- [x] **Apple Compliance (Account Deletion):** Integrated a secure, in-app "Delete Account" flow in `app.html` / `main.js` that calls the Supabase Edge Function to purge all user preset data and login maps.
+- [x] **Supabase Production Hardening (RLS):** Fully configured and deployed strict Row Level Security (RLS) policies on `profiles` and `user_configs` tables, protecting all user profiles and preferences.
 
 ### Next Steps & Operational Playbook
 1. **Razorpay Live Gateway Swap:**
@@ -146,9 +148,9 @@ async function syncToolState(userId, configType, stateData) {
    * Open `/ios` in Apple Xcode.
    * Assign a verified Developer Account Team.
    * Set native app icons, build numbers, and archive target packages for App Store Connect distribution.
-   * *Required Compliance:* Add a secure "Delete Account" option within the user drawer menu linked to the backend `supabase.auth.admin.deleteUser()` to comply with Apple's strict User Data Deletion regulations.
+   * [x] *Required Compliance:* Add a secure "Delete Account" option within the user drawer menu linked to the backend `supabase.auth.admin.deleteUser()` to comply with Apple's strict User Data Deletion regulations.
 5. **Supabase Production Security Hardening:**
-   * Configure and activate Row Level Security (RLS) policies on both `profiles` and `user_configs` tables.
+   * [x] Configure and activate Row Level Security (RLS) policies on both `profiles` and `user_configs` tables.
    * Connect an external SMTP transactional mail server (e.g., Resend, Mailgun) inside Supabase Auth Settings to lift the default rate-limiting constraints on verification emails.
 
 ---
