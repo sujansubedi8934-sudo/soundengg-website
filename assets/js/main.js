@@ -40,12 +40,32 @@ window.activeAudioContexts = window.activeAudioContexts || [];
     if (OriginalAudioContext) {
         class InterceptedAudioContext extends OriginalAudioContext {
             constructor(...args) {
+                // Apply active output sink via constructor options if supported
+                const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                if (savedOutput && savedOutput !== 'default') {
+                    if (!args[0]) args[0] = {};
+                    if (typeof args[0] === 'object') {
+                        args[0].sinkId = savedOutput;
+                    }
+                }
+                
                 super(...args);
                 window.activeAudioContexts.push(this);
-                // Apply active output sink if saved in storage
-                const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                
+                // Add statechange listener to apply sink ID as soon as context becomes running
+                this.addEventListener('statechange', () => {
+                    if (this.state === 'running') {
+                        const activeOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                        if (activeOutput && activeOutput !== 'default' && typeof this.setSinkId === 'function') {
+                            this.setSinkId(activeOutput).catch(err => {
+                                console.warn("Failed to apply initial setSinkId to AudioContext on statechange:", err);
+                            });
+                        }
+                    }
+                });
+                
+                // Keep the minor delayed fallback in constructor
                 if (savedOutput && savedOutput !== 'default' && typeof this.setSinkId === 'function') {
-                    // Slight delay to ensure AudioContext constructor resolves cleanly
                     setTimeout(() => {
                         if (this.state !== 'closed') {
                             this.setSinkId(savedOutput).catch(err => {
@@ -53,6 +73,20 @@ window.activeAudioContexts = window.activeAudioContexts || [];
                             });
                         }
                     }, 50);
+                }
+            }
+
+            // Override resume to explicitly apply and await the output device when transitioning out of suspended
+            async resume() {
+                await super.resume();
+                const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                if (savedOutput && savedOutput !== 'default' && typeof this.setSinkId === 'function') {
+                    try {
+                        await this.setSinkId(savedOutput);
+                        console.log(`Audio output successfully applied on resume: ${savedOutput}`);
+                    } catch (err) {
+                        console.warn("Failed to apply sink ID in overridden resume:", err);
+                    }
                 }
             }
         }
@@ -3936,17 +3970,17 @@ function initProfessionalRTA() {
     // Sync input changes from global settings
     document.addEventListener('deviceChanged', async (e) => {
         const newDeviceId = e.detail;
-        if (inputSelect && inputSelect.value !== newDeviceId) {
+        if (inputSelect) {
             inputSelect.value = newDeviceId;
-            if (isAnalyzing) {
-                isAnalyzing = false;
-                if (rafID) cancelAnimationFrame(rafID);
-                if (stream) {
-                    stream.getTracks().forEach(t => t.stop());
-                    stream = null;
-                }
-                await startAnalyzer(newDeviceId);
+        }
+        if (isAnalyzing) {
+            isAnalyzing = false;
+            if (rafID) cancelAnimationFrame(rafID);
+            if (stream) {
+                stream.getTracks().forEach(t => t.stop());
+                stream = null;
             }
+            await startAnalyzer(newDeviceId);
         }
     });
 
