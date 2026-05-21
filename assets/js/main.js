@@ -3759,6 +3759,13 @@ function initProfessionalRTA() {
         return typeof window !== 'undefined' && window.Capacitor !== undefined;
     };
 
+    // ========================================================
+    // ADMOB PRODUCTION & TEST MAPPINGS
+    // Replace these test IDs with your production AdMob Unit IDs
+    // ========================================================
+    const ADMOB_ANDROID_REWARDED_ID = 'ca-app-pub-3940256099942544/5224354917'; // Production/Test Android ID
+    const ADMOB_IOS_REWARDED_ID = 'ca-app-pub-3940256099942544/1712485313';     // Production/Test iOS ID
+
     let nativeRewardedAdLoaded = false;
 
     async function preloadNativeRewardedAd() {
@@ -3767,9 +3774,7 @@ function initProfessionalRTA() {
             const { AdMob } = window.Capacitor.Plugins;
             if (!AdMob) return;
             const isAndroid = window.Capacitor.getPlatform() === 'android';
-            const adId = isAndroid 
-                ? 'ca-app-pub-3940256099942544/5224354917' 
-                : 'ca-app-pub-3940256099942544/1712485313';
+            const adId = isAndroid ? ADMOB_ANDROID_REWARDED_ID : ADMOB_IOS_REWARDED_ID;
             console.log('Preloading native rewarded ad with unit ID:', adId);
             await AdMob.prepareRewardVideoAd({ adId: adId });
             nativeRewardedAdLoaded = true;
@@ -5961,8 +5966,14 @@ function initAdManager() {
         });
     }
 
+    // ========================================================
+    // RAZORPAY PRODUCTION & TEST KEY MAPPINGS
+    // Replace this test key with your production Razorpay Live Key ID
+    // ========================================================
+    const RAZORPAY_PRODUCTION_KEY_ID = "rzp_test_SrF0fu6ZZuNFbC";
+
     async function initiateRazorpayCheckout(user, plan = 'lifetime') {
-        const keyId = window.RAZORPAY_KEY_ID || "rzp_test_SrF0fu6ZZuNFbC";
+        const keyId = window.RAZORPAY_KEY_ID || RAZORPAY_PRODUCTION_KEY_ID;
         
         let amount = 349900; // Default INR Lifetime
         let currency = "INR";
