@@ -4795,6 +4795,101 @@ body.theme-red { --primary: #ff003c; }
     border-color: var(--primary) !important;
 }
 
+/* Mobile Ad Loading Overlay */
+.mobile-ad-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 8, 0.85);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001; /* Higher than ad-modal and fullscreen canvas */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.mobile-ad-loader.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mobile-ad-loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2.5rem;
+    border-radius: 12px;
+    background: rgba(10, 10, 15, 0.9);
+    border: 1px solid var(--outline);
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7), 0 0 1px var(--primary);
+    max-width: 90%;
+    width: 320px;
+    text-align: center;
+}
+
+.mobile-ad-spinner {
+    position: relative;
+    width: 60px;
+    height: 60px;
+}
+
+.mobile-ad-spinner-ring {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    animation: mobileSpinnerRotate 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-top-color: var(--primary);
+}
+
+.mobile-ad-spinner-ring:nth-child(1) {
+    animation-delay: -0.45s;
+    border-top-color: var(--secondary);
+}
+.mobile-ad-spinner-ring:nth-child(2) {
+    animation-delay: -0.3s;
+    border-top-color: var(--primary);
+}
+.mobile-ad-spinner-ring:nth-child(3) {
+    animation-delay: -0.15s;
+    border-top-color: var(--secondary);
+}
+
+.mobile-ad-loader-text {
+    font-family: var(--font-headline);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--primary);
+    letter-spacing: 2px;
+    text-shadow: 0 0 8px rgba(20, 167, 181, 0.4);
+    margin: 0;
+}
+
+.mobile-ad-loader-subtext {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+@keyframes mobileSpinnerRotate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Rewarded Ad Modal styles */
 .ad-modal {
     position: fixed;

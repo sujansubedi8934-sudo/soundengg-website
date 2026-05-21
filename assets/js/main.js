@@ -3779,32 +3779,62 @@ function initProfessionalRTA() {
         }
     }
 
-    async function showNativeRewardedAd(onRewardCallback, onFailureCallback) {
+    async function showNativeRewardedAd(onRewardCallback, onFailureCallback, onAdStartedCallback) {
         if (!window.isNativeMobile()) {
             if (onFailureCallback) onFailureCallback();
             return;
         }
+        
+        let rewardListener, closeListener, failLoadListener, failShowListener;
+        let isFinalized = false;
+
+        const cleanup = () => {
+            if (isFinalized) return;
+            isFinalized = true;
+            if (rewardListener && typeof rewardListener.remove === 'function') rewardListener.remove();
+            if (closeListener && typeof closeListener.remove === 'function') closeListener.remove();
+            if (failLoadListener && typeof failLoadListener.remove === 'function') failLoadListener.remove();
+            if (failShowListener && typeof failShowListener.remove === 'function') failShowListener.remove();
+        };
+
         try {
             const { AdMob } = window.Capacitor.Plugins;
             if (!AdMob) {
                 if (onFailureCallback) onFailureCallback();
                 return;
             }
-            const rewardListener = await AdMob.addListener('onRewardVideoAdRewarded', (info) => {
+
+            rewardListener = await AdMob.addListener('onRewardVideoAdRewarded', (info) => {
                 console.log('Native AdMob rewarded reward received:', info);
-                rewardListener.remove();
+                cleanup();
                 if (onRewardCallback) onRewardCallback();
             });
-            const closeListener = await AdMob.addListener('onRewardVideoAdClosed', () => {
-                closeListener.remove();
+
+            closeListener = await AdMob.addListener('onRewardVideoAdClosed', () => {
+                cleanup();
                 preloadNativeRewardedAd();
             });
+
+            failLoadListener = await AdMob.addListener('onRewardVideoAdFailedToLoad', (err) => {
+                console.warn('Native AdMob failed to load:', err);
+                cleanup();
+                if (onFailureCallback) onFailureCallback();
+            });
+
+            failShowListener = await AdMob.addListener('onRewardVideoAdFailedToShow', (err) => {
+                console.warn('Native AdMob failed to show:', err);
+                cleanup();
+                if (onFailureCallback) onFailureCallback();
+            });
+
             if (!nativeRewardedAdLoaded) {
                 await preloadNativeRewardedAd();
             }
             await AdMob.showRewardVideoAd();
+            if (onAdStartedCallback) onAdStartedCallback();
         } catch (err) {
             console.error('Failed to show native AdMob rewarded ad:', err);
+            cleanup();
             if (onFailureCallback) onFailureCallback();
         }
     }
@@ -3812,23 +3842,60 @@ function initProfessionalRTA() {
     function startAdPlayback(forPro = false) {
         isAdRewardForPro = !!forPro;
         
+        const mobileLoader = document.getElementById('mobile-ad-loader');
+        
         if (window.isNativeMobile()) {
             console.log('Native mobile detected. Launching native AdMob Rewarded Video...');
+            
+            if (mobileLoader) {
+                mobileLoader.classList.add('active');
+            }
+            
             const { AdMob } = window.Capacitor?.Plugins || {};
             if (!AdMob) {
-                console.log('AdMob native plugin not found/configured. Auto-granting reward for local mobile debugging.');
-                grantAdRewardSuccess();
+                console.log('AdMob native plugin not found/configured. Falling back to simulated browser ad.');
+                setTimeout(() => {
+                    if (mobileLoader) mobileLoader.classList.remove('active');
+                    triggerBrowserAdPlayback();
+                }, 800);
                 return;
             }
 
+            let hasAdStartedOrFailed = false;
+
+            const failSafeTimeout = setTimeout(() => {
+                if (!hasAdStartedOrFailed) {
+                    console.warn('Native AdMob timed out after 2000ms. Falling back to browser simulation.');
+                    hasAdStartedOrFailed = true;
+                    if (mobileLoader) mobileLoader.classList.remove('active');
+                    triggerBrowserAdPlayback();
+                }
+            }, 2000);
+
             showNativeRewardedAd(
                 () => {
+                    clearTimeout(failSafeTimeout);
+                    hasAdStartedOrFailed = true;
+                    if (mobileLoader) mobileLoader.classList.remove('active');
                     console.log('Native AdMob Reward granted!');
                     grantAdRewardSuccess();
                 },
                 () => {
-                    console.warn('Native AdMob failed. Auto-granting reward to prevent lockout in mobile.');
-                    grantAdRewardSuccess();
+                    if (!hasAdStartedOrFailed) {
+                        clearTimeout(failSafeTimeout);
+                        hasAdStartedOrFailed = true;
+                        console.warn('Native AdMob failed. Falling back to browser simulation.');
+                        if (mobileLoader) mobileLoader.classList.remove('active');
+                        triggerBrowserAdPlayback();
+                    }
+                },
+                () => {
+                    if (!hasAdStartedOrFailed) {
+                        clearTimeout(failSafeTimeout);
+                        hasAdStartedOrFailed = true;
+                        console.log('Native AdMob started showing. Removing loading overlay.');
+                        if (mobileLoader) mobileLoader.classList.remove('active');
+                    }
                 }
             );
             return;
@@ -3902,6 +3969,31 @@ function initProfessionalRTA() {
 
     function triggerBrowserAdPlayback() {
         const modal = document.getElementById('ad-reward-modal');
+        const sponsorContainer = document.querySelector('.ad-sponsor-container');
+        
+        // Inject the gorgeous high-end sponsor simulation graphic and branding (Neve Dynamics) by default
+        if (sponsorContainer) {
+            sponsorContainer.innerHTML = `
+                <div class="ad-graphic-wave">
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                    <div class="ad-wave-bar"></div>
+                </div>
+                <div class="ad-sponsor-info">
+                    <div class="ad-sponsor-brand">NEVE DYNAMICS</div>
+                    <div class="ad-sponsor-tagline">ANALOG PRESENCE. DIGITAL PRECISION.</div>
+                </div>
+                <div class="ad-countdown-bar" id="ad-reward-countdown-bar" style="width: 100%;"></div>
+            `;
+        }
+
         const btnClaim = document.getElementById('btn-ad-reward-claim');
         const countdownBar = document.getElementById('ad-reward-countdown-bar');
         const btnText = document.getElementById('ad-reward-btn-text');
