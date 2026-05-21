@@ -2987,32 +2987,16 @@ function initProfessionalRTA() {
             });
 
             if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
-                let pinkSum = 0;
-                for (let b = lowBin; b <= highBin; b++) {
-                    pinkSum += rtaPinkNoiseSmoothedDataArray[b];
-                }
-                let pinkDb = count > 0 ? pinkSum / count : -100;
-                if (currentWeighting === 'a') pinkDb += (A_WEIGHTS[centerFreq] || 0);
-
                 const w = barWidth - 2;
                 const hMic = Math.max(2, (db + 100) * (canvas.height / 100));
-                const hPink = Math.max(2, (pinkDb + 100) * (canvas.height / 100));
 
-                // 1. Draw Mic Input (Cyan) with semi-transparent fill and solid stroke
-                ctx.fillStyle = 'rgba(20, 167, 181, 0.55)'; // brand cyan with 55% opacity
+                // 1. Draw Mic Input (Cyan) as filled bars
+                ctx.fillStyle = 'rgba(20, 167, 181, 0.8)'; // brand cyan with 80% opacity
                 ctx.fillRect(x + 1, canvas.height - hMic, w, hMic);
                 
                 ctx.strokeStyle = '#14A7B5';
                 ctx.lineWidth = 1.5;
                 ctx.strokeRect(x + 1, canvas.height - hMic, w, hMic);
-
-                // 2. Draw Pink Noise (Bold Pink) with semi-transparent fill and solid stroke
-                ctx.fillStyle = 'rgba(255, 46, 147, 0.55)'; // bold pink with 55% opacity
-                ctx.fillRect(x + 1, canvas.height - hPink, w, hPink);
-
-                ctx.strokeStyle = '#FF2E93';
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(x + 1, canvas.height - hPink, w, hPink);
 
                 if (peakHoldEnabled) {
                     const isLight = document.documentElement.classList.contains('light');
@@ -3033,6 +3017,45 @@ function initProfessionalRTA() {
                 }
             }
         });
+
+        // 2. Draw Pink Noise Output (Bold Pink Curve) overlaying on top of the RTA bars
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#FF2E93';
+            ctx.lineWidth = 2.5;
+            ctx.shadowBlur = 6;
+            ctx.shadowColor = 'rgba(255, 46, 147, 0.6)';
+            
+            ISO_FREQS.forEach((centerFreq, i) => {
+                const x = i * barWidth;
+                const ratio = Math.pow(2, 1/12);
+                const lowFreq = centerFreq / ratio;
+                const highFreq = centerFreq * ratio;
+                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
+                const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
+                
+                let pinkSum = 0;
+                let count = 0;
+                for (let b = lowBin; b <= highBin; b++) {
+                    pinkSum += rtaPinkNoiseSmoothedDataArray[b];
+                    count++;
+                }
+                let pinkDb = count > 0 ? pinkSum / count : -100;
+                if (currentWeighting === 'a') pinkDb += (A_WEIGHTS[centerFreq] || 0);
+                
+                const hPink = Math.max(2, (pinkDb + 100) * (canvas.height / 100));
+                const centerX = x + barWidth / 2;
+                const centerY = canvas.height - hPink;
+                
+                if (i === 0) {
+                    ctx.moveTo(centerX, centerY);
+                } else {
+                    ctx.lineTo(centerX, centerY);
+                }
+            });
+            ctx.stroke();
+            ctx.shadowBlur = 0; // Reset shadow glow
+        }
     }
 
     function drawFFT() {
