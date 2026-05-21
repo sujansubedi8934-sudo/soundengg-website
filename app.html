@@ -501,20 +501,29 @@
                                         <p class="widget-subtitle" style="margin-top: 0.5rem;">Reach out for live sound engineering, system design, or wireless management for your next event.</p>
                                     </div>
                                 </header>
-                                <form style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+                                <form id="author-contact-form" style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1.5rem;">
+                                    <!-- Serverless Form Routing Config -->
+                                    <input type="hidden" name="access_key" value="30b42cdf-f6eb-4492-9c8e-575734cc0b89">
+                                    <input type="hidden" name="subject" value="New Inquiry from SoundEngg Console">
+                                    <input type="hidden" name="from_name" value="SoundEngg Console Portal">
+                                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
                                     <div class="input-group">
                                         <label>Your First Name</label>
-                                        <input type="text" class="rugged-input" placeholder="Enter your first name">
+                                        <input type="text" name="name" class="rugged-input" placeholder="Enter your first name" required>
                                     </div>
                                     <div class="input-group">
                                         <label>Your Email Address*</label>
-                                        <input type="email" class="rugged-input" placeholder="Enter your email address" required>
+                                        <input type="email" name="email" class="rugged-input" placeholder="Enter your email address" required>
                                     </div>
                                     <div class="input-group">
                                         <label>Your Message*</label>
-                                        <textarea class="rugged-input" rows="4" placeholder="Describe your sound needs" style="resize: vertical; min-height: 100px; padding-top: 1rem;" required></textarea>
+                                        <textarea name="message" class="rugged-input" rows="4" placeholder="Describe your sound needs" style="resize: vertical; min-height: 100px; padding-top: 1rem;" required></textarea>
                                     </div>
-                                    <button type="submit" class="btn btn-primary" style="align-self: flex-start; padding: 0.75rem 2rem;">Submit Your Request</button>
+                                    <button type="submit" id="author-submit-btn" class="btn btn-primary" style="align-self: flex-start; padding: 0.75rem 2rem;">Submit Your Request</button>
+                                    
+                                    <!-- Real-time status report field -->
+                                    <div id="author-form-status" style="margin-top: 1.5rem; font-family: var(--font-mono); font-size: 0.85rem; padding: 1rem; border-radius: var(--radius); display: none;"></div>
                                 </form>
                             </div>
 
@@ -531,10 +540,6 @@
                                         <p style="color: var(--text-muted); line-height: 1.6;">455, Main Rd, Jai Shree Colony,<br>Ganapati Nagar, Udaipur,<br>Rajasthan 313001</p>
                                     </div>
                                     <div>
-                                        <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 600;">Hours</h4>
-                                        <p style="color: var(--text-muted);">9:00 AM - 5:00 PM</p>
-                                    </div>
-                                    <div>
                                         <h4 style="color: var(--text-main); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; font-weight: 600;">Direct Contact</h4>
                                         <p style="color: var(--text-muted); display: flex; align-items: center; gap: 0.5rem;"><span class="material-symbols-outlined" style="font-size: 1.1rem;">mail</span> sujan@soundengg.com</p>
                                     </div>
@@ -543,7 +548,6 @@
                                             <span class="material-symbols-outlined" style="color: var(--primary);">location_on</span>
                                             <span style="color: var(--text-muted); font-size: 0.9rem;">Udaipur, Rajasthan</span>
                                         </div>
-                                        <a href="https://maps.google.com/?q=455,+Main+Rd,+Jai+Shree+Colony,+Ganapati+Nagar,+Udaipur,+Rajasthan+313001" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.9rem; font-weight: 600;">View Map &rarr;</a>
                                     </div>
                                 </div>
                             </div>

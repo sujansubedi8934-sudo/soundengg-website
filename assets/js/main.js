@@ -384,6 +384,15 @@ window.isPremiumActive = function(featureKey) {
     return false;
 };
 
+window.isBlogUnlocked = function(articleId) {
+    if (window.isUserPro) return true;
+    const globalUntil = safeStorage.getItem('soundengg_temp_pro_until');
+    if (globalUntil && Date.now() < parseInt(globalUntil, 10)) return true;
+    const blogUntil = safeStorage.getItem(`soundengg_temp_pro_until_blog_${articleId}`);
+    if (blogUntil && Date.now() < parseInt(blogUntil, 10)) return true;
+    return false;
+};
+
 window.updatePremiumUI = function() {
     const isAnyPro = window.isUserPro || 
                      ['spectrogram', 'snapshots', 'mic_calibration', 'ear_training'].some(k => window.isPremiumActive(k));
@@ -2294,7 +2303,7 @@ function initGlobalSearch() {
                 const excerpt = item.excerpt || '';
                 const cat = item.categoryLabel || item.cat || '';
                 if (title.toLowerCase().includes(searchQuery) || excerpt.toLowerCase().includes(searchQuery) || cat.toLowerCase().includes(searchQuery)) {
-                    matchedBlogs.push({ title, excerpt, cat, id: item.id });
+                    matchedBlogs.push({ title, excerpt, cat, id: item.id, isPro: item.isPro });
                 }
             });
         }
@@ -2362,6 +2371,13 @@ function initGlobalSearch() {
                         }
                     } else if (type === 'blog') {
                         const blog = matchedBlogs[index];
+                        if (blog.isPro && !window.isBlogUnlocked(blog.id)) {
+                            window.pendingArticleToOpen = blog.id;
+                            window.showProUpgradeModal('blog');
+                            dropdown.style.display = 'none';
+                            return;
+                        }
+                        
                         const blogView = document.getElementById('blog-view');
                         const btnNavBlog = document.getElementById('btn-nav-blog');
                         
@@ -2426,9 +2442,6 @@ function initBlog() {
     // Render all articles (Live and Placeholders)
     function renderBlogList(filter = 'all') {
         blogIndex.innerHTML = '';
-        
-        // Use verified global Pro status
-        const isPro = window.isPremiumActive();
 
         // Combine real articles and placeholders
         const allItems = [
@@ -2440,40 +2453,54 @@ function initBlog() {
             const itemCat = item.category || item.cat;
             if (filter !== 'all' && itemCat !== filter) return;
 
-            const isLockedPro = item.isPro && !isPro;
+            const isLockedPro = item.isPro && !window.isBlogUnlocked(item.id);
 
             const card = document.createElement('article');
             card.className = `article-card widget rugged-bevel brushed-metal ${item.type === 'locked' ? 'locked' : ''} ${isLockedPro ? 'pro-locked' : ''}`;
             if (item.id) card.setAttribute('data-id', item.id);
             card.setAttribute('data-cat', itemCat);
 
+            const metaTag = isLockedPro 
+                ? `<span class="status-tag gold-tag" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(212, 175, 55, 0.1) !important; color: #FFD700 !important; border: 1px solid rgba(212, 175, 55, 0.3);"><span class="material-symbols-outlined" style="font-size: 0.95rem; vertical-align: middle;">lock</span>LOCKED</span>` 
+                : `<span class="read-time">${item.readTime}</span>`;
+
             card.innerHTML = `
-                ${isLockedPro ? `
-                <div class="pro-lock-overlay">
-                    <span class="material-symbols-outlined">lock</span>
-                    <h5>PRO VAULT CONTENT</h5>
-                    <p>Upgrade to SoundEngg Pro to access this technical guide.</p>
-                    <a href="pro.html" class="btn-unlock-small">GET_PRO_ACCESS</a>
-                </div>
-                ` : ''}
                 <div class="card-meta">
                     <span class="cat-tag ${item.isPro ? 'gold-tag' : ''}">${(item.categoryLabel || item.cat).toUpperCase()}</span>
-                    <span class="${item.type === 'locked' ? 'status-tag' : 'read-time'}">${item.type === 'locked' ? 'UPCOMING' : item.readTime}</span>
+                    ${item.type === 'locked' ? `<span class="status-tag">UPCOMING</span>` : metaTag}
                 </div>
                 <h3 class="article-title ${item.type === 'live' ? 'text-primary' : ''}">${item.title}</h3>
                 <p class="article-excerpt">${item.excerpt}</p>
-                ${(item.type === 'live' && !isLockedPro) ? `<button class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></button>` : ''}
+                ${(item.type === 'live') ? (isLockedPro 
+                    ? `<button class="read-more unlock-ad-btn" style="color: #FFD700 !important; border-color: rgba(212, 175, 55, 0.5) !important; background: rgba(212, 175, 55, 0.1) !important; display: inline-flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">workspace_premium</span>🔓 UNLOCK WITH AD</button>` 
+                    : `<button class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></button>`
+                ) : ''}
             `;
 
-            if (item.type === 'live' && !isLockedPro) {
-                const readBtn = card.querySelector('.read-more');
-                if(readBtn) {
-                    readBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        openArticle(item.id);
+            if (item.type === 'live') {
+                if (isLockedPro) {
+                    const readBtn = card.querySelector('.read-more');
+                    if (readBtn) {
+                        readBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            window.pendingArticleToOpen = item.id;
+                            window.showProUpgradeModal('blog');
+                        });
+                    }
+                    card.addEventListener('click', () => {
+                        window.pendingArticleToOpen = item.id;
+                        window.showProUpgradeModal('blog');
                     });
+                } else {
+                    const readBtn = card.querySelector('.read-more');
+                    if(readBtn) {
+                        readBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            openArticle(item.id);
+                        });
+                    }
+                    card.addEventListener('click', () => openArticle(item.id));
                 }
-                card.addEventListener('click', () => openArticle(item.id));
             }
 
             blogIndex.appendChild(card);
@@ -3562,15 +3589,20 @@ function initProfessionalRTA() {
             const duration = 4 * 60 * 60 * 1000; // 4 Hours
             let unlockedFeatureName = "SoundEngg Pro Features";
             if (currentUnlockFeatureKey) {
-                safeStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
-                if (currentUnlockFeatureKey === 'spectrogram') {
-                    unlockedFeatureName = "60FPS Spectrogram Waterfall";
-                } else if (currentUnlockFeatureKey === 'snapshots') {
-                    unlockedFeatureName = "10 Multi-Overlay RTA Snapshots";
-                } else if (currentUnlockFeatureKey === 'mic_calibration') {
-                    unlockedFeatureName = "Custom Mic Calibration Loader";
-                } else if (currentUnlockFeatureKey === 'ear_training') {
-                    unlockedFeatureName = "1/6 ISO Octave Ear Training";
+                if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
+                    safeStorage.setItem(`soundengg_temp_pro_until_blog_${window.pendingArticleToOpen}`, Date.now() + duration);
+                    unlockedFeatureName = "Selected Premium Guide";
+                } else {
+                    safeStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
+                    if (currentUnlockFeatureKey === 'spectrogram') {
+                        unlockedFeatureName = "60FPS Spectrogram Waterfall";
+                    } else if (currentUnlockFeatureKey === 'snapshots') {
+                        unlockedFeatureName = "10 Multi-Overlay RTA Snapshots";
+                    } else if (currentUnlockFeatureKey === 'mic_calibration') {
+                        unlockedFeatureName = "Custom Mic Calibration Loader";
+                    } else if (currentUnlockFeatureKey === 'ear_training') {
+                        unlockedFeatureName = "1/6 ISO Octave Ear Training";
+                    }
                 }
             } else {
                 safeStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
@@ -3584,6 +3616,25 @@ function initProfessionalRTA() {
             
             if (window.updatePremiumUI) {
                 window.updatePremiumUI();
+            }
+            
+            if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
+                const blogId = window.pendingArticleToOpen;
+                // Dispatch event so rendering updates
+                document.dispatchEvent(new CustomEvent('proStatusChanged'));
+                
+                const blogView = document.getElementById('blog-view');
+                const btnNavBlog = document.getElementById('btn-nav-blog');
+                if (window.showView && blogView) {
+                    window.showView(blogView, btnNavBlog);
+                }
+                
+                // Open the article!
+                if (typeof window.openBlogArticle === 'function') {
+                    window.openBlogArticle(blogId);
+                }
+                
+                window.pendingArticleToOpen = null;
             }
             
             alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
@@ -6009,6 +6060,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (featureKey === 'ear_training') {
             featureName = "1/6 ISO Octave Ear Training";
             buttonText = "🎁 UNLOCK EAR TRAINING FOR 4 HOURS (WATCH AD)";
+        } else if (featureKey === 'blog') {
+            featureName = "Premium Engineering Guide";
+            buttonText = "🎁 UNLOCK GUIDE FOR 4 HOURS (WATCH AD)";
         }
         
         if (modalTitle) {
@@ -6647,6 +6701,11 @@ const initPageSystems = () => {
 
     // Initialize custom mobile header selector nav dropdown
     initMobileNavDropdown();
+
+    // Wire up the Author tab contact form for Web3Forms transmission
+    if (typeof setupAuthorContactForm === 'function') {
+        setupAuthorContactForm();
+    }
 };
 
 if (document.readyState === 'loading') {
@@ -6773,5 +6832,69 @@ function initTapTempoDelay() {
             }
         });
     });
+}
+
+function setupAuthorContactForm() {
+    const authorContactForm = document.getElementById('author-contact-form');
+    const submitBtn = document.getElementById('author-submit-btn');
+    const formStatus = document.getElementById('author-form-status');
+
+    if (authorContactForm && submitBtn && formStatus) {
+        authorContactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Visual Loading Feedback
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'TRANSMITTING MESSAGE...';
+            submitBtn.style.opacity = '0.7';
+            
+            formStatus.style.display = 'block';
+            formStatus.style.background = 'rgba(0, 170, 255, 0.1)';
+            formStatus.style.color = '#00AAFF';
+            formStatus.style.border = '1px solid #005588';
+            formStatus.innerHTML = '[SYSTEM] CONNECTING TO TELEMETRY ROUTER...';
+
+            const formData = new FormData(authorContactForm);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
+            fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            })
+            .then(async (response) => {
+                let res = await response.json();
+                if (response.status == 200) {
+                    formStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+                    formStatus.style.color = '#10B981';
+                    formStatus.style.border = '1px solid #10B981';
+                    formStatus.innerHTML = '[SUCCESS] SECURE ROUTING COMPLETE. Your message has been sent directly to sujan@soundengg.com!';
+                    authorContactForm.reset();
+                } else {
+                    console.error(response);
+                    formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                    formStatus.style.color = '#EF4444';
+                    formStatus.style.border = '1px solid #EF4444';
+                    formStatus.innerHTML = '[ERROR] ROUTING FAILED: ' + (res.message || 'Unknown network error');
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                formStatus.style.color = '#EF4444';
+                formStatus.style.border = '1px solid #EF4444';
+                formStatus.innerHTML = '[ERROR] NETWORK TRANSIT FAILURE. Verify local console connectivity.';
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Your Request';
+                submitBtn.style.opacity = '1';
+            });
+        });
+    }
 }
 
