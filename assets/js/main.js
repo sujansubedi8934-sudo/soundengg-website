@@ -308,7 +308,30 @@ window.updatePremiumUI = function() {
             profileTierBadge.textContent = 'PRO TIER';
             profileTierBadge.className = 'tier-badge pro';
         } else if (isAnyPro) {
-            profileTierBadge.textContent = '🎁 TEMP PRO';
+            // Check if it's the global full-pro active, or a specific feature unlock
+            const hasGlobalPro = safeStorage.getItem('soundengg_temp_pro_until') && Date.now() < parseInt(safeStorage.getItem('soundengg_temp_pro_until'), 10);
+            if (hasGlobalPro) {
+                profileTierBadge.textContent = '🎁 TEMP PRO (ALL)';
+            } else {
+                const activeFeatures = ['spectrogram', 'snapshots', 'mic_calibration', 'ear_training']
+                    .filter(k => {
+                        const tempFeatureUntil = safeStorage.getItem(`soundengg_temp_pro_until_${k}`);
+                        return tempFeatureUntil && Date.now() < parseInt(tempFeatureUntil, 10);
+                    });
+                if (activeFeatures.length === 1) {
+                    const featureNames = {
+                        'spectrogram': 'SPECTRO',
+                        'snapshots': 'SNAPSHOTS',
+                        'mic_calibration': 'MIC CAL',
+                        'ear_training': 'EAR TRAIN'
+                    };
+                    profileTierBadge.textContent = `🎁 TEMP PRO (${featureNames[activeFeatures[0]] || 'FEATURE'})`;
+                } else if (activeFeatures.length > 1) {
+                    profileTierBadge.textContent = `🎁 TEMP PRO (${activeFeatures.length} FEATURES)`;
+                } else {
+                    profileTierBadge.textContent = '🎁 TEMP PRO';
+                }
+            }
             profileTierBadge.className = 'tier-badge pro';
         } else {
             profileTierBadge.textContent = 'FREE TIER';
