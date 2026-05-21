@@ -1697,9 +1697,23 @@
 
             <hr class="rugged-divider">
 
-            <div class="profile-section" style="margin-top: 2rem; position: relative; z-index: 9999;">
-                <button type="button" id="btn-profile-signout" class="auth-submit-btn danger-btn" style="position: relative; z-index: 10000; cursor: pointer !important;">
+            <div class="profile-section" style="margin-top: 1.5rem; position: relative; z-index: 9999;">
+                <button type="button" id="btn-profile-signout" class="auth-submit-btn danger-btn" style="position: relative; z-index: 10000; cursor: pointer !important; width: 100%;">
                     <span class="material-symbols-outlined">logout</span> SECURE SIGN OUT
+                </button>
+            </div>
+
+            <hr class="rugged-divider" style="border-color: rgba(239, 68, 68, 0.15);">
+
+            <div class="profile-section" style="margin-top: 1.5rem; border: 1px solid rgba(239, 68, 68, 0.2); padding: 1.25rem; border-radius: 8px; background: rgba(239, 68, 68, 0.02); box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);">
+                <h3 class="section-sub-title" style="color: #ef4444; margin-top: 0; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; letter-spacing: 1.5px;">
+                    <span class="material-symbols-outlined" style="font-size: 1.1rem; color: #ef4444;">gavel</span> DANGER_ZONE
+                </h3>
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; line-height: 1.4; font-family: var(--font-mono);">
+                    DELETING YOUR ACCOUNT IS IRREVERSIBLE. WIPE SYNCED METADATA, PRESETS, AND PASS CREDENTIALS.
+                </p>
+                <button type="button" id="btn-profile-delete-account" class="auth-submit-btn danger-btn" style="width: 100%; border-color: #ef4444; color: #ef4444; background: rgba(239, 68, 68, 0.05); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.1); font-size: 0.85rem; padding: 10px 0; cursor: pointer;">
+                    <span class="material-symbols-outlined" style="font-size: 1.10rem; vertical-align: middle; margin-right: 4px;">delete_forever</span> DELETE MY ACCOUNT
                 </button>
             </div>
         </div>
@@ -1732,6 +1746,39 @@
                 </button>
                 <button type="button" id="btn-billing-cancel-abort" class="auth-submit-btn outline-warning" style="width: 100%; font-size: 0.85rem; padding: 12px 0; border-color: rgba(255,255,255,0.2); color: #fff; cursor: pointer;">
                     KEEP MY PRO PASS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Account Deletion Confirmation Modal -->
+    <div id="account-delete-confirm-modal" class="modal-overlay hidden" style="z-index: 10020;">
+        <div class="modal-content auth-modal-box" style="max-width: 400px; padding: 2rem;">
+            <button id="btn-close-account-delete" class="modal-close-btn"><span class="material-symbols-outlined">close</span></button>
+            
+            <div class="auth-header" style="margin-bottom: 1.5rem; text-align: center;">
+                <span class="material-symbols-outlined" style="font-size: 3rem; color: #ef4444; display: inline-block;">gavel</span>
+                <h2 class="vfd-glow" style="color: #ef4444; margin-top: 0.5rem; letter-spacing: 1px;">DELETE_ACCOUNT_CONFIRM</h2>
+                <p style="font-size: 0.8rem; margin-top: 0.25rem; color: var(--text-secondary);">Are you absolutely sure you want to delete your account?</p>
+            </div>
+
+            <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); padding: 1rem; border-radius: 6px; margin-bottom: 1.5rem; text-align: left;">
+                <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+                    <li>This action is <strong>permanent and irreversible</strong>.</li>
+                    <li>All <strong>cloud synced configurations</strong> will be destroyed.</li>
+                    <li>Your <strong>subscription status</strong> will be permanently wiped.</li>
+                    <li>You will be immediately logged out of all devices.</li>
+                </ul>
+            </div>
+
+            <div id="account-delete-error" style="display: none; color: #ef4444; font-size: 0.8rem; font-family: var(--font-mono); margin-bottom: 1rem; text-align: center; background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.5rem; border-radius: 4px;"></div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="btn-account-delete-execute" class="auth-submit-btn danger-btn" style="width: 100%; font-size: 0.85rem; padding: 12px 0; background: #ef4444; border-color: #ef4444; color: #fff; cursor: pointer;">
+                    CONFIRM DELETION
+                </button>
+                <button type="button" id="btn-account-delete-abort" class="auth-submit-btn outline-warning" style="width: 100%; font-size: 0.85rem; padding: 12px 0; border-color: rgba(255,255,255,0.2); color: #fff; cursor: pointer;">
+                    ABORT & KEEP MY ACCOUNT
                 </button>
             </div>
         </div>

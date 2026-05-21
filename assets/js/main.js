@@ -1138,6 +1138,14 @@ function setupNavigation() {
     const btnBillingCancelAbort = document.getElementById('btn-billing-cancel-abort');
     const billingCancelError = document.getElementById('billing-cancel-error');
 
+    // Account deletion elements
+    const btnProfileDeleteAccount = document.getElementById('btn-profile-delete-account');
+    const accountDeleteConfirmModal = document.getElementById('account-delete-confirm-modal');
+    const btnCloseAccountDelete = document.getElementById('btn-close-account-delete');
+    const btnAccountDeleteExecute = document.getElementById('btn-account-delete-execute');
+    const btnAccountDeleteAbort = document.getElementById('btn-account-delete-abort');
+    const accountDeleteError = document.getElementById('account-delete-error');
+
     if (btnAuthToggle) {
         // Handled by global delegation for robustness
         console.log('Auth toggle logic migrated to global delegate');
@@ -1245,6 +1253,96 @@ function setupNavigation() {
                         btnBillingCancelExecute.textContent = originalText;
                         btnBillingCancelExecute.disabled = false;
                         if (btnBillingCancelAbort) btnBillingCancelAbort.disabled = false;
+                    }
+                });
+            }
+
+            // Wire Account Deletion handlers inside Profile Modal context
+            if (btnProfileDeleteAccount && accountDeleteConfirmModal) {
+                btnProfileDeleteAccount.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (accountDeleteError) {
+                        accountDeleteError.style.display = 'none';
+                        accountDeleteError.textContent = '';
+                    }
+                    openModal(accountDeleteConfirmModal);
+                });
+            }
+
+            if (btnCloseAccountDelete && accountDeleteConfirmModal) {
+                btnCloseAccountDelete.addEventListener('click', () => closeModal(accountDeleteConfirmModal));
+            }
+
+            if (btnAccountDeleteAbort && accountDeleteConfirmModal) {
+                btnAccountDeleteAbort.addEventListener('click', () => closeModal(accountDeleteConfirmModal));
+            }
+
+            if (accountDeleteConfirmModal) {
+                accountDeleteConfirmModal.addEventListener('click', (e) => {
+                    if (e.target === accountDeleteConfirmModal) {
+                        closeModal(accountDeleteConfirmModal);
+                    }
+                });
+            }
+
+            if (btnAccountDeleteExecute && accountDeleteConfirmModal) {
+                btnAccountDeleteExecute.addEventListener('click', async () => {
+                    btnAccountDeleteExecute.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align: middle; margin-right: 4px;">sync</span> DELETING...';
+                    btnAccountDeleteExecute.disabled = true;
+                    if (btnAccountDeleteAbort) btnAccountDeleteAbort.disabled = true;
+                    if (accountDeleteError) {
+                        accountDeleteError.style.display = 'none';
+                        accountDeleteError.textContent = '';
+                    }
+
+                    try {
+                        if (!window.supabaseClient) {
+                            throw new Error('Supabase client not initialized.');
+                        }
+                        const { data: { session } } = await window.supabaseClient.auth.getSession();
+                        if (!session) {
+                            throw new Error('No active session found. Please sign in again.');
+                        }
+
+                        const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/delete-account";
+                        const response = await fetch(edgeFuncUrl, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${session.access_token}`
+                            }
+                        });
+
+                        const resData = await response.json();
+                        if (!response.ok) {
+                            throw new Error(resData.error || "Failed to execute account deletion.");
+                        }
+
+                        // Clear local cache completely and safely
+                        safeStorage.clear();
+
+                        // Perform signout from client auth pool
+                        await window.supabaseClient.auth.signOut();
+
+                        // Close modals
+                        closeModal(accountDeleteConfirmModal);
+                        if (profileModal) closeModal(profileModal);
+
+                        alert("Account permanently deleted. All synced presets and billing maps have been completely purged.");
+                        
+                        // Force window reload to return to pristine logged out state
+                        window.location.reload();
+
+                    } catch (err) {
+                        console.error('[Account Deletion Error]:', err);
+                        if (accountDeleteError) {
+                            accountDeleteError.textContent = err.message || "An unexpected error occurred.";
+                            accountDeleteError.style.display = 'block';
+                        }
+                    } finally {
+                        btnAccountDeleteExecute.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">delete_forever</span> CONFIRM DELETION';
+                        btnAccountDeleteExecute.disabled = false;
+                        if (btnAccountDeleteAbort) btnAccountDeleteAbort.disabled = false;
                     }
                 });
             }
@@ -5094,38 +5192,48 @@ function initAdManager() {
     }
 
     function lockApp() {
+        if (appContent) appContent.classList.add('app-blurred');
+        if (sidebar) sidebar.classList.add('app-blurred');
+        if (bottomBanner) bottomBanner.classList.add('hidden');
+
         if (window.isNativeMobile()) {
-            console.log('Native Mobile detected. Checking for native AdMob plugin...');
-            const { AdMob } = window.Capacitor?.Plugins || {};
-            if (!AdMob) {
-                console.log('AdMob native plugin not found/configured. Bypassing lock screen for local mobile debug.');
-                unlockApp();
-                return;
-            }
-
-            // Only apply blur if we actually have AdMob to show, preventing permanent blur on failure
-            if (appContent) appContent.classList.add('app-blurred');
-            if (sidebar) sidebar.classList.add('app-blurred');
-            if (bottomBanner) bottomBanner.classList.add('hidden');
-
-            showNativeRewardedAd(
-                () => {
-                    console.log('Native Lock Ad completed successfully!');
-                    grantAccess(6);
-                },
-                () => {
-                    console.warn('Native AdMob failed to play. Unlocking app to prevent lockout.');
-                    unlockApp();
-                }
-            );
+            console.log('Native Mobile detected. Triggering mobile lock modal flow...');
+            triggerMobileLock();
             return;
         }
 
         // Standard Web Browser Flow
-        if (appContent) appContent.classList.add('app-blurred');
-        if (sidebar) sidebar.classList.add('app-blurred');
-        if (bottomBanner) bottomBanner.classList.add('hidden');
         triggerBrowserLock();
+    }
+
+    function triggerMobileLock() {
+        modal.classList.remove('hidden');
+
+        if (navigator.onLine) {
+            stateOnline.classList.remove('hidden');
+            stateOffline.classList.add('hidden');
+            
+            // Customize modal online contents dynamically for mobile view
+            const videoAdContainer = modal.querySelector('.video-ad-container');
+            if (videoAdContainer) {
+                videoAdContainer.innerHTML = `
+                    <div class="native-ad-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; padding: 1rem;">
+                        <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); animation: pulse 2s infinite;">smart_display</span>
+                        <h4 style="font-family: var(--font-mono); color: #fff; margin: 0; font-size: 0.95rem; letter-spacing: 1px;">SPONSOR_REWARD_AD</h4>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4; max-width: 250px; text-align: center;">
+                            Support the project by playing a short video to unlock all tools.
+                        </p>
+                    </div>
+                `;
+            }
+
+            // Enable the button by default on native mobile to watch ad
+            btnCloseAd.disabled = false;
+            btnCloseAd.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">play_circle</span> Watch Ad to Unlock';
+        } else {
+            stateOnline.classList.add('hidden');
+            stateOffline.classList.remove('hidden');
+        }
     }
 
     function triggerBrowserLock() {
@@ -5181,8 +5289,29 @@ function initAdManager() {
     // Listeners
     if (btnCloseAd) {
         btnCloseAd.addEventListener('click', () => {
-            if (!btnCloseAd.disabled) {
-                grantAccess(6); // Grant 6 hours
+            if (btnCloseAd.disabled) return;
+
+            if (window.isNativeMobile()) {
+                // Native mobile click triggers the native AdMob rewarded ad
+                const originalText = btnCloseAd.innerHTML;
+                btnCloseAd.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align: middle; margin-right: 4px;">sync</span> Loading Ad...';
+                btnCloseAd.disabled = true;
+
+                showNativeRewardedAd(
+                    () => {
+                        console.log('Native Lock Ad completed successfully!');
+                        grantAccess(6);
+                    },
+                    () => {
+                        console.warn('Native AdMob failed to play. Unlocking app gracefully to prevent lockout.');
+                        btnCloseAd.disabled = false;
+                        btnCloseAd.innerHTML = originalText;
+                        grantAccess(6); // Gracefully grant access to prevent lock out
+                    }
+                );
+            } else {
+                // Desktop Web Flow
+                grantAccess(6);
             }
         });
     }
