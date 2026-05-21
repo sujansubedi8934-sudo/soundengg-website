@@ -3399,7 +3399,19 @@ function initProfessionalRTA() {
         
         if (descText) {
             if (isAdRewardForPro) {
-                descText.innerHTML = 'Watch this 15-second sponsor showcase of premium engineering gear to unlock **all Pro features and tools** for the next **4 hours**.';
+                let featLabel = "the selected Pro feature";
+                if (currentUnlockFeatureKey === 'spectrogram') {
+                    featLabel = "60FPS Spectrogram Waterfall";
+                } else if (currentUnlockFeatureKey === 'snapshots') {
+                    featLabel = "10 Multi-Overlay RTA Snapshots";
+                } else if (currentUnlockFeatureKey === 'mic_calibration') {
+                    featLabel = "Custom Mic Calibration Loader";
+                } else if (currentUnlockFeatureKey === 'ear_training') {
+                    featLabel = "1/6 ISO Octave Ear Training";
+                } else {
+                    featLabel = "all Pro features and tools";
+                }
+                descText.innerHTML = `Watch this 15-second sponsor showcase of premium engineering gear to unlock **${featLabel}** for the next **4 hours**.`;
             } else {
                 descText.innerHTML = 'Watch this 15-second sponsor showcase of premium engineering gear to unlock the **Pro View Fullscreen Analyzer** for this session.';
             }
@@ -3909,7 +3921,7 @@ function initEarTraining() {
     const statScore = document.getElementById('train-stat-score');
     
     const optionsContainer = document.getElementById('train-options-container');
-    const sourceBtns = document.querySelectorAll('.train-source-btn');
+    const sourceBtns = document.querySelectorAll('#ear-training-view .train-source-btn');
     const tierBtns = document.querySelectorAll('.train-tier-btn');
     const boostBtns = document.querySelectorAll('.train-boost-btn');
 
