@@ -2614,6 +2614,9 @@ function initProfessionalRTA() {
     let dataArray, bufferLength;
     let rtaPinkNoiseNode = null;
     let rtaPinkNoiseGainNode = null;
+    let rtaPinkNoiseAnalyserNode = null;
+    let rtaPinkNoiseDataArray = null;
+    let rtaPinkNoiseSmoothedDataArray = null;
     let isRtaPinkNoiseActive = false;
     let timeData; // For Hanning/Manual FFT
     let smoothedDataArray;
@@ -2769,6 +2772,10 @@ function initProfessionalRTA() {
                 try { rtaPinkNoiseNode.disconnect(); } catch(e){}
                 rtaPinkNoiseNode = null;
             }
+            if (rtaPinkNoiseAnalyserNode) {
+                try { rtaPinkNoiseAnalyserNode.disconnect(); } catch(e){}
+                rtaPinkNoiseAnalyserNode = null;
+            }
             if (rtaPinkNoiseGainNode) {
                 try { rtaPinkNoiseGainNode.disconnect(); } catch(e){}
                 rtaPinkNoiseGainNode = null;
@@ -2797,11 +2804,19 @@ function initProfessionalRTA() {
                 }
             }
 
+            rtaPinkNoiseAnalyserNode = audioCtx.createAnalyser();
+            rtaPinkNoiseAnalyserNode.fftSize = 2048;
+            rtaPinkNoiseAnalyserNode.smoothingTimeConstant = 0;
+            
+            rtaPinkNoiseDataArray = new Float32Array(rtaPinkNoiseAnalyserNode.frequencyBinCount);
+            rtaPinkNoiseSmoothedDataArray = new Float32Array(rtaPinkNoiseAnalyserNode.frequencyBinCount).fill(-100);
+
             rtaPinkNoiseGainNode = audioCtx.createGain();
             rtaPinkNoiseGainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); // comfortable level
 
             rtaPinkNoiseNode = createRtaPinkNoise();
-            rtaPinkNoiseNode.connect(rtaPinkNoiseGainNode);
+            rtaPinkNoiseNode.connect(rtaPinkNoiseAnalyserNode);
+            rtaPinkNoiseAnalyserNode.connect(rtaPinkNoiseGainNode);
             rtaPinkNoiseGainNode.connect(audioCtx.destination);
 
             isRtaPinkNoiseActive = true;
@@ -2854,6 +2869,15 @@ function initProfessionalRTA() {
             // Apply Mic Calibration Correction if enabled
             let calCorr = (calEnabled && calOffsets && calOffsets[i]) ? calOffsets[i] : 0;
             dataArray[i] = smoothedDataArray[i] + calCorr;
+        }
+
+        // Apply Averaging / Smoothing to Pink Noise if active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+            rtaPinkNoiseAnalyserNode.getFloatFrequencyData(rtaPinkNoiseDataArray);
+            for (let i = 0; i < bufferLength; i++) {
+                if (rtaPinkNoiseDataArray[i] < -120) rtaPinkNoiseDataArray[i] = -120;
+                rtaPinkNoiseSmoothedDataArray[i] = (rtaPinkNoiseDataArray[i] * alpha) + (rtaPinkNoiseSmoothedDataArray[i] * (1 - alpha));
+            }
         }
 
         if (currentMode !== 'waterfall') {
@@ -2962,15 +2986,43 @@ function initProfessionalRTA() {
                 }
             });
 
-            const h = Math.max(2, (db + 100) * (canvas.height / 100));
-            ctx.fillStyle = getSPLColor(db);
-            ctx.fillRect(x + 1, canvas.height - h, barWidth - 2, h);
+            if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+                let pinkSum = 0;
+                for (let b = lowBin; b <= highBin; b++) {
+                    pinkSum += rtaPinkNoiseSmoothedDataArray[b];
+                }
+                let pinkDb = count > 0 ? pinkSum / count : -100;
+                if (currentWeighting === 'a') pinkDb += (A_WEIGHTS[centerFreq] || 0);
 
-            if (peakHoldEnabled) {
-                const isLight = document.documentElement.classList.contains('light');
-                const ph = (peakData[i] + 100) * (canvas.height / 100);
-                ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
-                ctx.fillRect(x + 1, canvas.height - ph - 2, barWidth - 2, 2);
+                const subBarWidth = (barWidth - 2) / 2;
+                
+                // Mic Input (Left Bar) - Cyan
+                const hMic = Math.max(2, (db + 100) * (canvas.height / 100));
+                ctx.fillStyle = '#14A7B5';
+                ctx.fillRect(x + 1, canvas.height - hMic, subBarWidth, hMic);
+
+                // Pink Noise (Right Bar) - Bold Pink
+                const hPink = Math.max(2, (pinkDb + 100) * (canvas.height / 100));
+                ctx.fillStyle = '#FF2E93';
+                ctx.fillRect(x + 1 + subBarWidth, canvas.height - hPink, subBarWidth, hPink);
+
+                if (peakHoldEnabled) {
+                    const isLight = document.documentElement.classList.contains('light');
+                    const ph = (peakData[i] + 100) * (canvas.height / 100);
+                    ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+                    ctx.fillRect(x + 1, canvas.height - ph - 2, subBarWidth, 2);
+                }
+            } else {
+                const h = Math.max(2, (db + 100) * (canvas.height / 100));
+                ctx.fillStyle = getSPLColor(db);
+                ctx.fillRect(x + 1, canvas.height - h, barWidth - 2, h);
+
+                if (peakHoldEnabled) {
+                    const isLight = document.documentElement.classList.contains('light');
+                    const ph = (peakData[i] + 100) * (canvas.height / 100);
+                    ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+                    ctx.fillRect(x + 1, canvas.height - ph - 2, barWidth - 2, 2);
+                }
             }
         });
     }
@@ -3010,6 +3062,22 @@ function initProfessionalRTA() {
             else ctx.lineTo(x, y);
         }
         ctx.stroke();
+
+        // 2. Draw Pink Noise Output (Bold Pink) if active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#FF2E93';
+            ctx.lineWidth = 2.0;
+            
+            for (let i = 0; i < bufferLength; i++) {
+                let dbVal = rtaPinkNoiseSmoothedDataArray[i];
+                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
+                const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+        }
     }
 
     function drawDominantOverlay() {
