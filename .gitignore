@@ -2,6 +2,15 @@
 node_modules/
 www/
 
+# Editor & IDE settings
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
 # Miscellaneous
 *.class
 *.lock
