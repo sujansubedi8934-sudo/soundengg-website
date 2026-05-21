@@ -3660,17 +3660,9 @@ function initProfessionalRTA() {
         
         if (descText) {
             if (isAdRewardForPro) {
-                let featLabel = "the selected Pro feature";
-                if (currentUnlockFeatureKey === 'spectrogram') {
-                    featLabel = "60FPS Spectrogram Waterfall";
-                } else if (currentUnlockFeatureKey === 'snapshots') {
-                    featLabel = "10 Multi-Overlay RTA Snapshots";
-                } else if (currentUnlockFeatureKey === 'mic_calibration') {
-                    featLabel = "Custom Mic Calibration Loader";
-                } else if (currentUnlockFeatureKey === 'ear_training') {
-                    featLabel = "1/6 ISO Octave Ear Training";
-                } else {
-                    featLabel = "all Pro features and tools";
+                let featLabel = "your selected tool";
+                if (currentUnlockFeatureKey === 'blog') {
+                    featLabel = "your selected guide";
                 }
                 descText.innerHTML = `Watch this 15-second sponsor showcase of premium engineering gear to unlock **${featLabel}** for the next **4 hours**.`;
             } else {
