@@ -39,7 +39,7 @@
 
 ### Monetization & Ads Integration
 * **Web Payment gateway:** **Razorpay Web Subscriptions** (Monthly/Yearly/Lifetime) integrated via two secure, custom-written Deno Edge Functions in Supabase:
-  * `razorpay-checkout`: Generates payment orders (Paise for INR, Cents for USD) and validates HMAC payment signatures.
+  * `secure-payment`: Generates payment orders (Paise for INR, Cents for USD), handles secure cancellations, and validates HMAC payment signatures. *(Refactored and renamed from `razorpay-checkout` for ad-blocker resilience to circumvent client-side privacy filters blocking endpoints containing billing keywords).*
   * `razorpay-webhook`: Securely updates a user's database record to `is_pro: true` on verified billing gateway alerts.
 * **Web Ads Network:** **Google AdSense** served via a custom 15-second "view ad to unlock 6 hours of tools" model.
 * **Mobile Ads Network:** Native **Google AdMob** integrated via `@capacitor-community/admob`.
@@ -126,16 +126,14 @@ async function syncToolState(userId, configType, stateData) {
 - [x] **Safari WebKit Audio Output Fallback:** Implemented robust graceful degradation for Safari/WebKit where `setSinkId` is unsupported. Dynamically locks and disables the Audio Output dropdown, changes the mouse cursor style, and displays a premium, custom warning box instructing users to route their output via macOS/iOS System Settings.
 - [x] **Apple Compliance (Account Deletion):** Integrated a secure, in-app "Delete Account" flow in `app.html` / `main.js` that calls the Supabase Edge Function to purge all user preset data and login maps.
 - [x] **Supabase Production Hardening (RLS):** Fully configured and deployed strict Row Level Security (RLS) policies on `profiles` and `user_configs` tables, protecting all user profiles and preferences.
+- [x] **Razorpay Live Gateway Integration:** Fully transitioned both client-side Key IDs (`rzp_live_Ss263d2O3ONro6`) and cloud backend environment variables to production Live Mode, auto-applying 50% launch special coupons.
+- [x] **Ad-Blocker Resilience (Endpoint Refactoring):** Renamed the Supabase Edge checkout endpoint to `secure-payment` and purged the old `razorpay-checkout` function to circumvent client-side ad-blockers and privacy shields blocking core payment handshakes.
 
 ### Next Steps & Operational Playbook
-1. **Razorpay Live Gateway Swap:**
-   * Transition Razorpay keys from Test Mode to Live Mode.
-   * Inject Live Key Secret configurations into Supabase Edge Secrets:
-     ```bash
-     supabase secrets set RAZORPAY_KEY_ID="rzp_live_..." RAZORPAY_KEY_SECRET="..." RAZORPAY_WEBHOOK_SECRET="..."
-     ```
-2. **AdMob Production ID Mapping:**
-   * Replace AdMob test block IDs inside [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js) with production Interstitial and Rewarded Video Ad IDs.
+1. **Popup & Inline AdMob Integration (Web & App):**
+   * Implement CSS/HTML layout wrappers in popups (Google AdSense units for browser visitors, `@capacitor-community/admob` banner overlays for iOS/Android native app installations).
+2. **Edge Cases & Webhook Lifecycle Tests:**
+   * Dry-run webhook subscription actions (like database tier synchronization when `subscription.cancelled` or `subscription.halted` events fire, and renewal on `subscription.charged`).
 3. **Google Play Console Release Checklist:**
    * Prepare standard store promotional graphics, logo assets, and legal descriptions.
    * Compile and sign a production Android App Bundle:
@@ -148,9 +146,7 @@ async function syncToolState(userId, configType, stateData) {
    * Open `/ios` in Apple Xcode.
    * Assign a verified Developer Account Team.
    * Set native app icons, build numbers, and archive target packages for App Store Connect distribution.
-   * [x] *Required Compliance:* Add a secure "Delete Account" option within the user drawer menu linked to the backend `supabase.auth.admin.deleteUser()` to comply with Apple's strict User Data Deletion regulations.
 5. **Supabase Production Security Hardening:**
-   * [x] Configure and activate Row Level Security (RLS) policies on both `profiles` and `user_configs` tables.
    * Connect an external SMTP transactional mail server (e.g., Resend, Mailgun) inside Supabase Auth Settings to lift the default rate-limiting constraints on verification emails.
 
 ---
