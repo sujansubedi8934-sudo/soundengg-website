@@ -573,6 +573,12 @@
                         <option value="default">Default System Microphone</option>
                     </select>
                 </label>
+                <label class="setting-item" style="margin-top: 10px;">
+                    <span>Audio Output</span>
+                    <select id="global-output-select" class="rugged-select">
+                        <option value="default">Default System Speaker</option>
+                    </select>
+                </label>
                 <div style="margin-top: 10px;">
                     <button id="btn-request-mic" class="rugged-btn small-btn outline-warning">Request Device Access</button>
                 </div>
@@ -799,6 +805,12 @@
                     <span class="train-label">SOURCE</span>
                     <select id="rta-input-select" class="rugged-select" style="min-width: 150px;">
                         <option value="default">Default Input</option>
+                    </select>
+                </div>
+                <div class="train-control-group">
+                    <span class="train-label">OUTPUT</span>
+                    <select id="rta-output-select" class="rugged-select" style="min-width: 150px;">
+                        <option value="default">Default Output</option>
                     </select>
                 </div>
                 <div class="train-control-group">

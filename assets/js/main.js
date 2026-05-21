@@ -33,6 +33,94 @@ const safeStorage = window.safeStorage || {
     }
 };
 
+// --- AUDIO CONTEXT INTERCEPTOR (Dynamic Output Routing) ---
+window.activeAudioContexts = window.activeAudioContexts || [];
+(function() {
+    const OriginalAudioContext = window.AudioContext || window.webkitAudioContext;
+    if (OriginalAudioContext) {
+        class InterceptedAudioContext extends OriginalAudioContext {
+            constructor(...args) {
+                super(...args);
+                window.activeAudioContexts.push(this);
+                // Apply active output sink if saved in storage
+                const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                if (savedOutput && savedOutput !== 'default' && typeof this.setSinkId === 'function') {
+                    // Slight delay to ensure AudioContext constructor resolves cleanly
+                    setTimeout(() => {
+                        if (this.state !== 'closed') {
+                            this.setSinkId(savedOutput).catch(err => {
+                                console.warn("Failed to apply initial setSinkId to AudioContext:", err);
+                            });
+                        }
+                    }, 50);
+                }
+            }
+        }
+        // Override global constructors
+        if (window.AudioContext) window.AudioContext = InterceptedAudioContext;
+        if (window.webkitAudioContext) window.webkitAudioContext = InterceptedAudioContext;
+    }
+})();
+
+// --- GLOBAL AUDIO ROUTING MANAGER & STATE SYNC ---
+window.populateAllAudioDevices = async function() {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        
+        // 1. Inputs
+        const inputs = devices.filter(d => d.kind === 'audioinput');
+        const inputOptions = '<option value="default">Default System Microphone</option>' +
+            inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
+            
+        // 2. Outputs
+        const outputs = devices.filter(d => d.kind === 'audiooutput');
+        const outputOptions = '<option value="default">Default System Speaker</option>' +
+            outputs.map(d => `<option value="${d.deviceId}">${d.label || 'Output ' + d.deviceId.slice(0,4)}</option>`).join('');
+            
+        // Populate inputs
+        const globalMic = document.getElementById('global-mic-select');
+        const rtaInput = document.getElementById('rta-input-select');
+        if (globalMic) {
+            globalMic.innerHTML = inputOptions;
+            const savedMic = safeStorage.getItem('soundengg-mic-id') || 'default';
+            globalMic.value = savedMic;
+        }
+        if (rtaInput) {
+            rtaInput.innerHTML = inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
+            const savedMic = safeStorage.getItem('soundengg-mic-id') || 'default';
+            if (savedMic && savedMic !== 'default') {
+                rtaInput.value = savedMic;
+            } else if (inputs.length > 0) {
+                rtaInput.value = inputs[0].deviceId;
+            }
+        }
+        
+        // Populate outputs
+        const globalOutput = document.getElementById('global-output-select');
+        const rtaOutput = document.getElementById('rta-output-select');
+        if (globalOutput) {
+            globalOutput.innerHTML = outputOptions;
+            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+            globalOutput.value = savedOutput;
+        }
+        if (rtaOutput) {
+            rtaOutput.innerHTML = outputOptions;
+            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+            rtaOutput.value = savedOutput;
+        }
+    } catch (e) {
+        console.error("Device enumeration failed", e);
+    }
+};
+
+// Wire device change listener to auto-refresh devices
+if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener === 'function') {
+    navigator.mediaDevices.addEventListener('devicechange', () => {
+        console.log("Audio hardware configuration changed, refreshing dropdowns...");
+        window.populateAllAudioDevices();
+    });
+}
+
 // --- MODAL UTILITIES (Senior Stability - Global Scope) ---
 function openModal(modal) {
     if (!modal) return;
@@ -2451,6 +2539,7 @@ function initProfessionalRTA() {
     const ctx = canvas.getContext('2d');
     const startBtn = document.getElementById('btn-start-analyzer');
     const inputSelect = document.getElementById('rta-input-select');
+    const outputSelect = document.getElementById('rta-output-select');
     const modeBtns = document.querySelectorAll('.mode-btn');
     const weightBtns = document.querySelectorAll('.weight-btn');
     const calSlider = document.getElementById('rta-calibration');
@@ -3662,7 +3751,79 @@ function initProfessionalRTA() {
     }
 
     renderSnapshotSlots(); 
-    getDevices();
+
+    // RTA Input Change Handler (Rebuild stream & Sync global settings)
+    if (inputSelect) {
+        inputSelect.addEventListener('change', async (e) => {
+            const newDeviceId = e.target.value;
+            safeStorage.setItem('soundengg-mic-id', newDeviceId);
+            
+            const globalMic = document.getElementById('global-mic-select');
+            if (globalMic) globalMic.value = newDeviceId;
+            
+            if (isAnalyzing) {
+                // Hot-swap active stream
+                isAnalyzing = false;
+                if (rafID) cancelAnimationFrame(rafID);
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                }
+                await startAnalyzer(newDeviceId);
+            }
+            
+            document.dispatchEvent(new CustomEvent('deviceChanged', { detail: newDeviceId }));
+        });
+    }
+
+    // RTA Output Change Handler (Sync global settings & Apply routes)
+    if (outputSelect) {
+        outputSelect.addEventListener('change', async (e) => {
+            const newDeviceId = e.target.value;
+            safeStorage.setItem('soundengg-output-id', newDeviceId);
+            
+            const globalOutput = document.getElementById('global-output-select');
+            if (globalOutput) globalOutput.value = newDeviceId;
+            
+            if (window.applyAudioOutput) {
+                await window.applyAudioOutput(newDeviceId);
+            }
+            
+            document.dispatchEvent(new CustomEvent('outputDeviceChanged', { detail: newDeviceId }));
+        });
+    }
+
+    // Sync input changes from global settings
+    document.addEventListener('deviceChanged', async (e) => {
+        const newDeviceId = e.detail;
+        if (inputSelect && inputSelect.value !== newDeviceId) {
+            inputSelect.value = newDeviceId;
+            if (isAnalyzing) {
+                isAnalyzing = false;
+                if (rafID) cancelAnimationFrame(rafID);
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                    stream = null;
+                }
+                await startAnalyzer(newDeviceId);
+            }
+        }
+    });
+
+    // Sync output changes from global settings
+    document.addEventListener('outputDeviceChanged', (e) => {
+        const newDeviceId = e.detail;
+        if (outputSelect && outputSelect.value !== newDeviceId) {
+            outputSelect.value = newDeviceId;
+        }
+    });
+
+    // Initial enumeration
+    if (window.populateAllAudioDevices) {
+        window.populateAllAudioDevices();
+    } else {
+        getDevices();
+    }
 }
 
 // --- SIGNAL GENERATOR CORE LOGIC ---
@@ -4867,6 +5028,14 @@ function initTuner() {
     // Initial resize and draw
     resizeCanvas();
     drawVisualizer(null);
+
+    // Listen for device changes to dynamically update tuner input source
+    document.addEventListener('deviceChanged', (e) => {
+        if (isTuning) {
+            stopTuner();
+            window.startTuner(e.detail);
+        }
+    });
 }
 
 // --- SUB CALCULATOR LOGIC ---
@@ -5735,24 +5904,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 3. Audio Routing
     const micSelect = document.getElementById('global-mic-select');
+    const outputSelect = document.getElementById('global-output-select');
     const btnRequestMic = document.getElementById('btn-request-mic');
     
-    async function populateDevices() {
-        if (!micSelect) return;
-        try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
-            const inputs = devices.filter(d => d.kind === 'audioinput');
-            if (inputs.length > 0) {
-                micSelect.innerHTML = '<option value="default">Default System Microphone</option>' + 
-                    inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
-                
-                const savedMic = safeStorage.getItem('soundengg-mic-id');
-                if (savedMic) micSelect.value = savedMic;
+    // Dynamic output sink applier
+    window.applyAudioOutput = async function(deviceId) {
+        safeStorage.setItem('soundengg-output-id', deviceId);
+        if (window.activeAudioContexts) {
+            window.activeAudioContexts = window.activeAudioContexts.filter(ctx => ctx && ctx.state !== 'closed');
+            for (const ctx of window.activeAudioContexts) {
+                if (typeof ctx.setSinkId === 'function') {
+                    try {
+                        await ctx.setSinkId(deviceId);
+                        console.log(`Audio output routed to device ID: ${deviceId}`);
+                    } catch (err) {
+                        console.error(`Failed to route AudioContext to ${deviceId}:`, err);
+                    }
+                }
             }
-        } catch (e) {
-            console.error("Device enumeration failed", e);
         }
-    }
+    };
 
     if (btnRequestMic) {
         btnRequestMic.addEventListener('click', async () => {
@@ -5762,7 +5933,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnRequestMic.textContent = 'Access Granted';
                 btnRequestMic.classList.remove('outline-warning');
                 btnRequestMic.classList.add('outline-primary');
-                populateDevices();
+                if (window.populateAllAudioDevices) {
+                    await window.populateAllAudioDevices();
+                }
             } catch (err) {
                 alert('Microphone access denied. ' + err.message);
             }
@@ -5774,7 +5947,35 @@ document.addEventListener('DOMContentLoaded', () => {
             safeStorage.setItem('soundengg-mic-id', e.target.value);
             document.dispatchEvent(new CustomEvent('deviceChanged', { detail: e.target.value }));
         });
-        populateDevices();
+    }
+
+    if (outputSelect) {
+        outputSelect.addEventListener('change', async (e) => {
+            const newDeviceId = e.target.value;
+            if (window.applyAudioOutput) {
+                await window.applyAudioOutput(newDeviceId);
+            }
+            document.dispatchEvent(new CustomEvent('outputDeviceChanged', { detail: newDeviceId }));
+        });
+    }
+
+    // Sync input selection changes across panels
+    document.addEventListener('deviceChanged', (e) => {
+        if (micSelect && micSelect.value !== e.detail) {
+            micSelect.value = e.detail;
+        }
+    });
+
+    // Sync output selection changes across panels
+    document.addEventListener('outputDeviceChanged', (e) => {
+        if (outputSelect && outputSelect.value !== e.detail) {
+            outputSelect.value = e.detail;
+        }
+    });
+
+    // Initial load
+    if (window.populateAllAudioDevices) {
+        window.populateAllAudioDevices();
     }
 });
 
