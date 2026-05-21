@@ -49,5 +49,9 @@
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>SoundEngg Console requires microphone access to enable the Real-Time Analyzer (RTA) audio analysis tools.</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-4117687060036448~1381133498</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>This identifier will be used to deliver personalized sponsor highlights and rewards to you.</string>
 </dict>
 </plist>
