@@ -55,12 +55,18 @@ window.activeAudioContexts = window.activeAudioContexts || [];
                 // Add statechange listener to apply sink ID as soon as context becomes running
                 this.addEventListener('statechange', () => {
                     if (this.state === 'running') {
-                        const activeOutput = safeStorage.getItem('soundengg-output-id') || 'default';
-                        if (activeOutput && activeOutput !== 'default' && typeof this.setSinkId === 'function') {
-                            this.setSinkId(activeOutput).catch(err => {
-                                console.warn("Failed to apply initial setSinkId to AudioContext on statechange:", err);
-                            });
-                        }
+                        // Safe small delay to let browser audio threads transition state fully
+                        setTimeout(async () => {
+                            const activeOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                            if (activeOutput && activeOutput !== 'default' && typeof this.setSinkId === 'function') {
+                                try {
+                                    await this.setSinkId(activeOutput);
+                                    console.log(`Audio output successfully applied on statechange: ${activeOutput}`);
+                                } catch (err) {
+                                    console.warn("Failed to apply initial setSinkId to AudioContext on statechange:", err);
+                                }
+                            }
+                        }, 100);
                     }
                 });
                 
@@ -72,13 +78,15 @@ window.activeAudioContexts = window.activeAudioContexts || [];
                                 console.warn("Failed to apply initial setSinkId to AudioContext:", err);
                             });
                         }
-                    }, 50);
+                    }, 100);
                 }
             }
 
             // Override resume to explicitly apply and await the output device when transitioning out of suspended
             async resume() {
                 await super.resume();
+                // Safe small delay to let browser audio threads transition state fully
+                await new Promise(resolve => setTimeout(resolve, 100));
                 const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
                 if (savedOutput && savedOutput !== 'default' && typeof this.setSinkId === 'function') {
                     try {
@@ -4083,11 +4091,19 @@ function initProfessionalRTA() {
         }
     });
 
-    // Sync output changes from global settings
-    document.addEventListener('outputDeviceChanged', (e) => {
+    // Sync output changes from global settings & Apply routes
+    document.addEventListener('outputDeviceChanged', async (e) => {
         const newDeviceId = e.detail;
         if (outputSelect && outputSelect.value !== newDeviceId) {
             outputSelect.value = newDeviceId;
+        }
+        if (audioCtx && typeof audioCtx.setSinkId === 'function') {
+            try {
+                await audioCtx.setSinkId(newDeviceId);
+                console.log("RTA AudioContext successfully routed to:", newDeviceId);
+            } catch (err) {
+                console.warn("Failed to route RTA AudioContext on outputDeviceChanged:", err);
+            }
         }
     });
 
@@ -4469,6 +4485,18 @@ function initSignalGenerator() {
     pullSignalGen();
     document.addEventListener('authSuccess', pullSignalGen);
 
+    // Sync output changes from global settings & Apply routes
+    document.addEventListener('outputDeviceChanged', async (e) => {
+        const newDeviceId = e.detail;
+        if (audioCtx && typeof audioCtx.setSinkId === 'function') {
+            try {
+                await audioCtx.setSinkId(newDeviceId);
+                console.log("Signal Generator AudioContext successfully routed to:", newDeviceId);
+            } catch (err) {
+                console.warn("Failed to route Signal Generator AudioContext on outputDeviceChanged:", err);
+            }
+        }
+    });
 }
 
 // --- EAR TRAINING LOGIC ---
@@ -4974,6 +5002,19 @@ function initEarTraining() {
     if (uploadContainer) {
         uploadContainer.style.display = 'none';
     }
+
+    // Sync output changes from global settings & Apply routes
+    document.addEventListener('outputDeviceChanged', async (e) => {
+        const newDeviceId = e.detail;
+        if (audioCtx && typeof audioCtx.setSinkId === 'function') {
+            try {
+                await audioCtx.setSinkId(newDeviceId);
+                console.log("Ear Training AudioContext successfully routed to:", newDeviceId);
+            } catch (err) {
+                console.warn("Failed to route Ear Training AudioContext on outputDeviceChanged:", err);
+            }
+        }
+    });
 }
 
 // --- TUNER LOGIC ---
