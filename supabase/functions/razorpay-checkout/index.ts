@@ -75,6 +75,22 @@ serve(async (req) => {
           : (Deno.env.get("RAZORPAY_PLAN_YEARLY") || "plan_YEARLY_PLAN_ID");
 
         const totalCount = plan === "monthly" ? 120 : 10; // 10 years max duration (120 months or 10 years)
+        const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "";
+
+        const subscriptionBody: any = {
+          plan_id: planId,
+          total_count: totalCount,
+          quantity: 1,
+          customer_notify: 1,
+          notes: {
+            user_id: user.id
+          }
+        };
+
+        // Dynamically apply launch offer if configured in Supabase secrets
+        if (offerId && offerId.trim() !== "") {
+          subscriptionBody.offer_id = offerId.trim();
+        }
 
         const response = await fetch("https://api.razorpay.com/v1/subscriptions", {
           method: "POST",
@@ -82,15 +98,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
             "Authorization": "Basic " + btoa(`${RZP_KEY_ID}:${RZP_KEY_SECRET}`)
           },
-          body: JSON.stringify({
-            plan_id: planId,
-            total_count: totalCount,
-            quantity: 1,
-            customer_notify: 1,
-            notes: {
-              user_id: user.id
-            }
-          })
+          body: JSON.stringify(subscriptionBody)
         });
 
         const subData = await response.json();

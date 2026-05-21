@@ -5970,7 +5970,7 @@ function initAdManager() {
     // RAZORPAY PRODUCTION & TEST KEY MAPPINGS
     // Replace this test key with your production Razorpay Live Key ID
     // ========================================================
-    const RAZORPAY_PRODUCTION_KEY_ID = "rzp_test_SrF0fu6ZZuNFbC";
+    const RAZORPAY_PRODUCTION_KEY_ID = "rzp_live_Ss263d2O3ONro6";
 
     async function initiateRazorpayCheckout(user, plan = 'lifetime') {
         const keyId = window.RAZORPAY_KEY_ID || RAZORPAY_PRODUCTION_KEY_ID;
