@@ -2627,7 +2627,9 @@ function initProfessionalRTA() {
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
             const inputs = devices.filter(d => d.kind === 'audioinput');
-            inputSelect.innerHTML = inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
+            if (inputSelect) {
+                inputSelect.innerHTML = inputs.map(d => `<option value="${d.deviceId}">${d.label || 'Input ' + d.deviceId.slice(0,4)}</option>`).join('');
+            }
         } catch (e) { console.error("Device enumeration failed", e); }
     }
 
