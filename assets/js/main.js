@@ -2578,6 +2578,9 @@ function initProfessionalRTA() {
     
     let audioCtx, analyser, source, stream;
     let dataArray, bufferLength;
+    let rtaPinkNoiseNode = null;
+    let rtaPinkNoiseGainNode = null;
+    let isRtaPinkNoiseActive = false;
     let timeData; // For Hanning/Manual FFT
     let smoothedDataArray;
     let isInitialized = false;
@@ -2677,6 +2680,9 @@ function initProfessionalRTA() {
     };
 
     function stopAnalyzer() {
+        if (isRtaPinkNoiseActive) {
+            toggleRtaPinkNoise();
+        }
         if (!isAnalyzing) return;
         isAnalyzing = false;
         if (rafID) cancelAnimationFrame(rafID);
@@ -2694,6 +2700,85 @@ function initProfessionalRTA() {
         drawGridAndLabels();
     }
     window.stopAnalyzer = stopAnalyzer;
+
+    function createRtaPinkNoise() {
+        const bufferSize = 4096 * 2;
+        const b = [0, 0, 0, 0, 0, 0, 0];
+        const node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+        node.onaudioprocess = (e) => {
+            const output = e.outputBuffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                b[0] = 0.99886 * b[0] + white * 0.0555179;
+                b[1] = 0.99332 * b[1] + white * 0.0750759;
+                b[2] = 0.96900 * b[2] + white * 0.1538520;
+                b[3] = 0.86650 * b[3] + white * 0.3104856;
+                b[4] = 0.55000 * b[4] + white * 0.5329522;
+                b[5] = -0.7616 * b[5] - white * 0.0168980;
+                output[i] = b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + white * 0.5362;
+                output[i] *= 0.11; // (roughly) compensatory gain
+                b[6] = white * 0.115926;
+            }
+        };
+        return node;
+    }
+
+    async function toggleRtaPinkNoise() {
+        const btn = document.getElementById('btn-rta-pink-noise');
+        if (!btn) return;
+
+        if (isRtaPinkNoiseActive) {
+            // Turn off
+            if (rtaPinkNoiseNode) {
+                try { rtaPinkNoiseNode.disconnect(); } catch(e){}
+                rtaPinkNoiseNode = null;
+            }
+            if (rtaPinkNoiseGainNode) {
+                try { rtaPinkNoiseGainNode.disconnect(); } catch(e){}
+                rtaPinkNoiseGainNode = null;
+            }
+            isRtaPinkNoiseActive = false;
+            
+            // Revert premium styling
+            btn.classList.remove('active');
+            btn.style.background = '';
+            btn.style.borderColor = '';
+            btn.style.color = '';
+            btn.style.boxShadow = '';
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">volume_up</span> PLAY NOISE';
+        } else {
+            // Turn on
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
+
+            // Sync output routing
+            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+            if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
+                try {
+                    await audioCtx.setSinkId(savedOutput);
+                } catch (err) {
+                    console.warn("Failed to set output sink for RTA pink noise:", err);
+                }
+            }
+
+            rtaPinkNoiseGainNode = audioCtx.createGain();
+            rtaPinkNoiseGainNode.gain.setValueAtTime(0.15, audioCtx.currentTime); // comfortable level
+
+            rtaPinkNoiseNode = createRtaPinkNoise();
+            rtaPinkNoiseNode.connect(rtaPinkNoiseGainNode);
+            rtaPinkNoiseGainNode.connect(audioCtx.destination);
+
+            isRtaPinkNoiseActive = true;
+
+            // Apply active premium visual glow
+            btn.classList.add('active');
+            btn.style.background = 'var(--primary)';
+            btn.style.borderColor = 'var(--primary)';
+            btn.style.color = 'var(--surface)';
+            btn.style.boxShadow = '0 0 15px var(--primary)';
+            btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">volume_up</span> STOP NOISE';
+        }
+    }
 
     function getSPLColor(db) {
         const val = db + calibrationOffset;
@@ -3213,6 +3298,13 @@ function initProfessionalRTA() {
 
     if (btnCapture) {
         btnCapture.addEventListener('click', captureNewSnapshot);
+    }
+
+    const btnRtaPinkNoise = document.getElementById('btn-rta-pink-noise');
+    if (btnRtaPinkNoise) {
+        btnRtaPinkNoise.addEventListener('click', () => {
+            toggleRtaPinkNoise();
+        });
     }
 
     const btnClearAll = document.getElementById('btn-clear-all-snapshots');
@@ -3909,6 +4001,15 @@ function initSignalGenerator() {
     function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Explicitly sync output device
+            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+            if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
+                audioCtx.setSinkId(savedOutput).catch(err => {
+                    console.warn("Failed to apply initial sink ID to Signal Generator:", err);
+                });
+            }
+
             gainNode = audioCtx.createGain();
             gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // Start muted
             
@@ -4293,6 +4394,15 @@ function initEarTraining() {
     function initAudio() {
         if (!audioCtx) {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            
+            // Explicitly sync output device
+            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+            if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
+                audioCtx.setSinkId(savedOutput).catch(err => {
+                    console.warn("Failed to apply initial sink ID to Ear Training:", err);
+                });
+            }
+
             gainNode = audioCtx.createGain();
             filterNode = audioCtx.createBiquadFilter();
             filterNode.type = 'peaking';
@@ -5982,8 +6092,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 stream.getTracks().forEach(t => t.stop());
                 btnRequestMic.textContent = 'Access Granted';
-                btnRequestMic.classList.remove('outline-warning');
-                btnRequestMic.classList.add('outline-primary');
+                btnRequestMic.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+                btnRequestMic.style.boxShadow = '0 4px 15px rgba(16, 185, 129, 0.4)';
+                btnRequestMic.style.borderColor = '#10b981';
+                btnRequestMic.style.color = '#ffffff';
                 if (window.populateAllAudioDevices) {
                     await window.populateAllAudioDevices();
                 }
