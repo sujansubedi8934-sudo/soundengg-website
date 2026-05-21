@@ -1400,7 +1400,7 @@ function setupNavigation() {
                             throw new Error('No active session found. Please sign in again.');
                         }
 
-                        const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/razorpay-checkout";
+                        const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/secure-payment";
                         const response = await fetch(edgeFuncUrl, {
                             method: "POST",
                             headers: {
@@ -6020,7 +6020,7 @@ function initAdManager() {
             if (!session) throw new Error("No active session found. Please log in.");
 
             // 1. Backend handshake to pre-create Razorpay Order / Subscription securely
-            const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/razorpay-checkout";
+            const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/secure-payment";
             const response = await fetch(edgeFuncUrl, {
                 method: "POST",
                 headers: {
