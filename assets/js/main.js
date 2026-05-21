@@ -3763,7 +3763,7 @@ function initProfessionalRTA() {
     // ADMOB PRODUCTION & TEST MAPPINGS
     // Replace these test IDs with your production AdMob Unit IDs
     // ========================================================
-    const ADMOB_ANDROID_REWARDED_ID = 'ca-app-pub-3940256099942544/5224354917'; // Production/Test Android ID
+    const ADMOB_ANDROID_REWARDED_ID = 'ca-app-pub-4117687060036448/8475961821'; // Production/Test Android ID
     const ADMOB_IOS_REWARDED_ID = 'ca-app-pub-3940256099942544/1712485313';     // Production/Test iOS ID
 
     let nativeRewardedAdLoaded = false;
