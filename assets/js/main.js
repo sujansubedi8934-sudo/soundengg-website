@@ -140,15 +140,33 @@ window.populateAllAudioDevices = async function() {
         // Populate outputs
         const globalOutput = document.getElementById('global-output-select');
         const rtaOutput = document.getElementById('rta-output-select');
+        const supportsSinkId = ('setSinkId' in AudioContext.prototype || 'setSinkId' in HTMLMediaElement.prototype);
+        
         if (globalOutput) {
             globalOutput.innerHTML = outputOptions;
             const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
             globalOutput.value = savedOutput;
+            
+            if (!supportsSinkId) {
+                globalOutput.disabled = true;
+                globalOutput.style.opacity = '0.6';
+                globalOutput.style.cursor = 'not-allowed';
+                const warningBox = document.getElementById('safari-output-warning');
+                if (warningBox) {
+                    warningBox.style.display = 'flex';
+                }
+            }
         }
         if (rtaOutput) {
             rtaOutput.innerHTML = outputOptions;
             const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
             rtaOutput.value = savedOutput;
+            
+            if (!supportsSinkId) {
+                rtaOutput.disabled = true;
+                rtaOutput.style.opacity = '0.6';
+                rtaOutput.style.cursor = 'not-allowed';
+            }
         }
     } catch (e) {
         console.error("Device enumeration failed", e);
@@ -6243,6 +6261,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const micSelect = document.getElementById('global-mic-select');
     const outputSelect = document.getElementById('global-output-select');
     const btnRequestMic = document.getElementById('btn-request-mic');
+    
+    // Check if AudioContext supports output routing (sinkId)
+    const supportsSinkId = ('setSinkId' in AudioContext.prototype || 'setSinkId' in HTMLMediaElement.prototype);
+    if (!supportsSinkId && outputSelect) {
+        outputSelect.disabled = true;
+        outputSelect.style.opacity = '0.6';
+        outputSelect.style.cursor = 'not-allowed';
+        const warningBox = document.getElementById('safari-output-warning');
+        if (warningBox) {
+            warningBox.style.display = 'flex';
+        }
+    }
     
     // Dynamic output sink applier
     window.applyAudioOutput = async function(deviceId) {

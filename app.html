@@ -581,6 +581,14 @@
                         <option value="default">Default System Speaker</option>
                     </select>
                 </label>
+                <!-- Safari Output Warning Box -->
+                <div id="safari-output-warning" class="warn-box" style="display: none; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 12px; padding: 12px 14px; border-radius: 6px; font-size: 0.8rem; line-height: 1.45;">
+                    <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; text-transform: uppercase; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em;">
+                        <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">warning</span>
+                        <span>Safari Routing Notice</span>
+                    </div>
+                    <span style="color: var(--text-muted);">Programmatic output selection is not supported in Safari/macOS. Audio will always play from your system default speaker. Please change your output device using the macOS Control Center or System Settings.</span>
+                </div>
                 <div style="margin-top: 15px;">
                     <button id="btn-request-mic" class="btn btn-primary" style="width: 100%; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.65rem 1.2rem; font-size: 0.85rem; border-radius: 4px; box-shadow: 0 4px 15px rgba(20, 167, 181, 0.3); transition: all 0.3s ease;">Request Device Access</button>
                 </div>
