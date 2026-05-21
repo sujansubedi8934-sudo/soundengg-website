@@ -2994,23 +2994,31 @@ function initProfessionalRTA() {
                 let pinkDb = count > 0 ? pinkSum / count : -100;
                 if (currentWeighting === 'a') pinkDb += (A_WEIGHTS[centerFreq] || 0);
 
-                const subBarWidth = (barWidth - 2) / 2;
-                
-                // Mic Input (Left Bar) - Cyan
+                const w = barWidth - 2;
                 const hMic = Math.max(2, (db + 100) * (canvas.height / 100));
-                ctx.fillStyle = '#14A7B5';
-                ctx.fillRect(x + 1, canvas.height - hMic, subBarWidth, hMic);
-
-                // Pink Noise (Right Bar) - Bold Pink
                 const hPink = Math.max(2, (pinkDb + 100) * (canvas.height / 100));
-                ctx.fillStyle = '#FF2E93';
-                ctx.fillRect(x + 1 + subBarWidth, canvas.height - hPink, subBarWidth, hPink);
+
+                // 1. Draw Mic Input (Cyan) with semi-transparent fill and solid stroke
+                ctx.fillStyle = 'rgba(20, 167, 181, 0.55)'; // brand cyan with 55% opacity
+                ctx.fillRect(x + 1, canvas.height - hMic, w, hMic);
+                
+                ctx.strokeStyle = '#14A7B5';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(x + 1, canvas.height - hMic, w, hMic);
+
+                // 2. Draw Pink Noise (Bold Pink) with semi-transparent fill and solid stroke
+                ctx.fillStyle = 'rgba(255, 46, 147, 0.55)'; // bold pink with 55% opacity
+                ctx.fillRect(x + 1, canvas.height - hPink, w, hPink);
+
+                ctx.strokeStyle = '#FF2E93';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(x + 1, canvas.height - hPink, w, hPink);
 
                 if (peakHoldEnabled) {
                     const isLight = document.documentElement.classList.contains('light');
                     const ph = (peakData[i] + 100) * (canvas.height / 100);
                     ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
-                    ctx.fillRect(x + 1, canvas.height - ph - 2, subBarWidth, 2);
+                    ctx.fillRect(x + 1, canvas.height - ph - 2, w, 2);
                 }
             } else {
                 const h = Math.max(2, (db + 100) * (canvas.height / 100));
