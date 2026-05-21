@@ -3593,7 +3593,8 @@ function initProfessionalRTA() {
                     safeStorage.setItem(`soundengg_temp_pro_until_blog_${window.pendingArticleToOpen}`, Date.now() + duration);
                     unlockedFeatureName = "Selected Premium Guide";
                 } else {
-                    safeStorage.setItem(`soundengg_temp_pro_until_${currentUnlockFeatureKey}`, Date.now() + duration);
+                    const persistenceKey = currentUnlockFeatureKey === 'ear_training_track' ? 'ear_training' : currentUnlockFeatureKey;
+                    safeStorage.setItem(`soundengg_temp_pro_until_${persistenceKey}`, Date.now() + duration);
                     if (currentUnlockFeatureKey === 'spectrogram') {
                         unlockedFeatureName = "60FPS Spectrogram Waterfall";
                     } else if (currentUnlockFeatureKey === 'snapshots') {
@@ -3602,6 +3603,8 @@ function initProfessionalRTA() {
                         unlockedFeatureName = "Custom Mic Calibration Loader";
                     } else if (currentUnlockFeatureKey === 'ear_training') {
                         unlockedFeatureName = "1/6 ISO Octave Ear Training";
+                    } else if (currentUnlockFeatureKey === 'ear_training_track') {
+                        unlockedFeatureName = "Reference Track";
                     }
                 }
             } else {
@@ -4551,7 +4554,12 @@ function initEarTraining() {
         btn.addEventListener('click', (e) => {
             if (e) e.preventDefault();
             if (btn.classList.contains('locked-pro') && !window.isPremiumActive('ear_training')) {
-                showProUpgradeModal('ear_training');
+                const source = btn.getAttribute('data-source');
+                if (source === 'track') {
+                    showProUpgradeModal('ear_training_track');
+                } else {
+                    showProUpgradeModal('ear_training');
+                }
                 return;
             }
             sourceBtns.forEach(b => b.classList.remove('active'));
@@ -6052,6 +6060,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (featureKey === 'ear_training') {
             featureName = "1/6 ISO Octave Ear Training";
             buttonText = "🎁 UNLOCK EAR TRAINING FOR 4 HOURS (WATCH AD)";
+        } else if (featureKey === 'ear_training_track') {
+            featureName = "Reference Track";
+            buttonText = "🎁 UNLOCK REFERENCE TRACK FOR 4 HOURS (WATCH AD)";
         } else if (featureKey === 'blog') {
             featureName = "Premium Engineering Guide";
             buttonText = "🎁 UNLOCK GUIDE FOR 4 HOURS (WATCH AD)";
