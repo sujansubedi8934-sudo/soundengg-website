@@ -201,13 +201,36 @@
                     `;
                 }
 
-                contentEl.innerHTML = `
+                 contentEl.innerHTML = `
                     <div class="article-reader" style="max-width: 800px; margin: 0 auto;">
                          <a href="blog.html" style="display: inline-flex; align-items: center; color: var(--primary); text-decoration: none; margin-bottom: 2rem; font-size: 0.9rem;">
                              <span class="material-symbols-outlined" style="margin-right: 0.5rem;">arrow_back</span> BACK TO INDEX
                          </a>
                          ${article.content}
                          ${adHtml}
+                         
+                         <!-- Author Bio Card -->
+                         <div class="author-card rugged-bevel brushed-metal" style="margin-top: 4rem; padding: 2.5rem; background: var(--surface-low, #121212); border: 1px solid var(--border-color, #222); border-radius: 16px; display: flex; flex-direction: column; gap: 1.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
+                             <div style="display: flex; flex-direction: row; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
+                                 <div class="author-avatar-wrap" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary, #00ffff); flex-shrink: 0; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);">
+                                     <img src="assets/img/author-profile.jpg" alt="Sujan Subedi" style="width: 100%; height: 100%; object-fit: cover;">
+                                 </div>
+                                 <div style="flex: 1; min-width: 200px;">
+                                     <h4 style="margin: 0 0 0.25rem 0; font-size: 1.25rem; font-weight: 700; color: #fff; letter-spacing: -0.5px;">Sujan Subedi</h4>
+                                     <p style="margin: 0; font-size: 0.85rem; color: var(--primary, #00ffff); font-family: var(--font-mono, monospace); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600;">Lead Audio Systems Engineer & Founder</p>
+                                 </div>
+                             </div>
+                             <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted, #aaa); line-height: 1.6;">
+                                 Sujan Subedi is a distinguished Live Sound Mixing and System Engineer operating across India and Nepal. A graduate of A.R. Rahman's KMMC (Chennai), he specializes in tailoring large-scale sound reinforcement configurations, DSP tuning, and advanced acoustic simulation engines.
+                             </p>
+                             <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px dashed var(--border-color, #222);">
+                                 <span style="font-size: 0.85rem; color: var(--text-muted, #888); font-family: var(--font-mono, monospace);">CONTACT_AUTHOR:</span>
+                                 <a href="mailto:sujan@soundengg.com" style="color: var(--primary, #00ffff); text-decoration: none; font-size: 0.9rem; font-family: var(--font-mono, monospace); font-weight: 600; border-bottom: 1px dashed var(--primary, #00ffff); padding-bottom: 1px; transition: all 0.2s;">
+                                     sujan@soundengg.com
+                                 </a>
+                             </div>
+                         </div>
+
                          <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
                              <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
                              <div style="display: flex; gap: 1rem; margin-top: 1rem;">
