@@ -370,6 +370,64 @@ const initAuthAndCore = () => {
                 handleAuthStateChange('INITIAL_SESSION', data.session);
             });
         });
+
+        // Capacitor Native App Deep Link Handler for Google OAuth Callback
+        if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
+            const AppPlugin = window.Capacitor?.Plugins?.App;
+            if (AppPlugin) {
+                const handleDeepLink = async (urlStr) => {
+                    if (!urlStr) return;
+                    console.log('[NativeDeepLink] Received url:', urlStr);
+                    if (urlStr.includes('login-callback')) {
+                        try {
+                            // Normalize custom scheme to standard URL structure for parsing
+                            const normalizedUrl = urlStr.replace('soundengg://login-callback', 'https://www.soundengg.com');
+                            const parsedUrl = new URL(normalizedUrl);
+                            const hash = parsedUrl.hash;
+                            if (hash) {
+                                const params = new URLSearchParams(hash.substring(1));
+                                const accessToken = params.get('access_token');
+                                const refreshToken = params.get('refresh_token');
+
+                                if (accessToken && refreshToken && window.supabaseClient) {
+                                    console.log('[NativeDeepLink] Found session tokens, activating session...');
+                                    const { data, error } = await window.supabaseClient.auth.setSession({
+                                        access_token: accessToken,
+                                        refresh_token: refreshToken
+                                    });
+
+                                    if (error) {
+                                        console.error('[NativeDeepLink] Failed to activate session:', error);
+                                        alert('Session recovery failed: ' + error.message);
+                                    } else {
+                                        console.log('[NativeDeepLink] Session successfully activated!', data);
+                                    }
+                                }
+                            }
+                        } catch (err) {
+                            console.error('[NativeDeepLink] Error handling deep link callback:', err);
+                        }
+                    }
+                };
+
+                // Event listener when app is already running/in background
+                AppPlugin.addListener('appUrlOpen', async (data) => {
+                    if (data && data.url) {
+                        await handleDeepLink(data.url);
+                    }
+                });
+
+                // Check if app was launched via deep link from closed state
+                AppPlugin.getLaunchUrl().then(async (result) => {
+                    if (result && result.url) {
+                        console.log('[NativeDeepLink] Cold launch URL detected:', result.url);
+                        await handleDeepLink(result.url);
+                    }
+                }).catch(err => {
+                    console.error('[NativeDeepLink] Error retrieving launch URL:', err);
+                });
+            }
+        }
     }
 };
 
