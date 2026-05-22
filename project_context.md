@@ -128,6 +128,8 @@ async function syncToolState(userId, configType, stateData) {
 - [x] **Supabase Production Hardening (RLS):** Fully configured and deployed strict Row Level Security (RLS) policies on `profiles` and `user_configs` tables, protecting all user profiles and preferences.
 - [x] **Razorpay Live Gateway Integration:** Fully transitioned both client-side Key IDs (`rzp_live_Ss263d2O3ONro6`) and cloud backend environment variables to production Live Mode, auto-applying 50% launch special coupons.
 - [x] **Ad-Blocker Resilience (Endpoint Refactoring):** Renamed the Supabase Edge checkout endpoint to `secure-payment` and purged the old `razorpay-checkout` function to circumvent client-side ad-blockers and privacy shields blocking core payment handshakes.
+- [x] **Google OAuth Redirect & Session Hydration (Capacitor Android):** Resolved Google auth loop. Equipped native shell with `@capacitor/app` and implemented deep-link capturing for `soundengg://login-callback` in `assets/js/main.js` that extracts session tokens and hydrates `supabaseClient` automatically, dismissing modals seamlessly.
+- [x] **Automated Android Bundle Compilation:** Configured Gradle compiler to run through Android Studio's bundled JDK path. Successfully compiled a signed production **Version Code 4** App Bundle (`app-release.aab`) and placed it directly at the root of the workspace.
 
 ### Next Steps & Operational Playbook
 1. **Popup & Inline AdMob Integration (Web & App):**
@@ -136,12 +138,7 @@ async function syncToolState(userId, configType, stateData) {
    * Dry-run webhook subscription actions (like database tier synchronization when `subscription.cancelled` or `subscription.halted` events fire, and renewal on `subscription.charged`).
 3. **Google Play Console Release Checklist:**
    * Prepare standard store promotional graphics, logo assets, and legal descriptions.
-   * Compile and sign a production Android App Bundle:
-     ```bash
-     npm run build
-     npx cap sync android
-     ```
-   * Open `/android` in Android Studio and run **Build > Generate Signed Bundle / APK**.
+   * [Completed] Compiled and signed production Android App Bundle (Version Code 4, `app-release.aab`) successfully via Android Studio's bundled JDK, ready for Play Console upload.
 4. **Apple App Store Connect Xcode Release Checklist:**
    * Open `/ios` in Apple Xcode.
    * Assign a verified Developer Account Team.
