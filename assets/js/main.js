@@ -1796,10 +1796,14 @@ function setupNavigation() {
                 if(!window.supabaseClient) return alert('Auth not configured.');
                 
                 try {
+                    const redirectUrl = (typeof window.isNativeMobile === 'function' && window.isNativeMobile())
+                        ? 'soundengg://login-callback'
+                        : window.location.origin + window.location.pathname;
+
                     const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: window.location.origin + window.location.pathname
+                            redirectTo: redirectUrl
                         }
                     });
                     if(error) throw error;
