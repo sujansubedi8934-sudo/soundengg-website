@@ -387,10 +387,10 @@ function initAdManager() {
     }
 
     // ========================================================
-    // RAZORPAY PRODUCTION & TEST KEY MAPPINGS
+    // RAZORPAY & SUPABASE PREMIUM INTEGRATION (Phase 6)
     // Replace this test key with your production Razorpay Live Key ID
     // ========================================================
-    const RAZORPAY_PRODUCTION_KEY_ID = "rzp_live_Ss263d2O3ONro6";
+    const RAZORPAY_PRODUCTION_KEY_ID = "rzp_live_SsjbdTD8vcr6Hp";
 
     async function initiateRazorpayCheckout(user, plan = 'lifetime') {
         if (typeof window.hideNativeBannerAd === 'function') {

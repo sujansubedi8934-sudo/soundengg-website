@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts"
 
-const RZP_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID") || "";
+const RZP_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID") || "rzp_live_SsjbdTD8vcr6Hp";
 const RZP_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET") || "";
 
 serve(async (req) => {
@@ -37,10 +37,26 @@ serve(async (req) => {
 
       const isUSD = user_currency === "USD";
       
+      const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "";
+      const lifetimeOfferId = Deno.env.get("RAZORPAY_LIFETIME_OFFER_ID") || "";
+
       if (plan === "lifetime") {
         // Secure backend-calculated pricing matrix to prevent client price spoofing
         const amount = isUSD ? 4999 : 349900; // $49.99 in cents vs ₹3,499 in Paise
         const currency = isUSD ? "USD" : "INR";
+
+        const orderBody: any = {
+          amount: amount,
+          currency: currency,
+          receipt: `rcpt_${Date.now()}`,
+          notes: {
+            user_id: user.id
+          }
+        };
+
+        if (lifetimeOfferId && lifetimeOfferId.trim() !== "") {
+          orderBody.offers = [lifetimeOfferId.trim()]; // Razorpay orders accept an array of standard offer IDs
+        }
 
         // One-time Order Creation
         const response = await fetch("https://api.razorpay.com/v1/orders", {
@@ -49,14 +65,7 @@ serve(async (req) => {
             "Content-Type": "application/json",
             "Authorization": "Basic " + btoa(`${RZP_KEY_ID}:${RZP_KEY_SECRET}`)
           },
-          body: JSON.stringify({
-            amount: amount,
-            currency: currency,
-            receipt: `rcpt_${Date.now()}`,
-            notes: {
-              user_id: user.id
-            }
-          })
+          body: JSON.stringify(orderBody)
         });
         
         const orderData = await response.json();
@@ -69,10 +78,10 @@ serve(async (req) => {
         });
       } else {
         // Subscription Creation (Monthly/Yearly)
-        // Checks if custom Plan IDs are configured in environment variables, else falls back to default values
+        // Hardcoding the exact Live Plan IDs to bypass any stale Supabase secrets
         const planId = plan === "monthly"
-          ? (Deno.env.get("RAZORPAY_PLAN_MONTHLY") || "plan_MONTHLY_PLAN_ID")
-          : (Deno.env.get("RAZORPAY_PLAN_YEARLY") || "plan_YEARLY_PLAN_ID");
+          ? "plan_SsjtsdD4GW4rR7" // SoundEngg Pro Monthly Pass
+          : "plan_SsjusefppDE8Lb";  // SoundEngg Pro Yearly Pass
 
         const totalCount = plan === "monthly" ? 120 : 10; // 10 years max duration (120 months or 10 years)
         const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "";
@@ -127,7 +136,7 @@ serve(async (req) => {
       // 1. Calculate secure HMAC-SHA256 signature
       const dataToSign = order_id
         ? `${order_id}|${payment_id}`
-        : `${subscription_id}|${payment_id}`;
+        : `${payment_id}|${subscription_id}`;
         
       const encoder = new TextEncoder();
       const secretKey = await crypto.subtle.importKey(
