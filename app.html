@@ -1536,6 +1536,38 @@
         </div>
     </div>
 
+    <!-- Native App Force Update Modal -->
+    <div id="update-modal-overlay" class="modal-overlay hidden" style="align-items: center; background-color: rgba(10, 10, 12, 0.95);">
+        <div class="role-modal" style="border: 2px solid #ff9900; box-shadow: 0 0 25px rgba(255, 153, 0, 0.4); max-width: 420px; padding: 3rem 2rem;">
+            <div class="modal-header" style="margin-bottom: 1.5rem;">
+                <span class="material-symbols-outlined" style="font-size: 4rem; color: #ff9900; filter: drop-shadow(0 0 10px rgba(255, 153, 0, 0.6)); margin-bottom: 1rem;">system_update</span>
+                <h2 class="modal-title" style="color: #ff9900; font-family: var(--font-headline); font-weight: 900; letter-spacing: 0.15rem; font-size: 1.5rem;">UPDATE REQUIRED</h2>
+                <p class="modal-subtitle" style="font-family: var(--font-mono); color: var(--text-muted); font-size: 0.65rem; margin-top: 6px;">CONSOLE FIRMWARE STALE</p>
+            </div>
+            <div style="margin-bottom: 2.5rem; text-align: center;">
+                <p id="update-modal-message" style="font-size: 0.85rem; color: var(--text-main); font-family: var(--font-mono); line-height: 1.5; margin-bottom: 1rem;">
+                    A critical software update is required to continue using SoundEngg Console.
+                </p>
+                <div style="background: rgba(255, 153, 0, 0.05); border: 1px dashed rgba(255, 153, 0, 0.3); padding: 0.75rem; border-radius: 4px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem;">
+                        <span style="color: var(--text-muted);">CURRENT BUILD:</span>
+                        <span id="update-current-build" style="color: var(--text-main); font-weight: bold;">--</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem;">
+                        <span style="color: var(--text-muted);">REQUIRED BUILD:</span>
+                        <span id="update-required-build" style="color: #ff9900; font-weight: bold;">--</span>
+                    </div>
+                </div>
+            </div>
+            <div class="role-options">
+                <a id="btn-update-download" href="#" target="_blank" class="auth-submit-btn" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; font-size: 0.85rem; padding: 1rem; background-color: #ff9900; color: #000; font-weight: 900; border-radius: 4px; box-shadow: 0 4px 15px rgba(255, 153, 0, 0.3); border: none; cursor: pointer; transition: all 0.2s ease;">
+                    <span class="material-symbols-outlined" style="font-size: 1.25rem;">download</span>
+                    DOWNLOAD NOW
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Authentication Modal -->
     <div id="auth-modal-overlay" class="modal-overlay hidden">
         <div class="auth-modal">
@@ -2034,7 +2066,7 @@
                     </div>
                 </div>
 
-                <button id="btn-close-ad" class="btn btn-primary" disabled>
+                <button id="btn-close-ad" class="btn btn-primary" disabled style="margin-bottom: 1.5rem;">
                     <span class="material-symbols-outlined">lock</span> Wait for Ad
                 </button>
             </div>
@@ -2046,16 +2078,16 @@
                 <h2 class="ad-title">You Are Offline</h2>
                 <p class="ad-subtitle">Internet connection is required to load the sponsored video ad to unlock your tools.</p>
                 
-                <div class="pro-upsell-box">
-                    <h3>Upgrade to SoundEngg Pro</h3>
-                    <p>Get permanent, unrestricted offline access to all tools and remove all ads forever.</p>
-                    <a href="pro.html" class="btn btn-upgrade" id="btn-buy-pro" style="text-decoration: none;">Upgrade Now - See Benefits</a>
-                </div>
-
-                <div class="grace-period-box">
+                <div class="grace-period-box" style="margin-top: 1.5rem; margin-bottom: 1.5rem;">
                     <p class="grace-text">Need it for a show right now?</p>
                     <button id="btn-grace-period" class="btn btn-outline">Use 2-Hour Offline Grace Period</button>
                 </div>
+            </div>
+
+            <div class="pro-upsell-box" style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                <h3>Upgrade to SoundEngg Pro</h3>
+                <p>Get permanent, unrestricted offline access to all tools and remove all ads forever.</p>
+                <a href="pro.html" class="btn btn-upgrade" id="btn-buy-pro" style="text-decoration: none;">Upgrade Now - See Benefits</a>
             </div>
         </div>
     </div>
@@ -2120,6 +2152,8 @@
       }
     </script>
 
+    <script src="assets/js/modules/utils.js"></script>
+    <script src="assets/js/modules/theme.js"></script>
     <script src="assets/js/main.js?v=3.6.1"></script>
     
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->

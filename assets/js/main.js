@@ -1,37 +1,4 @@
-// --- SAFE STORAGE PROXY (Safari Protection) ---
-const safeStorage = window.safeStorage || {
-    getItem: function(key) {
-        try {
-            return window.localStorage.getItem(key);
-        } catch (e) {
-            if (!window.localStorageFallback) window.localStorageFallback = {};
-            return window.localStorageFallback[key] || null;
-        }
-    },
-    setItem: function(key, value) {
-        try {
-            window.localStorage.setItem(key, value);
-        } catch (e) {
-            if (!window.localStorageFallback) window.localStorageFallback = {};
-            window.localStorageFallback[key] = String(value);
-        }
-    },
-    removeItem: function(key) {
-        try {
-            window.localStorage.removeItem(key);
-        } catch (e) {
-            if (!window.localStorageFallback) window.localStorageFallback = {};
-            delete window.localStorageFallback[key];
-        }
-    },
-    clear: function() {
-        try {
-            window.localStorage.clear();
-        } catch (e) {
-            window.localStorageFallback = {};
-        }
-    }
-};
+
 
 // --- AUDIO CONTEXT INTERCEPTOR (Dynamic Output Routing) ---
 window.activeAudioContexts = window.activeAudioContexts || [];
@@ -181,25 +148,6 @@ if (navigator.mediaDevices && typeof navigator.mediaDevices.addEventListener ===
     });
 }
 
-// --- MODAL UTILITIES (Senior Stability - Global Scope) ---
-function openModal(modal) {
-    if (!modal) return;
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-    modal.style.visibility = 'visible';
-    modal.style.opacity = '1';
-    document.body.classList.add('modal-open');
-}
-
-function closeModal(modal) {
-    if (!modal) return;
-    modal.classList.add('hidden');
-    // Force wipe all inline styles used for the "frozen" fix
-    modal.style.display = '';
-    modal.style.visibility = '';
-    modal.style.opacity = '';
-    document.body.classList.remove('modal-open');
-}
 
 const initAuthAndCore = () => {
     // Pre-populate authentication header display using cached name to avoid initial page load flash/delay
@@ -380,6 +328,16 @@ const initAuthAndCore = () => {
                     console.log('[NativeDeepLink] Received url:', urlStr);
                     if (urlStr.includes('login-callback')) {
                         try {
+                            const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
+                            if (BrowserPlugin && typeof BrowserPlugin.close === 'function') {
+                                console.log('[NativeDeepLink] Dismissing OAuth Browser Custom Tab...');
+                                await BrowserPlugin.close();
+                            }
+                        } catch (closeErr) {
+                            console.error('[NativeDeepLink] Error closing Browser Custom Tab:', closeErr);
+                        }
+
+                        try {
                             // Normalize custom scheme to standard URL structure for parsing
                             const normalizedUrl = urlStr.replace('soundengg://login-callback', 'https://www.soundengg.com');
                             const parsedUrl = new URL(normalizedUrl);
@@ -437,46 +395,6 @@ if (document.readyState === 'loading') {
     initAuthAndCore();
 }
 
-function setupThemeToggle() {
-    const btnLight = document.getElementById('btn-light');
-    const btnDark = document.getElementById('btn-dark');
-    const htmlEl = document.documentElement;
-
-    btnLight.addEventListener('click', () => {
-        htmlEl.classList.add('light');
-        htmlEl.classList.remove('dark');
-        btnLight.classList.add('active');
-        btnDark.classList.remove('active');
-    });
-
-    btnDark.addEventListener('click', () => {
-        htmlEl.classList.add('dark');
-        htmlEl.classList.remove('light');
-        btnDark.classList.add('active');
-        btnLight.classList.remove('active');
-    });
-}
-
-function applyAutoTheme() {
-    const hour = new Date().getHours();
-    const isDayTime = hour >= 6 && hour < 18; // Day: 6 AM to 6 PM
-    
-    const htmlEl = document.documentElement;
-    const btnLight = document.getElementById('btn-light');
-    const btnDark = document.getElementById('btn-dark');
-
-    if (isDayTime) {
-        htmlEl.classList.add('light');
-        htmlEl.classList.remove('dark');
-        btnLight.classList.add('active');
-        btnDark.classList.remove('active');
-    } else {
-        htmlEl.classList.add('dark');
-        htmlEl.classList.remove('light');
-        btnDark.classList.add('active');
-        btnLight.classList.remove('active');
-    }
-}
 
 
 let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
@@ -575,6 +493,26 @@ window.updatePremiumUI = function() {
             el.classList.add('hidden');
             el.style.display = 'none';
         });
+
+        // Hide native mobile bottom banner
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd();
+        }
+    } else {
+        // If not Pro and on native mobile and unlocked, show native bottom banner
+        if (window.isNativeMobile()) {
+            const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
+            const now = Date.now();
+            if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
+                if (typeof window.showNativeBannerAd === 'function') {
+                    window.showNativeBannerAd();
+                }
+            } else {
+                if (typeof window.hideNativeBannerAd === 'function') {
+                    window.hideNativeBannerAd();
+                }
+            }
+        }
     }
 
     // Sync specific modules
@@ -586,42 +524,12 @@ window.updatePremiumUI = function() {
     }
 };
 
-function getDeviceMetadata() {
-    const ua = navigator.userAgent;
-    let os = 'Unknown OS';
-    if (ua.indexOf('Win') !== -1) os = 'Windows';
-    else if (ua.indexOf('Mac') !== -1) os = 'macOS';
-    else if (ua.indexOf('X11') !== -1) os = 'Linux';
-    else if (ua.indexOf('Linux') !== -1) os = 'Linux';
-    else if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) os = 'iOS';
-    else if (ua.indexOf('Android') !== -1) os = 'Android';
-
-    let browser = 'Unknown Browser';
-    if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
-    else if (ua.indexOf('SamsungBrowser') !== -1) browser = 'Samsung Browser';
-    else if (ua.indexOf('Opera') !== -1 || ua.indexOf('OPR') !== -1) browser = 'Opera';
-    else if (ua.indexOf('Trident') !== -1) browser = 'Internet Explorer';
-    else if (ua.indexOf('Edge') !== -1 || ua.indexOf('Edg') !== -1) browser = 'Edge';
-    else if (ua.indexOf('Chrome') !== -1) browser = 'Chrome';
-    else if (ua.indexOf('Safari') !== -1) browser = 'Safari';
-
-    return { os, browser };
-}
-
-function parseDeviceString(deviceStr) {
-    if (!deviceStr) return null;
-    const parts = deviceStr.split('|');
-    const id = parts[0];
-    const os = parts[1] || 'Legacy OS';
-    const browser = parts[2] || 'Legacy Browser';
-    const lastActive = parts[3] ? parseInt(parts[3], 10) : Date.now();
-    return { id, os, browser, lastActive, raw: deviceStr };
-}
 
 async function syncSubscriptionStatus(session) {
     if (!window.supabaseClient) return;
     if (!session) {
         window.isUserPro = false;
+        if (window.updatePremiumUI) window.updatePremiumUI();
         document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: false }));
         return;
     }
@@ -1854,18 +1762,30 @@ function setupNavigation() {
                 if(!window.supabaseClient) return alert('Auth not configured.');
                 
                 try {
-                    const redirectUrl = (typeof window.isNativeMobile === 'function' && window.isNativeMobile())
+                    const isNative = (typeof window.isNativeMobile === 'function' && window.isNativeMobile());
+                    const redirectUrl = isNative
                         ? 'soundengg://login-callback'
                         : window.location.origin + window.location.pathname;
 
                     const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
                         provider: 'google',
                         options: {
-                            redirectTo: redirectUrl
+                            redirectTo: redirectUrl,
+                            skipBrowserRedirect: isNative
                         }
                     });
                     if(error) throw error;
-                    // Supabase redirects to Google, so we don't hide the modal manually here.
+                    
+                    if (isNative && data?.url) {
+                        const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
+                        if (BrowserPlugin && typeof BrowserPlugin.open === 'function') {
+                            console.log('[GoogleAuth] Opening Custom Tab with OAuth url:', data.url);
+                            await BrowserPlugin.open({ url: data.url });
+                        } else {
+                            console.warn('[GoogleAuth] Capacitor Browser plugin not found, falling back to window.open');
+                            window.open(data.url, '_system');
+                        }
+                    }
                 } catch (error) {
                     alert('Google login failed: ' + error.message);
                 }
@@ -2682,6 +2602,139 @@ const ISO_FREQS = [
     11200, 12500, 14000, 16000, 18000, 20000
 ];
 
+// ========================================================
+// GLOBAL ADMOB CONFIGURATION & HELPERS (Capacitor v8 Spec)
+// ========================================================
+const ADMOB_ANDROID_REWARDED_ID = 'ca-app-pub-4117687060036448/8475961821'; // Production/Test Android ID
+const ADMOB_IOS_REWARDED_ID = 'ca-app-pub-4117687060036448/9597471806';     // Production/Test iOS ID
+
+const USE_TEST_REWARDED_ADS = true; // Toggle to false to use production rewarded video IDs
+const ADMOB_ANDROID_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/5224354917';
+const ADMOB_IOS_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/1712485313';
+
+const USE_DIRECT_SPONSOR = false; // Toggle to true to bypass Google AdMob and use direct affiliate partnerships/support hub
+const ACTIVE_SPONSOR_URL = 'https://soundengg.com/active-sponsor';
+let isSponsorSpotlightFallback = false;
+
+// AdMob Banner unit mappings
+const USE_TEST_BANNER_ADS = true; // Toggle to false to use production banner IDs
+const ADMOB_ANDROID_BANNER_TEST_ID = 'ca-app-pub-3940256099942544/6300978111';
+const ADMOB_IOS_BANNER_TEST_ID = 'ca-app-pub-3940256099942544/2934735716';
+const ADMOB_ANDROID_BANNER_PROD_ID = 'ca-app-pub-4117687060036448/8473227865';
+const ADMOB_IOS_BANNER_PROD_ID = 'ca-app-pub-4117687060036448/3645470223';
+
+let nativeRewardedAdLoaded = false;
+let isNativeBannerActive = false;
+window.isAdMobInitialized = false;
+
+window.preloadNativeRewardedAd = async function preloadNativeRewardedAd() {
+    if (!window.isNativeMobile()) return;
+    if (!window.isAdMobInitialized) {
+        console.warn('preloadNativeRewardedAd called before AdMob initialization.');
+        return;
+    }
+    if (!navigator.onLine) {
+        console.log('Device is offline. Skipping native rewarded ad preloading.');
+        return;
+    }
+    try {
+        const { AdMob } = window.Capacitor?.Plugins || {};
+        if (!AdMob) return;
+        const isAndroid = window.Capacitor?.getPlatform() === 'android';
+        let adId;
+        if (USE_TEST_REWARDED_ADS) {
+            adId = isAndroid ? ADMOB_ANDROID_REWARDED_TEST_ID : ADMOB_IOS_REWARDED_TEST_ID;
+        } else {
+            adId = isAndroid ? ADMOB_ANDROID_REWARDED_ID : ADMOB_IOS_REWARDED_ID;
+        }
+        console.log('Preloading native rewarded ad with unit ID:', adId);
+        await AdMob.prepareRewardVideoAd({ adId: adId });
+        nativeRewardedAdLoaded = true;
+    } catch (err) {
+        console.error('Error preloading native rewarded video ad:', err);
+        nativeRewardedAdLoaded = false;
+    }
+};
+
+window.showNativeRewardedAd = async function showNativeRewardedAd(onRewardCallback, onFailureCallback, onAdStartedCallback, onCloseCallback) {
+    if (!window.isNativeMobile()) {
+        if (onFailureCallback) onFailureCallback();
+        return;
+    }
+    
+    if (!window.isAdMobInitialized) {
+        console.warn("showNativeRewardedAd called before AdMob initialization.");
+        if (onFailureCallback) onFailureCallback();
+        return;
+    }
+
+    if (!navigator.onLine) {
+        console.warn("Device is offline. Blocking showNativeRewardedAd.");
+        if (onFailureCallback) onFailureCallback();
+        return;
+    }
+    
+    let rewardListener, closeListener, failLoadListener, failShowListener;
+    let isFinalized = false;
+
+    const cleanup = () => {
+        if (isFinalized) return;
+        isFinalized = true;
+        if (rewardListener && typeof rewardListener.remove === 'function') rewardListener.remove();
+        if (closeListener && typeof closeListener.remove === 'function') closeListener.remove();
+        if (failLoadListener && typeof failLoadListener.remove === 'function') failLoadListener.remove();
+        if (failShowListener && typeof failShowListener.remove === 'function') failShowListener.remove();
+    };
+
+    try {
+        const { AdMob } = window.Capacitor?.Plugins || {};
+        if (!AdMob) {
+            if (onFailureCallback) onFailureCallback();
+            return;
+        }
+
+        // Updated event listener strings to match Capacitor community AdMob v8 specification
+        rewardListener = await AdMob.addListener('onRewardedVideoAdReward', (info) => {
+            console.log('Native AdMob rewarded reward received:', info);
+            // Do NOT call cleanup() here to prevent removing the close listener before the ad is dismissed
+            if (onRewardCallback) onRewardCallback();
+        });
+
+        closeListener = await AdMob.addListener('onRewardedVideoAdDismissed', () => {
+            console.log('Native AdMob rewarded ad dismissed.');
+            cleanup();
+            window.preloadNativeRewardedAd();
+            if (onCloseCallback) onCloseCallback();
+        });
+
+        failLoadListener = await AdMob.addListener('onRewardedVideoAdFailedToLoad', (err) => {
+            console.warn('Native AdMob failed to load:', err);
+            cleanup();
+            if (onFailureCallback) onFailureCallback();
+        });
+
+        failShowListener = await AdMob.addListener('onRewardedVideoAdFailedToShow', (err) => {
+            console.warn('Native AdMob failed to show:', err);
+            cleanup();
+            if (onFailureCallback) onFailureCallback();
+        });
+
+        if (!nativeRewardedAdLoaded) {
+            await window.preloadNativeRewardedAd();
+        }
+        await AdMob.showRewardVideoAd();
+        if (onAdStartedCallback) onAdStartedCallback();
+    } catch (err) {
+        console.error('Failed to show native AdMob rewarded ad:', err);
+        cleanup();
+        if (onFailureCallback) onFailureCallback();
+    }
+};
+
+// Aliases for global compatibility
+window.preloadNativeRewardedAd = window.preloadNativeRewardedAd;
+window.showNativeRewardedAd = window.showNativeRewardedAd;
+
 function initProfessionalRTA() {
     const canvas = document.getElementById('rta-canvas');
     if (!canvas) return;
@@ -3251,11 +3304,11 @@ function initProfessionalRTA() {
                 btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 14px;">lock</span>';
                 btn.title = `PRO FEATURE: Slot ${i+1} Locked (Upgrade to Unlock 10 slots)`;
                 btn.addEventListener('click', () => {
-                    showProUpgradeModal('snapshots');
+                    window.showProUpgradeModal('snapshots');
                 });
             } else {
                 // Active State for Pro Users
-                btn.className = `snapshot-slot ${slot ? 'active' : ''} ${slot && !slot.visible ? 'hidden' : ''}`;
+                btn.className = `snapshot-slot ${slot ? 'active' : ''} ${slot && !slot.visible ? 'slot-hidden' : ''}`;
                 btn.style.color = slot ? slot.color : 'inherit';
                 btn.textContent = i + 1;
                 
@@ -3286,7 +3339,7 @@ function initProfessionalRTA() {
         if (!isInitialized) return;
         
         if (!window.isPremiumActive('snapshots') && snapshots.length >= 1) {
-            showProUpgradeModal('snapshots');
+            window.showProUpgradeModal('snapshots');
             return;
         }
 
@@ -3481,7 +3534,7 @@ function initProfessionalRTA() {
         btn.addEventListener('click', () => {
             const mode = btn.getAttribute('data-mode');
             if (mode === 'waterfall' && !window.isPremiumActive('spectrogram')) {
-                showProUpgradeModal('spectrogram');
+                window.showProUpgradeModal('spectrogram');
                 return;
             }
             modeBtns.forEach(b => b.classList.remove('active'));
@@ -3556,7 +3609,7 @@ function initProfessionalRTA() {
     if (btnMicCalModal) {
         btnMicCalModal.addEventListener('click', () => {
             if (!window.isPremiumActive('mic_calibration')) {
-                showProUpgradeModal('mic_calibration');
+                window.showProUpgradeModal('mic_calibration');
                 return;
             }
             openModal(micCalModal);
@@ -3821,93 +3874,141 @@ function initProfessionalRTA() {
         return typeof window !== 'undefined' && window.Capacitor !== undefined;
     };
 
-    // ========================================================
-    // ADMOB PRODUCTION & TEST MAPPINGS
-    // Replace these test IDs with your production AdMob Unit IDs
-    // ========================================================
-    const ADMOB_ANDROID_REWARDED_ID = 'ca-app-pub-4117687060036448/8475961821'; // Production/Test Android ID
-    const ADMOB_IOS_REWARDED_ID = 'ca-app-pub-4117687060036448/9597471806';     // Production/Test iOS ID
+    // (Native AdMob variables & helpers are defined globally above initProfessionalRTA)
 
-    let nativeRewardedAdLoaded = false;
-
-    async function preloadNativeRewardedAd() {
-        if (!window.isNativeMobile()) return;
-        try {
-            const { AdMob } = window.Capacitor.Plugins;
-            if (!AdMob) return;
-            const isAndroid = window.Capacitor.getPlatform() === 'android';
-            const adId = isAndroid ? ADMOB_ANDROID_REWARDED_ID : ADMOB_IOS_REWARDED_ID;
-            console.log('Preloading native rewarded ad with unit ID:', adId);
-            await AdMob.prepareRewardVideoAd({ adId: adId });
-            nativeRewardedAdLoaded = true;
-        } catch (err) {
-            console.error('Error preloading native rewarded video ad:', err);
-            nativeRewardedAdLoaded = false;
-        }
-    }
-
-    async function showNativeRewardedAd(onRewardCallback, onFailureCallback, onAdStartedCallback) {
-        if (!window.isNativeMobile()) {
-            if (onFailureCallback) onFailureCallback();
+    // Helper to dynamically show native banner ads (Mitigating bottom viewport overlay)
+    window.showNativeBannerAd = async function() {
+        // Suppress ads immediately if user is a premium Pro subscriber
+        if (window.isPremiumActive()) {
+            window.hideNativeBannerAd();
             return;
         }
-        
-        let rewardListener, closeListener, failLoadListener, failShowListener;
-        let isFinalized = false;
 
-        const cleanup = () => {
-            if (isFinalized) return;
-            isFinalized = true;
-            if (rewardListener && typeof rewardListener.remove === 'function') rewardListener.remove();
-            if (closeListener && typeof closeListener.remove === 'function') closeListener.remove();
-            if (failLoadListener && typeof failLoadListener.remove === 'function') failLoadListener.remove();
-            if (failShowListener && typeof failShowListener.remove === 'function') failShowListener.remove();
-        };
+        if (!window.isNativeMobile()) {
+            if (navigator.onLine) {
+                const bottomBanner = document.getElementById('bottom-sponsor-banner');
+                if (bottomBanner) {
+                    bottomBanner.classList.remove('hidden');
+                    bottomBanner.style.display = 'flex';
+                }
+                document.querySelectorAll('.adsbygoogle, .ad-banner-bottom, .ad-placeholder').forEach(el => {
+                    el.classList.remove('hidden');
+                    el.style.display = 'block';
+                });
+            }
+            return;
+        }
+
+        if (!window.isAdMobInitialized) {
+            console.warn('showNativeBannerAd called before AdMob initialization.');
+            return;
+        }
+
+        if (!navigator.onLine) {
+            console.log('Device is offline. Suppressing native banner ad.');
+            return;
+        }
+
+        if (isNativeBannerActive) return;
 
         try {
-            const { AdMob } = window.Capacitor.Plugins;
-            if (!AdMob) {
-                if (onFailureCallback) onFailureCallback();
-                return;
+            const { AdMob } = window.Capacitor?.Plugins || {};
+            if (!AdMob) return;
+
+            const isAndroid = window.Capacitor.getPlatform() === 'android';
+            let adId = '';
+            
+            if (USE_TEST_BANNER_ADS) {
+                adId = isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID;
+            } else {
+                adId = isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID;
             }
 
-            rewardListener = await AdMob.addListener('onRewardVideoAdRewarded', (info) => {
-                console.log('Native AdMob rewarded reward received:', info);
-                cleanup();
-                if (onRewardCallback) onRewardCallback();
+            console.log('Showing native bottom banner ad with unit ID:', adId);
+            
+            await AdMob.showBanner({
+                adId: adId,
+                adSize: 'ADAPTIVE_BANNER',
+                position: 'BOTTOM_CENTER',
+                margin: 0,
+                isTesting: USE_TEST_BANNER_ADS
             });
 
-            closeListener = await AdMob.addListener('onRewardVideoAdClosed', () => {
-                cleanup();
-                preloadNativeRewardedAd();
-            });
-
-            failLoadListener = await AdMob.addListener('onRewardVideoAdFailedToLoad', (err) => {
-                console.warn('Native AdMob failed to load:', err);
-                cleanup();
-                if (onFailureCallback) onFailureCallback();
-            });
-
-            failShowListener = await AdMob.addListener('onRewardVideoAdFailedToShow', (err) => {
-                console.warn('Native AdMob failed to show:', err);
-                cleanup();
-                if (onFailureCallback) onFailureCallback();
-            });
-
-            if (!nativeRewardedAdLoaded) {
-                await preloadNativeRewardedAd();
-            }
-            await AdMob.showRewardVideoAd();
-            if (onAdStartedCallback) onAdStartedCallback();
+            isNativeBannerActive = true;
+            document.body.style.paddingBottom = '60px'; // Dynamically pad view to prevent covering navigation elements
         } catch (err) {
-            console.error('Failed to show native AdMob rewarded ad:', err);
-            cleanup();
-            if (onFailureCallback) onFailureCallback();
+            console.error('Error showing native banner ad:', err);
         }
-    }
+    };
+
+    window.hideNativeBannerAd = async function() {
+        // Hide HTML ads first
+        const bottomBanner = document.getElementById('bottom-sponsor-banner');
+        if (bottomBanner) {
+            bottomBanner.classList.add('hidden');
+            bottomBanner.style.display = 'none';
+        }
+        document.querySelectorAll('.adsbygoogle, .ad-banner-bottom, .ad-placeholder').forEach(el => {
+            el.classList.add('hidden');
+            el.style.display = 'none';
+        });
+
+        if (!window.isNativeMobile()) return;
+
+        if (!window.isAdMobInitialized) {
+            console.warn('hideNativeBannerAd called before AdMob initialization.');
+            return;
+        }
+
+        if (!navigator.onLine) {
+            console.log('Device is offline. Skipping native removeBanner to prevent crash.');
+            isNativeBannerActive = false;
+            document.body.style.paddingBottom = '0px';
+            return;
+        }
+
+        if (!isNativeBannerActive) {
+            console.log('Native banner is not active. Skipping native removeBanner.');
+            return;
+        }
+
+        try {
+            const { AdMob } = window.Capacitor?.Plugins || {};
+            if (!AdMob) return;
+
+            console.log('Removing native bottom banner ad...');
+            await AdMob.removeBanner();
+            isNativeBannerActive = false;
+            document.body.style.paddingBottom = '0px';
+        } catch (err) {
+            console.error('Error hiding native banner ad:', err);
+        }
+    };
 
     function startAdPlayback(forPro = false) {
         isAdRewardForPro = !!forPro;
+        
+        // Hide pro/dynamic upgrade modals to avoid overlay/click blocking
+        if (isAdRewardForPro) {
+            const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+            if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+            const dynamicUpgradeModal = document.getElementById('dynamic-upgrade-modal');
+            if (dynamicUpgradeModal) dynamicUpgradeModal.classList.add('hidden');
+        }
+        
+        // Connectivity Safeguard Check
+        if (!navigator.onLine) {
+            console.warn('Network connection is offline. Blocking unlock flow.');
+            triggerBrowserAdPlayback(true);
+            return;
+        }
+
+        // Bypass for Direct Sponsorship Configuration
+        if (USE_DIRECT_SPONSOR) {
+            console.log('USE_DIRECT_SPONSOR enabled. Bypassing AdMob to launch Sponsor Hub directly.');
+            triggerBrowserAdPlayback();
+            return;
+        }
         
         const mobileLoader = document.getElementById('mobile-ad-loader');
         
@@ -3929,6 +4030,7 @@ function initProfessionalRTA() {
             }
 
             let hasAdStartedOrFailed = false;
+            let nativeRewardGranted = false;
 
             const failSafeTimeout = setTimeout(() => {
                 if (!hasAdStartedOrFailed) {
@@ -3939,13 +4041,15 @@ function initProfessionalRTA() {
                 }
             }, 2000);
 
-            showNativeRewardedAd(
+            window.showNativeRewardedAd(
                 () => {
                     clearTimeout(failSafeTimeout);
                     hasAdStartedOrFailed = true;
+                    nativeRewardGranted = true;
                     if (mobileLoader) mobileLoader.classList.remove('active');
                     console.log('Native AdMob Reward granted!');
-                    grantAdRewardSuccess();
+                    // Call grantAdRewardSuccess(false) to silently unlock the features in safeStorage/UI without showing a blocking alert popup yet.
+                    grantAdRewardSuccess(false);
                 },
                 () => {
                     if (!hasAdStartedOrFailed) {
@@ -3963,6 +4067,44 @@ function initProfessionalRTA() {
                         console.log('Native AdMob started showing. Removing loading overlay.');
                         if (mobileLoader) mobileLoader.classList.remove('active');
                     }
+                },
+                () => {
+                    console.log('Native AdMob ad dismiss callback triggered.');
+                    setTimeout(() => {
+                        if (nativeRewardGranted) {
+                            // Crucial fix: Close the fallback/spotlight modal if it was opened due to a timeout race condition
+                            closeAdPlayback(false);
+
+                            // Defer the blocking confirmation alert popup until AFTER the native ad activity is completely dismissed and closed.
+                            setTimeout(() => {
+                                let displayName = "SoundEngg Pro Features";
+                                if (currentUnlockFeatureKey) {
+                                    if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
+                                        displayName = "Selected Premium Guide";
+                                    } else if (currentUnlockFeatureKey === 'spectrogram') {
+                                        displayName = "60FPS Spectrogram Waterfall";
+                                    } else if (currentUnlockFeatureKey === 'snapshots') {
+                                        displayName = "10 Multi-Overlay RTA Snapshots";
+                                    } else if (currentUnlockFeatureKey === 'mic_calibration') {
+                                        displayName = "Custom Mic Calibration Loader";
+                                    } else if (currentUnlockFeatureKey === 'ear_training') {
+                                        displayName = "1/6 ISO Octave Ear Training";
+                                    } else if (currentUnlockFeatureKey === 'ear_training_track') {
+                                        displayName = "Reference Track";
+                                    }
+                                }
+                                alert(`🎉 Awesome! You have successfully unlocked ${displayName} for the next 4 hours.`);
+                            }, 300);
+                        } else {
+                            console.log('Native AdMob ad dismissed early without granting reward. Restoring upgrade modals.');
+                            if (isAdRewardForPro) {
+                                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                                if (proUpgradeModal) proUpgradeModal.classList.remove('hidden');
+                                const dynamicUpgradeModal = document.getElementById('dynamic-upgrade-modal');
+                                if (dynamicUpgradeModal) dynamicUpgradeModal.classList.remove('hidden');
+                            }
+                        }
+                    }, 100);
                 }
             );
             return;
@@ -3971,7 +4113,7 @@ function initProfessionalRTA() {
         triggerBrowserAdPlayback();
     }
 
-    function grantAdRewardSuccess() {
+    function grantAdRewardSuccess(showNotification = true) {
         if (isAdRewardForPro) {
             const duration = 4 * 60 * 60 * 1000; // 4 Hours
             let unlockedFeatureName = "SoundEngg Pro Features";
@@ -3998,6 +4140,9 @@ function initProfessionalRTA() {
                 safeStorage.setItem('soundengg_temp_pro_until', Date.now() + duration);
             }
             
+            // Also unlock the central app lock gate for the same duration to ensure no immediate lockout
+            safeStorage.setItem('tools_unlocked_until', Date.now() + duration);
+            
             const proUpgradeModal = document.getElementById('pro-upgrade-modal');
             if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
             
@@ -4008,10 +4153,11 @@ function initProfessionalRTA() {
                 window.updatePremiumUI();
             }
             
+            // Dispatch event globally to update modules like RTA (snapshots), Spectrogram, Ear Training, etc.
+            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: true }));
+            
             if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
                 const blogId = window.pendingArticleToOpen;
-                // Dispatch event so rendering updates
-                document.dispatchEvent(new CustomEvent('proStatusChanged'));
                 
                 const blogView = document.getElementById('blog-view');
                 const btnNavBlog = document.getElementById('btn-nav-blog');
@@ -4027,18 +4173,62 @@ function initProfessionalRTA() {
                 window.pendingArticleToOpen = null;
             }
             
-            alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
+            if (showNotification) {
+                alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
+            }
         } else {
             isAdRewardClaimed = true;
             toggleRtaFullscreen(true);
         }
     }
 
-    function triggerBrowserAdPlayback() {
+    function triggerBrowserAdPlayback(isOffline = false) {
         const modal = document.getElementById('ad-reward-modal');
         const sponsorContainer = document.querySelector('.ad-sponsor-container');
-        
-        // Inject the gorgeous high-end sponsor simulation graphic and branding (Neve Dynamics) by default
+        const btnClaim = document.getElementById('btn-ad-reward-claim');
+        const countdownBar = document.getElementById('ad-reward-countdown-bar');
+        const btnText = document.getElementById('ad-reward-btn-text');
+        const btnIcon = document.getElementById('ad-reward-btn-icon');
+        const alertBox = document.getElementById('ad-reward-alert');
+        const descText = document.getElementById('ad-reward-text-desc');
+
+        if (!modal) return;
+
+        if (alertBox) alertBox.style.display = 'none';
+        if (countdownBar) countdownBar.style.display = 'none';
+
+        if (isOffline) {
+            isSponsorSpotlightFallback = false;
+            adSecondsRemaining = 0;
+
+            if (sponsorContainer) {
+                sponsorContainer.innerHTML = `
+                    <div class="ad-sponsor-info" style="color: #ff5533; text-shadow: 0 0 8px rgba(255, 85, 51, 0.5); font-family: var(--font-mono); text-align: center; padding: 1.5rem; letter-spacing: 1px;">
+                        <div style="font-size: 1rem; font-weight: 800; border: 1.5px solid #ff5533; padding: 12px; border-radius: 4px; background: rgba(255, 85, 51, 0.05); text-transform: uppercase;">
+                            [ ERROR: LINK OFFLINE. RETRY CONNECTION ]
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (descText) {
+                descText.innerHTML = 'An internet connection is required to check developer support streams and unlock Pro features. Please connect to a network and retry.';
+            }
+
+            if (btnClaim) {
+                btnClaim.disabled = true;
+                if (btnText) btnText.textContent = '⚠️ CONNECTION OFFLINE';
+                if (btnIcon) btnIcon.textContent = 'wifi_off';
+            }
+
+            modal.classList.add('active');
+            return;
+        }
+
+        // Online mode: Premium Sponsor Spotlight
+        isSponsorSpotlightFallback = true;
+        adSecondsRemaining = 0; // No countdown remaining
+
         if (sponsorContainer) {
             sponsorContainer.innerHTML = `
                 <div class="ad-graphic-wave">
@@ -4057,76 +4247,28 @@ function initProfessionalRTA() {
                     <div class="ad-sponsor-brand">NEVE DYNAMICS</div>
                     <div class="ad-sponsor-tagline">ANALOG PRESENCE. DIGITAL PRECISION.</div>
                 </div>
-                <div class="ad-countdown-bar" id="ad-reward-countdown-bar" style="width: 100%;"></div>
             `;
         }
 
-        const btnClaim = document.getElementById('btn-ad-reward-claim');
-        const countdownBar = document.getElementById('ad-reward-countdown-bar');
-        const btnText = document.getElementById('ad-reward-btn-text');
-        const btnIcon = document.getElementById('ad-reward-btn-icon');
-        const alertBox = document.getElementById('ad-reward-alert');
-        const descText = document.getElementById('ad-reward-text-desc');
-
-        if (!modal) return;
-
-        adSecondsRemaining = 15;
-        if (alertBox) alertBox.style.display = 'none';
-        
         if (descText) {
             if (isAdRewardForPro) {
                 let featLabel = "your selected tool";
                 if (currentUnlockFeatureKey === 'blog') {
                     featLabel = "your selected guide";
                 }
-                descText.innerHTML = `Watch this 15-second sponsor showcase of premium engineering gear to unlock **${featLabel}** for the next **4 hours**.`;
+                descText.innerHTML = `Support the developer by viewing our featured partner spotlight to instantly unlock **${featLabel}** for the next **4 hours**.`;
             } else {
-                descText.innerHTML = 'Watch this 15-second sponsor showcase of premium engineering gear to unlock the **Pro View Fullscreen Analyzer** for this session.';
+                descText.innerHTML = 'Support the developer by viewing our featured partner spotlight to instantly unlock the **Pro View Fullscreen Analyzer** for this session.';
             }
         }
-        
+
         if (btnClaim) {
-            btnClaim.disabled = true;
-            if (btnText) btnText.textContent = `🔒 Skip Ad in ${adSecondsRemaining}s`;
-            if (btnIcon) btnIcon.textContent = 'lock';
-        }
-        
-        if (countdownBar) {
-            countdownBar.style.transition = 'none';
-            countdownBar.style.width = '100%';
-            countdownBar.offsetHeight; // Force reflow
-            countdownBar.style.transition = 'width 15s linear';
-            countdownBar.style.width = '0%';
+            btnClaim.disabled = false;
+            if (btnText) btnText.textContent = '🎁 SUPPORT & UNLOCK';
+            if (btnIcon) btnIcon.textContent = 'open_in_new';
         }
 
         modal.classList.add('active');
-
-        // Dynamically request AdSense render if available
-        try {
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        } catch (e) {}
-
-        if (adCountdownTimer) clearInterval(adCountdownTimer);
-        
-        adCountdownTimer = setInterval(() => {
-            adSecondsRemaining--;
-            if (adSecondsRemaining > 0) {
-                if (btnText) btnText.textContent = `🔒 Skip Ad in ${adSecondsRemaining}s`;
-            } else {
-                clearInterval(adCountdownTimer);
-                adCountdownTimer = null;
-                
-                if (btnClaim) {
-                    btnClaim.disabled = false;
-                    if (btnText) {
-                        btnText.textContent = isAdRewardForPro 
-                            ? '🎁 CLAIM REWARD: UNLOCK 4-HOUR PRO' 
-                            : '🎁 CLAIM REWARD: UNLOCK FULLSCREEN';
-                    }
-                    if (btnIcon) btnIcon.textContent = 'redeem';
-                }
-            }
-        }, 1000);
     }
 
     function closeAdPlayback(isAborted) {
@@ -4139,13 +4281,27 @@ function initProfessionalRTA() {
         }
 
         if (isAborted) {
-            if (alertBox) {
+            // Do not show the interrupted warning alert if in Sponsor Spotlight or offline state
+            const isFallbackOrOffline = isSponsorSpotlightFallback || !navigator.onLine;
+            if (alertBox && !isFallbackOrOffline) {
                 alertBox.style.display = 'block';
                 setTimeout(() => {
                     if (modal) modal.classList.remove('active');
+                    if (isAdRewardForPro) {
+                        const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                        if (proUpgradeModal) proUpgradeModal.classList.remove('hidden');
+                        const dynamicUpgradeModal = document.getElementById('dynamic-upgrade-modal');
+                        if (dynamicUpgradeModal) dynamicUpgradeModal.classList.remove('hidden');
+                    }
                 }, 1800);
             } else {
                 if (modal) modal.classList.remove('active');
+                if (isAdRewardForPro) {
+                    const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                    if (proUpgradeModal) proUpgradeModal.classList.remove('hidden');
+                    const dynamicUpgradeModal = document.getElementById('dynamic-upgrade-modal');
+                    if (dynamicUpgradeModal) dynamicUpgradeModal.classList.remove('hidden');
+                }
             }
         } else {
             if (modal) modal.classList.remove('active');
@@ -4194,7 +4350,21 @@ function initProfessionalRTA() {
 
     const btnClaimAdReward = document.getElementById('btn-ad-reward-claim');
     if (btnClaimAdReward) {
-        btnClaimAdReward.addEventListener('click', () => {
+        btnClaimAdReward.addEventListener('click', async () => {
+            if (isSponsorSpotlightFallback) {
+                console.log('Sponsor Spotlight fallback clicked. Opening sponsor link and instantly granting reward.');
+                try {
+                    const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
+                    if (BrowserPlugin && typeof BrowserPlugin.open === 'function') {
+                        await BrowserPlugin.open({ url: ACTIVE_SPONSOR_URL });
+                    } else {
+                        window.open(ACTIVE_SPONSOR_URL, '_blank');
+                    }
+                } catch (err) {
+                    console.error('Error launching sponsor link:', err);
+                    window.open(ACTIVE_SPONSOR_URL, '_blank');
+                }
+            }
             closeAdPlayback(false);
             grantAdRewardSuccess();
         });
@@ -4290,6 +4460,11 @@ function initProfessionalRTA() {
     } else {
         getDevices();
     }
+
+    // Expose RTA drawing and reward functions globally to window scope
+    window.renderSnapshotSlots = renderSnapshotSlots;
+    window.syncProLockUI = syncProLockUI;
+    window.grantAdRewardSuccess = grantAdRewardSuccess;
 }
 
 // --- SIGNAL GENERATOR CORE LOGIC ---
@@ -4990,7 +5165,7 @@ function initEarTraining() {
             if (e) e.preventDefault();
             const tier = btn.getAttribute('data-tier');
             if (btn.classList.contains('locked-pro') && tier === 'sixth' && !window.isPremiumActive('ear_training')) {
-                showProUpgradeModal('ear_training');
+                window.showProUpgradeModal('ear_training');
                 return;
             }
             tierBtns.forEach(b => b.classList.remove('active'));
@@ -5006,9 +5181,9 @@ function initEarTraining() {
             if (btn.classList.contains('locked-pro') && !window.isPremiumActive('ear_training')) {
                 const source = btn.getAttribute('data-source');
                 if (source === 'track') {
-                    showProUpgradeModal('ear_training_track');
+                    window.showProUpgradeModal('ear_training_track');
                 } else {
-                    showProUpgradeModal('ear_training');
+                    window.showProUpgradeModal('ear_training');
                 }
                 return;
             }
@@ -5864,12 +6039,17 @@ function initAdManager() {
     if (window.isNativeMobile()) {
         console.log("Initializing native AdMob system inside Ad Manager...");
         try {
-            const { AdMob } = window.Capacitor.Plugins;
+            const { AdMob } = window.Capacitor?.Plugins || {};
             if (AdMob) {
                 AdMob.initialize({
                     requestTrackingAuthorization: true
                 }).then(() => {
-                    preloadNativeRewardedAd();
+                    console.log("AdMob successfully initialized!");
+                    window.isAdMobInitialized = true;
+                    window.preloadNativeRewardedAd();
+                }).catch(err => {
+                    console.error("AdMob initialization failed:", err);
+                    window.isAdMobInitialized = false;
                 });
             }
         } catch (e) {
@@ -5900,10 +6080,16 @@ function initAdManager() {
     function lockApp() {
         if (appContent) appContent.classList.add('app-blurred');
         if (sidebar) sidebar.classList.add('app-blurred');
-        if (bottomBanner) bottomBanner.classList.add('hidden');
+        if (bottomBanner) {
+            bottomBanner.classList.add('hidden');
+            bottomBanner.style.display = 'none';
+        }
 
         if (window.isNativeMobile()) {
             console.log('Native Mobile detected. Triggering mobile lock modal flow...');
+            if (typeof window.hideNativeBannerAd === 'function') {
+                window.hideNativeBannerAd(); // Hide native bottom banner on locking screen
+            }
             triggerMobileLock();
             return;
         }
@@ -5919,18 +6105,10 @@ function initAdManager() {
             stateOnline.classList.remove('hidden');
             stateOffline.classList.add('hidden');
             
-            // Customize modal online contents dynamically for mobile view
+            // Hide the video ad container (sponsor reward ad design) completely on native mobile when online
             const videoAdContainer = modal.querySelector('.video-ad-container');
             if (videoAdContainer) {
-                videoAdContainer.innerHTML = `
-                    <div class="native-ad-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; min-height: 120px; padding: 1rem;">
-                        <span class="material-symbols-outlined" style="font-size: 48px; color: var(--primary); text-shadow: 0 0 10px var(--primary-glow); animation: pulse 2s infinite;">smart_display</span>
-                        <h4 style="font-family: var(--font-mono); color: #fff; margin: 0; font-size: 0.95rem; letter-spacing: 1px;">SPONSOR_REWARD_AD</h4>
-                        <p style="font-size: 0.8rem; color: var(--text-muted); margin: 0; line-height: 1.4; max-width: 250px; text-align: center;">
-                            Support the project by playing a short video to unlock all tools.
-                        </p>
-                    </div>
-                `;
+                videoAdContainer.style.display = 'none';
             }
 
             // Enable the button by default on native mobile to watch ad
@@ -5949,6 +6127,12 @@ function initAdManager() {
             stateOnline.classList.remove('hidden');
             stateOffline.classList.add('hidden');
             
+            // Restore display for standard desktop browser flow (which uses Google AdSense)
+            const videoAdContainer = modal.querySelector('.video-ad-container');
+            if (videoAdContainer) {
+                videoAdContainer.style.display = 'block';
+            }
+            
             // Dynamically request AdSense render if available
             try {
                 (adsbygoogle = window.adsbygoogle || []).push({});
@@ -5964,9 +6148,70 @@ function initAdManager() {
     function unlockApp() {
         if (appContent) appContent.classList.remove('app-blurred');
         if (sidebar) sidebar.classList.remove('app-blurred');
-        if (bottomBanner) bottomBanner.classList.remove('hidden');
+        
+        if (!navigator.onLine) {
+            // Automatically hide all online elements when offline
+            if (bottomBanner) {
+                bottomBanner.classList.add('hidden');
+                bottomBanner.style.display = 'none';
+            }
+            if (window.isNativeMobile() && typeof window.hideNativeBannerAd === 'function') {
+                window.hideNativeBannerAd();
+            }
+            document.querySelectorAll('.adsbygoogle, .ad-banner-bottom, .ad-placeholder').forEach(el => {
+                el.classList.add('hidden');
+                el.style.display = 'none';
+            });
+        } else {
+            // Online: restore standard behavior
+            if (window.isNativeMobile()) {
+                if (bottomBanner) {
+                    bottomBanner.classList.add('hidden');
+                    bottomBanner.style.display = 'none';
+                }
+                if (typeof window.showNativeBannerAd === 'function') {
+                    window.showNativeBannerAd(); // Show native bottom banner ad
+                }
+            } else {
+                if (bottomBanner) {
+                    bottomBanner.classList.remove('hidden');
+                    bottomBanner.style.display = 'flex';
+                }
+            }
+        }
+        
         modal.classList.add('hidden');
+
+        // Trigger any pending action that requested access
+        if (typeof window.pendingAdAction === 'function') {
+            const action = window.pendingAdAction;
+            window.pendingAdAction = null;
+            try {
+                action();
+            } catch (err) {
+                console.error("Error running pending action after ad unlock:", err);
+            }
+        }
     }
+
+    // Centralized Ad Gatekeeper (Interceptor) wrapper
+    window.executeWithAdGate = function(onSuccessCallback, featureName = "PRO_FEATURE") {
+        if (window.isPremiumActive()) {
+            onSuccessCallback();
+            return;
+        }
+
+        const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
+        const now = Date.now();
+        if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
+            onSuccessCallback();
+            return;
+        }
+
+        console.log(`Access to ${featureName} is gated. Opening central ad gate...`);
+        window.pendingAdAction = onSuccessCallback;
+        lockApp();
+    };
 
     function grantAccess(hours) {
         const ms = hours * 60 * 60 * 1000;
@@ -6003,7 +6248,7 @@ function initAdManager() {
                 btnCloseAd.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align: middle; margin-right: 4px;">sync</span> Loading Ad...';
                 btnCloseAd.disabled = true;
 
-                showNativeRewardedAd(
+                window.showNativeRewardedAd(
                     () => {
                         console.log('Native Lock Ad completed successfully!');
                         grantAccess(6);
@@ -6035,6 +6280,9 @@ function initAdManager() {
     const RAZORPAY_PRODUCTION_KEY_ID = "rzp_live_Ss263d2O3ONro6";
 
     async function initiateRazorpayCheckout(user, plan = 'lifetime') {
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd();
+        }
         const keyId = window.RAZORPAY_KEY_ID || RAZORPAY_PRODUCTION_KEY_ID;
         
         let amount = 349900; // Default INR Lifetime
@@ -6115,6 +6363,14 @@ function initAdManager() {
                 theme: {
                     color: "#14A7B5"
                 },
+                modal: {
+                    ondismiss: function () {
+                        console.log("Razorpay checkout modal closed by user.");
+                        if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                            window.showNativeBannerAd();
+                        }
+                    }
+                },
                 handler: async function (verifyResponse) {
                     // Show a secure verification overlay
                     let verifyOverlay = document.createElement('div');
@@ -6182,6 +6438,9 @@ function initAdManager() {
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (resp) {
                 alert("❌ Payment Failed: " + resp.error.description);
+                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                    window.showNativeBannerAd();
+                }
             });
             rzp.open();
 
@@ -6219,22 +6478,30 @@ function initAdManager() {
         });
     }
 
-    // Monitor network changes to toggle modal dynamically if locked
+    // Monitor network changes to toggle modal dynamically if locked, or update online elements if unlocked
     window.addEventListener('online', () => {
         if (!modal.classList.contains('hidden')) {
             lockApp(); // Re-trigger lock to switch states
+        } else {
+            unlockApp(); // Re-trigger unlock to restore/show online elements
         }
     });
     
     window.addEventListener('offline', () => {
         if (!modal.classList.contains('hidden')) {
             lockApp(); // Re-trigger lock to switch states
+        } else {
+            unlockApp(); // Re-trigger unlock to hide online elements
         }
     });
 
-    // Listen for Pro status changes to instantly unlock
+    // Listen for Pro status changes to instantly lock/unlock
     document.addEventListener('proStatusChanged', (e) => {
-        if (e.detail === true) unlockApp();
+        if (e.detail === true) {
+            unlockApp();
+        } else {
+            checkAdStatus();
+        }
     });
 
     // Run initial check
@@ -6705,6 +6972,9 @@ async function initPricingPage() {
 
 // 3. Simulated Razorpay Standard Checkout Overlay
 window.showRazorpaySimOverlay = function(plan) {
+    if (typeof window.hideNativeBannerAd === 'function') {
+        window.hideNativeBannerAd();
+    }
     // Prevent duplicate overlays
     const existing = document.getElementById('razorpay-sim-overlay');
     if (existing) existing.remove();
@@ -6785,7 +7055,12 @@ window.showRazorpaySimOverlay = function(plan) {
     const btnClose = overlay.querySelector('#btn-close-rzp');
     const statusBox = overlay.querySelector('#rzp-status-box');
 
-    const closeOverlay = () => overlay.remove();
+    const closeOverlay = () => {
+        overlay.remove();
+        if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+            window.showNativeBannerAd();
+        }
+    };
     btnClose.addEventListener('click', closeOverlay);
     btnCancel.addEventListener('click', closeOverlay);
 
@@ -6911,6 +7186,9 @@ function showCheckoutSuccessOverlay(plan) {
 
 // 4.8 Premium Checkout Confirmation Modal to completely bypass Browser Popup Blockers
 function showCheckoutConfirmModal(user, plan) {
+    if (typeof window.hideNativeBannerAd === 'function') {
+        window.hideNativeBannerAd();
+    }
     const existing = document.getElementById('checkout-confirm-modal');
     if (existing) existing.remove();
 
@@ -6982,7 +7260,12 @@ function showCheckoutConfirmModal(user, plan) {
 
     document.body.appendChild(modal);
 
-    modal.querySelector('#btn-close-checkout-confirm').onclick = () => modal.remove();
+    modal.querySelector('#btn-close-checkout-confirm').onclick = () => {
+        modal.remove();
+        if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+            window.showNativeBannerAd();
+        }
+    };
 
     const proceedBtn = modal.querySelector('#btn-proceed-to-payment');
     proceedBtn.onclick = () => {
@@ -7174,6 +7457,69 @@ function syncMobileNavDropdownLabel(viewId) {
 
 window.syncMobileNavDropdownLabel = syncMobileNavDropdownLabel;
 
+// --- Capacitor App Version Verification & Force Updates ---
+function initAppVersionCheck() {
+    if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
+        console.log('[VersionCheck] Native mobile detected, checking build version...');
+        const DevicePlugin = window.Capacitor?.Plugins?.Device;
+        if (DevicePlugin) {
+            DevicePlugin.getInfo().then(async (info) => {
+                const currentBuild = parseInt(info.appBuild, 10);
+                console.log('[VersionCheck] Local App Build:', currentBuild);
+                
+                const currentBuildEl = document.getElementById('update-current-build');
+                if (currentBuildEl) {
+                    currentBuildEl.textContent = currentBuild;
+                }
+                
+                try {
+                    // Bypass caching to fetch version settings live
+                    const res = await fetch('https://www.soundengg.com/app-version.json?t=' + Date.now());
+                    if (!res.ok) {
+                        throw new Error(`Failed to fetch version metadata (Status: ${res.status})`);
+                    }
+                    const versionConfig = await res.json();
+                    const requiredBuild = parseInt(versionConfig.latestVersionCode, 10);
+                    console.log('[VersionCheck] Remote Required Build:', requiredBuild, 'Force Update:', versionConfig.forceUpdate);
+                    
+                    const requiredBuildEl = document.getElementById('update-required-build');
+                    if (requiredBuildEl) {
+                        requiredBuildEl.textContent = requiredBuild;
+                    }
+                    
+                    if (currentBuild < requiredBuild && versionConfig.forceUpdate) {
+                        console.warn('[VersionCheck] App build is stale! Triggering mandatory update block...');
+                        const updateOverlay = document.getElementById('update-modal-overlay');
+                        if (updateOverlay) {
+                            openModal(updateOverlay);
+                            
+                            const downloadBtn = document.getElementById('btn-update-download');
+                            if (downloadBtn && versionConfig.downloadUrl) {
+                                downloadBtn.href = versionConfig.downloadUrl;
+                            }
+                            
+                            const messageEl = document.getElementById('update-modal-message');
+                            if (messageEl && versionConfig.message) {
+                                messageEl.textContent = versionConfig.message;
+                            }
+                        }
+                    } else {
+                        console.log('[VersionCheck] App version is up to date.');
+                    }
+                } catch (err) {
+                    console.error('[VersionCheck] Error verifying app updates:', err);
+                }
+            }).catch((err) => {
+                console.error('[VersionCheck] Failed to get device info:', err);
+            });
+        } else {
+            console.error('[VersionCheck] Capacitor Device plugin is not registered.');
+        }
+    } else {
+        console.log('[VersionCheck] App is running in standard web browser/PWA. Version checking bypassed.');
+    }
+}
+
 // 7. Global Payment System Initialization DOM Trigger
 const initPageSystems = () => {
     // Start dynamic pricing converter immediately
@@ -7192,6 +7538,9 @@ const initPageSystems = () => {
     if (typeof setupAuthorContactForm === 'function') {
         setupAuthorContactForm();
     }
+
+    // Check Capacitor native app build versions for force updates
+    initAppVersionCheck();
 };
 
 if (document.readyState === 'loading') {
