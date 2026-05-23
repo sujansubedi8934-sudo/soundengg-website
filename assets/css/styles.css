@@ -5602,4 +5602,12 @@ body.theme-red { --primary: #ff003c; }
     .train-control-group {
         flex-wrap: wrap;
     }
+    .train-stats-footer {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+    }
+    .train-options-grid-flat {
+        grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+    }
 }
