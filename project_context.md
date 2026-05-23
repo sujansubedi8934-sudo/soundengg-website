@@ -95,6 +95,8 @@ Stores debounced, cross-device settings parameters for all calculation and analy
 - [x] **Monolithic Refactoring (Phases 1-3):** Successfully extracted `utils.js`, `theme.js`, `auth.js`, `premium.js`, `audioCalcs.js`, and `adManager.js` out of `main.js`, severely shrinking and decluttering the core bundle.
 - [x] **Refactoring Phase 4 (Components):** Successfully isolated all WebAudio Canvas controllers (RTA, Tuner, Game, Signal Generator, Calculators, Blog Engine) into dedicated files inside `/assets/js/components/`.
 - [x] **Phase 5 (Routing & Bug Fixes):** Fixed massive scoping bugs in `main.js`, corrected deep linking routing from landing page to console components, resolved syntax errors across newly extracted files, and restored full DOMContentLoaded execution stability.
+- [x] **Mobile UI Polishing:** Resolved critical horizontal scrolling/overlap issues inside RTA, Ear Training, and Signal Generator modules on mobile webviews by fixing overly rigid CSS grids and padding limits.
+- [x] **Native App Back Button Handling:** Integrated pure HTML5 History push-state routing across the tools so the physical Android back button elegantly retreats through layers. Forced `@capacitor/app` native exit integration to completely kill the app from the landing page.
 - [x] **Lightweight Static Build pipeline:** `build-app.js` minifies and packs assets into `/www` dynamically.
 - [x] **Vercel Web Deployments:** Configured `vercel.json` with `"outputDirectory": "www"`.
 - [x] **Capacitor Mobile Setup:** Both Android Studio (`/android`) and iOS Xcode (`/ios`) shells are initialized and functional.
@@ -103,15 +105,16 @@ Stores debounced, cross-device settings parameters for all calculation and analy
 - [x] **Safari WebKit Audio Output Fallback:** Implemented robust graceful degradation for Safari/WebKit where `setSinkId` is unsupported.
 - [x] **Apple Compliance (Account Deletion):** Integrated a secure, in-app "Delete Account" flow.
 - [x] **Google OAuth Redirect:** Deep-link capturing for `soundengg://login-callback` hydrates `supabaseClient` safely.
-- [x] **Automated Android Bundle Compilation:** Compiled a signed production **Version Code 4** App Bundle (`app-release.aab`).
+- [x] **Automated Android Bundle Compilation:** Compiled a signed production **Version Code 6** App Bundle (`app-release.aab`).
 
 ### Upcoming Plan & Next Operational Steps
-1. **Popup & Inline AdMob Integration:**
-   * Finalize CSS/HTML layout wrappers in popups (Google AdSense units for browser, `@capacitor-community/admob` banner overlays for native apps).
-2. **Google Play Console & App Store Releases:**
-   * Deploy the signed `.aab` Android Bundle.
+1. **Google Play Console & App Store Releases (Priority):**
+   * Upload the compiled `app-release.aab` bundle to the Google Play Console track.
+   * Address any Play Console policy warnings regarding Permissions or AdMob Data safety.
    * Open `/ios` in Xcode, assign Developer Account Team, and archive iOS build.
-4. **Supabase Production Security Hardening:**
+2. **Popup & Inline AdMob Integration:**
+   * Finalize CSS/HTML layout wrappers in popups (Google AdSense units for browser, `@capacitor-community/admob` banner overlays for native apps).
+3. **Supabase Production Security Hardening:**
    * Connect an external SMTP transactional mail server to lift rate-limiting on verification emails.
 
 ---
