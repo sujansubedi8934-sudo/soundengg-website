@@ -889,6 +889,10 @@ body.modal-open {
     pointer-events: none;
 }
 
+.hidden {
+    display: none !important;
+}
+
 .role-modal {
     width: 90%;
     max-width: 500px;
@@ -4670,7 +4674,7 @@ body.theme-red { --primary: #ff003c; }
     transform: scale(1.05);
 }
 
-.snapshot-slot.hidden {
+.snapshot-slot.slot-hidden {
     opacity: 0.2 !important;
     text-decoration: line-through;
 }

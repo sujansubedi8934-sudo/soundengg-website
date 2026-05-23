@@ -13,7 +13,10 @@ const filesToCopy = [
     'privacy.html',
     'terms.html',
     'manifest.json',
-    'service-worker.js'
+    'service-worker.js',
+    'app-version.json',
+    'ads.txt',
+    'app-ads.txt'
 ];
 
 // List of folders to copy recursively
