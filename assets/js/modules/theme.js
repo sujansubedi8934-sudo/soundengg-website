@@ -1,23 +1,38 @@
 function setupThemeToggle() {
     const btnLight = document.getElementById('btn-light');
     const btnDark = document.getElementById('btn-dark');
+    const btnMobile = document.getElementById('btn-mobile-theme-toggle');
+    const mobileIcon = document.getElementById('mobile-theme-icon');
     const htmlEl = document.documentElement;
 
-    if (!btnLight || !btnDark) return;
-
-    btnLight.addEventListener('click', () => {
+    const setLightMode = () => {
         htmlEl.classList.add('light');
         htmlEl.classList.remove('dark');
-        btnLight.classList.add('active');
-        btnDark.classList.remove('active');
-    });
+        if (btnLight) btnLight.classList.add('active');
+        if (btnDark) btnDark.classList.remove('active');
+        if (mobileIcon) mobileIcon.textContent = 'dark_mode';
+    };
 
-    btnDark.addEventListener('click', () => {
+    const setDarkMode = () => {
         htmlEl.classList.add('dark');
         htmlEl.classList.remove('light');
-        btnDark.classList.add('active');
-        btnLight.classList.remove('active');
-    });
+        if (btnDark) btnDark.classList.add('active');
+        if (btnLight) btnLight.classList.remove('active');
+        if (mobileIcon) mobileIcon.textContent = 'light_mode';
+    };
+
+    if (btnLight) btnLight.addEventListener('click', setLightMode);
+    if (btnDark) btnDark.addEventListener('click', setDarkMode);
+
+    if (btnMobile) {
+        btnMobile.addEventListener('click', () => {
+            if (htmlEl.classList.contains('light')) {
+                setDarkMode();
+            } else {
+                setLightMode();
+            }
+        });
+    }
 }
 
 function applyAutoTheme() {
@@ -27,19 +42,20 @@ function applyAutoTheme() {
     const htmlEl = document.documentElement;
     const btnLight = document.getElementById('btn-light');
     const btnDark = document.getElementById('btn-dark');
-
-    if (!btnLight || !btnDark) return;
+    const mobileIcon = document.getElementById('mobile-theme-icon');
 
     if (isDayTime) {
         htmlEl.classList.add('light');
         htmlEl.classList.remove('dark');
-        btnLight.classList.add('active');
-        btnDark.classList.remove('active');
+        if (btnLight) btnLight.classList.add('active');
+        if (btnDark) btnDark.classList.remove('active');
+        if (mobileIcon) mobileIcon.textContent = 'dark_mode';
     } else {
         htmlEl.classList.add('dark');
         htmlEl.classList.remove('light');
-        btnDark.classList.add('active');
-        btnLight.classList.remove('active');
+        if (btnDark) btnDark.classList.add('active');
+        if (btnLight) btnLight.classList.remove('active');
+        if (mobileIcon) mobileIcon.textContent = 'light_mode';
     }
 }
 
