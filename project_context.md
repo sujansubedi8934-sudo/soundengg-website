@@ -23,7 +23,26 @@
 ### Frontend & Aesthetics
 * **Core Languages:** Pure semantic HTML5, Vanilla JavaScript (ES6+), and Vanilla CSS3. No bulky frameworks (React/Vue/Angular) are used, ensuring instantaneous, lightweight startup speeds on both browsers and native mobile webviews.
 * **Design System & Aesthetics:** Retro-futuristic **Industrial VFD (Vacuum Fluorescent Display)** design. Employs deep pitch-black backdrops, neon amber (`#ff9900` / `#ffb700`) and cyan glowing highlights, high-contrast grid layouts tailored for low-light outdoor gigs, glassmorphic drawer menus, customized scrollbars, and fine-tuned micro-animations.
-* **Asset Pipeline & Compilation:** A custom Node.js utility ([build-app.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/build-app.js)) that cleans, minifies, and copies production-ready assets into a separate `/www` output directory, filtering out Node packages, development files, and project configurations.
+* **Asset Pipeline & Compilation:** A custom Node.js utility (`build-app.js`) that cleans, minifies, and copies production-ready assets into a separate `/www` output directory, filtering out Node packages, development files, and project configurations.
+
+### Modular Architecture Structure (Current Phase)
+To solve performance bottlenecks and massive file sizes, the `main.js` monolith has been successfully modularized into the following structure:
+1. **`/assets/js/utils/audioCalcs.js`** -> Phase-accurate pure audio math formulas (Delay, Sub arrays, SPL attenuation).
+2. **`/assets/js/utils/adManager.js`** -> Monetization logic, Razorpay checkout, Google AdSense & native AdMob initialization, listeners, and lock-screen failsafes.
+3. **`/assets/js/modules/auth.js`** -> Supabase session tracking, background database syncs, login/logout UI bindings.
+4. **`/assets/js/modules/premium.js`** -> Premium UI update logic and global `isPremiumActive` status toggles.
+5. **`/assets/js/components/`** -> Module-specific UI and WebAudio Canvas controllers:
+   - `rtaEngine.js` (60FPS spectrogram & peak tracking)
+   - `tunerEngine.js` (Chromatic tuner)
+   - `signalGenerator.js` (Sine, Pink, White noise oscillators)
+   - `subCalc.js` (Subwoofer array spacing/delay)
+   - `delayCalc.js` (Temperature-compensated delay alignment)
+   - `earTraining.js` (Frequency isolation game)
+   - `tapTempo.js` (Tap-tempo calculations)
+   - `pinouts.js` (Connector layouts)
+   - `blogEngine.js` (Blog and markdown rendering)
+6. **`/assets/js/blog-data.js`** and **`/assets/js/data/blogs/*.js`** -> Individual isolated static blog contents.
+7. **`/assets/js/main.js`** -> Stripped down strictly to App Initialization, Supabase routing, Global State, and Capacitor deep links.
 
 ### Mobile Shell & Wrapper
 * **Wrapper Platform:** **Ionic Capacitor (v8.3.4)**.
@@ -38,12 +57,10 @@
 * **State Management:** Local browser state handles real-time calculations. A custom 1.5s debounced state manager synchronizes configurations silently with Supabase (`user_configs` table) when the user is authenticated.
 
 ### Monetization & Ads Integration
-* **Web Payment gateway:** **Razorpay Web Subscriptions** (Monthly/Yearly/Lifetime) integrated via two secure, custom-written Deno Edge Functions in Supabase:
-  * `secure-payment`: Generates payment orders (Paise for INR, Cents for USD), handles secure cancellations, and validates HMAC payment signatures. *(Refactored and renamed from `razorpay-checkout` for ad-blocker resilience to circumvent client-side privacy filters blocking endpoints containing billing keywords).*
-  * `razorpay-webhook`: Securely updates a user's database record to `is_pro: true` on verified billing gateway alerts.
+* **Web Payment gateway:** **Razorpay Web Subscriptions** (Monthly/Yearly/Lifetime) integrated via secure Supabase Edge Functions (`secure-payment`).
 * **Web Ads Network:** **Google AdSense** served via a custom 15-second "view ad to unlock 6 hours of tools" model.
 * **Mobile Ads Network:** Native **Google AdMob** integrated via `@capacitor-community/admob`.
-  * *Bypass Fail-Safe:* If the native AdMob plugin fails or is missing (e.g., in simulator shells or App Store/Google Play testing reviews), the app instantly bypasses the lock and grants dashboard access, preventing any startup screen freeze or blur.
+  * *Bypass Fail-Safe:* Kept pristine in `adManager.js`. If native AdMob fails (e.g., in simulator shells or App Store reviews), the app instantly bypasses the lock and grants dashboard access.
 
 ---
 
@@ -51,100 +68,51 @@
 
 ### 3.1. `profiles` Table
 Stores registered accounts, active subscriptions, and user metadata.
-
 | Field Name | Type | Description |
 | :--- | :--- | :--- |
-| `id` | UUID (Primary Key) | References `auth.users.id` in Supabase Auth. |
+| `id` | UUID (PK) | References `auth.users.id`. |
 | `email` | TEXT | User's primary registered email address. |
 | `full_name` | TEXT | User's full name. |
-| `company` | TEXT | Optional audio production company. |
-| `is_pro` | BOOLEAN | True if premium features are unlocked (Default: `false`). |
-| `subscription_tier` | TEXT | Active tier: `'free'`, `'monthly'`, `'yearly'`, `'lifetime'`. |
-| `subscription_provider` | TEXT | Billing channel: `'razorpay'`, `'app_store'`, `'play_store'`. |
-| `subscription_id` | TEXT | Razorpay/App Store/Play Store payment transaction token. |
+| `is_pro` | BOOLEAN | True if premium features are unlocked. |
+| `subscription_tier` | TEXT | `'free'`, `'monthly'`, `'yearly'`, `'lifetime'`. |
+| `subscription_provider`| TEXT | `'razorpay'`, `'app_store'`, `'play_store'`. |
+| `subscription_id` | TEXT | Payment transaction token. |
 | `subscription_expires_at`| TIMESTAMP | Exact expiration timestamp of active premium access. |
-| `device_ids` | JSONB | Array of active authorized client hardware identifiers. |
-| `created_at` | TIMESTAMP | Record insertion time. |
-| `updated_at` | TIMESTAMP | Last profile update time. |
-
-#### JSON Schema Structure (Profiles)
-```json
-{
-  "id": "7f68c34f-012b-4cd3-89ef-90123abc4567",
-  "email": "engineer@soundcompany.com",
-  "full_name": "Sujan Subedi",
-  "company": "Antigravity Sound Labs",
-  "is_pro": true,
-  "subscription_tier": "yearly",
-  "subscription_provider": "razorpay",
-  "subscription_id": "sub_K1aB2c3D4e5F6g",
-  "subscription_expires_at": "2027-05-20T19:26:00Z",
-  "device_ids": ["dev_iph15pro_x1y2z3"],
-  "created_at": "2026-05-20T13:42:00Z",
-  "updated_at": "2026-05-20T19:26:00Z"
-}
-```
-
----
 
 ### 3.2. `user_configs` Table
 Stores debounced, cross-device settings parameters for all calculation and analyzer tools.
-
 | Field Name | Type | Description |
 | :--- | :--- | :--- |
-| `user_id` | UUID (Composite PK) | References `profiles.id`. |
-| `config_type` | TEXT (Composite PK) | Name of active tool (e.g., `'delay'`, `'subcalc'`, `'rta'`, `'tuner'`). |
+| `user_id` | UUID (PK) | References `profiles.id`. |
+| `config_type` | TEXT (PK) | Name of active tool (`'delay'`, `'subcalc'`, `'rta'`, `'tuner'`). |
 | `data` | JSONB | Stores key-value parameters of the tool settings. |
-| `updated_at` | TIMESTAMP | Time of the last successful client-to-server sync. |
-
-#### Sync Logic Snippet
-```javascript
-// State changes trigger this debounced syncing controller (1.5 seconds timer)
-async function syncToolState(userId, configType, stateData) {
-  await supabaseClient
-    .from('user_configs')
-    .upsert({ 
-      user_id: userId, 
-      config_type: configType, 
-      data: stateData, 
-      updated_at: new Date().toISOString() 
-    });
-}
-```
 
 ---
 
 ## 4. Current Milestone & Next Steps
 
-### What is Currently Working
+### What is Currently Working (Milestones Completed)
+- [x] **Monolithic Refactoring (Phases 1-3):** Successfully extracted `utils.js`, `theme.js`, `auth.js`, `premium.js`, `audioCalcs.js`, and `adManager.js` out of `main.js`, severely shrinking and decluttering the core bundle.
+- [x] **Refactoring Phase 4 (Components):** Successfully isolated all WebAudio Canvas controllers (RTA, Tuner, Game, Signal Generator, Calculators, Blog Engine) into dedicated files inside `/assets/js/components/`.
+- [x] **Phase 5 (Routing & Bug Fixes):** Fixed massive scoping bugs in `main.js`, corrected deep linking routing from landing page to console components, resolved syntax errors across newly extracted files, and restored full DOMContentLoaded execution stability.
 - [x] **Lightweight Static Build pipeline:** `build-app.js` minifies and packs assets into `/www` dynamically.
-- [x] **Vercel Web Deployments:** Configured `vercel.json` with `"outputDirectory": "www"` so the build output deploys seamlessly.
+- [x] **Vercel Web Deployments:** Configured `vercel.json` with `"outputDirectory": "www"`.
 - [x] **Capacitor Mobile Setup:** Both Android Studio (`/android`) and iOS Xcode (`/ios`) shells are initialized and functional.
-- [x] **Native AdMob Fail-Safe:** Screen-blur lockouts in simulators or during App Store reviews are bypassed, automatically granting console access if the native AdMob plugin is not initialized.
-- [x] **Git Workspace Sanitation:** All Android Studio `.idea` folders and system clutter are cleanly ignored in `.gitignore`.
-- [x] **Payment Webhooks:** Secure transactional checkout and webhook listener functions are written and deployed.
-- [x] **Safari WebKit Audio Output Fallback:** Implemented robust graceful degradation for Safari/WebKit where `setSinkId` is unsupported. Dynamically locks and disables the Audio Output dropdown, changes the mouse cursor style, and displays a premium, custom warning box instructing users to route their output via macOS/iOS System Settings.
-- [x] **Apple Compliance (Account Deletion):** Integrated a secure, in-app "Delete Account" flow in `app.html` / `main.js` that calls the Supabase Edge Function to purge all user preset data and login maps.
-- [x] **Supabase Production Hardening (RLS):** Fully configured and deployed strict Row Level Security (RLS) policies on `profiles` and `user_configs` tables, protecting all user profiles and preferences.
-- [x] **Razorpay Live Gateway Integration:** Fully transitioned both client-side Key IDs (`rzp_live_Ss263d2O3ONro6`) and cloud backend environment variables to production Live Mode, auto-applying 50% launch special coupons.
-- [x] **Ad-Blocker Resilience (Endpoint Refactoring):** Renamed the Supabase Edge checkout endpoint to `secure-payment` and purged the old `razorpay-checkout` function to circumvent client-side ad-blockers and privacy shields blocking core payment handshakes.
-- [x] **Google OAuth Redirect & Session Hydration (Capacitor Android):** Resolved Google auth loop. Equipped native shell with `@capacitor/app` and implemented deep-link capturing for `soundengg://login-callback` in `assets/js/main.js` that extracts session tokens and hydrates `supabaseClient` automatically, dismissing modals seamlessly.
-- [x] **Automated Android Bundle Compilation:** Configured Gradle compiler to run through Android Studio's bundled JDK path. Successfully compiled a signed production **Version Code 4** App Bundle (`app-release.aab`) and placed it directly at the root of the workspace.
+- [x] **Native AdMob Fail-Safe:** Screen-blur lockouts bypass correctly if AdMob fails initialization.
+- [x] **Payment Webhooks:** Secure transactional checkout via `secure-payment` edge functions.
+- [x] **Safari WebKit Audio Output Fallback:** Implemented robust graceful degradation for Safari/WebKit where `setSinkId` is unsupported.
+- [x] **Apple Compliance (Account Deletion):** Integrated a secure, in-app "Delete Account" flow.
+- [x] **Google OAuth Redirect:** Deep-link capturing for `soundengg://login-callback` hydrates `supabaseClient` safely.
+- [x] **Automated Android Bundle Compilation:** Compiled a signed production **Version Code 4** App Bundle (`app-release.aab`).
 
-### Next Steps & Operational Playbook
-1. **Popup & Inline AdMob Integration (Web & App):**
-   * Implement CSS/HTML layout wrappers in popups (Google AdSense units for browser visitors, `@capacitor-community/admob` banner overlays for iOS/Android native app installations).
-2. **Edge Cases & Webhook Lifecycle Tests:**
-   * Dry-run webhook subscription actions (like database tier synchronization when `subscription.cancelled` or `subscription.halted` events fire, and renewal on `subscription.charged`).
-3. **Google Play Console Release Checklist:**
-   * Prepare standard store promotional graphics, logo assets, and legal descriptions.
-   * [Completed] Compiled and signed production Android App Bundle (Version Code 4, `app-release.aab`) successfully via Android Studio's bundled JDK, ready for Play Console upload.
-4. **Apple App Store Connect Xcode Release Checklist:**
-   * Open `/ios` in Apple Xcode.
-   * Assign a verified Developer Account Team.
-   * Set native app icons, build numbers, and archive target packages for App Store Connect distribution.
-5. **Supabase Production Security Hardening:**
-   * Connect an external SMTP transactional mail server (e.g., Resend, Mailgun) inside Supabase Auth Settings to lift the default rate-limiting constraints on verification emails.
+### Upcoming Plan & Next Operational Steps
+1. **Popup & Inline AdMob Integration:**
+   * Finalize CSS/HTML layout wrappers in popups (Google AdSense units for browser, `@capacitor-community/admob` banner overlays for native apps).
+2. **Google Play Console & App Store Releases:**
+   * Deploy the signed `.aab` Android Bundle.
+   * Open `/ios` in Xcode, assign Developer Account Team, and archive iOS build.
+4. **Supabase Production Security Hardening:**
+   * Connect an external SMTP transactional mail server to lift rate-limiting on verification emails.
 
 ---
 
@@ -154,14 +122,11 @@ async function syncToolState(userId, configType, stateData) {
 * The project developer is a senior professional concert live sound engineer, RF specialist, and acoustics designer with decades of experience in PA system optimization, console routing, and audio math.
 
 ### Communication & Tone Rules
-1. **Skip Introductory Explanations:** Do **not** explain simple acoustic or physics definitions (e.g., what an XLR pinout path is, how the inverse square law functions, or standard 1/3-octave frequency bands).
-2. **Technical Depth Over Simplicity:** Focus entirely on robust code construction, mathematical accuracy, high-frequency timer efficiencies in JavaScript canvas rendering, and stable mobile-webview interactions.
+1. **Skip Introductory Explanations:** Do **not** explain simple acoustic or physics definitions.
+2. **Technical Depth Over Simplicity:** Focus entirely on robust code construction, mathematical accuracy, high-frequency timer efficiencies, and stable mobile-webview interactions.
 
 ### Code & Styling Standards
-* **Vanilla First:** Prioritize raw Vanilla JavaScript, semantic HTML5, and native CSS custom properties. Keep dependencies to absolute zero unless specifically instructed.
-* **Protect the VFD Design Language:** Under no circumstances should the retro-futuristic Industrial VFD (Vacuum Fluorescent Display) interface styling be modified. The grid lines, scanlines, glowing text shadows (amber and cyan), glass drawer panels, and neon-themed color schemes are frozen and must remain pristine.
-* **Auto-Sync Requirement:** Whenever JavaScript or HTML assets are modified, compile and synchronize files across the Capacitor native wrapper shells instantly by executing:
-  ```bash
-  npm run build && npx cap sync
-  ```
-* **Git Commit Strategy:** Stage and commit modifications locally. Never attempt to push branches to origin directly inside shell tools—let the user review, verify, and click **Push** via their local GitHub Desktop client.
+* **Vanilla First:** Prioritize raw Vanilla JavaScript, semantic HTML5, and native CSS custom properties. Keep dependencies to absolute zero unless instructed.
+* **Protect the VFD Design Language:** Under no circumstances should the retro-futuristic Industrial VFD (Vacuum Fluorescent Display) interface styling be modified. The grid lines, scanlines, glowing text shadows, and glass panels are frozen and must remain pristine.
+* **Auto-Sync Requirement:** Whenever JavaScript or HTML assets are modified, compile and synchronize files across the Capacitor native wrapper shells instantly by executing: `npm run build && npx cap sync`.
+* **Git Commit Strategy:** Stage and commit modifications locally. Never attempt to push branches to origin directly inside shell tools—let the user review, verify, and push manually.

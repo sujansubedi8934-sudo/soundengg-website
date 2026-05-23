@@ -336,10 +336,13 @@
                 </div>
 
                 <!-- Google AdSense Horizontal Native Ad Unit -->
-                <div class="ad-placeholder adsbygoogle-container" style="margin-top: 1.5rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1rem; text-align: center;">
-                    <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;">SPONSOR_ADVERTISEMENT</div>
+                <div class="ad-placeholder adsbygoogle-container" style="position: relative; margin-top: 1.5rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1rem; text-align: center; min-height: 120px;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1; pointer-events: none;">
+                        <span class="material-symbols-outlined" style="color: var(--text-muted); opacity: 0.3; font-size: 24px; margin-bottom: 4px;">inventory_2</span>
+                        <span style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--font-mono); opacity: 0.5; letter-spacing: 1px;">SPONSOR SPACE (PENDING)</span>
+                    </div>
                     <ins class="adsbygoogle"
-                         style="display:block; text-align:center;"
+                         style="position: relative; z-index: 2; display:block; text-align:center;"
                          data-ad-layout="in-article"
                          data-ad-format="fluid"
                          data-ad-client="ca-pub-4117687060036448"
@@ -1513,9 +1516,14 @@
 
     <!-- Ad Integration / Monetization -->
     <div id="bottom-sponsor-banner" class="ad-banner-bottom hidden">
-        <a href="#" target="_blank" class="sponsor-link">
-            <span class="sponsor-text">Sponsored by</span>
-            <img src="assets/img/sponsor-placeholder.png" alt="Sponsor Logo" class="sponsor-logo" onerror="this.style.display='none';">
+        <a href="#" target="_blank" class="sponsor-link" style="display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+            <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 0 1rem;">
+                <span class="sponsor-text" style="font-size: 0.7rem; letter-spacing: 1px; color: var(--text-muted);">SPONSORED BY</span>
+                <div class="sponsor-placeholder" style="font-family: var(--font-headline); font-weight: bold; color: var(--primary); font-size: 1rem; letter-spacing: 2px;">
+                    SOUNDENGG PARTNERS
+                </div>
+                <span class="material-symbols-outlined" style="font-size: 16px; color: var(--text-muted);">open_in_new</span>
+            </div>
         </a>
     </div>
 
@@ -2016,10 +2024,15 @@
                     Watch this 15-second sponsor showcase of premium engineering gear to unlock **your selected guide or tool** for the next **4 hours**.
                 </p>
                 
-                <div class="ad-sponsor-container" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--primary); padding: 1.5rem 1rem; border-radius: 8px; margin: 1.5rem 0; position: relative;">
+                <div class="ad-sponsor-container" style="background: rgba(255,255,255,0.02); border: 1px dashed var(--primary); padding: 0; border-radius: 8px; margin: 1.5rem 0; position: relative; min-height: 120px; display: flex; flex-direction: column; justify-content: flex-end;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1; pointer-events: none;">
+                        <span class="material-symbols-outlined" style="color: var(--primary); opacity: 0.5; font-size: 28px; margin-bottom: 8px;">campaign</span>
+                        <span style="color: var(--text-dim); font-size: 0.8rem; font-family: var(--font-mono); opacity: 0.8; letter-spacing: 1px;">PREMIUM AUDIO GEAR SPONSOR</span>
+                        <span style="color: var(--text-muted); font-size: 0.6rem; margin-top: 4px;">Ad verification pending...</span>
+                    </div>
                     <!-- Google AdSense Rewarded Popup Unit -->
                     <ins class="adsbygoogle"
-                         style="display:block; width:100%; height:120px;"
+                         style="position: relative; z-index: 2; display:block; width:100%; height:120px;"
                          data-ad-client="ca-pub-4117687060036448"
                          data-ad-slot="5678901234"
                          data-ad-format="horizontal"
@@ -2092,6 +2105,36 @@
         </div>
     </div>
 
+    <!-- Blog Data Fragments -->
+    <script src="assets/js/data/blogs/dsp-masterclass.js"></script>
+    <script src="assets/js/data/blogs/mic-calibration-pro.js"></script>
+    <script src="assets/js/data/blogs/cl5-guide.js"></script>
+    <script src="assets/js/data/blogs/array-physics-101.js"></script>
+    <script src="assets/js/data/blogs/spectrum-mastery.js"></script>
+    <script src="assets/js/data/blogs/mic-selection-pro.js"></script>
+    <script src="assets/js/data/blogs/amp-tech-deep-dive.js"></script>
+    <script src="assets/js/data/blogs/c6-plugin-mastery.js"></script>
+    <script src="assets/js/data/blogs/signal-flow-mastery.js"></script>
+    <script src="assets/js/data/blogs/acoustic-propagation.js"></script>
+    <script src="assets/js/data/blogs/festival-workflow.js"></script>
+    <script src="assets/js/data/blogs/reverb-mastery.js"></script>
+    <script src="assets/js/data/blogs/subwoofer-arrays.js"></script>
+    <script src="assets/js/data/blogs/smaart-fundamentals.js"></script>
+    <script src="assets/js/data/blogs/dante-net-basics.js"></script>
+    <script src="assets/js/data/blogs/wireless-spectrum-2026.js"></script>
+    <script src="assets/js/data/blogs/three-phase-power.js"></script>
+    <script src="assets/js/data/blogs/audio-rental-biz.js"></script>
+    <script src="assets/js/data/blogs/hybrid-streaming-mix.js"></script>
+    <script src="assets/js/data/blogs/india-market-guide.js"></script>
+    <script src="assets/js/data/blogs/beginners-foundations.js"></script>
+    <script src="assets/js/data/blogs/rf-coordination-pro.js"></script>
+    <script src="assets/js/data/blogs/dante-redundancy-pro.js"></script>
+    <script src="assets/js/data/blogs/phase-tuning-pro.js"></script>
+    <script src="assets/js/data/blogs/tool-delay-calc.js"></script>
+    <script src="assets/js/data/blogs/tool-freq-note.js"></script>
+    <script src="assets/js/data/blogs/tool-spl-distance.js"></script>
+    <script src="assets/js/data/blogs/tool-voltage-conversion.js"></script>
+    <script src="assets/js/data/blogs/tool-file-size.js"></script>
     <script src="assets/js/blog-data.js"></script>
     
     <!-- Supabase SDK -->
@@ -2154,6 +2197,22 @@
 
     <script src="assets/js/modules/utils.js"></script>
     <script src="assets/js/modules/theme.js"></script>
+    <script src="assets/js/modules/premium.js"></script>
+    <script src="assets/js/modules/auth.js"></script>
+    <script src="assets/js/utils/audioCalcs.js"></script>
+    <script src="assets/js/utils/adManager.js"></script>
+    
+    <!-- Components -->
+    <script src="assets/js/components/rtaEngine.js"></script>
+    <script src="assets/js/components/tunerEngine.js"></script>
+    <script src="assets/js/components/signalGenerator.js"></script>
+    <script src="assets/js/components/subCalc.js"></script>
+    <script src="assets/js/components/delayCalc.js"></script>
+    <script src="assets/js/components/earTraining.js"></script>
+    <script src="assets/js/components/tapTempo.js"></script>
+    <script src="assets/js/components/pinouts.js"></script>
+    <script src="assets/js/components/blogEngine.js"></script>
+
     <script src="assets/js/main.js?v=3.6.1"></script>
     
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
