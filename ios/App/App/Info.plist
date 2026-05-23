@@ -53,5 +53,12 @@
 	<string>ca-app-pub-4117687060036448~1381133498</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized sponsor highlights and rewards to you.</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tez</string>
+		<string>phonepe</string>
+		<string>paytmmp</string>
+		<string>bhim</string>
+	</array>
 </dict>
 </plist>

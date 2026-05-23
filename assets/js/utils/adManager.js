@@ -548,14 +548,32 @@ function initAdManager() {
                 options.subscription_id = data.subscription_id;
             }
 
-            const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function (resp) {
-                alert("❌ Payment Failed: " + resp.error.description);
-                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
-                    window.showNativeBannerAd();
-                }
-            });
-            rzp.open();
+            const isNativePlugin = window.Capacitor && window.Capacitor.isNative && window.Capacitor.Plugins.Checkout;
+
+            if (isNativePlugin) {
+                window.Capacitor.Plugins.Checkout.open(options)
+                    .then(function(response) {
+                        if (options.handler) {
+                            options.handler(response);
+                        }
+                    })
+                    .catch(function(error) {
+                        const errorMsg = error.description || error.message || "Unknown error";
+                        alert("❌ Payment Failed: " + errorMsg);
+                        if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                            window.showNativeBannerAd();
+                        }
+                    });
+            } else {
+                const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (resp) {
+                    alert("❌ Payment Failed: " + resp.error.description);
+                    if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                        window.showNativeBannerAd();
+                    }
+                });
+                rzp.open();
+            }
 
         } catch (e) {
             loadingOverlay.remove();
