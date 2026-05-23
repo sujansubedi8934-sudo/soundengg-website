@@ -37,8 +37,8 @@ serve(async (req) => {
 
       const isUSD = user_currency === "USD";
       
-      const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "";
-      const lifetimeOfferId = Deno.env.get("RAZORPAY_LIFETIME_OFFER_ID") || "";
+      const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "offer_Sso2cR2Vk1F8HU";
+      const lifetimeOfferId = Deno.env.get("RAZORPAY_LIFETIME_OFFER_ID") || "offer_SsmdVnR1qZlgCq";
 
       if (plan === "lifetime") {
         // Secure backend-calculated pricing matrix to prevent client price spoofing
@@ -84,7 +84,6 @@ serve(async (req) => {
           : "plan_SsjusefppDE8Lb";  // SoundEngg Pro Yearly Pass
 
         const totalCount = plan === "monthly" ? 120 : 10; // 10 years max duration (120 months or 10 years)
-        const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "";
 
         const subscriptionBody: any = {
           plan_id: planId,
@@ -95,11 +94,6 @@ serve(async (req) => {
             user_id: user.id
           }
         };
-
-        // Dynamically apply launch offer if configured in Supabase secrets
-        if (offerId && offerId.trim() !== "") {
-          subscriptionBody.offer_id = offerId.trim();
-        }
 
         const response = await fetch("https://api.razorpay.com/v1/subscriptions", {
           method: "POST",
