@@ -5585,3 +5585,21 @@ body.theme-red { --primary: #ff003c; }
 
 
 
+
+/* Fix Mobile Layout Overflows for Training / RTA Views */
+@media (max-width: 768px) {
+    .training-layout {
+        padding: 1rem;
+        gap: 1rem;
+    }
+    .train-top-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .train-ab-container {
+        padding: 0.5rem;
+    }
+    .train-control-group {
+        flex-wrap: wrap;
+    }
+}

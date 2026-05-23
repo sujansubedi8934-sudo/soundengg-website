@@ -357,7 +357,7 @@ function setupNavigation() {
     /**
      * Senior View Manager: Ensures ONLY one view is visible at any time.
      */
-    function showView(targetView, navButton = null) {
+    function showView(targetView, navButton = null, skipHistory = false) {
         if (!targetView) return;
         
         // Deactivate inactive loops and generators to save CPU/battery and eliminate sluggishness
@@ -410,6 +410,14 @@ function setupNavigation() {
                 window.drawTunerVisualizer(null);
             }
         }
+        
+        // Push state to browser history for native mobile back button routing
+        if (!skipHistory && window.history && window.history.pushState) {
+            const currentHash = window.location.hash.substring(1);
+            if (currentHash !== targetView.id) {
+                window.history.pushState({ viewId: targetView.id }, "", "#" + targetView.id);
+            }
+        }
     }
 
     // Dashboard Launcher Listeners
@@ -419,6 +427,44 @@ function setupNavigation() {
     if (btnLaunchPinout) btnLaunchPinout.addEventListener('click', () => showView(pinoutView));
     if (btnLaunchTuner) btnLaunchTuner.addEventListener('click', () => showView(tunerView));
     if (btnLaunchSubcalc) btnLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
+
+    // Listen to browser back/forward buttons (or Android hardware back button via Capacitor default routing)
+    window.addEventListener('popstate', (e) => {
+        const hash = window.location.hash.substring(1);
+        
+        // Handle overlays (if any are open, close them on back)
+        const zoomOverlay = document.getElementById('zoom-overlay');
+        if (zoomOverlay && zoomOverlay.style.display !== 'none' && !zoomOverlay.classList.contains('hidden')) {
+            zoomOverlay.classList.add('hidden');
+            zoomOverlay.style.display = 'none';
+            // We should push the state back to keep the url correct since we just consumed a back action for the modal
+            if (hash) {
+                window.history.pushState({ viewId: hash }, "", "#" + hash);
+            }
+            return;
+        }
+
+        if (e.state && e.state.viewId) {
+            const targetView = document.getElementById(e.state.viewId);
+            if (targetView) {
+                // Find nav button
+                let navBtn = null;
+                if (e.state.viewId === 'dashboard-view') navBtn = btnNavDashboard;
+                if (e.state.viewId === 'author-view') navBtn = btnNavAuthor;
+                if (e.state.viewId === 'blog-view') navBtn = btnNavBlog;
+                
+                showView(targetView, navBtn, true); // true = skip history push
+            }
+        } else if (hash) {
+            const targetView = document.getElementById(hash);
+            if (targetView) {
+                showView(targetView, null, true);
+            }
+        } else {
+            // Default fallback
+            showView(document.getElementById('dashboard-view'), btnNavDashboard, true);
+        }
+    });
 
     const btnLaunchSiggen = document.getElementById('btn-launch-siggen');
     if (btnLaunchSiggen) btnLaunchSiggen.addEventListener('click', () => showView(siggenView));
@@ -2470,3 +2516,5 @@ function setupAuthorContactForm() {
     }
 }
 
+
+    });
