@@ -321,8 +321,10 @@
         <div class="container">
             <div class="palm-signup-container">
                 <h2 class="vfd-glow" style="font-size: 1.8rem; margin-bottom: 10px;">CLAIM 1-MONTH PRO UPGRADE</h2>
-                <p class="form-desc-palm">
-                    SUBMIT YOUR INFO BELOW. ONCE YOU SIGN UP IN THE SOUNDENGG APP, OUR SYSTEMS WILL DETECT YOUR GMAIL AND AUTOMATICALLY ACTIVATE A FREE 1-MONTH PRO SUBSCRIPTION INSTANTLY!
+                <p class="form-desc-palm" style="line-height: 1.6; margin-bottom: 25px;">
+                    SUBMIT YOUR INFO BELOW AND WE WILL INSTANTLY PRE-CREATE YOUR PRO ACCOUNT! <br>
+                    <span style="color: var(--amber, #ff9900); font-weight: bold;">DEFAULT LOGIN PASSWORD: <span style="font-family: var(--font-mono); letter-spacing: 1px; background: rgba(255, 153, 0, 0.1); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255, 153, 0, 0.25);">soundengg</span></span><br>
+                    <span style="font-size: 0.82rem; color: #718096; text-transform: uppercase;">You can sign in directly with this password and update it later from the user profile in your Console Dashboard.</span>
                 </p>
 
                 <form class="rich-contact-form" id="palm-lead-form" action="https://api.web3forms.com/submit" method="POST">
@@ -424,7 +426,7 @@
                         statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
                         statusBox.style.color = '#10B981';
                         statusBox.style.border = '1px solid #10B981';
-                        statusBox.innerHTML = '[SUCCESS] DATABASE INJECTION COMPLETE. Whitelisted for 1-Month Pro access! Please proceed to download the app.';
+                        statusBox.innerHTML = '[SUCCESS] PRO ACCOUNT CREATED INSTANTLY! You are whitelisted. Please download the app and log in using your Gmail and the default password "soundengg".';
                         form.reset();
 
                         // Fire off Web3Forms in background as secondary resilient email backup
@@ -460,7 +462,7 @@
                                 statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
                                 statusBox.style.color = '#10B981';
                                 statusBox.style.border = '1px solid #10B981';
-                                statusBox.innerHTML = '[SUCCESS] SIGNUP ROUTED SECURELY. You have been whitelisted for 1-Month Pro! Please proceed to download the app.';
+                                statusBox.innerHTML = '[SUCCESS] WHITELIST PARAMETERS SAVED! Please download the app and log in using your Gmail and the default password "soundengg".';
                                 form.reset();
                             } else {
                                 statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
