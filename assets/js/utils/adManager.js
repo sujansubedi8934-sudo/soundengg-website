@@ -25,6 +25,13 @@ let nativeRewardedAdLoaded = false;
 let isNativeBannerActive = false;
 window.isAdMobInitialized = false;
 
+// ========================================================
+// PALM EXPO 2026 AUTOMATED BYPASS (MUMBAI)
+// Unlocks all tools and completely disables ads for visitors up to June 5, 2026.
+// ========================================================
+const EXPO_BYPASS_DATE = new Date("2026-06-05T23:59:59Z").getTime();
+const IS_EXPO_MODE_ACTIVE = Date.now() < EXPO_BYPASS_DATE;
+
 window.preloadNativeRewardedAd = async function preloadNativeRewardedAd() {
     if (!window.isNativeMobile()) return;
     if (!window.isAdMobInitialized) {
@@ -174,6 +181,13 @@ function initAdManager() {
     let countdownVal = 15;
 
     function checkAdStatus() {
+        // If PALM EXPO mode is active, always bypass the ad-gate instantly
+        if (IS_EXPO_MODE_ACTIVE) {
+            console.log("⚡ PALM EXPO 2026 ACTIVE MODE: Instant premium access, ads disabled.");
+            unlockApp();
+            return;
+        }
+
         // If user is premium active, always unlocked
         if (window.isPremiumActive()) {
             unlockApp();
@@ -309,6 +323,11 @@ function initAdManager() {
 
     // Centralized Ad Gatekeeper (Interceptor) wrapper
     window.executeWithAdGate = function(onSuccessCallback, featureName = "PRO_FEATURE") {
+        if (IS_EXPO_MODE_ACTIVE) {
+            onSuccessCallback();
+            return;
+        }
+
         if (window.isPremiumActive()) {
             onSuccessCallback();
             return;
