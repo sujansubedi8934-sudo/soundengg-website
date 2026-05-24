@@ -11,26 +11,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
     <style>
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px rgba(20, 167, 181, 0.2);
+                border-color: rgba(20, 167, 181, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 25px rgba(20, 167, 181, 0.6);
+                border-color: rgba(20, 167, 181, 1);
+            }
+        }
         .palm-hero {
-            background: radial-gradient(circle at top, rgba(20, 167, 181, 0.15) 0%, rgba(0, 0, 0, 1) 70%);
-            padding-top: 120px;
-            padding-bottom: 60px;
+            background: radial-gradient(circle at top, rgba(20, 167, 181, 0.2) 0%, rgba(0, 0, 0, 1) 65%);
+            padding-top: 130px;
+            padding-bottom: 70px;
             text-align: center;
         }
         .palm-badge {
-            background: rgba(20, 167, 181, 0.1);
+            background: rgba(20, 167, 181, 0.08);
             border: 1px solid var(--primary, #14A7B5);
             color: var(--primary, #14A7B5);
-            padding: 8px 16px;
-            border-radius: 20px;
+            padding: 8px 18px;
+            border-radius: 30px;
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            letter-spacing: 2px;
+            font-weight: 600;
+            letter-spacing: 2.5px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 24px;
-            box-shadow: 0 0 15px rgba(20, 167, 181, 0.2);
+            margin-bottom: 28px;
+            box-shadow: 0 0 15px rgba(20, 167, 181, 0.25);
             animation: pulse 2s infinite alternate;
         }
         .guild-card {
@@ -240,14 +251,14 @@
     <section class="palm-hero">
         <div class="container">
             <div class="palm-badge">
-                <span class="material-symbols-outlined">verified</span>
-                <span>PALM EXPO 2026 SHOWCASE (MUMBAI)</span>
+                <span class="material-symbols-outlined" style="color: var(--amber, #ff9900);">workspace_premium</span>
+                <span>PALM EXPO 2026 EXCLUSIVE SHOWCASE</span>
             </div>
-            <h1 class="hero-title" style="margin-bottom: 20px; font-weight: 900; letter-spacing: -1px;">
-                EXCLUSIVELY FOR THE <br><span class="vfd-glow" style="color: var(--primary, #14A7B5);">PRO AUDIO</span> COMMUNITY
+            <h1 class="hero-title" style="margin-bottom: 24px; font-weight: 900; letter-spacing: -1px; line-height: 1.15; font-size: clamp(2.2rem, 5vw, 3.5rem);">
+                EXCLUSIVELY FOR OUR <br><span class="vfd-glow" style="color: var(--primary, #14A7B5); text-shadow: 0 0 15px rgba(20,167,181,0.6);">EXPO VISITORS</span>
             </h1>
-            <p class="hero-subtitle" style="max-width: 700px; margin: 0 auto 30px auto; color: #a0aec0;">
-                No credit cards. No sign-up queues. Access high-precision phase delay, Broadside/Cardioid array delays, chromatic tuners, 60FPS spectrogram metering, and pinouts directly.
+            <p class="hero-subtitle" style="max-width: 750px; margin: 0 auto 30px auto; color: #a0aec0; font-size: 1.1rem; line-height: 1.65;">
+                Get instant, unrestricted access to our <strong>RTA Spectrum Viewer</strong>, <strong>Ear Training Module</strong>, <strong>Signal Generator</strong>, <strong>Time Delay Calculator</strong>, <strong>Chromatic Tuner</strong>, <strong>Pinouts</strong>, and <strong>Tap Delay</strong>. Zero ads, zero lockout gates—built specifically for your live audio workflow at the show.
             </p>
         </div>
     </section>
