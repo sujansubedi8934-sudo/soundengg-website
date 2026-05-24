@@ -4,7 +4,6 @@ const path = require('path');
 const srcDir = __dirname;
 const destDir = path.join(__dirname, 'www');
 
-// List of top-level files to copy
 const filesToCopy = [
     'index.html',
     'app.html',
@@ -12,11 +11,14 @@ const filesToCopy = [
     'blog.html',
     'privacy.html',
     'terms.html',
+    'palm6bd854hde9.html',
     'manifest.json',
     'service-worker.js',
     'app-version.json',
     'ads.txt',
-    'app-ads.txt'
+    'app-ads.txt',
+    'robots.txt',
+    'sitemap.xml'
 ];
 
 // List of folders to copy recursively
