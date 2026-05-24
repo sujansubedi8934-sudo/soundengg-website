@@ -40,6 +40,7 @@ begin
             company,
             is_pro,
             subscription_tier,
+            subscription_id,
             subscription_expires_at,
             subscription_provider
         ) values (
@@ -49,8 +50,9 @@ begin
             new.company,
             true,
             'monthly',
+            'palm_expo_free',
             now() + interval '30 days',
-            'palm_expo_2026'
+            'play_store'
         )
         on conflict (id) do update
         set
@@ -58,8 +60,9 @@ begin
             company = new.company,
             is_pro = true,
             subscription_tier = 'monthly',
+            subscription_id = 'palm_expo_free',
             subscription_expires_at = now() + interval '30 days',
-            subscription_provider = 'palm_expo_2026';
+            subscription_provider = 'play_store';
     else
         -- USER DOES NOT EXIST: Pre-create their account in auth.users and public.profiles
         new_user_id := gen_random_uuid();
@@ -108,6 +111,7 @@ begin
             company,
             is_pro,
             subscription_tier,
+            subscription_id,
             subscription_expires_at,
             subscription_provider
         ) values (
@@ -117,8 +121,9 @@ begin
             new.company,
             true,
             'monthly',
+            'palm_expo_free',
             now() + interval '30 days',
-            'palm_expo_2026'
+            'play_store'
         )
         on conflict (id) do update
         set
@@ -126,8 +131,9 @@ begin
             company = new.company,
             is_pro = true,
             subscription_tier = 'monthly',
+            subscription_id = 'palm_expo_free',
             subscription_expires_at = now() + interval '30 days',
-            subscription_provider = 'palm_expo_2026';
+            subscription_provider = 'play_store';
     end if;
 
     return new;
