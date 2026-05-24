@@ -298,17 +298,17 @@
         </div>
     </section>
 
-    <!-- Lead Form Capture Section (Web3Forms Direct Routing) -->
+    <!-- Lead Form Capture Section (Supabase Unified Database & Web3Forms Backup) -->
     <section class="palm-signup-section">
         <div class="container">
             <div class="palm-signup-container">
-                <h2 class="vfd-glow" style="font-size: 1.8rem; margin-bottom: 10px;">CLAIM FREE PRO UPGRADE</h2>
+                <h2 class="vfd-glow" style="font-size: 1.8rem; margin-bottom: 10px;">CLAIM 1-MONTH PRO UPGRADE</h2>
                 <p class="form-desc-palm">
-                    SUBMIT YOUR TELEMETRY INFO BELOW SO WE CAN MANUALLY PERMANENTLY UNLOCK LIFETIME PREMIUM ACCESS FOR YOUR ACCOUNT ONCE THE BETA CONCLUDES.
+                    SUBMIT YOUR INFO BELOW. ONCE YOU SIGN UP IN THE SOUNDENGG APP, OUR SYSTEMS WILL DETECT YOUR GMAIL AND AUTOMATICALLY ACTIVATE A FREE 1-MONTH PRO SUBSCRIPTION INSTANTLY!
                 </p>
 
                 <form class="rich-contact-form" id="palm-lead-form" action="https://api.web3forms.com/submit" method="POST">
-                    <!-- Web3Forms Routing Variables -->
+                    <!-- Web3Forms Routing Variables (Backup Notification) -->
                     <input type="hidden" name="access_key" value="30b42cdf-f6eb-4492-9c8e-575734cc0b89">
                     <input type="hidden" name="subject" value="PALM EXPO 2026 Mumbai - New Tester Whitelist">
                     <input type="hidden" name="from_name" value="SoundEngg PALM Portal">
@@ -317,6 +317,11 @@
                     <div class="vfd-input-group">
                         <label>YOUR NAME</label>
                         <input type="text" name="name" placeholder="Enter your full name" class="vfd-input-palm" required>
+                    </div>
+
+                    <div class="vfd-input-group">
+                        <label>YOUR COMPANY NAME / RENTAL BRAND</label>
+                        <input type="text" name="company" placeholder="Enter company or freelance brand" class="vfd-input-palm" required>
                     </div>
 
                     <div class="vfd-input-group">
@@ -329,7 +334,7 @@
                         <input type="tel" name="whatsapp" placeholder="Enter WhatsApp number with country code" class="vfd-input-palm" required>
                     </div>
 
-                    <button type="submit" class="palm-submit-btn" id="palm-submit-btn">Claim Lifetime Pro Upgrade</button>
+                    <button type="submit" class="palm-submit-btn" id="palm-submit-btn">Claim Free 1-Month Pro Upgrade</button>
                     
                     <!-- Real-time status display box -->
                     <div id="palm-status-box" class="palm-status-box"></div>
@@ -342,72 +347,122 @@
     <footer class="landing-footer">
         <div class="container" style="text-align: center; padding-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
             <p style="color: #636b77; font-family: var(--font-mono); font-size: 0.8rem; margin: 0;">
-                &copy; 2026 SoundEngg. Designed for PALM EXPO Mumbai Booth Visitors. [v1.0.6-EXPO]
+                &copy; 2026 SoundEngg. Designed for PALM EXPO Mumbai Booth Visitors. [v1.0.7-EXPO]
             </p>
         </div>
     </footer>
 
-    <!-- Form Telemetry Script -->
+    <!-- Supabase SDK & Lead Capture Telemetry Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Supabase Client on the page
+            const SUPABASE_URL = 'https://ewudkzyjcvjxxqpqnqiy.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dWRrenlqY3ZqeHhxcHFucWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDM0MTQsImV4cCI6MjA5NDM3OTQxNH0.jLSCEjzAxR_pjlZsjJqQgGk4L-_c5Ls3STxDedOn2KM';
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
             const form = document.getElementById('palm-lead-form');
             const submitBtn = document.getElementById('palm-submit-btn');
             const statusBox = document.getElementById('palm-status-box');
 
             if (form) {
-                form.addEventListener('submit', function(e) {
+                form.addEventListener('submit', async function(e) {
                     e.preventDefault();
+
+                    const name = form.querySelector('input[name="name"]').value;
+                    const company = form.querySelector('input[name="company"]').value;
+                    const email = form.querySelector('input[name="email"]').value;
+                    const whatsapp = form.querySelector('input[name="whatsapp"]').value;
 
                     // UI Loading State
                     submitBtn.disabled = true;
-                    submitBtn.textContent = 'ROUTING ENVELOPE telemetry...';
+                    submitBtn.textContent = 'ROUTING ENVELOPE TELEMETRY...';
                     submitBtn.style.opacity = '0.7';
 
                     statusBox.style.display = 'block';
                     statusBox.style.background = 'rgba(20, 167, 181, 0.1)';
                     statusBox.style.color = '#14A7B5';
                     statusBox.style.border = '1px solid rgba(20, 167, 181, 0.3)';
-                    statusBox.innerHTML = '[SYSTEM] INJECTING CORE TELEMETRY PACKET...';
+                    statusBox.innerHTML = '[SYSTEM] CONNECTING SECURE SUPABASE ROUTER...';
 
-                    const formData = new FormData(form);
-                    const object = Object.fromEntries(formData);
-                    const json = JSON.stringify(object);
+                    try {
+                        // 1. Direct secure injection to your central Supabase database
+                        const { error: dbErr } = await supabaseClient
+                            .from('palm_expo_leads')
+                            .insert([{
+                                name: name,
+                                company: company,
+                                email: email,
+                                whatsapp: whatsapp
+                            }]);
 
-                    fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: json
-                    })
-                    .then(async (response) => {
-                        let res = await response.json();
-                        if (response.status == 200) {
-                            statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
-                            statusBox.style.color = '#10B981';
-                            statusBox.style.border = '1px solid #10B981';
-                            statusBox.innerHTML = '[SUCCESS] TELEMETRY RECEIVED. You have been placed on the VIP list! Welcome to the Beta Guild!';
-                            form.reset();
-                        } else {
+                        if (dbErr) {
+                            console.error("Database insert error details:", dbErr);
+                            // If table doesn't exist yet, we still proceed to email backup so leads are never lost!
+                            throw new Error(dbErr.message || "Database synchronization failed.");
+                        }
+
+                        // Success callback!
+                        statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                        statusBox.style.color = '#10B981';
+                        statusBox.style.border = '1px solid #10B981';
+                        statusBox.innerHTML = '[SUCCESS] DATABASE INJECTION COMPLETE. Whitelisted for 1-Month Pro access! Please proceed to download the app.';
+                        form.reset();
+
+                        // Fire off Web3Forms in background as secondary resilient email backup
+                        const formData = new FormData(form);
+                        const object = Object.fromEntries(formData);
+                        const json = JSON.stringify(object);
+                        fetch('https://api.web3forms.com/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: json
+                        }).catch(() => {});
+
+                    } catch (error) {
+                        console.warn("Direct DB insert failed, falling back to Web3Forms secure email router:", error);
+                        statusBox.innerHTML = '[SYSTEM] DB OFFLINE. ROUTING VIA SECURE EMAIL BACKUP ROUTER...';
+
+                        // 2. Fallback to Web3Forms so you never lose a lead even if table isn't created yet
+                        const formData = new FormData(form);
+                        const object = Object.fromEntries(formData);
+                        const json = JSON.stringify(object);
+
+                        fetch('https://api.web3forms.com/submit', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: json
+                        })
+                        .then(async (response) => {
+                            let res = await response.json();
+                            if (response.status == 200) {
+                                statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                                statusBox.style.color = '#10B981';
+                                statusBox.style.border = '1px solid #10B981';
+                                statusBox.innerHTML = '[SUCCESS] SIGNUP ROUTED SECURELY. You have been whitelisted for 1-Month Pro! Please proceed to download the app.';
+                                form.reset();
+                            } else {
+                                statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                                statusBox.style.color = '#EF4444';
+                                statusBox.style.border = '1px solid #EF4444';
+                                statusBox.innerHTML = '[SYSTEM FAILURE] SECURE HANDSHAKE COMPROMISED: ' + res.message;
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
                             statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
                             statusBox.style.color = '#EF4444';
                             statusBox.style.border = '1px solid #EF4444';
-                            statusBox.innerHTML = '[SYSTEM FAILURE] SECURE HANDSHAKE COMPROMISED: ' + res.message;
-                        }
-                    })
-                    .catch(error => {
-                        console.error(error);
-                        statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
-                        statusBox.style.color = '#EF4444';
-                        statusBox.style.border = '1px solid #EF4444';
-                        statusBox.innerHTML = '[SYSTEM FAILURE] TELEMETRY DISCONNECTED. Check your booth signal and try again.';
-                    })
-                    .then(() => {
+                            statusBox.innerHTML = '[SYSTEM FAILURE] TELEMETRY DISCONNECTED. Try again.';
+                        });
+                    } finally {
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Claim Lifetime Pro Upgrade';
+                        submitBtn.textContent = 'Claim Free 1-Month Pro Upgrade';
                         submitBtn.style.opacity = '1';
-                    });
+                    }
                 });
             }
         });
