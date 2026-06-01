@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>SoundEngg | Closed Beta Testing Guild Hub</title>
+    <meta name="description" content="Welcome SoundEngg beta testers! Join the exclusive Closed Beta Guild, unlock premium live audio utility tools for free, and download the official Play Store release instantly.">
+    
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <style>
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 10px rgba(20, 167, 181, 0.2);
+                border-color: rgba(20, 167, 181, 0.4);
+            }
+            100% {
+                box-shadow: 0 0 25px rgba(20, 167, 181, 0.6);
+                border-color: rgba(20, 167, 181, 1);
+            }
+        }
+        .palm-hero {
+            background: radial-gradient(circle at top, rgba(20, 167, 181, 0.2) 0%, rgba(0, 0, 0, 1) 65%);
+            padding-top: 130px;
+            padding-bottom: 70px;
+            text-align: center;
+        }
+        .palm-badge {
+            background: rgba(20, 167, 181, 0.08);
+            border: 1px solid var(--primary, #14A7B5);
+            color: var(--primary, #14A7B5);
+            padding: 8px 18px;
+            border-radius: 30px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 2.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 28px;
+            box-shadow: 0 0 15px rgba(20, 167, 181, 0.25);
+            animation: pulse 2s infinite alternate;
+        }
+        .guild-card {
+            background: rgba(10, 15, 20, 0.6);
+            border: 1px solid rgba(20, 167, 181, 0.15);
+            border-radius: 12px;
+            padding: 32px;
+            max-width: 800px;
+            margin: 0 auto 40px auto;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+        .step-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 800px;
+            margin: 0 auto 50px auto;
+        }
+        .step-card {
+            background: rgba(10, 15, 20, 0.8);
+            border: 1px solid rgba(255, 153, 0, 0.15);
+            border-radius: 12px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: flex-start;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        .step-card:hover {
+            border-color: var(--amber, #ff9900);
+            box-shadow: 0 8px 30px rgba(255, 153, 0, 0.15);
+            transform: translateY(-2px);
+        }
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 0px;
+            font-size: 6rem;
+            font-weight: 900;
+            color: rgba(255, 153, 0, 0.04);
+            font-family: var(--font-mono);
+            line-height: 1;
+            user-select: none;
+        }
+        .step-badge {
+            background: rgba(255, 153, 0, 0.1);
+            border: 1px solid var(--amber, #ff9900);
+            color: var(--amber, #ff9900);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .step-title {
+            font-size: 1.25rem;
+            color: #FFFFFF;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .step-desc {
+            font-size: 0.9rem;
+            color: #a0aec0;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+        .step-btn {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .step-btn.primary {
+            background: var(--amber, #ff9900);
+            color: #000000;
+            border: none;
+        }
+        .step-btn.primary:hover {
+            background: #ffb700;
+            box-shadow: 0 0 15px rgba(255, 153, 0, 0.4);
+        }
+        .step-btn.outline {
+            background: transparent;
+            color: var(--primary, #14A7B5);
+            border: 1px solid var(--primary, #14A7B5);
+        }
+        .step-btn.outline:hover {
+            background: rgba(20, 167, 181, 0.1);
+            box-shadow: 0 0 15px rgba(20, 167, 181, 0.3);
+        }
+        .palm-signup-section {
+            background: #06090c;
+            border-top: 1px solid rgba(20, 167, 181, 0.15);
+            padding: 80px 0;
+        }
+        .palm-signup-container {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        .form-desc-palm {
+            color: #a0aec0;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+        .vfd-input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        .vfd-input-group label {
+            display: block;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--primary, #14A7B5);
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .vfd-input-palm {
+            width: 100%;
+            background: #040608;
+            border: 1px solid rgba(20, 167, 181, 0.25);
+            border-radius: 6px;
+            padding: 12px 16px;
+            color: #FFFFFF;
+            font-family: var(--font-sans);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+        .vfd-input-palm:focus {
+            outline: none;
+            border-color: var(--primary, #14A7B5);
+            box-shadow: 0 0 10px rgba(20, 167, 181, 0.3);
+            background: #080c10;
+        }
+        .palm-submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #14A7B5 0%, #007799 100%);
+            color: #FFFFFF;
+            font-family: var(--font-mono);
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(20, 167, 181, 0.3);
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+        .palm-submit-btn:hover {
+            box-shadow: 0 0 20px rgba(20, 167, 181, 0.5);
+            transform: translateY(-1px);
+        }
+        .palm-status-box {
+            margin-top: 20px;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            text-align: left;
+        }
+        @media (max-width: 900px) {
+            .landing-nav .nav-links {
+                display: flex !important;
+                gap: 8px !important;
+                align-items: center !important;
+            }
+            .landing-nav .nav-links a:not(.btn) {
+                font-size: 0.75rem !important;
+                white-space: nowrap;
+            }
+            .landing-nav .nav-links a.btn {
+                padding: 6px 10px !important;
+                font-size: 0.75rem !important;
+                white-space: nowrap;
+            }
+            .nav-container {
+                padding: 0.50rem 0.75rem !important;
+                gap: 8px;
+            }
+            .brand-logo {
+                height: 24px !important;
+                width: auto;
+            }
+        }
+        @media (max-width: 768px) {
+            .step-container {
+                grid-template-columns: 1fr;
+                padding: 0 20px;
+            }
+            .palm-hero {
+                padding-top: 100px;
+            }
+        }
+    </style>
+</head>
+<body class="landing-page">
+    
+    <!-- Navbar -->
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Main Website</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Web Demo (Zero Install)</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Closed Beta Hero Section -->
+    <section class="palm-hero">
+        <div class="container">
+            <div class="palm-badge">
+                <span class="material-symbols-outlined" style="color: var(--amber, #ff9900);">workspace_premium</span>
+                <span>CLOSED BETA GUILD PROGRAM</span>
+            </div>
+            <h1 class="hero-title" style="margin-bottom: 24px; font-weight: 900; letter-spacing: -1px; line-height: 1.15; font-size: clamp(2.2rem, 5vw, 3.5rem);">
+                SHAPE THE FUTURE OF <br><span class="vfd-glow" style="color: var(--primary, #14A7B5); text-shadow: 0 0 15px rgba(20,167,181,0.6);">SOUNDENGG CONSOLE</span>
+            </h1>
+            <p class="hero-subtitle" style="max-width: 750px; margin: 0 auto 25px auto; color: #a0aec0; font-size: 1.1rem; line-height: 1.65;">
+                Get instant, unrestricted access to our <strong>RTA Spectrum Viewer</strong>, <strong>Ear Training Module</strong>, <strong>Signal Generator</strong>, <strong>Time Delay Calculator</strong>, <strong>Chromatic Tuner</strong>, <strong>Pinouts</strong>, and <strong>Tap Delay</strong>. Zero ads, zero lockout gates—built specifically for your live audio workflow.
+            </p>
+            <!-- Support Sponsorship Section -->
+            <div class="support-sponsor" style="margin-top: 25px; display: inline-flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 24px; border-radius: 12px; background: rgba(20, 167, 181, 0.03); border: 1px solid rgba(20, 167, 181, 0.15); backdrop-filter: blur(5px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);">
+                <span style="font-family: var(--font-mono); font-size: 0.75rem; color: #718096; letter-spacing: 2px; text-transform: uppercase;">Help us test the official app in the field and get a free Pro upgrade!</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Google Groups Automated Steps -->
+    <section style="background: #080c10; padding: 40px 0;">
+        <div class="container">
+            
+            <div class="guild-card">
+                <h2 style="font-size: 1.5rem; color: #FFFFFF; font-weight: 700; margin-bottom: 12px; font-family: var(--font-mono);">
+                    [THE SOUNDENGG BETA GUILD]
+                </h2>
+                <p style="color: #a0aec0; font-size: 0.95rem; line-height: 1.6; max-width: 680px; margin: 0 auto;">
+                    We use Google's automated testing APIs to whitelist you on the spot. Follow the two quick steps below to join the Closed testing circle and install the official app directly from the Google Play Store on your phone.
+                </p>
+            </div>
+
+            <div class="step-container">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-number">01</div>
+                    <div class="step-badge">STEP 1</div>
+                    <div class="step-title">JOIN THE BETA GUILD</div>
+                    <p class="step-desc">
+                        Join our Google Group. This instantly whitelists your phone's active Google account on the Google Play Console!
+                    </p>
+                    <a href="https://groups.google.com/g/soundengg-beta-guild" target="_blank" class="step-btn primary">
+                        <span class="material-symbols-outlined">group_add</span>
+                        Join Google Group Instantly
+                    </a>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-number">02</div>
+                    <div class="step-badge">STEP 2</div>
+                    <div class="step-title">CLAIM ACCESS & DOWNLOAD</div>
+                    <p class="step-desc" style="margin-bottom: 16px;">
+                        Once you've joined the group, complete these two quick steps to download the official app:
+                    </p>
+                    <a href="https://play.google.com/apps/testing/com.soundengg.app" target="_blank" class="step-btn primary" style="margin-bottom: 10px;">
+                        <span class="material-symbols-outlined">how_to_reg</span>
+                        1. Join/Opt-in on Web
+                    </a>
+                    <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="step-btn outline">
+                        <span class="material-symbols-outlined">download</span>
+                        2. Get App on Play Store
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Lead Form Capture Section (Supabase Unified Database & Web3Forms Backup) -->
+    <section class="palm-signup-section">
+        <div class="container">
+            <div class="palm-signup-container">
+                <h2 class="vfd-glow" style="font-size: 1.8rem; margin-bottom: 10px;">CLAIM 1-MONTH PRO UPGRADE</h2>
+                <p class="form-desc-palm" style="line-height: 1.6; margin-bottom: 25px;">
+                    SUBMIT YOUR INFO BELOW AND WE WILL INSTANTLY PRE-CREATE YOUR PRO ACCOUNT! <br>
+                    <span style="color: var(--amber, #ff9900); font-weight: bold;">DEFAULT LOGIN PASSWORD: <span style="font-family: var(--font-mono); letter-spacing: 1px; background: rgba(255, 153, 0, 0.1); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(255, 153, 0, 0.25);">soundengg</span></span><br>
+                    <span style="font-size: 0.82rem; color: #718096; text-transform: uppercase;">You can sign in directly with this password and update it later from the user profile in your Console Dashboard.</span>
+                </p>
+
+                <form class="rich-contact-form" id="palm-lead-form" action="https://api.web3forms.com/submit" method="POST">
+                    <!-- Web3Forms Routing Variables (Backup Notification) -->
+                    <input type="hidden" name="access_key" value="30b42cdf-f6eb-4492-9c8e-575734cc0b89">
+                    <input type="hidden" name="subject" value="Closed Beta Program - New Tester Whitelist">
+                    <input type="hidden" name="from_name" value="SoundEngg Beta Portal">
+                    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                    <div class="vfd-input-group">
+                        <label>YOUR NAME</label>
+                        <input type="text" name="name" placeholder="Enter your full name" class="vfd-input-palm" required>
+                    </div>
+
+                    <div class="vfd-input-group">
+                        <label>YOUR COMPANY NAME / RENTAL BRAND</label>
+                        <input type="text" name="company" placeholder="Enter company or freelance brand" class="vfd-input-palm" required>
+                    </div>
+
+                    <div class="vfd-input-group">
+                        <label>ACTIVE GOOGLE EMAIL ADDRESS (FOR PLAY STORE)*</label>
+                        <input type="email" name="email" placeholder="Enter your Gmail address" class="vfd-input-palm" required>
+                    </div>
+
+                    <div class="vfd-input-group">
+                        <label>ACTIVE WHATSAPP NUMBER (FOR BETA UPDATES)*</label>
+                        <input type="tel" name="whatsapp" placeholder="Enter WhatsApp number with country code" class="vfd-input-palm" required>
+                    </div>
+
+                    <button type="submit" class="palm-submit-btn" id="palm-submit-btn">Claim Free 1-Month Pro Upgrade</button>
+                    
+                    <!-- Real-time status display box -->
+                    <div id="palm-status-box" class="palm-status-box"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container" style="text-align: center; padding-top: 40px; border-top: 1px solid rgba(255, 255, 255, 0.05);">
+            <p style="color: #636b77; font-family: var(--font-mono); font-size: 0.8rem; margin: 0;">
+                &copy; 2026 SoundEngg Console. Closed Beta Testing Program. [v1.0.8-BETA]
+            </p>
+        </div>
+    </footer>
+
+    <!-- Supabase SDK & Lead Capture Telemetry Script -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize Supabase Client on the page
+            const SUPABASE_URL = 'https://ewudkzyjcvjxxqpqnqiy.supabase.co';
+            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dWRrenlqY3ZqeHhxcHFucWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDM0MTQsImV4cCI6MjA5NDM3OTQxNH0.jLSCEjzAxR_pjlZsjJqQgGk4L-_c5Ls3STxDedOn2KM';
+            const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+            const form = document.getElementById('palm-lead-form');
+            const submitBtn = document.getElementById('palm-submit-btn');
+            const statusBox = document.getElementById('palm-status-box');
+
+            if (form) {
+                form.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+
+                    const name = form.querySelector('input[name="name"]').value;
+                    const company = form.querySelector('input[name="company"]').value;
+                    const email = form.querySelector('input[name="email"]').value;
+                    const whatsapp = form.querySelector('input[name="whatsapp"]').value;
+
+                    // UI Loading State
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'ROUTING ENVELOPE TELEMETRY...';
+                    submitBtn.style.opacity = '0.7';
+
+                    statusBox.style.display = 'block';
+                    statusBox.style.background = 'rgba(20, 167, 181, 0.1)';
+                    statusBox.style.color = '#14A7B5';
+                    statusBox.style.border = '1px solid rgba(20, 167, 181, 0.3)';
+                    statusBox.innerHTML = '[SYSTEM] CONNECTING SECURE SUPABASE ROUTER...';
+
+                    try {
+                        // 1. Direct secure injection to your central Supabase database
+                        const { error: dbErr } = await supabaseClient
+                            .from('palm_expo_leads')
+                            .insert([{
+                                name: name,
+                                company: company,
+                                email: email,
+                                whatsapp: whatsapp
+                            }]);
+
+                        if (dbErr) {
+                            console.error("Database insert error details:", dbErr);
+                            // If table doesn't exist yet, we still proceed to email backup so leads are never lost!
+                            throw new Error(dbErr.message || "Database synchronization failed.");
+                        }
+
+                        // Success callback!
+                        statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                        statusBox.style.color = '#10B981';
+                        statusBox.style.border = '1px solid #10B981';
+                        statusBox.innerHTML = '[SUCCESS] PRO ACCOUNT CREATED INSTANTLY! You are whitelisted. Please download the app and log in using your Gmail and the default password "soundengg".';
+                        form.reset();
+
+                        // Fire off Web3Forms in background as secondary resilient email backup
+                        const formData = new FormData(form);
+                        const object = Object.fromEntries(formData);
+                        const json = JSON.stringify(object);
+                        fetch('https://api.web3forms.com/submit', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                            body: json
+                        }).catch(() => {});
+
+                    } catch (error) {
+                        console.warn("Direct DB insert failed, falling back to Web3Forms secure email router:", error);
+                        statusBox.innerHTML = '[SYSTEM] DB OFFLINE. ROUTING VIA SECURE EMAIL BACKUP ROUTER...';
+
+                        // 2. Fallback to Web3Forms so you never lose a lead even if table isn't created yet
+                        const formData = new FormData(form);
+                        const object = Object.fromEntries(formData);
+                        const json = JSON.stringify(object);
+
+                        fetch('https://api.web3forms.com/submit', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: json
+                        })
+                        .then(async (response) => {
+                            let res = await response.json();
+                            if (response.status == 200) {
+                                statusBox.style.background = 'rgba(16, 185, 129, 0.15)';
+                                statusBox.style.color = '#10B981';
+                                statusBox.style.border = '1px solid #10B981';
+                                statusBox.innerHTML = '[SUCCESS] WHITELIST PARAMETERS SAVED! Please download the app and log in using your Gmail and the default password "soundengg".';
+                                form.reset();
+                            } else {
+                                statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                                statusBox.style.color = '#EF4444';
+                                statusBox.style.border = '1px solid #EF4444';
+                                statusBox.innerHTML = '[SYSTEM FAILURE] SECURE HANDSHAKE COMPROMISED: ' + res.message;
+                            }
+                        })
+                        .catch(err => {
+                            console.error(err);
+                            statusBox.style.background = 'rgba(239, 68, 68, 0.15)';
+                            statusBox.style.color = '#EF4444';
+                            statusBox.style.border = '1px solid #EF4444';
+                            statusBox.innerHTML = '[SYSTEM FAILURE] TELEMETRY DISCONNECTED. Try again.';
+                        });
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Claim Free 1-Month Pro Upgrade';
+                        submitBtn.style.opacity = '1';
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
