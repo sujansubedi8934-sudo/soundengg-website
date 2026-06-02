@@ -30,7 +30,7 @@
                 <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
                     <a href="index.html#features" class="mobile-nav-item">FEATURES</a>
                     <a href="pro.html" class="mobile-nav-item">PRO</a>
-                    <a href="app.html?view=blog" class="mobile-nav-item">BLOG</a>
+                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
                     <a href="index.html#contact" class="mobile-nav-item">CONTACT</a>
                     <a href="app.html" class="mobile-nav-item active">LAUNCH</a>
                 </div>
@@ -174,7 +174,7 @@
                                 <span style="color: var(--primary); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">${post.categoryLabel || post.category.toUpperCase()}</span>
                                 <h3 style="margin: 1rem 0; font-size: 1.25rem;">${post.title}</h3>
                                 <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">${post.excerpt}</p>
-                                <a href="blog.html?id=${post.id}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.5rem 1rem;">READ_ARTICLE</a>
+                                <a href="blog/${post.id}.html" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.5rem 1rem;">READ_ARTICLE</a>
                             </div>
                         </div>
                     `;

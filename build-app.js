@@ -109,6 +109,9 @@ try {
         }
     });
 
+    console.log('🌐 Generating static blog posts for SEO & AdSense...');
+    require('./generate-static-blog.js');
+
     console.log('✅ App bundle build completed successfully inside /www!');
 } catch (err) {
     console.error('❌ Build failed:', err);
