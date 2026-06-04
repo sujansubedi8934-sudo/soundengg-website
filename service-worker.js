@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v3.6';
+const CACHE_NAME = 'soundengg-cache-v3.7';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -42,6 +42,9 @@ const URLS_TO_CACHE = [
     '/assets/js/data/blogs/complete-mic-guide.js',
     '/assets/js/data/blogs/point-source-vs-line-array.js',
     '/assets/js/data/blogs/understanding-signal-types.js',
+    '/assets/js/data/blogs/line-array-theory.js',
+    '/assets/js/data/blogs/speaker-delay-calculation.js',
+    '/assets/js/data/blogs/rta-explained.js',
     '/assets/js/blog-data.js',
     '/assets/img/logo.png',
     '/assets/img/logo-dark.png'
