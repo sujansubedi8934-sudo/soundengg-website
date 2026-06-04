@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v4.0';
+const CACHE_NAME = 'soundengg-cache-v8.0';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -51,6 +51,17 @@ const URLS_TO_CACHE = [
     '/assets/js/data/blogs/end-fire-subwoofer-arrays.js',
     '/assets/js/data/blogs/brand-cardioid-subwoofers.js',
     '/assets/js/data/blogs/pa-system-tuning.js',
+    '/assets/js/data/blogs/adamson-cardioid-subs.js',
+    '/assets/js/data/blogs/subwoofer-spacing-power-alley.js',
+    '/assets/js/data/blogs/budget-digital-consoles.js',
+    '/assets/js/data/blogs/gain-structure-digital-consoles.js',
+    '/assets/js/data/blogs/phase-polarity-comb-filtering.js',
+    '/assets/js/data/blogs/mid-tier-consoles.js',
+    '/assets/js/data/blogs/touring-consoles.js',
+    '/assets/js/data/blogs/mic-rules-breaking.js',
+    '/assets/js/data/blogs/foh-vs-system-tech.js',
+    '/assets/js/data/blogs/concrete-box-acoustics.js',
+    '/assets/js/data/blogs/stage-volume-iems.js',
     '/assets/js/blog-data.js',
     '/assets/img/logo.png',
     '/assets/img/logo-dark.png'

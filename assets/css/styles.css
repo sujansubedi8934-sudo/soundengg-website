@@ -140,16 +140,20 @@ html {
     top: 0;
     width: 100%;
     z-index: 50;
-    height: 5.5rem; /* Increased to prevent logo clipping */
+    height: calc(5.5rem + env(safe-area-inset-top, 0px));
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 1.5rem;
+    padding: env(safe-area-inset-top, 0px) 1.5rem 0 1.5rem;
     border-bottom: 2px solid var(--outline-light);
     background-color: rgba(0, 0, 0, 0.9);
     backdrop-filter: blur(10px);
 }
 html.light .top-bar { background-color: rgba(244, 244, 245, 0.9); }
+html.light .landing-nav {
+    background-color: rgba(244, 244, 245, 0.9);
+    border-bottom: 2px solid var(--outline-light);
+}
 
 .top-bar-left {
     display: flex;
@@ -2173,7 +2177,30 @@ html.light .rugged-input:focus {
     .blog-sidebar {
         width: 100%;
         height: auto;
-        max-height: 200px;
+        max-height: none;
+        position: relative !important;
+        top: 0 !important;
+        padding: 1rem;
+        border-bottom: 1px solid var(--outline-light);
+    }
+    .sidebar-title {
+        display: none;
+    }
+    .category-list {
+        flex-direction: row;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 0.5rem;
+    }
+    .category-list li {
+        flex-shrink: 0;
+    }
+    .category-list::-webkit-scrollbar {
+        height: 4px;
+    }
+    .category-list::-webkit-scrollbar-thumb {
+        background: var(--outline-light);
+        border-radius: 2px;
     }
 }
 
@@ -3306,7 +3333,8 @@ html.light .auth-modal {
 @media (max-width: 768px) {
     /* Top Bar & Nav */
     .top-bar {
-        padding: 0.75rem 1rem;
+        padding: calc(0.75rem + env(safe-area-inset-top, 0px)) 1rem 0.75rem 1rem;
+        height: auto;
     }
     .status-indicator {
         display: none; /* Hide heavy text on mobile top bar */
@@ -3662,6 +3690,7 @@ html.light .auth-modal {
     position: sticky;
     top: 0;
     z-index: 100;
+    padding-top: env(safe-area-inset-top, 0px);
 }
 
 .nav-container {
@@ -5312,8 +5341,8 @@ body.theme-red { --primary: #ff003c; }
     
     /* Compact branding and top-bar layout */
     .top-bar {
-        padding: 0 0.8rem !important;
-        height: 4.5rem !important;
+        padding: env(safe-area-inset-top, 0px) 0.8rem 0 0.8rem !important;
+        height: calc(4.5rem + env(safe-area-inset-top, 0px)) !important;
     }
     .brand-logo {
         transform: scale(1.1) !important;

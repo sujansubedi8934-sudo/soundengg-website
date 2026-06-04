@@ -2,7 +2,7 @@
 <html class="dark" lang="en">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
     <title>Engineering Blog | SoundEngg</title>
     <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&display=swap" rel="stylesheet"/>
@@ -16,10 +16,13 @@
         <div class="container nav-container">
             <a href="index.html" class="logo-link">
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
+                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
             </a>
-            <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="nav-links">
                 <a href="index.html">Home</a>
                 <a href="app.html" class="btn btn-primary">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
                 <div class="theme-toggle">
                     <button id="btn-light" aria-label="Light Mode">
                         <span class="material-symbols-outlined">light_mode</span>
@@ -28,19 +31,19 @@
                         <span class="material-symbols-outlined">dark_mode</span>
                     </button>
                 </div>
-            </div>
-            <!-- Mobile View Navigation Select Dropdown -->
-            <div class="mobile-nav-dropdown-container">
-                <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
-                    <span class="landing-nav-active-label">MENU</span>
-                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
-                </button>
-                <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                    <a href="index.html#features" class="mobile-nav-item">FEATURES</a>
-                    <a href="pro.html" class="mobile-nav-item">PRO</a>
-                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
-                    <a href="index.html#contact" class="mobile-nav-item">CONTACT</a>
-                    <a href="app.html" class="mobile-nav-item active">LAUNCH</a>
+                <!-- Mobile View Navigation Select Dropdown -->
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="index.html#features" class="mobile-nav-item">FEATURES</a>
+                        <a href="pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="index.html#contact" class="mobile-nav-item">CONTACT</a>
+                        <a href="app.html" class="mobile-nav-item active">LAUNCH</a>
+                    </div>
                 </div>
             </div>
             <script>

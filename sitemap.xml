@@ -46,6 +46,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/adamson-cardioid-subs.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/phase-tuning-pro.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -76,6 +82,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/mic-rules-breaking.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/mic-selection-pro.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -88,7 +100,31 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/festival-workflow.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/concrete-box-acoustics.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/signal-flow-mastery.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/gain-structure-digital-consoles.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/touring-consoles.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -130,6 +166,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/stage-volume-iems.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/dsp-masterclass.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -142,7 +184,25 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/mid-tier-consoles.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/india-market-guide.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/dante-net-basics.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/phase-polarity-comb-filtering.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -160,6 +220,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/three-phase-power.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/mic-calibration-pro.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -167,12 +233,6 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/smaart-fundamentals.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/rf-coordination-pro.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -190,6 +250,18 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/subwoofer-spacing-power-alley.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/foh-vs-system-tech.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/spectrum-mastery.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -197,6 +269,12 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/subwoofer-arrays.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/budget-digital-consoles.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -220,18 +298,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/festival-workflow.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/dante-net-basics.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://soundengg.com/blog/math-behind-magic.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -239,12 +305,6 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/c6-plugin-mastery.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/three-phase-power.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -287,6 +347,12 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/rta-explained.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/rf-coordination-pro.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
