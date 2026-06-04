@@ -11,6 +11,7 @@ function setupThemeToggle() {
         if (btnLight) btnLight.classList.add('active');
         if (btnDark) btnDark.classList.remove('active');
         if (mobileIcon) mobileIcon.textContent = 'dark_mode';
+        try { localStorage.setItem('soundengg-color-theme', 'light'); } catch (e) {}
     };
 
     const setDarkMode = () => {
@@ -19,6 +20,7 @@ function setupThemeToggle() {
         if (btnDark) btnDark.classList.add('active');
         if (btnLight) btnLight.classList.remove('active');
         if (mobileIcon) mobileIcon.textContent = 'light_mode';
+        try { localStorage.setItem('soundengg-color-theme', 'dark'); } catch (e) {}
     };
 
     if (btnLight) btnLight.addEventListener('click', setLightMode);
@@ -36,15 +38,24 @@ function setupThemeToggle() {
 }
 
 function applyAutoTheme() {
-    const hour = new Date().getHours();
-    const isDayTime = hour >= 6 && hour < 18; // Day: 6 AM to 6 PM
-    
     const htmlEl = document.documentElement;
     const btnLight = document.getElementById('btn-light');
     const btnDark = document.getElementById('btn-dark');
     const mobileIcon = document.getElementById('mobile-theme-icon');
 
-    if (isDayTime) {
+    // Check localStorage first
+    let theme = null;
+    try {
+        theme = localStorage.getItem('soundengg-color-theme');
+    } catch (e) {}
+
+    if (!theme) {
+        // Fallback to time-of-day
+        const hour = new Date().getHours();
+        theme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+    }
+
+    if (theme === 'light') {
         htmlEl.classList.add('light');
         htmlEl.classList.remove('dark');
         if (btnLight) btnLight.classList.add('active');

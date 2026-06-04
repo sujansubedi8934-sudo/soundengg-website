@@ -116,10 +116,18 @@ const getTemplate = (blog) => {
             <a href="../index.html" class="logo-link">
                 <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
             </a>
-            <div class="nav-links">
+            <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
                 <a href="../index.html">Home</a>
                 <a href="../blog.html">Blog</a>
                 <a href="../app.html" class="btn btn-primary">Launch Console</a>
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
             </div>
             <!-- Mobile View Navigation Select Dropdown -->
             <div class="mobile-nav-dropdown-container">
@@ -221,6 +229,14 @@ const getTemplate = (blog) => {
             </div>
         </div>
     </footer>
+    <!-- Theme & Metrics Scripts -->
+    <script src="../assets/js/modules/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof applyAutoTheme === 'function') applyAutoTheme();
+            if (typeof setupThemeToggle === 'function') setupThemeToggle();
+        });
+    </script>
     <!-- Vercel Web Analytics & Speed Insights -->
     <script defer src="/_vercel/insights/script.js"></script>
     <script defer src="/_vercel/speed-insights/script.js"></script>

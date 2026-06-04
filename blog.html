@@ -17,9 +17,17 @@
             <a href="index.html" class="logo-link">
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
             </a>
-            <div class="nav-links">
+            <div class="nav-links" style="display: flex; align-items: center; gap: 1.5rem;">
                 <a href="index.html">Home</a>
                 <a href="app.html" class="btn btn-primary">Launch Console</a>
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
             </div>
             <!-- Mobile View Navigation Select Dropdown -->
             <div class="mobile-nav-dropdown-container">
@@ -134,9 +142,14 @@
         </div>
     </footer>
 
-    <!-- Filter & Redirect Scripts -->
+    <!-- Scripts -->
+    <script src="assets/js/modules/theme.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Apply theme on load
+            if (typeof applyAutoTheme === 'function') applyAutoTheme();
+            if (typeof setupThemeToggle === 'function') setupThemeToggle();
+
             // Compatibility redirect for old dynamic URLs: blog.html?id=xxxx
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');

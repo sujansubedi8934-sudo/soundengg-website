@@ -5611,3 +5611,86 @@ body.theme-red { --primary: #ff003c; }
         grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
     }
 }
+
+/* --- Article Reader Styling --- */
+.article-reader {
+    font-family: var(--font-body);
+    color: var(--text-main);
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+.article-reader .article-header {
+    margin-bottom: 3rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--outline-light);
+}
+
+.article-reader .article-header h1 {
+    font-family: var(--font-headline);
+    font-size: 2.75rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+}
+
+.article-reader .article-header .article-meta {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.article-reader .article-body p {
+    margin-bottom: 1.75rem;
+    color: var(--text-main);
+    opacity: 0.9;
+}
+
+.article-reader .article-body h2 {
+    font-family: var(--font-headline);
+    font-size: 1.85rem;
+    font-weight: 600;
+    margin-top: 3rem;
+    margin-bottom: 1.25rem;
+    color: var(--text-heading);
+    border-bottom: 1px solid var(--outline-light);
+    padding-bottom: 0.5rem;
+}
+
+.article-reader .article-body h3 {
+    font-family: var(--font-headline);
+    font-size: 1.45rem;
+    font-weight: 600;
+    margin-top: 2.25rem;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+
+.article-reader .article-body blockquote {
+    border-left: 3px solid var(--primary);
+    padding-left: 1.5rem;
+    margin: 2rem 0;
+    font-style: italic;
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
+
+.article-reader .article-body ul, 
+.article-reader .article-body ol {
+    margin-bottom: 1.75rem;
+    padding-left: 2.25rem;
+}
+
+.article-reader .article-body li {
+    margin-bottom: 0.6rem;
+}
+
+.article-reader .article-body li strong {
+    color: var(--primary);
+}
+
