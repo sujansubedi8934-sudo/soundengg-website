@@ -295,6 +295,18 @@ async function saveConfigToCloud(type, data) {
 }
 
 function setupNavigation() {
+    window.appNavigationHistory = [];
+
+    function goBack() {
+        if (window.appNavigationHistory && window.appNavigationHistory.length > 0) {
+            const prevView = window.appNavigationHistory.pop();
+            showView(prevView, null, false, true);
+        } else {
+            showView(dashboardView, btnNavDashboard);
+        }
+    }
+    window.goBack = goBack;
+
     const dashboardView = document.getElementById('dashboard-view');
     const rtaView = document.getElementById('rta-view');
     const authorView = document.getElementById('author-view');
@@ -357,8 +369,38 @@ function setupNavigation() {
     /**
      * Senior View Manager: Ensures ONLY one view is visible at any time.
      */
-    function showView(targetView, navButton = null, skipHistory = false) {
+    function showView(targetView, navButton = null, skipHistory = false, isBackAction = false) {
         if (!targetView) return;
+        
+        // Find the currently active view
+        const currentView = ALL_VIEWS.find(v => v && v.style.display === 'block');
+        
+        if (!isBackAction) {
+            // If the target is a main view, clear history (since main tabs reset the flow)
+            const isMainView = (targetView === dashboardView || targetView === authorView || targetView === blogView);
+            if (isMainView) {
+                window.appNavigationHistory = [];
+            } else if (currentView && currentView !== targetView) {
+                // Otherwise push current view to history if it's a different view
+                if (!window.appNavigationHistory) window.appNavigationHistory = [];
+                window.appNavigationHistory.push(currentView);
+            }
+        }
+        
+        // Update back button text inside targetView dynamically
+        const backBtnText = targetView.querySelector('.back-btn-text');
+        if (backBtnText) {
+            if (window.appNavigationHistory && window.appNavigationHistory.length > 0) {
+                const prevView = window.appNavigationHistory[window.appNavigationHistory.length - 1];
+                if (prevView.id === 'blog-view') {
+                    backBtnText.textContent = 'BACK TO BLOG';
+                } else {
+                    backBtnText.textContent = 'BACK TO DASHBOARD';
+                }
+            } else {
+                backBtnText.textContent = 'BACK TO DASHBOARD';
+            }
+        }
         
         // Deactivate inactive loops and generators to save CPU/battery and eliminate sluggishness
         if (targetView !== rtaView && typeof window.stopAnalyzer === 'function') {
@@ -519,7 +561,11 @@ function setupNavigation() {
         const backBtn = e.target.closest('.btn-back-home, .btn-back');
         if (backBtn) {
             e.preventDefault();
-            showView(dashboardView, btnNavDashboard);
+            if (typeof window.goBack === 'function') {
+                window.goBack();
+            } else {
+                showView(dashboardView, btnNavDashboard);
+            }
         }
     });
 
