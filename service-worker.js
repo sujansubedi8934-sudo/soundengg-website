@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v8.0';
+const CACHE_NAME = 'soundengg-cache-v9.0';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -10,7 +10,6 @@ const URLS_TO_CACHE = [
     '/assets/js/main.js',
     // Blogs
     '/assets/js/data/blogs/dsp-masterclass.js',
-    '/assets/js/data/blogs/mic-calibration-pro.js',
     '/assets/js/data/blogs/cl5-guide.js',
     '/assets/js/data/blogs/array-physics-101.js',
     '/assets/js/data/blogs/spectrum-mastery.js',
@@ -24,12 +23,8 @@ const URLS_TO_CACHE = [
     '/assets/js/data/blogs/subwoofer-arrays.js',
     '/assets/js/data/blogs/smaart-fundamentals.js',
     '/assets/js/data/blogs/dante-net-basics.js',
-    '/assets/js/data/blogs/wireless-spectrum-2026.js',
     '/assets/js/data/blogs/three-phase-power.js',
-    '/assets/js/data/blogs/audio-rental-biz.js',
     '/assets/js/data/blogs/hybrid-streaming-mix.js',
-    '/assets/js/data/blogs/india-market-guide.js',
-    '/assets/js/data/blogs/beginners-foundations.js',
     '/assets/js/data/blogs/rf-coordination-pro.js',
     '/assets/js/data/blogs/dante-redundancy-pro.js',
     '/assets/js/data/blogs/phase-tuning-pro.js',

@@ -40,12 +40,6 @@
 
   <!-- Blog Articles -->
   <url>
-    <loc>https://soundengg.com/blog/beginners-foundations.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://soundengg.com/blog/adamson-cardioid-subs.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -190,12 +184,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/india-market-guide.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://soundengg.com/blog/dante-net-basics.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -226,12 +214,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/mic-calibration-pro.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://soundengg.com/blog/smaart-fundamentals.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -239,12 +221,6 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/reverb-mastery.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/wireless-spectrum-2026.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -275,12 +251,6 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/budget-digital-consoles.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/audio-rental-biz.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
