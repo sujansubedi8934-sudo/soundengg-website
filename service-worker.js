@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v3.8';
+const CACHE_NAME = 'soundengg-cache-v3.9';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -47,6 +47,9 @@ const URLS_TO_CACHE = [
     '/assets/js/data/blogs/rta-explained.js',
     '/assets/js/data/blogs/noise-signals-sweeps.js',
     '/assets/js/data/blogs/ear-training-live-sound.js',
+    '/assets/js/data/blogs/cardioid-subwoofers-101.js',
+    '/assets/js/data/blogs/end-fire-subwoofer-arrays.js',
+    '/assets/js/data/blogs/brand-cardioid-subwoofers.js',
     '/assets/js/blog-data.js',
     '/assets/img/logo.png',
     '/assets/img/logo-dark.png'
