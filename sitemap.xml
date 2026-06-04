@@ -112,6 +112,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/point-source-vs-line-array.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/mic-calibration-pro.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -221,6 +227,12 @@
   </url>
   <url>
     <loc>https://soundengg.com/blog/tool-voltage-conversion.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/understanding-signal-types.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
