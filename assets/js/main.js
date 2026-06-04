@@ -1328,21 +1328,24 @@ function initGlobalSearch() {
                             dropdown.style.display = 'none';
                             return;
                         }
-                        
-                        const blogView = document.getElementById('blog-view');
-                        const btnNavBlog = document.getElementById('btn-nav-blog');
-                        
-                        if (blogView && window.showView) {
-                            window.showView(blogView, btnNavBlog);
+                        if (window.Capacitor) {
+                            const blogView = document.getElementById('blog-view');
+                            const btnNavBlog = document.getElementById('btn-nav-blog');
                             
-                            // Highlight nav button active status
-                            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-                            if (btnNavBlog) btnNavBlog.classList.add('active');
+                            if (blogView && window.showView) {
+                                window.showView(blogView, btnNavBlog);
+                                
+                                // Highlight nav button active status
+                                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                                if (btnNavBlog) btnNavBlog.classList.add('active');
 
-                            // Open the specific article
-                            if (typeof window.openBlogArticle === 'function') {
-                                window.openBlogArticle(blog.id);
+                                // Open the specific article
+                                if (typeof window.openBlogArticle === 'function') {
+                                    window.openBlogArticle(blog.id);
+                                }
                             }
+                        } else {
+                            window.open(`blog/${blog.id}.html`, '_blank');
                         }
                     }
 

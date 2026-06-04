@@ -60,13 +60,18 @@ function initBlog() {
                     });
                 } else {
                     const readBtn = card.querySelector('.read-more');
-                    if(readBtn) {
-                        readBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
+                    const handleRead = (e) => {
+                        if (e) e.stopPropagation();
+                        if (window.Capacitor) {
                             openArticle(item.id);
-                        });
+                        } else {
+                            window.open(`blog/${item.id}.html`, '_blank');
+                        }
+                    };
+                    if (readBtn) {
+                        readBtn.addEventListener('click', handleRead);
                     }
-                    card.addEventListener('click', () => openArticle(item.id));
+                    card.addEventListener('click', handleRead);
                 }
             }
 
