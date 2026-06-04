@@ -1,13 +1,17 @@
 function initBlog() {
     const blogIndex = document.getElementById('blog-index');
     const blogReader = document.getElementById('blog-reader');
-    const catBtns = document.querySelectorAll('.cat-btn');
+    const catBtns = document.querySelectorAll('#blog-view .cat-btn');
     const backBtn = document.querySelector('.btn-back-to-index');
+    const searchInput = document.getElementById('blog-search-input');
 
     if (!blogIndex || !blogReader) return;
 
+    let currentCategory = 'all';
+    let searchQuery = '';
+
     // Render all articles (Live and Placeholders)
-    function renderBlogList(filter = 'all') {
+    function renderBlogList() {
         blogIndex.innerHTML = '';
 
         // Combine real articles and placeholders
@@ -18,7 +22,21 @@ function initBlog() {
 
         allItems.forEach(item => {
             const itemCat = item.category || item.cat;
-            if (filter !== 'all' && itemCat !== filter) return;
+            
+            // Check category filter
+            if (currentCategory !== 'all' && itemCat !== currentCategory) return;
+
+            // Check search filter
+            if (searchQuery) {
+                const titleText = (item.title || '').toLowerCase();
+                const excerptText = (item.excerpt || '').toLowerCase();
+                const catText = (item.categoryLabel || item.cat || '').toLowerCase();
+                if (!titleText.includes(searchQuery) && 
+                    !excerptText.includes(searchQuery) && 
+                    !catText.includes(searchQuery)) {
+                    return;
+                }
+            }
 
             const card = document.createElement('article');
             card.className = `article-card widget rugged-bevel brushed-metal ${item.type === 'locked' ? 'locked' : ''}`;
@@ -65,6 +83,11 @@ function initBlog() {
         container.innerHTML = article.content;
         
         blogIndex.style.display = 'none';
+        
+        // Hide search container when reading an article
+        const searchContainer = document.querySelector('#blog-view .global-search-container');
+        if (searchContainer) searchContainer.style.display = 'none';
+
         blogReader.style.display = 'block';
         window.scrollTo(0, 0);
     }
@@ -73,22 +96,40 @@ function initBlog() {
     // Category Filtering
     catBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            const cat = btn.getAttribute('data-cat');
+            currentCategory = btn.getAttribute('data-cat');
             catBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             
             // Return to index if reading an article
             blogReader.style.display = 'none';
+            
+            // Show search container again when returning to index
+            const searchContainer = document.querySelector('#blog-view .global-search-container');
+            if (searchContainer) searchContainer.style.display = 'block';
+
             blogIndex.style.display = 'grid';
             
-            renderBlogList(cat);
+            renderBlogList();
         });
     });
 
     if (backBtn) {
         backBtn.addEventListener('click', () => {
             blogReader.style.display = 'none';
+            
+            // Show search container again when returning to index
+            const searchContainer = document.querySelector('#blog-view .global-search-container');
+            if (searchContainer) searchContainer.style.display = 'block';
+
             blogIndex.style.display = 'grid';
+        });
+    }
+
+    // Set up search event listener
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            searchQuery = e.target.value.toLowerCase().trim();
+            renderBlogList();
         });
     }
 
@@ -97,7 +138,6 @@ function initBlog() {
 
     // Listen for Pro status changes to re-render gated content
     document.addEventListener('proStatusChanged', () => {
-        const activeBtn = Array.from(catBtns).find(b => b.classList.contains('active'));
-        renderBlogList(activeBtn ? activeBtn.getAttribute('data-cat') : 'all');
+        renderBlogList();
     });
 }
