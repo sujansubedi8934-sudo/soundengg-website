@@ -77,8 +77,52 @@
     </header>
 
     <main class="container" style="padding-top: 120px; padding-bottom: 100px;">
-        <div id="blog-content">
-            <!-- Content will be injected here -->
+        <div class="blog-layout" style="height: auto;">
+            <!-- Sidebar: Categories -->
+            <aside class="blog-sidebar rugged-bevel brushed-metal" style="height: fit-content; position: sticky; top: 100px;">
+                <h4 class="sidebar-title">CATEGORIES</h4>
+                <ul class="category-list">
+                    <li><button class="cat-btn active" data-cat="all">ALL TOPICS</button></li>
+                    <li><button class="cat-btn" data-cat="consoles">CONSOLES & REVIEWS</button></li>
+                    <li><button class="cat-btn" data-cat="arrays">LINE ARRAYS</button></li>
+                    <li><button class="cat-btn" data-cat="dynamics">EQ & DYNAMICS</button></li>
+                    <li><button class="cat-btn" data-cat="mics">MICROPHONES</button></li>
+                    <li><button class="cat-btn" data-cat="cables">CABLES & SIGNAL</button></li>
+                    <li><button class="cat-btn" data-cat="amps">AMPLIFIERS</button></li>
+                    <li><button class="cat-btn" data-cat="plugins">PLUGINS</button></li>
+                    <li><button class="cat-btn" data-cat="routing">ROUTING & NETWORK</button></li>
+                    <li><button class="cat-btn" data-cat="acoustics">ACOUSTIC THEORY</button></li>
+                    <li><button class="cat-btn" data-cat="live">LIVE TECHNIQUES</button></li>
+                    <li><button class="cat-btn" data-cat="subs">SUBWOOFERS</button></li>
+                    <li><button class="cat-btn" data-cat="tuning">SYSTEM TUNING</button></li>
+                    <li><button class="cat-btn" data-cat="dante">DANTE & IP</button></li>
+                    <li><button class="cat-btn" data-cat="wireless">WIRELESS & RF</button></li>
+                    <li><button class="cat-btn" data-cat="power">POWER & INFRA</button></li>
+                    <li><button class="cat-btn" data-cat="industry">INDUSTRY BIZ</button></li>
+                    <li><button class="cat-btn" data-cat="india">INDIA SPECIFIC</button></li>
+                </ul>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="blog-content">
+                <div class="module-title-wrap" style="margin-bottom: 2rem;">
+                    <h1 class="vfd-glow" style="font-size: 3rem; margin-bottom: 0.5rem; text-transform: uppercase;">Engineering Blog</h1>
+                    <p style="color: var(--text-muted); font-size: 1rem;">Technical Deep Dives // SoundEngg Knowledge Base</p>
+                </div>
+
+                <!-- Global Search Bar -->
+                <div class="global-search-container" style="margin-bottom: 2.5rem; max-width: 100%;">
+                    <div class="search-wrapper global-search">
+                        <input type="text" placeholder="Search blog articles..." id="blog-search-input">
+                        <button id="btn-blog-search" class="rugged-btn search-submit">SEARCH</button>
+                    </div>
+                </div>
+                
+                <!-- Article Index (Grid) -->
+                <div id="blog-index" class="article-grid">
+                    <!-- BLOG_CARDS_PLACEHOLDER -->
+                </div>
+            </main>
         </div>
     </main>
 
@@ -90,186 +134,62 @@
         </div>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- Blog Data Fragments -->
-    <script src="assets/js/data/blogs/dsp-masterclass.js"></script>
-    <script src="assets/js/data/blogs/mic-calibration-pro.js"></script>
-    <script src="assets/js/data/blogs/cl5-guide.js"></script>
-    <script src="assets/js/data/blogs/array-physics-101.js"></script>
-    <script src="assets/js/data/blogs/spectrum-mastery.js"></script>
-    <script src="assets/js/data/blogs/mic-selection-pro.js"></script>
-    <script src="assets/js/data/blogs/amp-tech-deep-dive.js"></script>
-    <script src="assets/js/data/blogs/c6-plugin-mastery.js"></script>
-    <script src="assets/js/data/blogs/signal-flow-mastery.js"></script>
-    <script src="assets/js/data/blogs/acoustic-propagation.js"></script>
-    <script src="assets/js/data/blogs/festival-workflow.js"></script>
-    <script src="assets/js/data/blogs/reverb-mastery.js"></script>
-    <script src="assets/js/data/blogs/subwoofer-arrays.js"></script>
-    <script src="assets/js/data/blogs/smaart-fundamentals.js"></script>
-    <script src="assets/js/data/blogs/dante-net-basics.js"></script>
-    <script src="assets/js/data/blogs/wireless-spectrum-2026.js"></script>
-    <script src="assets/js/data/blogs/three-phase-power.js"></script>
-    <script src="assets/js/data/blogs/audio-rental-biz.js"></script>
-    <script src="assets/js/data/blogs/hybrid-streaming-mix.js"></script>
-    <script src="assets/js/data/blogs/india-market-guide.js"></script>
-    <script src="assets/js/data/blogs/beginners-foundations.js"></script>
-    <script src="assets/js/data/blogs/rf-coordination-pro.js"></script>
-    <script src="assets/js/data/blogs/dante-redundancy-pro.js"></script>
-    <script src="assets/js/data/blogs/phase-tuning-pro.js"></script>
-    <script src="assets/js/data/blogs/tool-delay-calc.js"></script>
-    <script src="assets/js/data/blogs/tool-freq-note.js"></script>
-    <script src="assets/js/data/blogs/tool-spl-distance.js"></script>
-    <script src="assets/js/data/blogs/tool-voltage-conversion.js"></script>
-    <script src="assets/js/data/blogs/tool-file-size.js"></script>
-    <script src="assets/js/blog-data.js"></script>
+    <!-- Filter & Redirect Scripts -->
     <script>
-        document.addEventListener('DOMContentLoaded', async () => {
-            const contentEl = document.getElementById('blog-content');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Compatibility redirect for old dynamic URLs: blog.html?id=xxxx
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
-
-            let isUserPro = false;
-            if (window.supabase) {
-                const SUPABASE_URL = 'https://ewudkzyjcvjxxqpqnqiy.supabase.co';
-                const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV3dWRrenlqY3ZqeHhxcHFucWl5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4MDM0MTQsImV4cCI6MjA5NDM3OTQxNH0.jLSCEjzAxR_pjlZsjJqQgGk4L-_c5Ls3STxDedOn2KM';
-                try {
-                    const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    const { data: { session } } = await client.auth.getSession();
-                    if (session) {
-                        const { data } = await client
-                            .from('profiles')
-                            .select('is_pro, subscription_tier, subscription_expires_at')
-                            .eq('id', session.user.id)
-                            .single();
-                        if (data) {
-                            const now = new Date();
-                            const expiresAt = data.subscription_expires_at ? new Date(data.subscription_expires_at) : null;
-                            const isExpired = expiresAt && expiresAt < now;
-                            const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
-                            isUserPro = !!data.is_pro && isTierPro && !isExpired;
-                        }
-                    }
-                } catch (e) {
-                    console.warn("Auth check in blog failed, defaulting to showing ads:", e);
-                }
-            }
-
             if (articleId) {
-                renderArticle(articleId);
-            } else {
-                renderBlogList();
+                window.location.replace("blog/" + articleId + ".html");
+                return;
             }
 
-            function renderBlogList() {
-                let html = `
-                    <h1 class="vfd-glow" style="font-size: 3rem; margin-bottom: 1rem;">ENGINEERING_BLOG</h1>
-                    <p style="color: var(--text-muted); margin-bottom: 3rem;">Deep dives into the physics and technology of professional audio.</p>
-                    <div class="blog-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem;">
-                `;
+            const catBtns = document.querySelectorAll('.cat-btn');
+            const searchInput = document.getElementById('blog-search-input');
+            const cards = document.querySelectorAll('.article-card');
+            
+            let activeCategory = 'all';
+            let searchQuery = '';
 
-                blogArticles.forEach((post, index) => {
-                    html += `
-                        <div class="blog-card" style="background: var(--surface-low); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; transition: transform 0.3s ease;">
-                            <div style="padding: 2rem;">
-                                <span style="color: var(--primary); font-size: 0.7rem; font-weight: 700; letter-spacing: 1px;">${post.categoryLabel || post.category.toUpperCase()}</span>
-                                <h3 style="margin: 1rem 0; font-size: 1.25rem;">${post.title}</h3>
-                                <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem;">${post.excerpt}</p>
-                                <a href="blog/${post.id}.html" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.5rem 1rem;">READ_ARTICLE</a>
-                            </div>
-                        </div>
-                    `;
-
-                    // Inject themed inside-grid sponsor block after the second post for free-tier users
-                    if (index === 1 && !isUserPro) {
-                        html += `
-                            <div class="blog-card ad-placeholder" style="background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 12px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 300px; padding: 2rem; box-sizing: border-box; text-align: center;">
-                                <span style="color: var(--text-muted); font-size: 0.65rem; font-weight: bold; letter-spacing: 1px; margin-bottom: 1rem; text-transform: uppercase;">SPONSOR_ADVERTISEMENT</span>
-                                <ins class="adsbygoogle"
-                                     style="display:block; width:100%; height:250px;"
-                                     data-ad-client="ca-pub-4117687060036448"
-                                     data-ad-slot="9876543210"
-                                     data-ad-format="auto"
-                                     data-full-width-responsive="true"></ins>
-                                 \<script>
-                                     (adsbygoogle = window.adsbygoogle || []).push({});
-                                <\/script>
-                            </div>
-                        `;
+            function filterArticles() {
+                cards.forEach(card => {
+                    const cardCat = card.getAttribute('data-cat');
+                    
+                    const titleText = card.querySelector('.article-title').textContent.toLowerCase();
+                    const excerptText = card.querySelector('.article-excerpt').textContent.toLowerCase();
+                    const catText = card.querySelector('.cat-tag').textContent.toLowerCase();
+                    
+                    const matchesCategory = (activeCategory === 'all' || cardCat === activeCategory);
+                    const matchesSearch = (!searchQuery || 
+                                           titleText.includes(searchQuery) || 
+                                           excerptText.includes(searchQuery) ||
+                                           catText.includes(searchQuery));
+                                           
+                    if (matchesCategory && matchesSearch) {
+                        card.style.display = 'flex';
+                    } else {
+                        card.style.display = 'none';
                     }
                 });
-
-                html += `</div>`;
-                contentEl.innerHTML = html;
             }
 
-            function renderArticle(id) {
-                const article = blogArticles.find(a => a.id === id);
-                if (!article) {
-                    contentEl.innerHTML = `<h1>Article Not Found</h1><a href="blog.html">Back to Blog</a>`;
-                    return;
-                }
+            // Category Button Clicks
+            catBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    activeCategory = btn.getAttribute('data-cat');
+                    catBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    filterArticles();
+                });
+            });
 
-                // Update Title
-                document.title = `${article.title} | SoundEngg Blog`;
-
-                let adHtml = '';
-                if (!isUserPro) {
-                    adHtml = `
-                        <!-- Google AdSense Native Article Ad Unit -->
-                        <div class="ad-placeholder adsbygoogle-container" style="margin-top: 3rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center;">
-                            <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;">SPONSOR_ADVERTISEMENT</div>
-                            <ins class="adsbygoogle"
-                                 style="display:block; text-align:center;"
-                                 data-ad-layout="in-article"
-                                 data-ad-format="fluid"
-                                 data-ad-client="ca-pub-4117687060036448"
-                                 data-ad-slot="1234567890"></ins>
-                            \<script>
-                                 (adsbygoogle = window.adsbygoogle || []).push({});
-                            <\/script>
-                        </div>
-                    `;
-                }
-
-                 contentEl.innerHTML = `
-                    <div class="article-reader" style="max-width: 800px; margin: 0 auto;">
-                         <a href="blog.html" style="display: inline-flex; align-items: center; color: var(--primary); text-decoration: none; margin-bottom: 2rem; font-size: 0.9rem;">
-                             <span class="material-symbols-outlined" style="margin-right: 0.5rem;">arrow_back</span> BACK TO INDEX
-                         </a>
-                         ${article.content}
-                         ${adHtml}
-                         
-                         <!-- Author Bio Card -->
-                         <div class="author-card rugged-bevel brushed-metal" style="margin-top: 4rem; padding: 2.5rem; background: var(--surface-low, #121212); border: 1px solid var(--border-color, #222); border-radius: 16px; display: flex; flex-direction: column; gap: 1.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
-                             <div style="display: flex; flex-direction: row; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
-                                 <div class="author-avatar-wrap" style="width: 80px; height: 80px; border-radius: 50%; overflow: hidden; border: 2px solid var(--primary, #00ffff); flex-shrink: 0; box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);">
-                                     <img src="assets/img/author-profile.jpg" alt="Sujan Subedi" style="width: 100%; height: 100%; object-fit: cover;">
-                                 </div>
-                                 <div style="flex: 1; min-width: 200px;">
-                                     <h4 style="margin: 0 0 0.25rem 0; font-size: 1.25rem; font-weight: 700; color: #fff; letter-spacing: -0.5px;">Sujan Subedi</h4>
-                                     <p style="margin: 0; font-size: 0.85rem; color: var(--primary, #00ffff); font-family: var(--font-mono, monospace); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 600;">Lead Audio Systems Engineer & Founder</p>
-                                 </div>
-                             </div>
-                             <p style="margin: 0; font-size: 0.95rem; color: var(--text-muted, #aaa); line-height: 1.6;">
-                                 Sujan Subedi is a distinguished Live Sound Mixing and System Engineer operating across India and Nepal. A graduate of A.R. Rahman's KMMC (Chennai), he specializes in tailoring large-scale sound reinforcement configurations, DSP tuning, and advanced acoustic simulation engines.
-                             </p>
-                             <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-top: 0.5rem; padding-top: 1rem; border-top: 1px dashed var(--border-color, #222);">
-                                 <span style="font-size: 0.85rem; color: var(--text-muted, #888); font-family: var(--font-mono, monospace);">CONTACT_AUTHOR:</span>
-                                 <a href="mailto:sujan@soundengg.com" style="color: var(--primary, #00ffff); text-decoration: none; font-size: 0.9rem; font-family: var(--font-mono, monospace); font-weight: 600; transition: all 0.2s;">
-                                     sujan@soundengg.com
-                                 </a>
-                             </div>
-                         </div>
-
-                         <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
-                             <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
-                             <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                                 <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(article.title)}&url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
-                                 <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
-                             </div>
-                         </div>
-                    </div>
-                `;
+            // Search input typing
+            if (searchInput) {
+                searchInput.addEventListener('input', (e) => {
+                    searchQuery = e.target.value.toLowerCase().trim();
+                    filterArticles();
+                });
             }
         });
     </script>

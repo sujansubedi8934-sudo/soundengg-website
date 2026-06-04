@@ -33,6 +33,7 @@ files.forEach(file => {
     }
 });
 
+blogs.sort((a, b) => a.title.localeCompare(b.title));
 console.log(`📚 Loaded ${blogs.length} blog posts successfully.`);
 
 // Create blog output directory inside www/
@@ -302,3 +303,42 @@ const generateSitemap = () => {
 };
 
 generateSitemap();
+
+// Compile premium static index grid cards and inject into www/blog.html
+const compileBlogIndex = () => {
+    const destBlogHtmlPath = path.join(destDir, 'blog.html');
+    
+    if (!fs.existsSync(destBlogHtmlPath)) {
+        console.error(`❌ Error: www/blog.html not found!`);
+        return;
+    }
+    
+    let cardsHtml = '';
+    blogs.forEach(post => {
+        const category = post.category || post.cat || 'general';
+        const categoryLabel = post.categoryLabel || post.category || 'GENERAL';
+        const readTime = post.readTime || '10 MIN READ';
+        
+        cardsHtml += `
+                <article class="article-card widget rugged-bevel brushed-metal" data-id="${post.id}" data-cat="${category}">
+                    <div class="card-meta">
+                        <span class="cat-tag">${categoryLabel.toUpperCase()}</span>
+                        <span class="read-time">${readTime.toUpperCase()}</span>
+                    </div>
+                    <h3 class="article-title text-primary">${post.title}</h3>
+                    <p class="article-excerpt">${post.excerpt}</p>
+                    <a href="blog/${post.id}.html" class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></a>
+                </article>`;
+    });
+
+    let blogHtmlContent = fs.readFileSync(destBlogHtmlPath, 'utf8');
+    if (blogHtmlContent.includes('<!-- BLOG_CARDS_PLACEHOLDER -->')) {
+        blogHtmlContent = blogHtmlContent.replace('<!-- BLOG_CARDS_PLACEHOLDER -->', cardsHtml);
+        fs.writeFileSync(destBlogHtmlPath, blogHtmlContent, 'utf8');
+        console.log(`✅ Generated premium static blog index inside www/blog.html!`);
+    } else {
+        console.warn('⚠️ Warning: <!-- BLOG_CARDS_PLACEHOLDER --> not found in www/blog.html.');
+    }
+};
+
+compileBlogIndex();

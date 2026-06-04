@@ -40,6 +40,18 @@
 
   <!-- Blog Articles -->
   <url>
+    <loc>https://soundengg.com/blog/beginners-foundations.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/phase-tuning-pro.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/acoustic-propagation.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
@@ -52,43 +64,31 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/array-physics-101.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/audio-rental-biz.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/beginners-foundations.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/c6-plugin-mastery.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/cl5-guide.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/dante-net-basics.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://soundengg.com/blog/dante-redundancy-pro.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/mic-selection-pro.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/signal-flow-mastery.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/hybrid-streaming-mix.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/array-physics-101.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -100,13 +100,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/festival-workflow.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/hybrid-streaming-mix.html</loc>
+    <loc>https://soundengg.com/blog/cl5-guide.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -124,19 +118,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/mic-selection-pro.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/phase-tuning-pro.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/reverb-mastery.html</loc>
+    <loc>https://soundengg.com/blog/smaart-fundamentals.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -148,13 +130,13 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/signal-flow-mastery.html</loc>
+    <loc>https://soundengg.com/blog/reverb-mastery.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/smaart-fundamentals.html</loc>
+    <loc>https://soundengg.com/blog/wireless-spectrum-2026.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -172,25 +154,31 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://soundengg.com/blog/audio-rental-biz.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/festival-workflow.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/dante-net-basics.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/c6-plugin-mastery.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://soundengg.com/blog/three-phase-power.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/tool-delay-calc.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/tool-file-size.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/blog/tool-freq-note.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -202,13 +190,25 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/tool-voltage-conversion.html</loc>
+    <loc>https://soundengg.com/blog/tool-file-size.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog/wireless-spectrum-2026.html</loc>
+    <loc>https://soundengg.com/blog/tool-delay-calc.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/tool-freq-note.html</loc>
+    <lastmod>2026-06-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/blog/tool-voltage-conversion.html</loc>
     <lastmod>2026-06-02</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

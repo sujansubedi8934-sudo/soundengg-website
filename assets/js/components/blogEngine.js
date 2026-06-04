@@ -20,59 +20,37 @@ function initBlog() {
             const itemCat = item.category || item.cat;
             if (filter !== 'all' && itemCat !== filter) return;
 
-            const isLockedPro = item.isPro && !window.isBlogUnlocked(item.id);
-
             const card = document.createElement('article');
-            card.className = `article-card widget rugged-bevel brushed-metal ${item.type === 'locked' ? 'locked' : ''} ${isLockedPro ? 'pro-locked' : ''}`;
+            card.className = `article-card widget rugged-bevel brushed-metal ${item.type === 'locked' ? 'locked' : ''}`;
             if (item.id) card.setAttribute('data-id', item.id);
             card.setAttribute('data-cat', itemCat);
 
-            const metaTag = isLockedPro 
-                ? `<span class="status-tag gold-tag" style="display: inline-flex; align-items: center; gap: 4px; background: rgba(212, 175, 55, 0.1) !important; color: #FFD700 !important; border: 1px solid rgba(212, 175, 55, 0.3);"><span class="material-symbols-outlined" style="font-size: 0.95rem; vertical-align: middle;">lock</span>LOCKED</span>` 
-                : `<span class="read-time">${item.readTime}</span>`;
+            const metaTag = `<span class="read-time">${item.readTime}</span>`;
 
             card.innerHTML = `
                 <div class="card-meta">
-                    <span class="cat-tag ${item.isPro ? 'gold-tag' : ''}">${(item.categoryLabel || item.cat).toUpperCase()}</span>
+                    <span class="cat-tag">${(item.categoryLabel || item.cat).toUpperCase()}</span>
                     ${item.type === 'locked' ? `<span class="status-tag">UPCOMING</span>` : metaTag}
                 </div>
                 <h3 class="article-title ${item.type === 'live' ? 'text-primary' : ''}">${item.title}</h3>
                 <p class="article-excerpt">${item.excerpt}</p>
-                ${(item.type === 'live') ? (isLockedPro 
-                    ? `<button class="read-more unlock-ad-btn" style="color: #FFD700 !important; border-color: rgba(212, 175, 55, 0.5) !important; background: rgba(212, 175, 55, 0.1) !important; display: inline-flex; align-items: center; gap: 4px;"><span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">workspace_premium</span>🔓 UNLOCK WITH AD</button>` 
-                    : `<button class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></button>`
-                ) : ''}
+                ${(item.type === 'live') ? `<button class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></button>` : ''}
             `;
 
             if (item.type === 'live') {
-                if (isLockedPro) {
-                    const readBtn = card.querySelector('.read-more');
-                    if (readBtn) {
-                        readBtn.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            window.pendingArticleToOpen = item.id;
-                            window.showProUpgradeModal('blog');
-                        });
+                const readBtn = card.querySelector('.read-more');
+                const handleRead = (e) => {
+                    if (e) e.stopPropagation();
+                    if (window.Capacitor) {
+                        openArticle(item.id);
+                    } else {
+                        window.open(`blog/${item.id}.html`, '_blank');
                     }
-                    card.addEventListener('click', () => {
-                        window.pendingArticleToOpen = item.id;
-                        window.showProUpgradeModal('blog');
-                    });
-                } else {
-                    const readBtn = card.querySelector('.read-more');
-                    const handleRead = (e) => {
-                        if (e) e.stopPropagation();
-                        if (window.Capacitor) {
-                            openArticle(item.id);
-                        } else {
-                            window.open(`blog/${item.id}.html`, '_blank');
-                        }
-                    };
-                    if (readBtn) {
-                        readBtn.addEventListener('click', handleRead);
-                    }
-                    card.addEventListener('click', handleRead);
+                };
+                if (readBtn) {
+                    readBtn.addEventListener('click', handleRead);
                 }
+                card.addEventListener('click', handleRead);
             }
 
             blogIndex.appendChild(card);

@@ -1,17 +1,17 @@
 window.soundEnggBlogs = window.soundEnggBlogs || [];
 window.soundEnggBlogs.push({
     "id": "mic-calibration-pro",
-    "category": "vault",
-    "categoryLabel": "PRO TECHNICAL VAULT",
-    "isPro": true,
+    "category": "mics",
+    "categoryLabel": "MICROPHONES",
+    "isPro": false,
     "title": "Precision Metrology: Measurement Microphone Calibration Protocols",
     "excerpt": "How to calibrate your measurement chain for absolute SPL accuracy and +/- 0.5dB frequency response certainty.",
     "readTime": "18 MIN READ",
     "content": `
             <div class="article-header">
-                <span class="cat-tag gold-tag">PRO VAULT DEEP DIVE</span>
+                <span class="cat-tag">MICROPHONES</span>
                 <h1>Precision Metrology: Measurement Microphone Calibration Protocols</h1>
-                <p class="article-meta">Exclusive Pro Content | 18 Minute Read | Updated May 2026</p>
+                <p class="article-meta">Microphone Deep Dive | 18 Minute Read | Updated May 2026</p>
             </div>
             <div class="article-body">
                 <p>For mission-critical system tuning, a standard measurement mic isn't enough. You need <strong>Traceable Calibration</strong>. This article outlines the industry-standard process for generating and applying .mic or .cal files for high-end capsules like the Earthworks M30 or iSEMcon EMX-7150.</p>

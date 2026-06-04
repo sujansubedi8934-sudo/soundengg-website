@@ -1322,12 +1322,6 @@ function initGlobalSearch() {
                         }
                     } else if (type === 'blog') {
                         const blog = matchedBlogs[index];
-                        if (blog.isPro && !window.isBlogUnlocked(blog.id)) {
-                            window.pendingArticleToOpen = blog.id;
-                            window.showProUpgradeModal('blog');
-                            dropdown.style.display = 'none';
-                            return;
-                        }
                         if (window.Capacitor) {
                             const blogView = document.getElementById('blog-view');
                             const btnNavBlog = document.getElementById('btn-nav-blog');

@@ -1,9 +1,9 @@
 window.soundEnggBlogs = window.soundEnggBlogs || [];
 window.soundEnggBlogs.push({
     "id": "dsp-masterclass",
-    "category": "vault",
-    "categoryLabel": "PRO TECHNICAL VAULT",
-    "isPro": true,
+    "category": "tuning",
+    "categoryLabel": "SYSTEM TUNING",
+    "isPro": false,
     "title": "Masterclass: Phase Alignment & DSP Optimization for Large Scale Arrays",
     "excerpt": "Advanced workflows for aligning multi-source systems using L-Acoustics P1 and d&b DS100 processors.",
     "readTime": "25 MIN READ",
@@ -16,9 +16,9 @@ window.soundEnggBlogs.push({
     ],
     "content": `
             <div class="article-header">
-                <span class="cat-tag gold-tag">PRO VAULT DEEP DIVE</span>
+                <span class="cat-tag">SYSTEM TUNING</span>
                 <h1>Masterclass: Phase Alignment & DSP Optimization for Large Scale Arrays</h1>
-                <p class="article-meta">Exclusive Pro Content | 25 Minute Read | Updated May 2026</p>
+                <p class="article-meta">System Tuning Deep Dive | 25 Minute Read | Updated May 2026</p>
             </div>
             <div class="article-body">
                 <p>In large-scale system engineering, magnitude response is only half the battle. The true mark of a master system technician is <strong>Phase Coherency</strong> across the entire audience area. This vault entry covers the advanced DSP workflows required to align complex, multi-generational speaker systems where latency and phase slope variance are critical factors.</p>
