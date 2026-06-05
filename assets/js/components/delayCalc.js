@@ -15,7 +15,7 @@ function initDelayCalc() {
         
         let delayMs = 0;
 
-        if (globalUnitSystem === 'metric') {
+        if (window.globalUnitSystem === 'metric') {
             if (distLabel) distLabel.textContent = 'Distance (m)';
             const tempC = (tUnit === 'F') ? (temp - 32) * 5/9 : temp;
             const speed = window.AudioCalcs.calcSpeedOfSound(tempC);

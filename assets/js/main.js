@@ -196,7 +196,7 @@ if (document.readyState === 'loading') {
 
 
 
-let globalUnitSystem = 'metric'; // 'metric' or 'imperial'
+window.globalUnitSystem = window.globalUnitSystem || 'metric'; // 'metric' or 'imperial'
 
 
 
