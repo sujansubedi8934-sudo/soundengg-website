@@ -1,6 +1,6 @@
 {
-  "latestVersionCode": 14,
-  "latestVersionName": "1.0.9",
+  "latestVersionCode": 15,
+  "latestVersionName": "1.1.0",
   "downloadUrl": "https://play.google.com/apps/internaltest/4701593727903746246",
   "forceUpdate": false,
   "message": "Critical Google Sign-In and session synchronization fixes are live!"
