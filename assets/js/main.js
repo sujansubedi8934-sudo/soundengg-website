@@ -2428,8 +2428,8 @@ function initAppVersionCheck() {
                         requiredBuildEl.textContent = requiredBuild;
                     }
                     
-                    if (currentBuild < requiredBuild && versionConfig.forceUpdate) {
-                        console.warn('[VersionCheck] App build is stale! Triggering mandatory update block...');
+                    if (currentBuild < requiredBuild) {
+                        console.warn('[VersionCheck] App build is stale! Triggering update prompt...');
                         const updateOverlay = document.getElementById('update-modal-overlay');
                         if (updateOverlay) {
                             openModal(updateOverlay);
@@ -2442,6 +2442,13 @@ function initAppVersionCheck() {
                             const messageEl = document.getElementById('update-modal-message');
                             if (messageEl && versionConfig.message) {
                                 messageEl.textContent = versionConfig.message;
+                            }
+
+                            const laterBtn = document.getElementById('btn-update-later');
+                            if (laterBtn) {
+                                laterBtn.onclick = () => {
+                                    closeModal(updateOverlay);
+                                };
                             }
                         }
                     } else {
