@@ -44,6 +44,16 @@
       "dest": "/terms.html"
     },
     {
+      "src": "/about",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "dest": "/about.html"
+    },
+    {
+      "src": "/contact",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "dest": "/contact.html"
+    },
+    {
       "handle": "filesystem"
     },
     {

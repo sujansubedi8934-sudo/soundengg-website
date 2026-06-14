@@ -69,7 +69,7 @@ const getTemplate = (blog) => {
         "datePublished": "2026-05-15",
         "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": `https://soundengg.com/blog/${blog.id}.html`
+            "@id": `https://soundengg.com/blog/${blog.id}`
         }
     };
 
@@ -81,18 +81,18 @@ const getTemplate = (blog) => {
     <title>${blog.title} | SoundEngg Blog</title>
     <meta name="description" content="${blog.excerpt}">
     <meta name="keywords" content="${keywords}">
-    <link rel="canonical" href="https://soundengg.com/blog/${blog.id}.html">
+    <link rel="canonical" href="https://soundengg.com/blog/${blog.id}">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://soundengg.com/blog/${blog.id}.html">
+    <meta property="og:url" content="https://soundengg.com/blog/${blog.id}">
     <meta property="og:title" content="${blog.title} | SoundEngg Blog">
     <meta property="og:description" content="${blog.excerpt}">
     <meta property="og:image" content="https://soundengg.com/assets/img/og-preview.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://soundengg.com/blog/${blog.id}.html">
+    <meta property="twitter:url" content="https://soundengg.com/blog/${blog.id}">
     <meta property="twitter:title" content="${blog.title} | SoundEngg Blog">
     <meta property="twitter:description" content="${blog.excerpt}">
 
@@ -119,7 +119,10 @@ const getTemplate = (blog) => {
             </a>
             <div class="nav-links">
                 <a href="../index.html">Home</a>
-                <a href="../blog.html">Blog</a>
+                <a href="../about.html">About</a>
+                <a href="../blog.html" class="active">Blog</a>
+                <a href="../pro.html">Pro</a>
+                <a href="../contact.html">Contact</a>
                 <a href="../app.html" class="btn btn-primary">Launch Console</a>
             </div>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
@@ -138,10 +141,11 @@ const getTemplate = (blog) => {
                         <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
                     </button>
                     <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                        <a href="../index.html#features" class="mobile-nav-item">FEATURES</a>
-                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../index.html" class="mobile-nav-item">HOME</a>
+                        <a href="../about.html" class="mobile-nav-item">ABOUT</a>
                         <a href="../blog.html" class="mobile-nav-item active">BLOG</a>
-                        <a href="../index.html#contact" class="mobile-nav-item">CONTACT</a>
+                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
                         <a href="../app.html" class="mobile-nav-item">LAUNCH</a>
                     </div>
                 </div>
@@ -216,22 +220,62 @@ const getTemplate = (blog) => {
              </div>
 
              <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
-                 <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
-                 <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                     <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(blog.title)}&url=${encodeURIComponent('https://soundengg.com/blog/' + blog.id + '.html')}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
-                     <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://soundengg.com/blog/' + blog.id + '.html')}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
+                  <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
+                  <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                      <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(blog.title)}&url=${encodeURIComponent('https://soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
+                      <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
+                  </div>
+              </div>
+         </div>
+     </main>
+
+     <footer class="landing-footer">
+         <div class="container footer-grid">
+             <div class="footer-col-brand">
+                 <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo">
+                 <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                 <div class="social-links">
+                     <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                         <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                             <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                             <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                             <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                         </svg>
+                     </a>
                  </div>
              </div>
-        </div>
-    </main>
-
-    <footer class="landing-footer">
-        <div class="footer-bottom">
-            <div class="container">
-                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers.</p>
-            </div>
-        </div>
-    </footer>
+             <div class="footer-col">
+                 <h4>QUICK_TOOLS</h4>
+                 <ul>
+                     <li><a href="../app.html">Titan Console</a></li>
+                     <li><a href="../app.html?view=rta">RTA Analyser</a></li>
+                     <li><a href="../app.html?view=subcalc">Subwoofer Arrays</a></li>
+                     <li><a href="../app.html?view=delay">Delay Calc</a></li>
+                 </ul>
+             </div>
+             <div class="footer-col">
+                 <h4>KNOWLEDGE</h4>
+                 <ul>
+                     <li><a href="../index.html">Home</a></li>
+                     <li><a href="../blog.html">Engineering Blog</a></li>
+                     <li><a href="../about.html">About Us</a></li>
+                     <li><a href="../contact.html">Contact Us</a></li>
+                 </ul>
+             </div>
+             <div class="footer-col">
+                 <h4>LEGAL</h4>
+                 <ul>
+                     <li><a href="../privacy.html">Privacy Policy</a></li>
+                     <li><a href="../terms.html">Terms of Service</a></li>
+                 </ul>
+             </div>
+         </div>
+         <div class="footer-bottom">
+             <div class="container">
+                 <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers. [v2.4.0-PRO]</p>
+             </div>
+         </div>
+     </footer>
     <!-- Theme & Metrics Scripts -->
     <script src="../assets/js/modules/theme.js"></script>
     <script>
@@ -265,37 +309,49 @@ const generateSitemap = () => {
   <!-- Core Pages -->
   <url>
     <loc>https://soundengg.com/</loc>
-    <lastmod>2026-06-02</lastmod>
+    <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/index.html</loc>
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://soundengg.com/app.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <loc>https://soundengg.com/app</loc>
+    <lastmod>2026-06-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <loc>https://soundengg.com/blog</loc>
+    <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/privacy.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <loc>https://soundengg.com/pro</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/about</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/contact</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soundengg.com/privacy</loc>
+    <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/terms.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <loc>https://soundengg.com/terms</loc>
+    <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -305,8 +361,8 @@ const generateSitemap = () => {
 
     blogs.forEach(blog => {
         xml += `  <url>
-    <loc>https://soundengg.com/blog/${blog.id}.html</loc>
-    <lastmod>2026-06-02</lastmod>
+    <loc>https://soundengg.com/blog/${blog.id}</loc>
+    <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -346,7 +402,7 @@ const compileBlogIndex = () => {
                     </div>
                     <h3 class="article-title text-primary">${post.title}</h3>
                     <p class="article-excerpt">${post.excerpt}</p>
-                    <a href="blog/${post.id}.html" class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></a>
+                    <a href="blog/${post.id}" class="read-more">READ DEEP DIVE <span class="material-symbols-outlined">arrow_forward</span></a>
                 </article>`;
     });
 

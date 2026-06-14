@@ -20,6 +20,10 @@
             </a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="blog.html" class="active">Blog</a>
+                <a href="pro.html">Pro</a>
+                <a href="contact.html">Contact</a>
                 <a href="app.html" class="btn btn-primary">Launch Console</a>
             </div>
             <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
@@ -38,11 +42,12 @@
                         <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
                     </button>
                     <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                        <a href="index.html#features" class="mobile-nav-item">FEATURES</a>
+                        <a href="index.html" class="mobile-nav-item">HOME</a>
+                        <a href="about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="blog.html" class="mobile-nav-item active">BLOG</a>
                         <a href="pro.html" class="mobile-nav-item">PRO</a>
-                        <a href="blog.html" class="mobile-nav-item">BLOG</a>
-                        <a href="index.html#contact" class="mobile-nav-item">CONTACT</a>
-                        <a href="app.html" class="mobile-nav-item active">LAUNCH</a>
+                        <a href="contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="app.html" class="mobile-nav-item">LAUNCH</a>
                     </div>
                 </div>
             </div>
@@ -70,16 +75,20 @@
                     const label = document.querySelector('.landing-nav-active-label');
                     if (label) {
                         const path = window.location.pathname;
-                        if (path.includes('pro.html')) {
+                        if (path.includes('pro.html') || path.includes('/pro')) {
                             label.textContent = 'PRO';
-                        } else if (path.includes('terms.html')) {
+                        } else if (path.includes('terms.html') || path.includes('/terms')) {
                             label.textContent = 'TERMS';
-                        } else if (path.includes('privacy.html')) {
+                        } else if (path.includes('privacy.html') || path.includes('/privacy')) {
                             label.textContent = 'PRIVACY';
-                        } else if (window.location.hash === '#contact') {
+                        } else if (path.includes('about.html') || path.includes('/about')) {
+                            label.textContent = 'ABOUT';
+                        } else if (path.includes('contact.html') || path.includes('/contact')) {
                             label.textContent = 'CONTACT';
-                        } else if (window.location.hash === '#features') {
-                            label.textContent = 'FEATURES';
+                        } else if (path.includes('blog.html') || path.includes('/blog')) {
+                            label.textContent = 'BLOG';
+                        } else {
+                            label.textContent = 'HOME';
                         }
                     }
                 });
@@ -138,9 +147,49 @@
     </main>
 
     <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>QUICK_TOOLS</h4>
+                <ul>
+                    <li><a href="app.html">Titan Console</a></li>
+                    <li><a href="app.html?view=rta">RTA Analyser</a></li>
+                    <li><a href="app.html?view=subcalc">Subwoofer Arrays</a></li>
+                    <li><a href="app.html?view=delay">Delay Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="blog.html">Engineering Blog</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
         <div class="footer-bottom">
             <div class="container">
-                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers.</p>
+                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers. [v2.4.0-PRO]</p>
             </div>
         </div>
     </footer>
@@ -157,7 +206,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const articleId = urlParams.get('id');
             if (articleId) {
-                window.location.replace("blog/" + articleId + ".html");
+                window.location.replace("blog/" + articleId);
                 return;
             }
 

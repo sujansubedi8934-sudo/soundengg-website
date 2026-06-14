@@ -9,6 +9,8 @@ const filesToCopy = [
     'app.html',
     'pro.html',
     'blog.html',
+    'about.html',
+    'contact.html',
     'privacy.html',
     'terms.html',
     'palm6bd854hde9.html',

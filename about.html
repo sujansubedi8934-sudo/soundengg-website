@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>About Us | SoundEngg</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        html, body {
+            background: #0A0A0A !important;
+            background-color: #0A0A0A !important;
+            color: #FFFFFF !important;
+        }
+        
+        main {
+            padding: 140px 24px 80px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: #FFFFFF !important;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .version-tag {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--primary) !important;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+        
+        .divider {
+            height: 2px;
+            width: 80px;
+            background: var(--primary);
+            margin-bottom: 3rem;
+            border-radius: 2px;
+        }
+        
+        section {
+            margin-bottom: 3.5rem;
+        }
+        
+        h2 {
+            color: #FFFFFF !important;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+        }
+        
+        p {
+            color: #E2E8F0 !important;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 1.2rem;
+        }
+        
+        strong {
+            color: #FFFFFF !important;
+            font-weight: 700;
+        }
+
+        .author-section {
+            background: #121212 !important;
+            border: 1px solid var(--outline, #222) !important;
+            padding: 2.5rem;
+            border-radius: 16px;
+            margin: 2.5rem 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .author-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .author-avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 2px solid var(--primary, #00ffff);
+            flex-shrink: 0;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+        }
+
+        .author-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .author-meta h3 {
+            margin: 0 0 0.25rem 0;
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .author-meta p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--primary, #00ffff);
+            font-family: var(--font-mono, monospace);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .spec-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+            padding: 1.5rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .spec-box h4 {
+            color: var(--primary);
+            font-family: var(--font-mono);
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .spec-box p {
+            font-size: 0.9rem;
+            margin-bottom: 0;
+        }
+    </style>
+    <!-- Google AdSense Universal Tag -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+</head>
+<body class="landing-page brushed-metal">
+    <!-- Navbar -->
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
+                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html" class="active">About</a>
+                <a href="blog.html">Blog</a>
+                <a href="pro.html">Pro</a>
+                <a href="contact.html">Contact</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
+            </div>
+            <!-- Mobile View Navigation Select Dropdown -->
+            <div class="mobile-nav-dropdown-container">
+                <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                    <span class="landing-nav-active-label">MENU</span>
+                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                </button>
+                <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                    <a href="index.html" class="mobile-nav-item">HOME</a>
+                    <a href="about.html" class="mobile-nav-item active">ABOUT</a>
+                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                    <a href="pro.html" class="mobile-nav-item">PRO</a>
+                    <a href="contact.html" class="mobile-nav-item">CONTACT</a>
+                    <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+                    const menu = document.querySelector('.landing-nav-dropdown-menu');
+                    if (!toggleBtn || !menu) return;
+
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isVisible = menu.style.display === 'flex';
+                        menu.style.display = isVisible ? 'none' : 'flex';
+                        toggleBtn.classList.toggle('active', !isVisible);
+                    });
+
+                    document.addEventListener('click', (e) => {
+                        if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                            menu.style.display = 'none';
+                            toggleBtn.classList.remove('active');
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <h1 class="page-title">About SoundEngg</h1>
+        <div class="version-tag">SYSTEM SPECIFICATION // MISSION PARAMETERS</div>
+        <div class="divider"></div>
+
+        <section>
+            <h2>Mission & Objective</h2>
+            <p>
+                <strong>SoundEngg</strong> is a professional engineering utility platform designed specifically for live sound mixing engineers, system designers, RF coordinators, and acoustic consultants. In the high-stakes environment of live sound reinforcement and architectural acoustics, guessing is not an option. Our platform provides mathematically verified, phase-accurate calculations and real-time visualization tools to eliminate guesswork and master the physics of sound.
+            </p>
+            <p>
+                Built as an offline-first responsive web workspace and a native mobile application (via Ionic Capacitor), SoundEngg delivers sub-millisecond calculation speeds, robust Real-Time Analyzer (RTA) spectrograms, and connector references that work deep inside concrete venues, stadium backstages, or remote festivals without internet connectivity.
+            </p>
+        </section>
+
+        <!-- E-E-A-T Author Card -->
+        <section class="author-section rugged-bevel">
+            <div class="author-header">
+                <div class="author-avatar">
+                    <img src="assets/img/author-profile.jpg" alt="Sujan Subedi">
+                </div>
+                <div class="author-meta">
+                    <h3>Sujan Subedi</h3>
+                    <p>Founder &amp; Lead Systems Engineer</p>
+                </div>
+            </div>
+            <p style="margin: 0; font-size: 1rem; line-height: 1.7;">
+                Sujan Subedi is a professional Live Sound Mixing and System Tuning Engineer operating across India and Nepal. A graduate of A.R. Rahman's prestigious KM Music Conservatory (Chennai), he specializes in configuring and tuning large-scale line array systems, calculating complex cardioid subwoofer setups, executing multi-zone venue alignments, and managing complex wireless RF environments. 
+            </p>
+            <p style="margin: 0; font-size: 1rem; line-height: 1.7;">
+                Driven by a commitment to elevate the technical capabilities of fellow audio practitioners, Sujan designed SoundEngg to consolidate bulky spreadsheets into a singular, high-contrast, lightning-fast dashboard that complies with the physical laws of acoustics.
+            </p>
+        </section>
+
+        <section>
+            <h2>Core Pillars of our Technology</h2>
+            <p>
+                Every calculation and visualizer within SoundEngg is engineered with three core principles:
+            </p>
+            <ul>
+                <li style="margin-bottom: 1rem; line-height: 1.6;">
+                    <strong>Mathematical Verification:</strong> Calculations such as subwoofer spacing, broadside alignment delay, and temperature-compensated acoustic propagation speeds are verified against standard physical formulas (e.g. speed of sound as a function of temperature: \(c \approx 331.3 + 0.606 \times T^\circ\text{C}\)).
+                </li>
+                <li style="margin-bottom: 1rem; line-height: 1.6;">
+                    <strong>Performance First:</strong> Developed strictly using semantic HTML5, Vanilla JavaScript, and optimized Web Audio API configurations to maintain a 60FPS refresh rate on spectrum visualizers and zero lag during calculations.
+                </li>
+                <li style="margin-bottom: 1rem; line-height: 1.6;">
+                    <strong>E-E-A-T Technical Writing:</strong> Our Engineering Blog serves as an open-access knowledge base, detailing advanced topics such as Dante network redundancy, digital gain structures, and comb filtering with professional, industry-vetted depth.
+                </li>
+            </ul>
+        </section>
+
+        <div class="specs-grid">
+            <div class="spec-box">
+                <h4>100%</h4>
+                <p>Offline Caching</p>
+            </div>
+            <div class="spec-box">
+                <h4>60 FPS</h4>
+                <p>Spectrum Analysis</p>
+            </div>
+            <div class="spec-box">
+                <h4>48+</h4>
+                <p>Engineering Articles</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>QUICK_TOOLS</h4>
+                <ul>
+                    <li><a href="app.html">Titan Console</a></li>
+                    <li><a href="app.html?view=rta">RTA Analyser</a></li>
+                    <li><a href="app.html?view=subcalc">Subwoofer Arrays</a></li>
+                    <li><a href="app.html?view=delay">Delay Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="blog.html">Engineering Blog</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers. [v2.4.0-PRO]</p>
+            </div>
+        </div>
+    </footer>
+    <!-- Vercel Web Analytics & Speed Insights -->
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

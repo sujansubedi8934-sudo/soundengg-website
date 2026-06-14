@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <title>Contact Us | SoundEngg</title>
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <style>
+        html, body {
+            background: #0A0A0A !important;
+            background-color: #0A0A0A !important;
+            color: #FFFFFF !important;
+        }
+        
+        main {
+            padding: 140px 24px 80px 24px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .page-title {
+            color: #FFFFFF !important;
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+        
+        .version-tag {
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--primary) !important;
+            letter-spacing: 1px;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+        }
+        
+        .divider {
+            height: 2px;
+            width: 80px;
+            background: var(--primary);
+            margin-bottom: 3rem;
+            border-radius: 2px;
+        }
+        
+        section {
+            margin-bottom: 3.5rem;
+        }
+    </style>
+    <!-- Google AdSense Universal Tag -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448">
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+</head>
+<body class="landing-page brushed-metal">
+    <!-- Navbar -->
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
+                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
+                <a href="blog.html">Blog</a>
+                <a href="pro.html">Pro</a>
+                <a href="contact.html" class="active">Contact</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
+            </div>
+            <!-- Mobile View Navigation Select Dropdown -->
+            <div class="mobile-nav-dropdown-container">
+                <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                    <span class="landing-nav-active-label">MENU</span>
+                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                </button>
+                <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                    <a href="index.html" class="mobile-nav-item">HOME</a>
+                    <a href="about.html" class="mobile-nav-item">ABOUT</a>
+                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                    <a href="pro.html" class="mobile-nav-item">PRO</a>
+                    <a href="contact.html" class="mobile-nav-item active">CONTACT</a>
+                    <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+                    const menu = document.querySelector('.landing-nav-dropdown-menu');
+                    if (!toggleBtn || !menu) return;
+
+                    toggleBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const isVisible = menu.style.display === 'flex';
+                        menu.style.display = isVisible ? 'none' : 'flex';
+                        toggleBtn.classList.toggle('active', !isVisible);
+                    });
+
+                    document.addEventListener('click', (e) => {
+                        if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                            menu.style.display = 'none';
+                            toggleBtn.classList.remove('active');
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <h1 class="page-title">Contact Us</h1>
+        <div class="version-tag">ESTABLISH COMMUNICATIONS // SECURE PORTAL</div>
+        <div class="divider"></div>
+
+        <section class="contact-section" style="padding: 0;">
+            <div class="contact-rich-grid">
+                <!-- Left: Contact Form -->
+                <div class="contact-form-side">
+                    <h2 class="vfd-glow" style="margin-bottom: 1rem;">SEND MESSAGE</h2>
+                    <p class="form-desc" style="font-size: 0.9rem; margin-bottom: 2rem;">REACH OUT FOR LIVE SOUND MIXING, SYSTEM DESIGN, ACOUSTICS CONSULTATION, OR RF WIRELESS COORDINATION.</p>
+                    
+                    <form class="rich-contact-form" id="contact-form" action="https://api.web3forms.com/submit" method="POST">
+                        <input type="hidden" name="access_key" value="30b42cdf-f6eb-4492-9c8e-575734cc0b89">
+                        <input type="hidden" name="subject" value="New Inquiry from SoundEngg.com Contact Page">
+                        <input type="hidden" name="from_name" value="SoundEngg Portal">
+                        <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+                        <div class="form-field">
+                            <label>YOUR FIRST NAME</label>
+                            <input type="text" name="name" placeholder="Enter your first name" class="vfd-input" required>
+                        </div>
+                        <div class="form-field">
+                            <label>YOUR EMAIL ADDRESS*</label>
+                            <input type="email" name="email" placeholder="Enter your email address" class="vfd-input" required>
+                        </div>
+                        <div class="form-field">
+                            <label>YOUR MESSAGE*</label>
+                            <textarea name="message" placeholder="Describe your sound needs" class="vfd-input" rows="5" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary submit-btn" id="submit-btn">Submit Your Request</button>
+                        
+                        <!-- Real-time status report field -->
+                        <div id="form-status" style="margin-top: 1.5rem; font-family: var(--font-mono); font-size: 0.9rem; padding: 1rem; border-radius: 8px; display: none;"></div>
+                    </form>
+                </div>
+
+                <!-- Right: Location & Details -->
+                <div class="contact-details-side">
+                    <div class="detail-group">
+                        <h3 class="detail-label" style="color: var(--primary);">LOCATION & DETAILS</h3>
+                        
+                        <div class="detail-item">
+                            <h4>LOCATION</h4>
+                            <p style="font-size: 0.95rem; line-height: 1.6;">
+                                455, Main Rd, Jai Shree Colony,<br>
+                                Ganapati Nagar, Udaipur,<br>
+                                Rajasthan 313001, India
+                            </p>
+                        </div>
+
+                        <div class="detail-item">
+                            <h4>DIRECT CONTACT</h4>
+                            <div class="contact-methods">
+                                <a href="mailto:sujan@soundengg.com" class="contact-method" style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary); text-decoration: none;">
+                                    <span class="material-symbols-outlined">mail</span>
+                                    <span>sujan@soundengg.com</span>
+                                </a>
+                                <a href="mailto:legal@soundengg.com" class="contact-method" style="display: flex; align-items: center; gap: 0.5rem; color: var(--primary); text-decoration: none; margin-top: 0.75rem;">
+                                    <span class="material-symbols-outlined">gavel</span>
+                                    <span>legal@soundengg.com</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Bar -->
+                    <div class="contact-bottom-bar" style="margin-top: 2rem;">
+                        <div class="location-tag" style="display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-muted);">
+                            <span class="material-symbols-outlined">location_on</span>
+                            <span>Udaipur, Rajasthan, India</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>QUICK_TOOLS</h4>
+                <ul>
+                    <li><a href="app.html">Titan Console</a></li>
+                    <li><a href="app.html?view=rta">RTA Analyser</a></li>
+                    <li><a href="app.html?view=subcalc">Subwoofer Arrays</a></li>
+                    <li><a href="app.html?view=delay">Delay Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="blog.html">Engineering Blog</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers. [v2.4.0-PRO]</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- AJAX Form submission script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const contactForm = document.getElementById('contact-form');
+            const submitBtn = document.getElementById('submit-btn');
+            const formStatus = document.getElementById('form-status');
+
+            if (contactForm) {
+                contactForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    // Visual Loading Feedback
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'TRANSMITTING MESSAGE...';
+                    submitBtn.style.opacity = '0.7';
+                    
+                    formStatus.style.display = 'block';
+                    formStatus.style.background = 'rgba(0, 170, 255, 0.1)';
+                    formStatus.style.color = '#00AAFF';
+                    formStatus.style.border = '1px solid #005588';
+                    formStatus.innerHTML = '[SYSTEM] CONNECTING TO TELEMETRY ROUTER...';
+
+                    const formData = new FormData(contactForm);
+                    const object = Object.fromEntries(formData);
+                    const json = JSON.stringify(object);
+
+                    fetch('https://api.web3forms.com/submit', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: json
+                    })
+                    .then(async (response) => {
+                        let res = await response.json();
+                        if (response.status == 200) {
+                            formStatus.style.background = 'rgba(16, 185, 129, 0.15)';
+                            formStatus.style.color = '#10B981';
+                            formStatus.style.border = '1px solid #10B981';
+                            formStatus.innerHTML = '[SUCCESS] SECURE ROUTING COMPLETE. Your message has been sent directly to Hello@soundengg.com!';
+                            contactForm.reset();
+                        } else {
+                            formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                            formStatus.style.color = '#EF4444';
+                            formStatus.style.border = '1px solid #EF4444';
+                            formStatus.innerHTML = '[ERROR] ROUTING FAILED: ' + res.message;
+                        }
+                    })
+                    .catch(error => {
+                        formStatus.style.background = 'rgba(239, 68, 68, 0.15)';
+                        formStatus.style.color = '#EF4444';
+                        formStatus.style.border = '1px solid #EF4444';
+                        formStatus.innerHTML = '[SYSTEM STATUS ERROR] Connection timed out. Please try again.';
+                    })
+                    .then(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Submit Your Request';
+                        submitBtn.style.opacity = '1';
+                    });
+                });
+            }
+        });
+    </script>
+    <!-- Vercel Web Analytics & Speed Insights -->
+    <script defer src="/_vercel/insights/script.js"></script>
+    <script defer src="/_vercel/speed-insights/script.js"></script>
+</body>
+</html>

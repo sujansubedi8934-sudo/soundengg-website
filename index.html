@@ -87,10 +87,11 @@
                 <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
             </a>
             <div class="nav-links">
-                <a href="#features">Features</a>
-                <a href="pro.html">Pro</a>
+                <a href="index.html">Home</a>
+                <a href="about.html">About</a>
                 <a href="blog.html">Blog</a>
-                <a href="#contact">Contact</a>
+                <a href="pro.html">Pro</a>
+                <a href="contact.html">Contact</a>
                 <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
             <!-- Mobile View Navigation Select Dropdown -->
@@ -100,11 +101,12 @@
                     <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
                 </button>
                 <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                    <a href="index.html#features" class="mobile-nav-item">FEATURES</a>
-                    <a href="pro.html" class="mobile-nav-item">PRO</a>
+                    <a href="index.html" class="mobile-nav-item">HOME</a>
+                    <a href="about.html" class="mobile-nav-item">ABOUT</a>
                     <a href="blog.html" class="mobile-nav-item">BLOG</a>
-                    <a href="index.html#contact" class="mobile-nav-item">CONTACT</a>
-                    <a href="app.html" class="mobile-nav-item active">LAUNCH</a>
+                    <a href="pro.html" class="mobile-nav-item">PRO</a>
+                    <a href="contact.html" class="mobile-nav-item">CONTACT</a>
+                    <a href="app.html" class="mobile-nav-item">LAUNCH</a>
                 </div>
             </div>
             <script>
@@ -131,16 +133,20 @@
                     const label = document.querySelector('.landing-nav-active-label');
                     if (label) {
                         const path = window.location.pathname;
-                        if (path.includes('pro.html')) {
+                        if (path.includes('pro.html') || path.includes('/pro')) {
                             label.textContent = 'PRO';
-                        } else if (path.includes('terms.html')) {
+                        } else if (path.includes('terms.html') || path.includes('/terms')) {
                             label.textContent = 'TERMS';
-                        } else if (path.includes('privacy.html')) {
+                        } else if (path.includes('privacy.html') || path.includes('/privacy')) {
                             label.textContent = 'PRIVACY';
-                        } else if (window.location.hash === '#contact') {
+                        } else if (path.includes('about.html') || path.includes('/about')) {
+                            label.textContent = 'ABOUT';
+                        } else if (path.includes('contact.html') || path.includes('/contact')) {
                             label.textContent = 'CONTACT';
-                        } else if (window.location.hash === '#features') {
-                            label.textContent = 'FEATURES';
+                        } else if (path.includes('blog.html') || path.includes('/blog')) {
+                            label.textContent = 'BLOG';
+                        } else {
+                            label.textContent = 'HOME';
                         }
                     }
                 });
@@ -347,10 +353,10 @@
             <div class="footer-col">
                 <h4>KNOWLEDGE</h4>
                 <ul>
-                    <li><a href="index.html#features">Features</a></li>
+                    <li><a href="index.html">Home</a></li>
                     <li><a href="blog.html">Engineering Blog</a></li>
-                    <li><a href="index.html#contact">Contact Us</a></li>
-                    <li><a href="app.html?view=author">Author Profile</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
                 </ul>
             </div>
             <div class="footer-col">
