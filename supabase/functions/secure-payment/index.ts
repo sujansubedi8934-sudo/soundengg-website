@@ -2,8 +2,16 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts"
 
+// Razorpay config
 const RZP_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID") || "rzp_live_SsjbdTD8vcr6Hp";
 const RZP_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET") || "";
+
+// Lemon Squeezy config
+const LEMONSQUEEZY_API_KEY = Deno.env.get("LEMONSQUEEZY_API_KEY") || "";
+const LEMONSQUEEZY_STORE_ID = Deno.env.get("LEMONSQUEEZY_STORE_ID") || "";
+const LEMONSQUEEZY_VARIANT_MONTHLY = Deno.env.get("LEMONSQUEEZY_VARIANT_MONTHLY") || "";
+const LEMONSQUEEZY_VARIANT_YEARLY = Deno.env.get("LEMONSQUEEZY_VARIANT_YEARLY") || "";
+const LEMONSQUEEZY_VARIANT_LIFETIME = Deno.env.get("LEMONSQUEEZY_VARIANT_LIFETIME") || "";
 
 serve(async (req) => {
   // CORS Preflight headers
@@ -19,10 +27,10 @@ serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { action, plan, payment_id, order_id, signature, subscription_id, user_currency } = body;
+    const { action, plan, payment_id, order_id, signature, subscription_id, user_currency, provider } = body;
 
     // ==========================================
-    // ACTION 1: INITIALIZE CHECKOUT (GENERATE SECURE IDs)
+    // ACTION 1: INITIALIZE CHECKOUT (GENERATE SECURE IDs/URL)
     // ==========================================
     if (action === "create_checkout") {
       const authHeader = req.headers.get("Authorization");
@@ -36,14 +44,74 @@ serve(async (req) => {
       if (!user) throw new Error("Unauthorized Access");
 
       const isUSD = user_currency === "USD";
-      
+
+      // --- PATH A: LEMON SQUEEZY (USD / INTERNATIONAL) ---
+      if (isUSD) {
+        const variantId = plan === "monthly" 
+          ? LEMONSQUEEZY_VARIANT_MONTHLY 
+          : plan === "yearly" 
+            ? LEMONSQUEEZY_VARIANT_YEARLY 
+            : LEMONSQUEEZY_VARIANT_LIFETIME;
+
+        if (!LEMONSQUEEZY_API_KEY || !LEMONSQUEEZY_STORE_ID || !variantId) {
+          throw new Error("Lemon Squeezy credentials or variant IDs are not configured in environment variables.");
+        }
+
+        const response = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
+          method: "POST",
+          headers: {
+            "Accept": "application/vnd.api+json",
+            "Content-Type": "application/vnd.api+json",
+            "Authorization": `Bearer ${LEMONSQUEEZY_API_KEY}`
+          },
+          body: JSON.stringify({
+            data: {
+              type: "checkouts",
+              attributes: {
+                checkout_data: {
+                  custom: {
+                    user_id: user.id,
+                    plan: plan
+                  },
+                  email: user.email || ""
+                }
+              },
+              relationships: {
+                store: {
+                  data: {
+                    type: "stores",
+                    id: LEMONSQUEEZY_STORE_ID
+                  }
+                },
+                variant: {
+                  data: {
+                    type: "variants",
+                    id: variantId
+                  }
+                }
+              }
+            }
+          })
+        });
+
+        const checkoutData = await response.json();
+        if (!response.ok) {
+          throw new Error(checkoutData.errors?.[0]?.detail || "Failed to create Lemon Squeezy checkout session.");
+        }
+
+        const checkoutUrl = checkoutData.data?.attributes?.url;
+        return new Response(JSON.stringify({ success: true, checkout_url: checkoutUrl }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // --- PATH B: RAZORPAY (INR / DOMESTIC) ---
       const offerId = Deno.env.get("RAZORPAY_OFFER_ID") || "offer_Sso2cR2Vk1F8HU";
       const lifetimeOfferId = Deno.env.get("RAZORPAY_LIFETIME_OFFER_ID") || "offer_SsmdVnR1qZlgCq";
 
       if (plan === "lifetime") {
-        // Secure backend-calculated pricing matrix to prevent client price spoofing
-        const amount = isUSD ? 4999 : 349900; // $49.99 in cents vs ₹3,499 in Paise
-        const currency = isUSD ? "USD" : "INR";
+        const amount = 349900; // ₹3,499 in Paise
+        const currency = "INR";
 
         const orderBody: any = {
           amount: amount,
@@ -55,10 +123,9 @@ serve(async (req) => {
         };
 
         if (lifetimeOfferId && lifetimeOfferId.trim() !== "") {
-          orderBody.offers = [lifetimeOfferId.trim()]; // Razorpay orders accept an array of standard offer IDs
+          orderBody.offers = [lifetimeOfferId.trim()];
         }
 
-        // One-time Order Creation
         const response = await fetch("https://api.razorpay.com/v1/orders", {
           method: "POST",
           headers: {
@@ -77,13 +144,11 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       } else {
-        // Subscription Creation (Monthly/Yearly)
-        // Hardcoding the exact Live Plan IDs to bypass any stale Supabase secrets
         const planId = plan === "monthly"
           ? "plan_SsjtsdD4GW4rR7" // SoundEngg Pro Monthly Pass
           : "plan_SsjusefppDE8Lb";  // SoundEngg Pro Yearly Pass
 
-        const totalCount = plan === "monthly" ? 120 : 10; // 10 years max duration (120 months or 10 years)
+        const totalCount = plan === "monthly" ? 120 : 10;
 
         const subscriptionBody: any = {
           plan_id: planId,
@@ -108,7 +173,7 @@ serve(async (req) => {
         if (!response.ok) {
           throw new Error(
             subData.error 
-              ? `${subData.error.description} (To fix this, ensure you have created this Plan ID in your Razorpay Dashboard and injected it into Supabase secrets as RAZORPAY_PLAN_${plan.toUpperCase()})`
+              ? `${subData.error.description}`
               : "Failed to create Razorpay subscription"
           );
         }
@@ -120,14 +185,43 @@ serve(async (req) => {
     }
 
     // ==========================================
-    // ACTION 2: VERIFY PAYMENT SIGNATURE (SECURE DB SYNC)
+    // ACTION 2: VERIFY PAYMENT (SECURE HANDSHAKE/SYNC)
     // ==========================================
     if (action === "verify_payment") {
+      // --- PATH A: LEMON SQUEEZY VERIFICATION (POLLING DB FOR PRO STATUS) ---
+      if (provider === "lemonsqueezy" || user_currency === "USD") {
+        const authHeader = req.headers.get("Authorization");
+        if (!authHeader) throw new Error("Missing Authorization header");
+        const token = authHeader.replace("Bearer ", "");
+        const supabaseAdmin = createClient(
+          Deno.env.get("SUPABASE_URL") || "",
+          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
+        );
+        const { data: { user } } = await supabaseAdmin.auth.getUser(token);
+        if (!user) throw new Error("Unauthorized Access");
+
+        const { data: profile } = await supabaseAdmin
+          .from("profiles")
+          .select("is_pro, subscription_tier")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        const isSuccess = !!profile?.is_pro && 
+          (profile?.subscription_tier === plan || 
+           profile?.subscription_tier === "lifetime" || 
+           profile?.subscription_tier === "yearly" || 
+           profile?.subscription_tier === "monthly");
+
+        return new Response(JSON.stringify({ success: isSuccess }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // --- PATH B: RAZORPAY VERIFICATION (HMAC SIGNATURE COMPUTATION) ---
       if (!payment_id || (!order_id && !subscription_id) || !signature) {
         throw new Error("Missing required verification parameters.");
       }
 
-      // 1. Calculate secure HMAC-SHA256 signature
       const dataToSign = order_id
         ? `${order_id}|${payment_id}`
         : `${payment_id}|${subscription_id}`;
@@ -149,7 +243,6 @@ serve(async (req) => {
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
 
-      // 2. Authenticate signature matching
       if (generatedSignature !== signature) {
         return new Response(JSON.stringify({ success: false, error: "Invalid payment signature verification failed." }), {
           status: 400,
@@ -157,10 +250,9 @@ serve(async (req) => {
         });
       }
 
-      // 3. Update User Status in Database
       const supabaseAdmin = createClient(
         Deno.env.get("SUPABASE_URL") || "",
-        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "" // Admin key to bypass RLS policies securely
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
       );
       
       const authHeader = req.headers.get("Authorization")!;
@@ -169,7 +261,6 @@ serve(async (req) => {
 
       if (!user) throw new Error("Unauthorized Access");
 
-      // Save Pro access tier in user's profile table row
       const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
       const { error } = await supabaseAdmin
         .from('profiles')
@@ -191,7 +282,7 @@ serve(async (req) => {
     }
 
     // ==========================================
-    // ACTION 3: CANCEL SUBSCRIPTION (SECURE REQ VIA GATEWAY)
+    // ACTION 3: CANCEL SUBSCRIPTION (GATEWAY DEACTIVATION)
     // ==========================================
     if (action === "cancel_subscription") {
       const authHeader = req.headers.get("Authorization");
@@ -204,7 +295,6 @@ serve(async (req) => {
       const { data: { user } } = await supabaseAdmin.auth.getUser(token);
       if (!user) throw new Error("Unauthorized Access");
 
-      // Fetch user profile to check subscription ID and provider
       const { data: profile, error: profileErr } = await supabaseAdmin
         .from("profiles")
         .select("subscription_id, subscription_provider, is_pro, subscription_tier")
@@ -215,12 +305,51 @@ serve(async (req) => {
         throw new Error("Unable to retrieve profile details.");
       }
 
-      if (!profile.subscription_id || profile.subscription_provider !== "razorpay") {
+      if (!profile.subscription_id) {
+        throw new Error("No active auto-renewing subscription found for cancellation.");
+      }
+
+      // --- PATH A: LEMON SQUEEZY SUBSCRIPTION CANCELLATION ---
+      if (profile.subscription_provider === "lemonsqueezy") {
+        if (!LEMONSQUEEZY_API_KEY) throw new Error("Lemon Squeezy API key not configured.");
+        
+        const response = await fetch(`https://api.lemonsqueezy.com/v1/subscriptions/${profile.subscription_id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${LEMONSQUEEZY_API_KEY}`
+          }
+        });
+
+        const responseData = await response.json();
+        if (!response.ok) {
+          throw new Error(responseData.errors?.[0]?.detail || "Failed to cancel Lemon Squeezy subscription");
+        }
+
+        const endsAt = responseData.data?.attributes?.ends_at;
+        const expiresAt = endsAt ? new Date(endsAt).toISOString() : new Date().toISOString();
+        const isStillActive = new Date(expiresAt) > new Date();
+
+        await supabaseAdmin
+          .from("profiles")
+          .update({
+            is_pro: isStillActive,
+            subscription_tier: isStillActive ? profile.subscription_tier : null,
+            subscription_provider: isStillActive ? "lemonsqueezy_cancelled" : "lemonsqueezy",
+            subscription_expires_at: expiresAt,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", user.id);
+
+        return new Response(JSON.stringify({ success: true, message: "Subscription cancelled successfully at end of cycle.", expires_at: expiresAt }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" }
+        });
+      }
+
+      // --- PATH B: RAZORPAY SUBSCRIPTION CANCELLATION ---
+      if (profile.subscription_provider !== "razorpay") {
         throw new Error("No active auto-renewing Razorpay subscription found for cancellation.");
       }
 
-      // Call Razorpay API to cancel subscription at the end of the current cycle
-      // If we cancel with cancel_at_cycle_end: 1, Razorpay will keep it active until the end of the paid duration!
       const response = await fetch(`https://api.razorpay.com/v1/subscriptions/${profile.subscription_id}/cancel`, {
         method: "POST",
         headers: {
@@ -234,9 +363,7 @@ serve(async (req) => {
 
       const responseData = await response.json();
       if (!response.ok) {
-        // If subscription is already cancelled or has error, handle gracefully
         if (responseData.error && (responseData.error.description.includes("cancelled") || responseData.error.description.includes("completed"))) {
-          // Already cancelled, let's update profile just in case
           await supabaseAdmin
             .from("profiles")
             .update({ 
@@ -253,9 +380,6 @@ serve(async (req) => {
         throw new Error(responseData.error ? responseData.error.description : "Failed to cancel subscription in Razorpay");
       }
 
-      // Update database profile
-      // Note: Razorpay webhook subscription.cancelled will also capture and sync this,
-      // but doing it synchronously here guarantees instant UI response and superior user experience!
       const currentEnd = responseData.current_end;
       const expiresAt = currentEnd ? new Date(currentEnd * 1000).toISOString() : new Date().toISOString();
       const isStillActive = new Date(expiresAt) > new Date();
@@ -283,3 +407,4 @@ serve(async (req) => {
     });
   }
 });
+

@@ -587,6 +587,166 @@ function initAdManager() {
     }
     window.initiateRazorpayCheckout = initiateRazorpayCheckout;
 
+    // --- LEMON SQUEEZY SUBSCRIPTION & ONE-TIME CHECKOUT ---
+    async function initiateLemonSqueezyCheckout(user, plan = 'lifetime') {
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd();
+        }
+        
+        let currency = "USD";
+        
+        // Show loading spinner
+        let loadingOverlay = document.createElement('div');
+        loadingOverlay.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10,15,20,0.85); backdrop-filter: blur(10px); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif;";
+        loadingOverlay.innerHTML = `
+            <div style="width: 50px; height: 50px; border: 4px solid var(--primary, #14A7B5); border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px;"></div>
+            <div style="font-size: 1.1rem; font-weight: 500; letter-spacing: 0.5px;">Establishing secure handshake...</div>
+            <div style="font-size: 0.85rem; color: #888; margin-top: 8px;">Contacting Lemon Squeezy gateway securely</div>
+        `;
+        document.body.appendChild(loadingOverlay);
+
+        try {
+            const { data: { session } } = await window.supabaseClient.auth.getSession();
+            if (!session) throw new Error("No active session found. Please log in.");
+
+            // Fetch secure checkout URL from Deno Edge Function
+            const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/secure-payment";
+            const response = await fetch(edgeFuncUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${session.access_token}`
+                },
+                body: JSON.stringify({
+                    action: "create_checkout",
+                    plan: plan,
+                    user_currency: currency
+                })
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data.error || "Failed to initialize payment handshake with server.");
+            }
+
+            loadingOverlay.remove();
+            
+            const checkoutUrl = data.checkout_url;
+            if (!checkoutUrl) throw new Error("Server did not return a valid checkout URL.");
+
+            // Launch the Checkout URL
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
+                // Inside native Capacitor wrapper, open native browser tab
+                await window.Capacitor.Plugins.Browser.open({ url: checkoutUrl });
+                // Start polling database for status update
+                pollForSubscriptionActivation(session, plan);
+            } else {
+                // In standard web browser, open the Lemon Squeezy overlay modal if loaded, else fallback to window.open
+                if (window.LemonSqueezy) {
+                    window.LemonSqueezy.Url.Open(checkoutUrl);
+                    pollForSubscriptionActivation(session, plan);
+                } else {
+                    window.open(checkoutUrl, '_blank');
+                    pollForSubscriptionActivation(session, plan);
+                }
+            }
+
+        } catch (e) {
+            loadingOverlay.remove();
+            console.error("Lemon Squeezy Checkout error:", e);
+            alert(`Could not launch secure payment gateway:\n${e.message}`);
+        }
+    }
+    window.initiateLemonSqueezyCheckout = initiateLemonSqueezyCheckout;
+
+    // --- SECURE REAL-TIME POLLING FOR WEBHOOK COMPLETION ---
+    function pollForSubscriptionActivation(session, plan) {
+        const verifyOverlay = document.createElement('div');
+        verifyOverlay.id = 'lemonsqueezy-verify-overlay';
+        verifyOverlay.style = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10,15,20,0.85); backdrop-filter: blur(10px); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; font-family: sans-serif;";
+        verifyOverlay.innerHTML = `
+            <div style="width: 50px; height: 50px; border: 4px solid var(--primary, #14A7B5); border-top-color: transparent; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px;"></div>
+            <div style="font-size: 1.1rem; font-weight: 500; letter-spacing: 0.5px;">Waiting for payment confirmation...</div>
+            <div style="font-size: 0.85rem; color: #888; margin-top: 8px;">Please complete checkout in the browser. Unlocking automatically...</div>
+            <button id="btn-cancel-verify-polling" style="margin-top: 25px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; padding: 10px 20px; font-family: monospace; border-radius: 4px; cursor: pointer;">DISMISS</button>
+        `;
+        document.body.appendChild(verifyOverlay);
+
+        let isDismissed = false;
+        const btnDismiss = verifyOverlay.querySelector('#btn-cancel-verify-polling');
+        btnDismiss.onclick = () => {
+            isDismissed = true;
+            verifyOverlay.remove();
+            if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                window.showNativeBannerAd();
+            }
+        };
+
+        const edgeFuncUrl = "https://ewudkzyjcvjxxqpqnqiy.supabase.co/functions/v1/secure-payment";
+        let attempts = 0;
+        const maxAttempts = 50; // Poll for 100 seconds (2s intervals)
+        
+        const interval = setInterval(async () => {
+            if (isDismissed) {
+                clearInterval(interval);
+                return;
+            }
+
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(interval);
+                verifyOverlay.remove();
+                alert("Payment verification is taking longer than expected. If your payment went through, it will automatically update in your profile shortly!");
+                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                    window.showNativeBannerAd();
+                }
+                return;
+            }
+
+            try {
+                const response = await fetch(edgeFuncUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${session.access_token}`
+                    },
+                    body: JSON.stringify({
+                        action: "verify_payment",
+                        plan: plan,
+                        provider: "lemonsqueezy",
+                        user_currency: "USD"
+                    })
+                });
+
+                const verifyResult = await response.json();
+                if (response.ok && verifyResult.success) {
+                    clearInterval(interval);
+                    
+                    safeStorage.setItem('tools_unlocked_until', (plan === 'lifetime') ? (Date.now() + (10 * 365 * 24 * 60 * 60 * 1000)) : (Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000));
+                    
+                    await syncSubscriptionStatus(session);
+                    
+                    const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                    if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+                    
+                    if (window.updatePremiumUI) {
+                        window.updatePremiumUI();
+                    }
+                    
+                    unlockApp();
+                    verifyOverlay.remove();
+                    if (typeof showCheckoutSuccessOverlay === 'function') {
+                        showCheckoutSuccessOverlay(plan);
+                    } else if (typeof window.showCheckoutSuccessOverlay === 'function') {
+                        window.showCheckoutSuccessOverlay(plan);
+                    }
+                }
+            } catch (err) {
+                console.warn("Polling verify error:", err);
+            }
+        }, 2000);
+    }
+
     if (btnBuyPro) {
         btnBuyPro.addEventListener('click', async () => {
             if(!window.supabaseClient) return alert('Auth not configured.');
@@ -599,16 +759,30 @@ function initAdManager() {
                 return;
             }
 
-            // Dynamically load Razorpay SDK if not already in document
-            if (typeof Razorpay === 'undefined') {
-                console.log("Loading Razorpay SDK dynamically...");
-                const script = document.createElement('script');
-                script.src = "https://checkout.razorpay.com/v1/checkout.js";
-                script.onload = () => initiateRazorpayCheckout(user);
-                script.onerror = () => alert("Failed to load Razorpay payment SDK. Check your internet connection.");
-                document.head.appendChild(script);
+            if (window.isIndiaUser) {
+                // Dynamically load Razorpay SDK if not already in document
+                if (typeof Razorpay === 'undefined') {
+                    console.log("Loading Razorpay SDK dynamically...");
+                    const script = document.createElement('script');
+                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                    script.onload = () => initiateRazorpayCheckout(user);
+                    script.onerror = () => alert("Failed to load Razorpay payment SDK. Check your internet connection.");
+                    document.head.appendChild(script);
+                } else {
+                    initiateRazorpayCheckout(user);
+                }
             } else {
-                initiateRazorpayCheckout(user);
+                // Dynamically load Lemon Squeezy SDK if not already in document
+                if (typeof LemonSqueezy === 'undefined') {
+                    console.log("Loading Lemon Squeezy SDK dynamically...");
+                    const script = document.createElement('script');
+                    script.src = "https://assets.lemonsqueezy.com/lemon.js";
+                    script.onload = () => initiateLemonSqueezyCheckout(user);
+                    script.onerror = () => alert("Failed to load Lemon Squeezy payment SDK. Check your internet connection.");
+                    document.head.appendChild(script);
+                } else {
+                    initiateLemonSqueezyCheckout(user);
+                }
             }
         });
     }

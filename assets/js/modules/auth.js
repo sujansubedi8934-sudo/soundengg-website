@@ -507,7 +507,7 @@ async function syncSubscriptionStatus(session) {
             const btnSubUpgrade = document.getElementById('btn-sub-upgrade');
             const btnSubManage = document.getElementById('btn-sub-manage');
 
-            const isCancelled = data.subscription_provider === 'razorpay_cancelled';
+            const isCancelled = data.subscription_provider === 'razorpay_cancelled' || data.subscription_provider === 'lemonsqueezy_cancelled';
 
             if (profileTierBadge) {
                 if (window.isUserPro) {
