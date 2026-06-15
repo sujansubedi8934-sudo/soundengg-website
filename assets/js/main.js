@@ -902,12 +902,39 @@ function setupNavigation() {
             const planSelectorModal = document.getElementById('plan-selector-modal');
             const btnClosePlanSelector = document.getElementById('btn-close-plan-selector');
             
-            if (btnProfileUpgrade && planSelectorModal) {
-                btnProfileUpgrade.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    if (profileModal) closeModal(profileModal);
-                    openModal(planSelectorModal);
+            const openPlanSelector = (e) => {
+                if (e) e.preventDefault();
+                
+                // Close any open modals to clean up the screen
+                if (profileModal) closeModal(profileModal);
+                
+                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                if (proUpgradeModal) closeModal(proUpgradeModal);
+                
+                const adLockModal = document.getElementById('ad-lock-modal');
+                if (adLockModal) closeModal(adLockModal);
+                
+                openModal(planSelectorModal);
+            };
+            
+            if (planSelectorModal) {
+                if (btnProfileUpgrade) {
+                    btnProfileUpgrade.addEventListener('click', openPlanSelector);
+                }
+                
+                const btnSubUpgrade = document.getElementById('btn-sub-upgrade');
+                if (btnSubUpgrade) {
+                    btnSubUpgrade.addEventListener('click', openPlanSelector);
+                }
+                
+                document.querySelectorAll('.pro-nav-redirect-btn').forEach(btn => {
+                    btn.addEventListener('click', openPlanSelector);
                 });
+                
+                const btnBuyPro = document.getElementById('btn-buy-pro');
+                if (btnBuyPro) {
+                    btnBuyPro.addEventListener('click', openPlanSelector);
+                }
             }
             
             if (btnClosePlanSelector && planSelectorModal) {

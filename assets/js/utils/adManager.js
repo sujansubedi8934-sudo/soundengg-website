@@ -747,45 +747,8 @@ function initAdManager() {
         }, 2000);
     }
 
-    if (btnBuyPro) {
-        btnBuyPro.addEventListener('click', async () => {
-            if(!window.supabaseClient) return alert('Auth not configured.');
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
-            
-            if (!user) {
-                alert('Please log in to purchase SoundEngg Pro.');
-                const authModalOverlay = document.getElementById('auth-modal-overlay');
-                if (authModalOverlay) authModalOverlay.classList.remove('hidden');
-                return;
-            }
+    // Note: btn-buy-pro click listener is handled in main.js to open the Plan Selector modal.
 
-            if (window.isIndiaUser) {
-                // Dynamically load Razorpay SDK if not already in document
-                if (typeof Razorpay === 'undefined') {
-                    console.log("Loading Razorpay SDK dynamically...");
-                    const script = document.createElement('script');
-                    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-                    script.onload = () => initiateRazorpayCheckout(user);
-                    script.onerror = () => alert("Failed to load Razorpay payment SDK. Check your internet connection.");
-                    document.head.appendChild(script);
-                } else {
-                    initiateRazorpayCheckout(user);
-                }
-            } else {
-                // Dynamically load Lemon Squeezy SDK if not already in document
-                if (typeof LemonSqueezy === 'undefined') {
-                    console.log("Loading Lemon Squeezy SDK dynamically...");
-                    const script = document.createElement('script');
-                    script.src = "https://assets.lemonsqueezy.com/lemon.js";
-                    script.onload = () => initiateLemonSqueezyCheckout(user);
-                    script.onerror = () => alert("Failed to load Lemon Squeezy payment SDK. Check your internet connection.");
-                    document.head.appendChild(script);
-                } else {
-                    initiateLemonSqueezyCheckout(user);
-                }
-            }
-        });
-    }
 
     // Monitor network changes to toggle modal dynamically if locked, or update online elements if unlocked
     window.addEventListener('online', () => {
