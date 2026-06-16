@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v10.0';
+const CACHE_NAME = 'soundengg-cache-v11.0';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -12,7 +12,24 @@ const URLS_TO_CACHE = [
     '/manifest.json',
     '/assets/css/styles.css',
     '/assets/js/main.js',
-    // Blogs
+    // Core Modules
+    '/assets/js/modules/utils.js',
+    '/assets/js/modules/theme.js',
+    '/assets/js/modules/premium.js',
+    '/assets/js/modules/auth.js',
+    '/assets/js/utils/audioCalcs.js',
+    '/assets/js/utils/adManager.js',
+    // Audio Tools Components
+    '/assets/js/components/rtaEngine.js',
+    '/assets/js/components/tunerEngine.js',
+    '/assets/js/components/signalGenerator.js',
+    '/assets/js/components/subCalc.js',
+    '/assets/js/components/delayCalc.js',
+    '/assets/js/components/earTraining.js',
+    '/assets/js/components/tapTempo.js',
+    '/assets/js/components/pinouts.js',
+    '/assets/js/components/blogEngine.js',
+    // Blogs Data
     '/assets/js/data/blogs/dsp-masterclass.js',
     '/assets/js/data/blogs/cl5-guide.js',
     '/assets/js/data/blogs/array-physics-101.js',
@@ -62,8 +79,12 @@ const URLS_TO_CACHE = [
     '/assets/js/data/blogs/concrete-box-acoustics.js',
     '/assets/js/data/blogs/stage-volume-iems.js',
     '/assets/js/blog-data.js',
+    // UI Images
     '/assets/img/logo.png',
-    '/assets/img/logo-dark.png'
+    '/assets/img/logo-dark.png',
+    '/assets/img/circle_logo_new.png',
+    '/assets/img/author-profile.jpg',
+    '/assets/img/time-delay-icon.png'
 ];
 
 // Install Event: Cache critical assets
