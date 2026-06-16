@@ -2502,9 +2502,14 @@ function initAppVersionCheck() {
 
                             const laterBtn = document.getElementById('btn-update-later');
                             if (laterBtn) {
-                                laterBtn.onclick = () => {
-                                    closeModal(updateOverlay);
-                                };
+                                if (versionConfig.forceUpdate) {
+                                    laterBtn.style.display = 'none';
+                                } else {
+                                    laterBtn.style.display = 'block';
+                                    laterBtn.onclick = () => {
+                                        closeModal(updateOverlay);
+                                    };
+                                }
                             }
                         }
                     } else {
