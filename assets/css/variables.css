@@ -1,0 +1,125 @@
+:root {
+    --primary: #14A7B5;
+    --primary-rgb: 20, 167, 181;
+    --on-primary: #FFFFFF;
+    --secondary: #008B9F;
+    
+    /* Missing Page Setup fallbacks */
+    --bg-main: #0A0A0A;
+    --border-color: #00264D;
+    --surface-low: #121212;
+    --warning: #ef4444;
+    
+    /* Dark Mode Defaults */
+    --background: #0A0A0A;
+    --surface: #121212;
+    --surface-higher: #1A1A1A;
+    --surface-highest: #242424;
+    
+    --outline: #001B36; /* Deep Navy borders per branding */
+    --outline-light: #00264D;
+    
+    --text-main: #FFFFFF;
+    --text-heading: #FFFFFF;
+    --text-muted: #8899AA;
+    --text-inverse: #000000;
+    
+    /* Fonts */
+    --font-headline: 'Space Grotesk', sans-serif;
+    --font-body: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+}
+
+html.light {
+    --primary: #14A7B5;
+    --on-primary: #FFFFFF;
+    
+    /* Missing Page Setup fallbacks for light mode */
+    --bg-main: #F8F9FA;
+    --border-color: #D4D4D8;
+    --surface-low: #FFFFFF;
+    --warning: #dc2626;
+    
+    --background: #F8F9FA;
+    --surface: #FFFFFF;
+    --surface-higher: #F0F2F5;
+    --surface-highest: #E8EAED;
+    
+    --outline: #D4D4D8;
+    --outline-light: #E4E4E8;
+    
+    --text-main: #4A4A4A;
+    --text-heading: #001B36;
+    --text-muted: #71717A;
+    --text-inverse: #FFFFFF;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+::selection {
+    background-color: var(--primary);
+    color: #000;
+}
+
+/* Material Icons configuration */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Special Effects */
+.vfd-glow {
+    text-shadow: 0 0 10px rgba(20, 167, 181, 0.4);
+}
+html.light .vfd-glow {
+    text-shadow: 0 0 10px rgba(20, 167, 181, 0.3);
+}
+
+.brushed-metal {
+    background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 2px);
+    background-size: 3px 100%;
+}
+html.light .brushed-metal {
+    background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.01) 0px, rgba(0,0,0,0.01) 1px, transparent 1px, transparent 2px);
+}
+
+body.brushed-metal {
+   /* default apply to body */
+}
+body { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 2px); }
+html.light body { background-image: repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px, transparent 1px, transparent 2px); }
+
+.rugged-bevel {
+    box-shadow: 
+        inset 1px 1px 0px 0px rgba(255,255,255,0.05),
+        inset -1px -1px 0px 0px rgba(0,0,0,0.5),
+        2px 2px 8px rgba(0,0,0,0.4);
+}
+html.light .rugged-bevel {
+    box-shadow: 
+        inset 1px 1px 0px 0px rgba(255,255,255,0.8),
+        inset -1px -1px 0px 0px rgba(0,0,0,0.1),
+        1px 1px 3px rgba(0,0,0,0.1);
+}
+
+/* --- Typography --- */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-heading);
+}
+
+/* Typography Utilities */
+.text-primary { color: var(--primary); }
+.text-secondary { color: var(--secondary); }
+.text-muted { color: var(--text-muted); }
+.font-mono { font-family: var(--font-mono); }

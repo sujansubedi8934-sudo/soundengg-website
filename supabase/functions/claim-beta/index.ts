@@ -268,6 +268,7 @@ serve(async (req) => {
       if (!brevoResponse.ok) {
         const brevoErrBody = await brevoResponse.text();
         console.error(`[claim-beta] Brevo API rejected email send: ${brevoErrBody}`);
+        throw new Error(`Brevo API Error: ${brevoErrBody}`);
       } else {
         console.log(`[claim-beta] Welcome credentials email dispatched successfully to ${lowerEmail}`);
       }
