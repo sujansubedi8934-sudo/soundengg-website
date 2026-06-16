@@ -43,18 +43,23 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
     );
 
-    // 1. Check if user already exists via the public profiles table
-    const { data: existingProfile, error: profileErr } = await supabaseAdmin
-      .from("profiles")
-      .select("id")
-      .eq("email", lowerEmail)
-      .maybeSingle();
+    // 1. Check if user already exists in auth.users by listing users
+    let existingUser = null;
+    const { data: { users }, error: listErr } = await supabaseAdmin.auth.admin.listUsers({
+      perPage: 1000
+    });
+
+    if (listErr) {
+      console.warn(`[claim-beta] Error listing users: ${listErr.message}`);
+    } else if (users) {
+      existingUser = users.find((u: any) => u.email?.toLowerCase() === lowerEmail);
+    }
 
     let userId: string;
 
-    if (existingProfile) {
-      console.log(`[claim-beta] User already exists with ID: ${existingProfile.id}. Updating password...`);
-      userId = existingProfile.id;
+    if (existingUser) {
+      console.log(`[claim-beta] User already exists in auth.users with ID: ${existingUser.id}. Updating password...`);
+      userId = existingUser.id;
 
       // Update password of existing auth user
       const { error: updateAuthErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
