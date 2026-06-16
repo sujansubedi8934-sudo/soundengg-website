@@ -1116,7 +1116,9 @@ function setupNavigation() {
                         
                         alert('Password reset link sent to your email! Please check your inbox.');
                     } catch (error) {
-                        alert('Error: ' + error.message);
+                        console.error('Password Reset Error:', error);
+                        const msg = error.message || error.error_description || (typeof error === 'object' ? JSON.stringify(error) : error);
+                        alert('Error: ' + msg);
                     } finally {
                         forgotPasswordLink.style.pointerEvents = 'auto';
                         forgotPasswordLink.style.opacity = '1';
