@@ -45,6 +45,21 @@ The application's JavaScript is split into modular segments:
 6. **`/assets/js/blog-data.js`** and **`/assets/js/data/blogs/*.js`** -> Individual isolated static blog contents.
 7. **`/assets/js/main.js`** -> App Initialization, Supabase routing, Global State, version checks, and Capacitor deep links.
 
+The application's CSS is split into modular stylesheets:
+1. **`/assets/css/styles.css`** -> Root bootsheet importing all modular style components.
+2. **`/assets/css/variables.css`** -> Root CSS variables, resets, core fonts, animations.
+3. **`/assets/css/layout.css`** -> Top bar navigation, main VFD grids, and dashboard launchers.
+4. **`/assets/css/modals.css`** -> Dialog overlays, settings slideout, billing portals, and auth sheets.
+5. **`/assets/css/components.css`** -> Numeric inputs, unit controls, global search and filters.
+6. **`/assets/css/tools.css`** -> Specialized analyzer UI, tuner dials, sub config visual charts, and EQ games.
+7. **`/assets/css/pages.css`** -> Blog reader templates, author portfolio page, landing utilities.
+8. **`/assets/css/responsive.css`** -> Mobile navigation toggles, tablet/viewport breakpoint overrides.
+
+Development & Build Tooling:
+1. **`/build-app.js`** -> Compilation bundle compiler copying assets into `/www`.
+2. **`/generate-static-blog.js`** -> Static SEO blog post generator.
+3. **`/dev-tools/`** -> Contains project diagnostic scripts, text extractors, and code helpers (e.g. `split-css.js`).
+
 ### Mobile Shell & Wrapper
 * **Wrapper Platform:** **Ionic Capacitor (v8.3.4)**.
 * **Bundle ID:** `com.soundengg.app` (configured as **SoundEngg Console**).
