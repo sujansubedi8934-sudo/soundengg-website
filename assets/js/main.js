@@ -1087,6 +1087,43 @@ function setupNavigation() {
                     btn.disabled = false;
                 }
             });
+
+            const forgotPasswordLink = formLogin.querySelector('.auth-link');
+            if (forgotPasswordLink) {
+                forgotPasswordLink.addEventListener('click', async (e) => {
+                    e.preventDefault();
+                    if (!window.supabaseClient) return alert('Auth not configured.');
+                    
+                    const emailInput = formLogin.querySelector('input[type="email"]');
+                    const email = emailInput ? emailInput.value.trim() : '';
+                    
+                    if (!email) {
+                        alert('Please enter your Email Address in the input box first, then click "Forgot password?".');
+                        if (emailInput) emailInput.focus();
+                        return;
+                    }
+                    
+                    try {
+                        forgotPasswordLink.style.pointerEvents = 'none';
+                        forgotPasswordLink.style.opacity = '0.5';
+                        forgotPasswordLink.textContent = 'Sending...';
+                        
+                        const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
+                            redirectTo: window.location.origin + window.location.pathname
+                        });
+                        
+                        if (error) throw error;
+                        
+                        alert('Password reset link sent to your email! Please check your inbox.');
+                    } catch (error) {
+                        alert('Error: ' + error.message);
+                    } finally {
+                        forgotPasswordLink.style.pointerEvents = 'auto';
+                        forgotPasswordLink.style.opacity = '1';
+                        forgotPasswordLink.textContent = 'Forgot password?';
+                    }
+                });
+            }
         }
 
         if (formSignup) {

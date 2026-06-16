@@ -71,6 +71,16 @@ function initAuthSystem() {
                     if (profileModal) closeModal(profileModal);
                 }
 
+                if (event === 'PASSWORD_RECOVERY') {
+                    if (authModalOverlay) closeModal(authModalOverlay);
+                    if (profileModal) {
+                        openModal(profileModal);
+                        alert("Your password reset session is active! Please enter and save your new password in the 'SECURITY' section below.");
+                        const passInput = document.getElementById('profile-new-password');
+                        if (passInput) passInput.focus();
+                    }
+                }
+
                 // B. Sync Pro/Free State and Profile Data in background (does not block UI/modals)
                 try {
                     await syncSubscriptionStatus(session);
