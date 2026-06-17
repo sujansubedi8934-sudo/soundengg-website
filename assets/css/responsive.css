@@ -1424,3 +1424,24 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
         animation: none !important;
     }
 }
+
+/* 7. Native Banner Ad Mitigations (Shift UI Elements Up) */
+.has-native-banner #mobile-bottom-tabs {
+    bottom: 50px !important;
+}
+
+@media (max-width: 768px) {
+    .has-native-banner .main-content {
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 50px) !important;
+    }
+    .has-native-banner .modal-overlay {
+        padding-bottom: 50px !important;
+    }
+}
+
+.native-mobile-platform.has-native-banner .main-content {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 50px) !important;
+}
+.native-mobile-platform.has-native-banner .modal-overlay {
+    padding-bottom: 50px !important;
+}

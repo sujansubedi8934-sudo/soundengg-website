@@ -1198,7 +1198,8 @@ function initProfessionalRTA() {
             });
 
             isNativeBannerActive = true;
-            document.body.style.paddingBottom = '60px'; // Dynamically pad view to prevent covering navigation elements
+            document.body.classList.add('has-native-banner');
+            document.body.style.paddingBottom = '50px'; // Dynamically pad view to prevent covering navigation elements
         } catch (err) {
             console.error('Error showing native banner ad:', err);
         }
@@ -1226,6 +1227,7 @@ function initProfessionalRTA() {
         if (!navigator.onLine) {
             console.log('Device is offline. Skipping native removeBanner to prevent crash.');
             isNativeBannerActive = false;
+            document.body.classList.remove('has-native-banner');
             document.body.style.paddingBottom = '0px';
             return;
         }
@@ -1242,6 +1244,7 @@ function initProfessionalRTA() {
             console.log('Removing native bottom banner ad...');
             await AdMob.removeBanner();
             isNativeBannerActive = false;
+            document.body.classList.remove('has-native-banner');
             document.body.style.paddingBottom = '0px';
         } catch (err) {
             console.error('Error hiding native banner ad:', err);
