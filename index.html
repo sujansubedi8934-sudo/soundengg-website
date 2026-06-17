@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
 <head>
+    <script>
+        // Redirect native mobile users instantly to app.html and replace history to avoid back loops
+        if (typeof window !== 'undefined' && window.Capacitor !== undefined) {
+            window.location.replace('app.html');
+        }
+    </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
     <title>SoundEngg | The Professional Audio Engineer's Toolkit</title>
