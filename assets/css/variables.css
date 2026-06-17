@@ -15,6 +15,8 @@
     --surface: #121212;
     --surface-higher: #1A1A1A;
     --surface-highest: #242424;
+    --surface-light: #2A2E35;
+    --surface-medium: #3F444E;
     
     --outline: #001B36; /* Deep Navy borders per branding */
     --outline-light: #00264D;
@@ -23,6 +25,9 @@
     --text-heading: #FFFFFF;
     --text-muted: #8899AA;
     --text-inverse: #000000;
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-muted);
+    --accent: #00f2fe;
     
     /* Fonts */
     --font-headline: 'Space Grotesk', sans-serif;
@@ -44,6 +49,8 @@ html.light {
     --surface: #FFFFFF;
     --surface-higher: #F0F2F5;
     --surface-highest: #E8EAED;
+    --surface-light: #F4F6F9;
+    --surface-medium: #E2E8F0;
     
     --outline: #D4D4D8;
     --outline-light: #E4E4E8;
@@ -52,6 +59,9 @@ html.light {
     --text-heading: #001B36;
     --text-muted: #71717A;
     --text-inverse: #FFFFFF;
+    --text-primary: var(--text-main);
+    --text-secondary: var(--text-muted);
+    --accent: #00b4d8;
 }
 
 * {

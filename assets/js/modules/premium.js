@@ -1,4 +1,5 @@
 window.isUserPro = false; // Global source of truth for subscription
+window.userSubscriptionTier = 'free';
 
 window.isPremiumActive = function(featureKey) {
     if (window.isUserPro) return true;
@@ -38,7 +39,8 @@ window.updatePremiumUI = function() {
     const btnProfileUpgrade = document.getElementById('btn-profile-upgrade');
     if (profileTierBadge) {
         if (window.isUserPro) {
-            profileTierBadge.textContent = 'PRO TIER';
+            const tierName = (window.userSubscriptionTier || 'PRO').toUpperCase();
+            profileTierBadge.textContent = `${tierName} PASS`;
             profileTierBadge.className = 'tier-badge pro';
         } else if (isAnyPro) {
             // Check if it's the global full-pro active, or a specific feature unlock
@@ -75,8 +77,78 @@ window.updatePremiumUI = function() {
         btnProfileUpgrade.style.display = window.isUserPro ? 'none' : 'inline-block';
     }
 
+    // Mobile Header and Menu Tier Badge Sync
+    const mobileSubBadge = document.getElementById('mobile-sub-badge');
+    const menuProfileTier = document.getElementById('menu-profile-tier');
+    const menuBtnUpgrade = document.getElementById('menu-btn-upgrade');
+    const menuBtnBillingPortal = document.getElementById('menu-btn-billing-portal');
+
+    if (mobileSubBadge) {
+        if (window.isUserPro) {
+            if (window.userSubscriptionTier === 'lifetime') {
+                mobileSubBadge.textContent = 'LIFETIME';
+            } else {
+                mobileSubBadge.textContent = 'PRO';
+            }
+            mobileSubBadge.className = 'tier-badge pro';
+        } else if (isAnyPro) {
+            mobileSubBadge.textContent = 'PRO';
+            mobileSubBadge.className = 'tier-badge pro';
+        } else {
+            mobileSubBadge.textContent = 'FREE';
+            mobileSubBadge.className = 'tier-badge free';
+        }
+    }
+
+    if (menuProfileTier) {
+        if (window.isUserPro) {
+            if (window.userSubscriptionTier === 'lifetime') {
+                menuProfileTier.textContent = 'LIFETIME PASS';
+            } else {
+                menuProfileTier.textContent = 'PRO PASS';
+            }
+            menuProfileTier.style.color = 'var(--primary)';
+        } else if (isAnyPro) {
+            menuProfileTier.textContent = 'TEMPORARY PRO';
+            menuProfileTier.style.color = 'var(--primary)';
+        } else {
+            menuProfileTier.textContent = 'FREE TIER';
+            menuProfileTier.style.color = 'var(--text-muted)';
+        }
+    }
+
+    if (menuBtnUpgrade && menuBtnBillingPortal) {
+        if (window.isUserPro) {
+            menuBtnUpgrade.style.display = 'none';
+            menuBtnBillingPortal.style.display = 'block';
+            if (window.userSubscriptionTier === 'lifetime') {
+                menuBtnBillingPortal.disabled = true;
+                menuBtnBillingPortal.textContent = 'LIFETIME IS PERMANENT';
+                menuBtnBillingPortal.style.opacity = '0.5';
+                menuBtnBillingPortal.style.cursor = 'not-allowed';
+            } else {
+                menuBtnBillingPortal.disabled = false;
+                menuBtnBillingPortal.textContent = 'MANAGE SUBSCRIPTION';
+                menuBtnBillingPortal.style.opacity = '1';
+                menuBtnBillingPortal.style.cursor = 'pointer';
+            }
+        } else {
+            menuBtnUpgrade.style.display = 'block';
+            menuBtnBillingPortal.style.display = 'none';
+        }
+    }
+
     // Hide locks/overlays
     const isFullProActive = window.isUserPro || (safeStorage.getItem('soundengg_temp_pro_until') && Date.now() < parseInt(safeStorage.getItem('soundengg_temp_pro_until'), 10));
+    
+    // Toggle mobile banner elements based on premium status
+    document.querySelectorAll('.free-only-btn, .free-only-tagline').forEach(el => {
+        el.style.display = isFullProActive ? 'none' : 'block';
+    });
+    document.querySelectorAll('.pro-only-tagline').forEach(el => {
+        el.style.display = isFullProActive ? 'block' : 'none';
+    });
+
     if (isFullProActive) {
         const adOverlay = document.getElementById('ad-manager-overlay');
         const adLockModal = document.getElementById('ad-lock-modal');

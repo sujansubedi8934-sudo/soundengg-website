@@ -518,12 +518,12 @@ function initProfessionalRTA() {
     function drawDominantOverlay() {
         ctx.save();
         // Use explicit font stack as canvas API doesn't support CSS variables
-        ctx.font = "bold 72px 'Space Grotesk', sans-serif";
+        ctx.font = "bold 54px 'Space Grotesk', sans-serif";
         ctx.fillStyle = '#14A7B5'; // Cyan/Turquoise
         ctx.textAlign = 'center';
         ctx.shadowBlur = 15;
         ctx.shadowColor = 'rgba(20, 167, 181, 0.7)';
-        ctx.fillText(domFreqDisplay, canvas.width / 2, 90);
+        ctx.fillText(domFreqDisplay, canvas.width / 2, 75);
         ctx.restore();
     }
 

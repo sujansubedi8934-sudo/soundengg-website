@@ -318,9 +318,11 @@ function setupNavigation() {
     const tunerView = document.getElementById('tuner-view');
     const subcalcView = document.getElementById('sub-calc-view');
     const tapdelayView = document.getElementById('tap-delay-view');
+    const menuView = document.getElementById('menu-view');
+    const settingsView = document.getElementById('settings-view');
     
     // IDs for ALL primary views to manage visibility
-    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView, subcalcView, tapdelayView];
+    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView, subcalcView, tapdelayView, menuView, settingsView];
 
     const btnLaunchRta = document.getElementById('btn-launch-rta');
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
@@ -463,10 +465,14 @@ function setupNavigation() {
             const btnTabHome = document.getElementById('btn-tab-home');
             const btnTabConsole = document.getElementById('btn-tab-console');
             const btnTabBlog = document.getElementById('btn-tab-blog');
+            const btnTabMenu = document.getElementById('btn-tab-menu');
+            const btnTabSettings = document.getElementById('btn-tab-settings');
             
             if (btnTabHome) btnTabHome.classList.toggle('active', targetView === dashboardView);
             if (btnTabConsole) btnTabConsole.classList.toggle('active', targetView === rtaView);
             if (btnTabBlog) btnTabBlog.classList.toggle('active', targetView === blogView);
+            if (btnTabMenu) btnTabMenu.classList.toggle('active', targetView === menuView);
+            if (btnTabSettings) btnTabSettings.classList.toggle('active', targetView === settingsView);
         }
     }
 
@@ -474,28 +480,34 @@ function setupNavigation() {
     function updateMobileHeader(targetView) {
         const headerTitle = document.getElementById('mobile-header-title');
         const backBtn = document.getElementById('mobile-header-back');
-        if (headerTitle) {
-            const viewTitles = {
-                'dashboard-view': 'SOUNDENGG CONSOLE',
-                'rta-view': 'RTA SPECTROGRAM',
-                'author-view': 'AUTHOR',
-                'module-view': 'DELAY CALCULATOR',
-                'pinout-view': 'PINOUT REFERENCE',
-                'blog-view': 'ENGINEERING BLOG',
-                'siggen-view': 'SIGNAL GENERATOR',
-                'ear-training-view': 'EAR TRAINING',
-                'tuner-view': 'PRECISION TUNER',
-                'sub-calc-view': 'SUB ARRAY CALC',
-                'tap-delay-view': 'TAP DELAY'
-            };
-            headerTitle.textContent = viewTitles[targetView.id] || 'SOUNDENGG';
+        const logoContainer = document.getElementById('mobile-header-logo');
+        const isMainView = (targetView.id === 'dashboard-view' || targetView.id === 'blog-view' || targetView.id === 'menu-view' || targetView.id === 'settings-view');
+        
+        if (logoContainer) {
+            logoContainer.style.display = isMainView ? 'flex' : 'none';
         }
-        if (backBtn) {
-            if (targetView.id === 'dashboard-view') {
-                backBtn.style.visibility = 'hidden';
+        
+        if (headerTitle) {
+            if (isMainView) {
+                headerTitle.textContent = '';
             } else {
-                backBtn.style.visibility = 'visible';
+                const viewTitles = {
+                    'rta-view': 'RTA SPECTROGRAM',
+                    'author-view': 'AUTHOR',
+                    'module-view': 'DELAY CALCULATOR',
+                    'pinout-view': 'PINOUT REFERENCE',
+                    'siggen-view': 'SIGNAL GENERATOR',
+                    'ear-training-view': 'EAR TRAINING',
+                    'tuner-view': 'PRECISION TUNER',
+                    'sub-calc-view': 'SUB ARRAY CALC',
+                    'tap-delay-view': 'TAP DELAY'
+                };
+                headerTitle.textContent = viewTitles[targetView.id] || 'SOUNDENGG';
             }
+        }
+        
+        if (backBtn) {
+            backBtn.style.visibility = isMainView ? 'hidden' : 'visible';
         }
     }
 
@@ -742,23 +754,17 @@ function setupNavigation() {
         }
     });
 
-    // Settings Toggle Logic (Non-exclusive view)
-    const settingsPanel = document.getElementById('settings-panel');
-    const btnCloseSettings = document.getElementById('btn-close-settings');
-
-    if (settingsPanel && btnCloseSettings) {
+    // Settings View Navigation
+    if (settingsView) {
         document.addEventListener('click', (e) => {
             if (e.target.closest('#btn-settings, #btn-mobile-settings')) {
-                settingsPanel.classList.add('open');
+                showView(settingsView);
                 // Auto close mobile menu on selection
                 const menu = document.getElementById('mobile-nav-dropdown-menu');
                 const toggleBtn = document.getElementById('btn-mobile-nav-toggle');
                 if (menu) menu.style.display = 'none';
                 if (toggleBtn) toggleBtn.classList.remove('active');
             }
-        });
-        btnCloseSettings.addEventListener('click', () => {
-            settingsPanel.classList.remove('open');
         });
     }
 
@@ -791,6 +797,7 @@ function setupNavigation() {
 
     // Account deletion elements
     const btnProfileDeleteAccount = document.getElementById('btn-profile-delete-account');
+    const menuBtnProfileDeleteAccount = document.getElementById('menu-btn-profile-delete-account');
     const accountDeleteConfirmModal = document.getElementById('account-delete-confirm-modal');
     const btnCloseAccountDelete = document.getElementById('btn-close-account-delete');
     const btnAccountDeleteExecute = document.getElementById('btn-account-delete-execute');
@@ -911,6 +918,17 @@ function setupNavigation() {
             // Wire Account Deletion handlers inside Profile Modal context
             if (btnProfileDeleteAccount && accountDeleteConfirmModal) {
                 btnProfileDeleteAccount.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    if (accountDeleteError) {
+                        accountDeleteError.style.display = 'none';
+                        accountDeleteError.textContent = '';
+                    }
+                    openModal(accountDeleteConfirmModal);
+                });
+            }
+
+            if (menuBtnProfileDeleteAccount && accountDeleteConfirmModal) {
+                menuBtnProfileDeleteAccount.addEventListener('click', (e) => {
                     e.preventDefault();
                     if (accountDeleteError) {
                         accountDeleteError.style.display = 'none';
@@ -1423,7 +1441,9 @@ function setupNavigation() {
                 'siggen': siggenView,
                 'ear-training': earTrainingView,
                 'author': authorView,
-                'blog': blogView
+                'blog': blogView,
+                'menu': menuView,
+                'settings': settingsView
             };
 
             const target = viewMap[viewParam];
@@ -1458,54 +1478,15 @@ function setupNavigation() {
 
     // --- Mobile Bottom Tab Bar click handlers ---
     const btnTabHome = document.getElementById('btn-tab-home');
-    const btnTabTools = document.getElementById('btn-tab-tools');
-    const btnTabConsole = document.getElementById('btn-tab-console');
     const btnTabBlog = document.getElementById('btn-tab-blog');
+    const btnTabConsole = document.getElementById('btn-tab-console');
+    const btnTabSettings = document.getElementById('btn-tab-settings');
+    const btnTabMenu = document.getElementById('btn-tab-menu');
     
     if (btnTabHome) {
         btnTabHome.addEventListener('click', (e) => {
             e.preventDefault();
             showView(dashboardView, btnNavDashboard);
-        });
-    }
-    
-    const mobileToolsDrawer = document.getElementById('mobile-tools-drawer');
-    const btnCloseToolsDrawer = document.getElementById('btn-close-tools-drawer');
-    
-    if (btnTabTools && mobileToolsDrawer) {
-        btnTabTools.addEventListener('click', (e) => {
-            e.preventDefault();
-            openModal(mobileToolsDrawer);
-        });
-    }
-    if (btnCloseToolsDrawer && mobileToolsDrawer) {
-        btnCloseToolsDrawer.addEventListener('click', () => {
-            closeModal(mobileToolsDrawer);
-        });
-    }
-    if (mobileToolsDrawer) {
-        mobileToolsDrawer.addEventListener('click', (e) => {
-            if (e.target === mobileToolsDrawer) {
-                closeModal(mobileToolsDrawer);
-            }
-        });
-    }
-    
-    document.querySelectorAll('.drawer-tool-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const targetId = btn.getAttribute('data-target');
-            const target = document.getElementById(targetId);
-            if (target) {
-                closeModal(mobileToolsDrawer);
-                showView(target);
-            }
-        });
-    });
-
-    if (btnTabConsole) {
-        btnTabConsole.addEventListener('click', (e) => {
-            e.preventDefault();
-            showView(rtaView);
         });
     }
     if (btnTabBlog) {
@@ -1514,17 +1495,106 @@ function setupNavigation() {
             showView(blogView, btnNavBlog);
         });
     }
+    if (btnTabConsole) {
+        btnTabConsole.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView(rtaView);
+        });
+    }
+    if (btnTabSettings) {
+        btnTabSettings.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (settingsView) {
+                showView(settingsView, btnTabSettings);
+            }
+        });
+    }
+    if (btnTabMenu) {
+        btnTabMenu.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView(menuView);
+        });
+    }
 
-    // --- Mobile Quick Tools Card launchers ---
+    // --- Mobile Quick Tools Card launchers (All 8 Tools directly on dashboard) ---
     const btnMobileLaunchRta = document.getElementById('btn-mobile-launch-rta');
+    const btnMobileLaunchEarTraining = document.getElementById('btn-mobile-launch-ear-training');
+    const btnMobileLaunchSiggen = document.getElementById('btn-mobile-launch-siggen');
     const btnMobileLaunchDelay = document.getElementById('btn-mobile-launch-delay');
-    const btnMobileLaunchSubcalc = document.getElementById('btn-mobile-launch-subcalc');
     const btnMobileLaunchTuner = document.getElementById('btn-mobile-launch-tuner');
+    const btnMobileLaunchSubcalc = document.getElementById('btn-mobile-launch-subcalc');
+    const btnMobileLaunchPinout = document.getElementById('btn-mobile-launch-pinout');
+    const btnMobileLaunchTapDelay = document.getElementById('btn-mobile-launch-tap-delay');
 
     if (btnMobileLaunchRta) btnMobileLaunchRta.addEventListener('click', () => showView(rtaView));
+    if (btnMobileLaunchEarTraining) btnMobileLaunchEarTraining.addEventListener('click', () => showView(earTrainingView));
+    if (btnMobileLaunchSiggen) btnMobileLaunchSiggen.addEventListener('click', () => showView(siggenView));
     if (btnMobileLaunchDelay) btnMobileLaunchDelay.addEventListener('click', () => showView(moduleView));
-    if (btnMobileLaunchSubcalc) btnMobileLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
     if (btnMobileLaunchTuner) btnMobileLaunchTuner.addEventListener('click', () => showView(tunerView));
+    if (btnMobileLaunchSubcalc) btnMobileLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
+    if (btnMobileLaunchPinout) btnMobileLaunchPinout.addEventListener('click', () => showView(pinoutView));
+    if (btnMobileLaunchTapDelay) btnMobileLaunchTapDelay.addEventListener('click', () => showView(tapdelayView));
+
+    // --- Inline Menu View Preference Bindings ---
+    const btnMenuNavAuthor = document.getElementById('btn-menu-nav-author');
+    if (btnMenuNavAuthor) {
+        btnMenuNavAuthor.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView(authorView);
+        });
+    }
+
+    // Sign out button delegate for mobile menu view
+    const menuBtnProfileSignout = document.getElementById('menu-btn-profile-signout');
+    if (menuBtnProfileSignout) {
+        menuBtnProfileSignout.addEventListener('click', (e) => {
+            e.preventDefault();
+            const btnProfileSignout = document.getElementById('btn-profile-signout');
+            if (btnProfileSignout) {
+                btnProfileSignout.click();
+            }
+        });
+    }
+
+    // Manage subscription delegate for mobile menu view
+    const menuBtnBillingPortal = document.getElementById('menu-btn-billing-portal');
+    if (menuBtnBillingPortal) {
+        menuBtnBillingPortal.addEventListener('click', (e) => {
+            e.preventDefault();
+            const btnSubManage = document.getElementById('btn-sub-manage');
+            if (btnSubManage) {
+                btnSubManage.click();
+            }
+        });
+    }
+
+    // Accent Selector logic for mobile preferences
+    const menuAccentSelect = document.getElementById('menu-accent-select');
+    if (menuAccentSelect) {
+        const globalThemeSelect = document.getElementById('global-theme-select');
+        // Initial value load
+        const savedTheme = safeStorage.getItem('soundengg-theme') || 'theme-cyan';
+        menuAccentSelect.value = savedTheme;
+        
+        menuAccentSelect.addEventListener('change', (e) => {
+            const newTheme = e.target.value;
+            if (globalThemeSelect) {
+                globalThemeSelect.value = newTheme;
+                globalThemeSelect.dispatchEvent(new Event('change'));
+            } else {
+                document.body.classList.remove('theme-cyan', 'theme-amber', 'theme-green', 'theme-red');
+                document.body.classList.add(newTheme);
+                safeStorage.setItem('soundengg-theme', newTheme);
+            }
+        });
+
+        // Also listen for changes in the global selector to update the menu selector
+        if (globalThemeSelect) {
+            globalThemeSelect.addEventListener('change', (e) => {
+                menuAccentSelect.value = e.target.value;
+            });
+        }
+    }
 
     // --- Global Click Listener for Haptic Feedback on active clicks ---
     document.addEventListener('click', (e) => {

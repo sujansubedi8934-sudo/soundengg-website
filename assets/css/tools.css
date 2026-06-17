@@ -340,6 +340,7 @@
     border: 1px solid var(--outline);
     border-radius: 3px;
     margin: 10px 0;
+    touch-action: none;
 }
 
 .rugged-slider::-webkit-slider-thumb {
@@ -442,17 +443,125 @@
 
 /* --- SIGNAL GENERATOR CORE --- */
 .siggen-layout {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
     margin-top: 1.5rem;
 }
-@media(min-width: 1024px) {
-    .siggen-layout { grid-template-columns: 1fr 300px; }
+
+/* Custom Console Fader Styling */
+.fader-strip-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--outline-light);
+    border-radius: 8px;
+    padding: 8px 10px;
+    height: 110px;
+    box-sizing: border-box;
 }
 
-.siggen-main-panel {
-    padding: 2.5rem !important;
+.fader-scale-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 90px;
+    font-family: var(--font-mono);
+    font-size: 7px;
+    color: var(--text-muted);
+    user-select: none;
+    line-height: 1;
+    width: 12px;
+    text-align: right;
+}
+
+.console-fader-wrapper {
+    position: relative;
+    height: 90px;
+    width: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    touch-action: none;
+}
+
+.console-fader {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    width: 90px; /* sliding range height */
+    height: 16px;
+    -webkit-appearance: none;
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    margin: 0;
+    touch-action: none;
+}
+
+/* WebKit/Blink Fader Track */
+.console-fader::-webkit-slider-runnable-track {
+    width: 100%;
+    height: 4px;
+    background: #09090b;
+    border: 1px solid var(--outline-light);
+    border-radius: 2px;
+}
+
+/* WebKit/Blink Fader Thumb (Knob) */
+.console-fader::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 22px; /* width after rotation */
+    width: 12px;  /* height after rotation */
+    border-radius: 2px;
+    border: 1.5px solid var(--outline);
+    border-top: 2px solid var(--primary);
+    border-bottom: 2px solid var(--primary);
+    margin-top: -9px; /* center on track */
+    box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+    cursor: pointer;
+    /* Friction ridges (vertical stripes before rotation, become horizontal fader ridges) */
+    background: repeating-linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0.08) 1px,
+        transparent 1px,
+        transparent 3px
+    ), linear-gradient(to bottom, #2a2a2c, #161618);
+}
+
+/* Firefox Fader Track */
+.console-fader::-moz-range-track {
+    width: 100%;
+    height: 4px;
+    background: #09090b;
+    border: 1px solid var(--outline-light);
+    border-radius: 2px;
+}
+
+/* Firefox Fader Thumb (Knob) */
+.console-fader::-moz-range-thumb {
+    height: 22px;
+    width: 12px;
+    border-radius: 2px;
+    border: 1.5px solid var(--outline);
+    border-top: 2px solid var(--primary);
+    border-bottom: 2px solid var(--primary);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.5);
+    cursor: pointer;
+    background: repeating-linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0.08) 0px,
+        rgba(255, 255, 255, 0.08) 1px,
+        transparent 1px,
+        transparent 3px
+    ), linear-gradient(to bottom, #2a2a2c, #161618);
 }
 
 .siggen-header {

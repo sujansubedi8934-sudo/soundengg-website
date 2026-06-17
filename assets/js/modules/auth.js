@@ -3,6 +3,10 @@ function initAuthSystem() {
     document.addEventListener('click', async (e) => {
         const authBtn = e.target.closest('.auth-toggle-btn');
         if (authBtn) {
+            // Prevent modal triggers for the bottom tab Menu button
+            if (authBtn.id === 'btn-tab-menu') {
+                return;
+            }
             e.preventDefault();
             
             // Auto close mobile menu on selection
@@ -97,18 +101,48 @@ function initAuthSystem() {
                     if (user) {
                         const name = user.user_metadata?.full_name || user.email.split('@')[0].toUpperCase();
                         safeStorage.setItem('soundengg_user_display_name', name);
-                        if (authText) authText.textContent = name;
-                        if (authIcon) authIcon.textContent = 'account_circle';
+                        if (btnAuthToggle.id === 'btn-tab-menu') {
+                            if (authText) authText.textContent = 'MENU';
+                            if (authIcon) authIcon.textContent = 'menu';
+                        } else {
+                            if (authText) authText.textContent = name;
+                            if (authIcon) authIcon.textContent = 'account_circle';
+                        }
                         btnAuthToggle.classList.add('logged-in');
                     } else {
                         safeStorage.removeItem('soundengg_user_display_name');
-                        if (authText) {
-                            authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
+                        if (btnAuthToggle.id === 'btn-tab-menu') {
+                            if (authText) authText.textContent = 'LOGIN/SIGNUP';
+                            if (authIcon) authIcon.textContent = 'login';
+                        } else {
+                            if (authText) {
+                                authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
+                            }
+                            if (authIcon) authIcon.textContent = 'login';
                         }
-                        if (authIcon) authIcon.textContent = 'login';
                         btnAuthToggle.classList.remove('logged-in', 'active');
                     }
                 });
+
+                // C.2 Update menu-view profile elements
+                const menuProfileLoggedIn = document.getElementById('menu-profile-logged-in');
+                const menuProfileLoggedOut = document.getElementById('menu-profile-logged-out');
+                const menuSecurityCard = document.getElementById('menu-security-card');
+                const menuDangerCard = document.getElementById('menu-danger-card');
+                const menuProfileEmail = document.getElementById('menu-profile-email');
+                
+                if (user) {
+                    if (menuProfileLoggedIn) menuProfileLoggedIn.style.display = 'flex';
+                    if (menuProfileLoggedOut) menuProfileLoggedOut.style.display = 'none';
+                    if (menuSecurityCard) menuSecurityCard.style.display = 'block';
+                    if (menuDangerCard) menuDangerCard.style.display = 'block';
+                    if (menuProfileEmail) menuProfileEmail.textContent = user.email;
+                } else {
+                    if (menuProfileLoggedIn) menuProfileLoggedIn.style.display = 'none';
+                    if (menuProfileLoggedOut) menuProfileLoggedOut.style.display = 'block';
+                    if (menuSecurityCard) menuSecurityCard.style.display = 'none';
+                    if (menuDangerCard) menuDangerCard.style.display = 'none';
+                }
 
                 // D. Signal Modules to refresh data
                 if (event === 'SIGNED_IN') {
@@ -215,6 +249,7 @@ async function syncSubscriptionStatus(session) {
     if (!window.supabaseClient) return;
     if (!session) {
         window.isUserPro = false;
+        window.userSubscriptionTier = 'free';
         if (window.updatePremiumUI) window.updatePremiumUI();
         document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: false }));
         return;
@@ -309,7 +344,8 @@ async function syncSubscriptionStatus(session) {
                 .maybeSingle();
             if (fallbackData) {
                 window.isUserPro = !!fallbackData.is_pro;
-                data = { is_pro: fallbackData.is_pro };
+                window.userSubscriptionTier = fallbackData.subscription_tier || (window.isUserPro ? 'pro' : 'free');
+                data = { is_pro: fallbackData.is_pro, subscription_tier: window.userSubscriptionTier };
             }
         }
 
@@ -488,6 +524,7 @@ async function syncSubscriptionStatus(session) {
                     }
                     
                     window.isUserPro = false;
+                    window.userSubscriptionTier = 'free';
                     if (window.updatePremiumUI) window.updatePremiumUI();
                     return;
                 }
@@ -499,6 +536,7 @@ async function syncSubscriptionStatus(session) {
 
             const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
             window.isUserPro = !!data.is_pro && isTierPro && !isExpired;
+            window.userSubscriptionTier = data.subscription_tier;
             console.log('Cloud Sync Success. Pro:', window.isUserPro);
             
             const profileTierBadge = document.getElementById('profile-tier-badge');

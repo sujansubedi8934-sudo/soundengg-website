@@ -920,3 +920,49 @@ html.light .auth-modal {
         grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
     }
 }
+
+/* Solid background and outline container styling for account/auth modals to eliminate glassy transparency */
+.auth-modal-box {
+    background: var(--surface-highest);
+    border: 1.5px solid var(--outline);
+    border-radius: 12px;
+    width: 100%;
+    max-width: 420px;
+    padding: 2.5rem;
+    position: relative;
+    margin: auto;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    animation: modal-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+html.light .auth-modal-box {
+    background: var(--surface);
+    border-color: var(--outline-light);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+}
+
+/* Settings slideout close button style */
+.settings-header .close-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.settings-header .close-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-heading);
+}
+
+html.light .settings-header .close-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+}

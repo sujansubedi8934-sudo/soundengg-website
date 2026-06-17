@@ -862,20 +862,8 @@
     }
 
     /* Mobile back button & module header optimizations */
-    .back-link .back-btn-text {
-        display: none !important;
-    }
-    
     .back-link {
-        padding: 0 !important;
-        border-radius: 50% !important;
-        width: 32px !important;
-        height: 32px !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        flex-shrink: 0 !important;
-        border-color: var(--outline) !important;
+        display: none !important;
     }
 
     .module-header {
@@ -926,12 +914,6 @@
     #mobile-bottom-tabs {
         display: flex !important;
     }
-    #mobile-tools-drawer {
-        display: none !important;
-    }
-    #mobile-tools-drawer:not(.hidden) {
-        display: flex !important;
-    }
 }
 
 /* Also apply to Native Capacitor Platform (if not matching max-width) */
@@ -946,12 +928,6 @@
     display: block !important;
 }
 .native-mobile-platform #mobile-bottom-tabs {
-    display: flex !important;
-}
-.native-mobile-platform #mobile-tools-drawer {
-    display: none !important;
-}
-.native-mobile-platform #mobile-tools-drawer:not(.hidden) {
     display: flex !important;
 }
 
@@ -1006,6 +982,7 @@
 /* Offset main-content top padding to account for fixed header */
 @media (max-width: 768px) {
     .main-content {
+        margin-top: 0 !important;
         padding-top: calc(4.5rem + env(safe-area-inset-top, 0px)) !important;
         padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
         min-height: calc(100vh - 10rem) !important;
@@ -1013,6 +990,7 @@
     }
 }
 .native-mobile-platform .main-content {
+    margin-top: 0 !important;
     padding-top: calc(4.5rem + env(safe-area-inset-top, 0px)) !important;
     padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
     min-height: calc(100vh - 10rem) !important;
@@ -1454,3 +1432,796 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
 .native-mobile-platform.has-native-banner .modal-overlay {
     padding-bottom: 50px !important;
 }
+
+/* Responsive mobile overrides for settings slideout and auth modal box */
+@media (max-width: 768px) {
+    .settings-slideout {
+        top: 0 !important;
+        height: 100vh !important;
+        width: 100% !important;
+        max-width: 320px !important;
+        z-index: 2100 !important;
+    }
+    
+    .auth-modal-box {
+        padding: 1.5rem !important;
+        max-width: 95vw !important;
+    }
+}
+
+.native-mobile-platform .settings-slideout {
+    top: 0 !important;
+    height: 100vh !important;
+    width: 100% !important;
+    max-width: 320px !important;
+    z-index: 2100 !important;
+}
+
+.native-mobile-platform .auth-modal-box {
+    padding: 1.5rem !important;
+    max-width: 95vw !important;
+}
+
+/* Enhancements for center Console tab active state glow */
+.tab-item.active .console-circle-btn {
+    box-shadow: 0 0 20px rgba(0, 242, 254, 0.8), 0 0 0 4px var(--primary);
+    transform: translateY(-2px);
+}
+
+/* Hide footer links globally on mobile viewports */
+@media (max-width: 768px) {
+    body footer,
+    footer {
+        display: none !important;
+    }
+    
+    /* Preferences Menu View Styling */
+    #menu-view {
+        padding: 1.25rem 1rem;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    .menu-section-card {
+        background: var(--surface-highest);
+        border: 1.5px solid var(--outline);
+        border-radius: 12px;
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    .menu-section-title {
+        font-family: var(--font-headline);
+        font-weight: 700;
+        font-size: 0.75rem;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        border-bottom: 1px dashed var(--outline-light);
+        padding-bottom: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .menu-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+    
+    .menu-item-row:last-child {
+        border-bottom: none;
+    }
+
+    .menu-item-label {
+        font-size: 0.85rem;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .menu-item-value {
+        font-family: var(--font-mono);
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    
+    /* Additional tool card accent styling */
+    .tool-ear-training .tool-card-icon { color: #ec4899; }
+    .tool-ear-training { border-color: rgba(236, 72, 153, 0.3); }
+    .tool-ear-training:active { background: rgba(236, 72, 153, 0.05); }
+
+    .tool-siggen .tool-card-icon { color: #f43f5e; }
+    .tool-siggen { border-color: rgba(244, 63, 94, 0.3); }
+    .tool-siggen:active { background: rgba(244, 63, 94, 0.05); }
+
+    .tool-pinout .tool-card-icon { color: #6366f1; }
+    .tool-pinout { border-color: rgba(99, 102, 241, 0.3); }
+    .tool-pinout:active { background: rgba(99, 102, 241, 0.05); }
+
+    .tool-tapdelay .tool-card-icon { color: #84cc16; }
+    .tool-tapdelay { border-color: rgba(132, 204, 22, 0.3); }
+    .tool-tapdelay:active { background: rgba(132, 204, 22, 0.05); }
+    
+    /* Safe Mobile Header Logo and Badge layout overrides */
+    .mobile-logo-container {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        transition: opacity 0.2s;
+    }
+    
+    .mobile-logo-container img {
+        height: 20px;
+        width: auto;
+        display: block;
+    }
+}
+
+.native-mobile-platform footer,
+.native-mobile-platform .footer {
+    display: none !important;
+}
+
+/* ==========================================================================
+   TAP TEMPO DELAY REDESIGN (Cyan Accent Theme Integration)
+   ========================================================================== */
+
+/* Layout Grid */
+.tap-delay-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 1.5rem;
+    align-items: start;
+    width: 100%;
+}
+
+@media (max-width: 900px) {
+    .tap-delay-grid {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+    }
+}
+
+/* Widgets Base Override */
+.tap-delay-widget {
+    background: var(--surface-higher);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+html.light .tap-delay-widget {
+    background: var(--surface);
+    border: 1.5px solid var(--outline-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* 1. Interactive VFD Display Screen */
+.tap-delay-display-screen {
+    text-align: center;
+    padding: 1.75rem 1.25rem;
+    border-radius: 12px;
+    background: #020204;
+    border: 1px solid rgba(20, 167, 181, 0.15);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8), 0 1px 0 rgba(255, 255, 255, 0.05);
+    margin-bottom: 1.75rem;
+    position: relative;
+    overflow: hidden;
+}
+
+html.light .tap-delay-display-screen {
+    background: #F0F2F5;
+    border: 1.5px solid var(--outline);
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.tap-delay-bpm-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 700;
+    font-family: var(--font-mono);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+}
+
+.tap-delay-bpm-value-wrap {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
+}
+
+.tap-delay-bpm-value {
+    font-size: 3.75rem;
+    font-weight: 800;
+    font-family: var(--font-headline);
+    color: var(--primary);
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.tap-delay-bpm-unit {
+    font-size: 1.1rem;
+    font-weight: 700;
+    font-family: var(--font-headline);
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.tap-delay-status-text {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    margin-top: 0.75rem;
+    height: 1.2rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 2. Interactive Concentric Tap Tempo Button */
+.tap-tempo-button-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    border: 2px dashed rgba(20, 167, 181, 0.25);
+    background: rgba(20, 167, 181, 0.015);
+    margin: 0 auto 1.5rem auto;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.tap-tempo-button-container:active {
+    border-color: var(--primary);
+    background: rgba(20, 167, 181, 0.04);
+}
+
+.tap-tempo-button-element {
+    width: 170px;
+    height: 170px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #008B9F);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(20, 167, 181, 0.35), inset 0 2px 4px rgba(255,255,255,0.25);
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+    outline: none;
+    user-select: none;
+}
+
+.tap-tempo-button-element:active {
+    transform: scale(0.94);
+    box-shadow: 0 4px 12px rgba(20, 167, 181, 0.2), inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.tap-tempo-button-element .material-symbols-outlined {
+    font-size: 2.75rem;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.tap-tempo-button-element span:not(.material-symbols-outlined) {
+    font-family: var(--font-headline);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #fff;
+    text-transform: uppercase;
+}
+
+/* Reset Button */
+.tap-tempo-reset-button {
+    background: rgba(255, 85, 85, 0.1);
+    border: 1px solid rgba(255, 85, 85, 0.3);
+    color: #ff5555;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.tap-tempo-reset-button:hover,
+.tap-tempo-reset-button:active {
+    background: rgba(255, 85, 85, 0.18);
+    border-color: #ff5555;
+}
+
+/* 3. Subdivision Cards Design */
+.tap-subdivision-card {
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.015);
+    border: 1px solid var(--outline);
+    border-left: 4px solid var(--primary);
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+html.light .tap-subdivision-card {
+    background: var(--surface-low);
+    border: 1.5px solid var(--outline-light);
+    border-left: 4px solid var(--primary);
+}
+
+.tap-subdivision-card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 2;
+    width: 100%;
+}
+
+.tap-subdivision-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-family: var(--font-sans);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tap-subdivision-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    font-family: var(--font-mono);
+    color: var(--primary);
+    margin-top: 4px;
+    line-height: 1.2;
+}
+
+.tap-subdivision-value span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+/* Subdivision Copy Button */
+.tap-subdivision-copy-btn {
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-main);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+html.light .tap-subdivision-copy-btn {
+    background: var(--surface-higher);
+    border-color: var(--outline-light);
+}
+
+.tap-subdivision-copy-btn:active {
+    background: rgba(20, 167, 181, 0.15);
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Glowing pulse line at bottom of active card */
+.bpm-pulse-fill {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: var(--primary);
+    box-shadow: 0 -1px 8px var(--primary);
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+/* ==========================================================================
+   EAR TRAINING REDESIGN (Cyan Accent Theme Integration)
+   ========================================================================== */
+
+/* Layout Container */
+.ear-training-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Widgets Override */
+.ear-train-widget, .siggen-widget {
+    background: var(--surface-higher);
+    border: 1px solid var(--outline);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease;
+}
+
+html.light .ear-train-widget, html.light .siggen-widget {
+    background: var(--surface);
+    border: 1.5px solid var(--outline-light);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* Instruction Banner */
+.ear-train-instruction {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-main);
+    line-height: 1.45;
+    background: rgba(20, 167, 181, 0.05);
+    border: 1px dashed rgba(20, 167, 181, 0.2);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+html.light .ear-train-instruction {
+    background: rgba(20, 167, 181, 0.03);
+}
+
+/* Listening Console Row */
+.ab-console-controls {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+}
+
+@media (max-width: 480px) {
+    .ab-console-controls {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+}
+
+/* Concentric Play Button Ring */
+.play-btn-outer-ring {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 2px dashed rgba(20, 167, 181, 0.25);
+    background: rgba(20, 167, 181, 0.015);
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.train-play-button {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), #008B9F);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(20, 167, 181, 0.3), inset 0 2px 4px rgba(255,255,255,0.25);
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.train-play-button:active {
+    transform: scale(0.94);
+}
+
+.train-play-button.playing {
+    animation: neonGlowPulse 1.5s infinite alternate;
+}
+
+@keyframes neonGlowPulse {
+    from {
+        box-shadow: 0 0 12px rgba(20, 167, 181, 0.4), inset 0 2px 4px rgba(255,255,255,0.25);
+    }
+    to {
+        box-shadow: 0 0 24px rgba(20, 167, 181, 0.85), inset 0 2px 4px rgba(255,255,255,0.25);
+    }
+}
+
+.train-play-button .material-symbols-outlined {
+    font-size: 2.5rem;
+    color: #fff;
+}
+
+/* Channels row */
+.ab-channel-buttons-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.ab-channel-btn {
+    flex: 1;
+    height: 80px;
+    border-radius: 12px;
+    background: var(--surface-highest);
+    border: 1px solid var(--outline);
+    transition: all 0.25s ease;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+}
+
+html.light .ab-channel-btn {
+    background: var(--surface-low);
+    border-color: var(--outline-light);
+}
+
+.ab-channel-btn.active {
+    border-color: var(--primary);
+    background: rgba(20, 167, 181, 0.05);
+    box-shadow: 0 4px 15px rgba(20, 167, 181, 0.15);
+}
+
+html.light .ab-channel-btn.active {
+    background: rgba(20, 167, 181, 0.05);
+}
+
+/* Settings grid configuration */
+.ear-train-settings-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.ear-train-settings-grid .train-control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.ear-train-settings-grid .control-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.ear-train-settings-grid button {
+    background: var(--surface-highest);
+    border: 1px solid var(--outline);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-family: var(--font-headline);
+    font-size: 0.75rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+html.light .ear-train-settings-grid button {
+    background: var(--surface-low);
+    border-color: var(--outline-light);
+}
+
+.ear-train-settings-grid button.active {
+    border-color: var(--primary);
+    background: rgba(20, 167, 181, 0.08);
+    color: var(--primary);
+}
+
+.ear-train-settings-grid button.locked-pro {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Stats Section Card */
+.ear-train-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    width: 100%;
+    text-align: center;
+}
+
+.ear-train-stat-block {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: rgba(255,255,255,0.01);
+    border: 1px solid var(--outline);
+    padding: 0.75rem 0.25rem;
+    border-radius: 10px;
+}
+
+html.light .ear-train-stat-block {
+    background: var(--surface-low);
+    border-color: var(--outline-light);
+}
+
+.ear-train-stat-block .stat-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.ear-train-stat-block .stat-val {
+    font-size: 1.5rem;
+    font-weight: 800;
+    font-family: var(--font-headline);
+    color: var(--primary);
+    font-style: normal;
+}
+
+/* Frequency Options Buttons */
+.train-options-grid-flat {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.6rem;
+}
+
+@media (min-width: 480px) {
+    .train-options-grid-flat {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+    }
+}
+
+.train-option-btn {
+    height: 70px;
+    border-radius: 12px;
+    background: var(--surface-highest);
+    border: 1px solid var(--outline);
+    color: var(--text-main);
+    font-family: var(--font-headline);
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    transition: all 0.2s ease;
+}
+
+html.light .train-option-btn {
+    background: var(--surface-low);
+    border-color: var(--outline-light);
+}
+
+.train-option-btn:active {
+    transform: scale(0.96);
+    background: rgba(20, 167, 181, 0.1);
+    border-color: var(--primary);
+}
+
+.train-option-btn.correct {
+    background: rgba(76, 175, 80, 0.12) !important;
+    border-color: #4CAF50 !important;
+    color: #4CAF50 !important;
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.2) !important;
+}
+
+.train-option-btn.error {
+    background: rgba(244, 67, 54, 0.12) !important;
+    border-color: #F44336 !important;
+    color: #F44336 !important;
+    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.2) !important;
+}
+
+/* Ear Training Collapsible Widget */
+.settings-console-widget .widget-collapsible-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.settings-console-widget.expanded .widget-collapsible-content {
+    max-height: 500px;
+}
+
+.settings-console-widget.expanded .chevron-icon {
+    transform: rotate(180deg);
+}
+
+/* Light Mode specific outline-warning contrast improvements */
+html.light .outline-warning {
+    border-color: #d97706 !important;
+    color: #d97706 !important;
+}
+
+html.light .outline-warning:hover {
+    background: rgba(217, 119, 6, 0.05) !important;
+    color: #d97706 !important;
+    box-shadow: 0 0 10px rgba(217, 119, 6, 0.1) !important;
+}
+
+/* Light Mode specific rugged-btn-sm hover fix */
+html.light .rugged-btn-sm {
+    background: var(--surface-light);
+    border-color: var(--outline);
+    color: var(--text-main);
+}
+
+html.light .rugged-btn-sm:hover {
+    background: var(--surface-medium);
+    color: var(--primary) !important;
+    border-color: var(--primary) !important;
+}
+
+/* RTA Segmented Control */
+.segmented-control {
+    display: flex;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 2px;
+    width: 100%;
+}
+
+.segmented-control .train-source-btn {
+    flex: 1;
+    border: none !important;
+    background: transparent !important;
+    padding: 6px 12px;
+    font-size: 0.72rem;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: none !important;
+}
+
+.segmented-control .train-source-btn.active {
+    background: var(--surface-highest) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+html.light .segmented-control {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1.5px solid var(--outline-light);
+}
+
+html.light .segmented-control .train-source-btn {
+    color: var(--text-muted);
+}
+
+html.light .segmented-control .train-source-btn.active {
+    background: var(--surface) !important;
+    color: var(--text-main) !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Tuner In-Tune Glowing Effect */
+.tuner-cents.in-tune {
+    color: #10b981 !important;
+    text-shadow: 0 0 10px rgba(16, 185, 129, 0.5) !important;
+}
+
+

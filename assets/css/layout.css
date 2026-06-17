@@ -46,10 +46,10 @@ html.light .landing-nav {
     filter: drop-shadow(0 0 5px rgba(20, 167, 181, 0.6));
 }
 
-.light-logo { display: none; }
-html.light .dark-logo { display: none; }
+.light-logo { display: none !important; }
+html.light .dark-logo { display: none !important; }
 html.light .light-logo { 
-    display: block; 
+    display: block !important; 
     filter: drop-shadow(0 0 8px rgba(20, 167, 181, 0.4)); 
 }
 

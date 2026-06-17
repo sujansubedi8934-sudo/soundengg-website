@@ -3,6 +3,9 @@ function setupThemeToggle() {
     const btnDark = document.getElementById('btn-dark');
     const btnMobile = document.getElementById('btn-mobile-theme-toggle');
     const mobileIcon = document.getElementById('mobile-theme-icon');
+    const btnMenu = document.getElementById('btn-menu-theme-toggle');
+    const menuIcon = document.getElementById('menu-theme-icon');
+    const menuText = document.getElementById('menu-theme-text');
     const htmlEl = document.documentElement;
 
     const setLightMode = () => {
@@ -11,6 +14,8 @@ function setupThemeToggle() {
         if (btnLight) btnLight.classList.add('active');
         if (btnDark) btnDark.classList.remove('active');
         if (mobileIcon) mobileIcon.textContent = 'dark_mode';
+        if (menuIcon) menuIcon.textContent = 'dark_mode';
+        if (menuText) menuText.textContent = 'DARK MODE';
         try { localStorage.setItem('soundengg-color-theme', 'light'); } catch (e) {}
     };
 
@@ -20,6 +25,8 @@ function setupThemeToggle() {
         if (btnDark) btnDark.classList.add('active');
         if (btnLight) btnLight.classList.remove('active');
         if (mobileIcon) mobileIcon.textContent = 'light_mode';
+        if (menuIcon) menuIcon.textContent = 'light_mode';
+        if (menuText) menuText.textContent = 'LIGHT MODE';
         try { localStorage.setItem('soundengg-color-theme', 'dark'); } catch (e) {}
     };
 
@@ -35,6 +42,16 @@ function setupThemeToggle() {
             }
         });
     }
+
+    if (btnMenu) {
+        btnMenu.addEventListener('click', () => {
+            if (htmlEl.classList.contains('light')) {
+                setDarkMode();
+            } else {
+                setLightMode();
+            }
+        });
+    }
 }
 
 function applyAutoTheme() {
@@ -42,6 +59,8 @@ function applyAutoTheme() {
     const btnLight = document.getElementById('btn-light');
     const btnDark = document.getElementById('btn-dark');
     const mobileIcon = document.getElementById('mobile-theme-icon');
+    const menuIcon = document.getElementById('menu-theme-icon');
+    const menuText = document.getElementById('menu-theme-text');
 
     // Check localStorage first
     let theme = null;
@@ -61,12 +80,16 @@ function applyAutoTheme() {
         if (btnLight) btnLight.classList.add('active');
         if (btnDark) btnDark.classList.remove('active');
         if (mobileIcon) mobileIcon.textContent = 'dark_mode';
+        if (menuIcon) menuIcon.textContent = 'dark_mode';
+        if (menuText) menuText.textContent = 'DARK MODE';
     } else {
         htmlEl.classList.add('dark');
         htmlEl.classList.remove('light');
         if (btnDark) btnDark.classList.add('active');
         if (btnLight) btnLight.classList.remove('active');
         if (mobileIcon) mobileIcon.textContent = 'light_mode';
+        if (menuIcon) menuIcon.textContent = 'light_mode';
+        if (menuText) menuText.textContent = 'LIGHT MODE';
     }
 }
 

@@ -112,11 +112,12 @@ function initSignalGenerator() {
         
         isPlaying = true;
         btnToggle.classList.add('active');
-        btnToggle.innerHTML = '<span class="material-symbols-outlined">stop_circle</span> DISENGAGE_OUTPUT';
+        btnToggle.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1.1rem;">stop_circle</span> <span>DISENGAGE</span>';
         statusBadge.textContent = 'STATUS: ACTIVE';
         statusBadge.classList.add('active');
     }
 
+    // Common stop logic
     function stopOutput() {
         if (!isPlaying) return;
         
@@ -137,7 +138,7 @@ function initSignalGenerator() {
         }, 50);
 
         btnToggle.classList.remove('active');
-        btnToggle.innerHTML = '<span class="material-symbols-outlined">power_settings_new</span> ENGAGE_OUTPUT';
+        btnToggle.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1.1rem;">power_settings_new</span> <span>ENGAGE</span>';
         statusBadge.textContent = 'STATUS: STANDBY';
         statusBadge.classList.remove('active');
     }
@@ -169,12 +170,26 @@ function initSignalGenerator() {
     }
 
     function startSweep() {
+        // If noise waveform is active, sweep is not possible. Programmatically click Sine button.
+        if (currentWave === 'white' || currentWave === 'pink') {
+            const sineBtn = document.querySelector('.wave-btn[data-wave="sine"]');
+            if (sineBtn) {
+                sineBtn.click();
+            }
+        }
+
         if (!isPlaying || !oscillator) {
             startOutput();
         }
         
+        if (!oscillator) {
+            console.warn("Oscillator could not be initialized for sweep.");
+            return;
+        }
+        
         const duration = parseFloat(sweepTimeInput.value) || 5;
-        const startTime = audioCtx.currentTime;
+        // Add a small lookahead offset (+0.05s) to guarantee the Web Audio clock has started ticking
+        const startTime = audioCtx.currentTime + 0.05;
         const endTime = startTime + duration;
         
         // Audio Ramp
@@ -198,7 +213,7 @@ function initSignalGenerator() {
             
             // Calculate current freq for UI sync (logarithmic interpolation)
             const elapsed = audioCtx.currentTime - startTime;
-            const progress = elapsed / duration;
+            const progress = Math.max(0, elapsed / duration);
             const minFreq = 20;
             const maxFreq = 20000;
             currentFreq = Math.round(minFreq * Math.pow(maxFreq / minFreq, progress));
@@ -317,6 +332,26 @@ function initSignalGenerator() {
             saveSignalGenState();
         });
     });
+
+    // Collapsible sweep card
+    const sweepCard = document.getElementById('siggen-sweep-card');
+    const btnToggleSweep = document.getElementById('btn-toggle-siggen-sweep');
+    if (btnToggleSweep && sweepCard) {
+        btnToggleSweep.addEventListener('click', (e) => {
+            e.preventDefault();
+            sweepCard.classList.toggle('expanded');
+        });
+    }
+
+    // Collapsible operational notes card
+    const notesCard = document.getElementById('siggen-notes-card');
+    const btnToggleNotes = document.getElementById('btn-toggle-siggen-notes');
+    if (btnToggleNotes && notesCard) {
+        btnToggleNotes.addEventListener('click', (e) => {
+            e.preventDefault();
+            notesCard.classList.toggle('expanded');
+        });
+    }
 
     // --- Pull from Cloud ---
     async function pullSignalGen() {

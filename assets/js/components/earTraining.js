@@ -501,6 +501,16 @@ function initEarTraining() {
         uploadContainer.style.display = 'none';
     }
 
+    // Collapsible configuration card
+    const configCard = document.getElementById('ear-train-config-card');
+    const btnToggleConfig = document.getElementById('btn-toggle-train-config');
+    if (btnToggleConfig && configCard) {
+        btnToggleConfig.addEventListener('click', (e) => {
+            e.preventDefault();
+            configCard.classList.toggle('expanded');
+        });
+    }
+
     // Sync output changes from global settings & Apply routes
     document.addEventListener('outputDeviceChanged', async (e) => {
         const newDeviceId = e.detail;

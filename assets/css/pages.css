@@ -906,6 +906,40 @@ body.theme-amber { --primary: #ffb300; }
 body.theme-green { --primary: #39ff14; }
 body.theme-red { --primary: #ff003c; }
 
+/* Dynamic Logo Theme Accent Filters (Dark Mode) */
+body.theme-cyan .brand-logo {
+    filter: drop-shadow(0 0 5px rgba(20, 167, 181, 0.6));
+}
+body.theme-amber .brand-logo {
+    filter: hue-rotate(220deg) drop-shadow(0 0 5px rgba(255, 179, 0, 0.6));
+}
+body.theme-green .brand-logo {
+    filter: hue-rotate(280deg) drop-shadow(0 0 5px rgba(57, 255, 20, 0.6));
+}
+body.theme-red .brand-logo {
+    filter: hue-rotate(160deg) drop-shadow(0 0 5px rgba(255, 0, 60, 0.6));
+}
+
+/* Light Mode High-Contrast Accent Color Overrides */
+html.light body, html.light body.theme-cyan { --primary: #0891b2; } /* Darker Cyan */
+html.light body.theme-amber { --primary: #d97706; } /* Darker Amber */
+html.light body.theme-green { --primary: #16a34a; } /* Forest Green */
+html.light body.theme-red { --primary: #dc2626; } /* Crimson Red */
+
+/* Dynamic Logo Theme Accent Filters (Light Mode) */
+html.light body.theme-cyan .brand-logo {
+    filter: drop-shadow(0 0 8px rgba(8, 145, 178, 0.4));
+}
+html.light body.theme-amber .brand-logo {
+    filter: hue-rotate(220deg) drop-shadow(0 0 8px rgba(217, 119, 6, 0.4));
+}
+html.light body.theme-green .brand-logo {
+    filter: hue-rotate(280deg) drop-shadow(0 0 8px rgba(22, 163, 74, 0.4));
+}
+html.light body.theme-red .brand-logo {
+    filter: hue-rotate(160deg) drop-shadow(0 0 8px rgba(220, 38, 38, 0.4));
+}
+
 /* Theory Card UI */
 .theory-card {
     background: var(--surface-higher);

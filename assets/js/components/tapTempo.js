@@ -50,7 +50,7 @@ function initTapTempoDelay() {
 
         // Clamp validation to standard musical tempos
         if (bpm >= 30 && bpm <= 300) {
-            bpmDisplay.textContent = `${bpm} BPM`;
+            bpmDisplay.textContent = bpm;
             statusText.textContent = `LISTENING... (TAPS: ${tapTimes.length})`;
 
             // Output precise subdivisions

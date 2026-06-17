@@ -5,6 +5,7 @@ function initDelayCalc() {
     const tempUnitSelect = document.getElementById('delay-temp-unit-mod');
     const outputEl = document.getElementById('delay-output-mod');
     const progressEl = document.getElementById('delay-progress-mod');
+    const progressPercentEl = document.getElementById('delay-progress-percent');
 
     if (!distInput || !tempInput || !outputEl || !progressEl) return;
 
@@ -30,6 +31,10 @@ function initDelayCalc() {
         outputEl.innerHTML = `${delayMs.toFixed(2)}<span class="delay-unit">ms</span>`;
         const progressPercent = Math.min(100, (delayMs / 50) * 100); 
         progressEl.style.width = `${progressPercent}%`;
+        
+        if (progressPercentEl) {
+            progressPercentEl.textContent = `${progressPercent.toFixed(1)}%`;
+        }
 
         // Trigger Cloud Save if not just loading
         if (!skipCloudSave) {
@@ -67,6 +72,15 @@ function initDelayCalc() {
     tempUnitSelect.addEventListener('change', () => update());
     document.addEventListener('unitsChanged', () => update(true));
     
+    // Collapsible theory card
+    const theoryCard = document.getElementById('delay-theory-card');
+    const btnToggleTheory = document.getElementById('btn-toggle-delay-theory');
+    if (btnToggleTheory && theoryCard) {
+        btnToggleTheory.addEventListener('click', () => {
+            theoryCard.classList.toggle('expanded');
+        });
+    }
+
     // Initial runs
     update(true);
     pull();
