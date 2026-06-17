@@ -927,7 +927,10 @@
         display: flex !important;
     }
     #mobile-tools-drawer {
-        display: none; /* Controlled by modal logic */
+        display: none !important;
+    }
+    #mobile-tools-drawer:not(.hidden) {
+        display: flex !important;
     }
 }
 
@@ -943,6 +946,12 @@
     display: block !important;
 }
 .native-mobile-platform #mobile-bottom-tabs {
+    display: flex !important;
+}
+.native-mobile-platform #mobile-tools-drawer {
+    display: none !important;
+}
+.native-mobile-platform #mobile-tools-drawer:not(.hidden) {
     display: flex !important;
 }
 
