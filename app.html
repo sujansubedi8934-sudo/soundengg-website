@@ -50,6 +50,17 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
+    <!-- Top Mobile Safe Header -->
+    <header id="mobile-safe-header" class="mobile-only-header">
+        <button id="mobile-header-back" class="mobile-header-btn" aria-label="Back">
+            <span class="material-symbols-outlined">chevron_left</span>
+        </button>
+        <div id="mobile-header-title">SOUNDENGG CONSOLE</div>
+        <button id="mobile-header-profile" class="mobile-header-btn auth-toggle-btn" aria-label="User Profile">
+            <span class="material-symbols-outlined">account_circle</span>
+        </button>
+    </header>
+
     <div id="mobile-nav-overlay" class="mobile-overlay"></div>
     <header class="top-bar">
         <div class="top-bar-left">
@@ -139,126 +150,182 @@
     <main class="main-content">
         <!-- Dashboard View -->
         <div id="dashboard-view" class="view-container">
-        <!-- Breadcrumb / System ID -->
-        <header class="dashboard-header">
-            <div class="dashboard-title-container">
-                <h1 class="dashboard-title" style="text-transform: uppercase;">WELCOME TO SOUNDENGG</h1>
-                <p class="dashboard-subtitle">Precision Engineering Toolkit</p>
+            <!-- Desktop Dashboard Layout (hidden on mobile) -->
+            <div class="desktop-only-dashboard">
+                <!-- Breadcrumb / System ID -->
+                <header class="dashboard-header">
+                    <div class="dashboard-title-container">
+                        <h1 class="dashboard-title" style="text-transform: uppercase;">WELCOME TO SOUNDENGG</h1>
+                        <p class="dashboard-subtitle">Precision Engineering Toolkit</p>
+                    </div>
+                </header>
+
+                <!-- Global Search Bar -->
+                <div class="global-search-container">
+                    <div class="search-wrapper global-search">
+                        <input type="text" placeholder="Search modules, tools, blogs, settings..." id="global-search-input">
+                        <button id="btn-global-search" class="rugged-btn search-submit">SEARCH</button>
+                    </div>
+                    <div id="search-results-dropdown" class="search-results-dropdown" style="display: none;"></div>
+                </div>
+
+                <!-- Tool Grid -->
+                <div class="dashboard-grid">
+                    
+                    <!-- MODULE LAUNCHER: RTA Analyzer -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-rta" data-category="tools">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon">analytics</span>
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">RTA Spectrum Analyzer</h3>
+                            <p class="widget-subtitle">ISO Band Analysis & Peak Monitoring</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Ear Training -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="widget-ear-training" data-category="tools">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon">hearing</span>
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Ear Training</h3>
+                            <p class="widget-subtitle">Spectral identification & accuracy</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Tuner -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tuner" data-category="tools">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon">tune</span>
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Precision Tuner</h3>
+                            <p class="widget-subtitle">Chromatic Pitch Detection</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Sub Calculator -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-subcalc" data-category="tools">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon">speaker</span>
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Sub Array Calculator</h3>
+                            <p class="widget-subtitle">Wavelength & Array Configurations</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Time & Delay -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-delay" data-category="tools">
+                        <div class="launcher-header">
+                            <img src="assets/img/time-delay-icon.png" alt="Time & Delay Icon" class="launcher-img-icon">
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Time and Delay Calculation</h3>
+                            <p class="widget-subtitle">Acoustic Alignment & Propagation</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Tap Tempo Delay -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tapdelay" data-category="tools">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon" style="color: var(--primary);">ads_click</span>
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Tap Tempo Delay</h3>
+                            <p class="widget-subtitle">BPM & Multi-Subdivision Milliseconds</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Pinout Connection -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-pinout" data-category="ref">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon">cable</span>
+                            <span class="launcher-status">READY</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Pinout Connection</h3>
+                            <p class="widget-subtitle">Audio / Power / Data Reference</p>
+                        </div>
+                    </button>
+
+                    <!-- MODULE LAUNCHER: Signal Generator -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-siggen" data-category="tools">
+                        <div class="launcher-header">
+                            <span class="material-symbols-outlined icon">waves</span>
+                            <span class="launcher-status">OFF</span>
+                        </div>
+                        <div class="launcher-body">
+                            <h3 class="widget-title">Signal Generator</h3>
+                            <p class="widget-subtitle">Test Tones & Noise Injection</p>
+                        </div>
+                    </button>
+
+                    <!-- The dashboard is now clean and uniform, focusing on functional tools -->
+                </div>
             </div>
-        </header>
 
-        <!-- Global Search Bar -->
-        <div class="global-search-container">
-            <div class="search-wrapper global-search">
-                <input type="text" placeholder="Search modules, tools, blogs, settings..." id="global-search-input">
-                <button id="btn-global-search" class="rugged-btn search-submit">SEARCH</button>
+            <!-- Mobile Dashboard Layout (hidden on desktop) -->
+            <div class="mobile-only-dashboard">
+                <!-- Top PRO ENGINEER CONSOLE gradient glassmorphic banner -->
+                <div class="mobile-pro-banner">
+                    <div class="banner-badge">PRO</div>
+                    <div class="banner-title">PRO ENGINEER CONSOLE</div>
+                    <div class="banner-tagline free-only-tagline">UNLEASH SYSTEM CALIBRATION & NO ADS</div>
+                    <div class="banner-tagline pro-only-tagline">PRO ACCOUNT ACTIVE // LATENCY_LOW</div>
+                    <button class="banner-btn free-only-btn auth-toggle-btn">UPGRADE TO PRO</button>
+                </div>
+
+                <!-- Quick Tools grid (RTA Analyser, Delay Calc, Sub Arrays, Tuner) with colored accent cards -->
+                <div class="mobile-section-title">QUICK TOOLS</div>
+                <div class="mobile-quick-tools-grid">
+                    <button class="mobile-tool-card tool-rta" id="btn-mobile-launch-rta">
+                        <span class="material-symbols-outlined tool-card-icon">analytics</span>
+                        <span class="tool-card-name">RTA Analyzer</span>
+                    </button>
+                    <button class="mobile-tool-card tool-delay" id="btn-mobile-launch-delay">
+                        <span class="material-symbols-outlined tool-card-icon">straighten</span>
+                        <span class="tool-card-name">Delay Calc</span>
+                    </button>
+                    <button class="mobile-tool-card tool-subcalc" id="btn-mobile-launch-subcalc">
+                        <span class="material-symbols-outlined tool-card-icon">speaker</span>
+                        <span class="tool-card-name">Sub Arrays</span>
+                    </button>
+                    <button class="mobile-tool-card tool-tuner" id="btn-mobile-launch-tuner">
+                        <span class="material-symbols-outlined tool-card-icon">tune</span>
+                        <span class="tool-card-name">Precision Tuner</span>
+                    </button>
+                </div>
+
+                <!-- Stat widgets: '15+ Tools', '25+ Articles', '100% Offline' -->
+                <div class="mobile-stats-row">
+                    <div class="stat-widget">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Tools</div>
+                    </div>
+                    <div class="stat-widget">
+                        <div class="stat-number">25+</div>
+                        <div class="stat-label">Articles</div>
+                    </div>
+                    <div class="stat-widget">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Offline</div>
+                    </div>
+                </div>
+
+                <!-- Recently Used section -->
+                <div class="mobile-section-title">RECENTLY USED</div>
+                <div id="mobile-recently-used-list" class="mobile-recent-list">
+                    <div class="recent-empty">No recently used tools. Launch a tool above to populate!</div>
+                </div>
             </div>
-            <div id="search-results-dropdown" class="search-results-dropdown" style="display: none;"></div>
-        </div>
-
-        <!-- Tool Grid -->
-        <div class="dashboard-grid">
-            
-            <!-- MODULE LAUNCHER: RTA Analyzer -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-rta" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">analytics</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">RTA Spectrum Analyzer</h3>
-                    <p class="widget-subtitle">ISO Band Analysis & Peak Monitoring</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Ear Training -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="widget-ear-training" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">hearing</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Ear Training</h3>
-                    <p class="widget-subtitle">Spectral identification & accuracy</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Tuner -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tuner" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">tune</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Precision Tuner</h3>
-                    <p class="widget-subtitle">Chromatic Pitch Detection</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Sub Calculator -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-subcalc" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">speaker</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Sub Array Calculator</h3>
-                    <p class="widget-subtitle">Wavelength & Array Configurations</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Time & Delay -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-delay" data-category="tools">
-                <div class="launcher-header">
-                    <img src="assets/img/time-delay-icon.png" alt="Time & Delay Icon" class="launcher-img-icon">
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Time and Delay Calculation</h3>
-                    <p class="widget-subtitle">Acoustic Alignment & Propagation</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Tap Tempo Delay -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tapdelay" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon" style="color: var(--primary);">ads_click</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Tap Tempo Delay</h3>
-                    <p class="widget-subtitle">BPM & Multi-Subdivision Milliseconds</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Pinout Connection -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-pinout" data-category="ref">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">cable</span>
-                    <span class="launcher-status">READY</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Pinout Connection</h3>
-                    <p class="widget-subtitle">Audio / Power / Data Reference</p>
-                </div>
-            </button>
-
-            <!-- MODULE LAUNCHER: Signal Generator -->
-            <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-siggen" data-category="tools">
-                <div class="launcher-header">
-                    <span class="material-symbols-outlined icon">waves</span>
-                    <span class="launcher-status">OFF</span>
-                </div>
-                <div class="launcher-body">
-                    <h3 class="widget-title">Signal Generator</h3>
-                    <p class="widget-subtitle">Test Tones & Noise Injection</p>
-                </div>
-            </button>
-
-
-
-            <!-- The dashboard is now clean and uniform, focusing on functional tools -->
-        </div>
         </div>
 
         <!-- Module View (Hidden) -->
@@ -2104,6 +2171,103 @@
                 <h3>Upgrade to SoundEngg Pro</h3>
                 <p>Get permanent, unrestricted offline access to all tools and remove all ads forever.</p>
                 <a href="pro.html" class="btn btn-upgrade" id="btn-buy-pro" style="text-decoration: none;">Upgrade Now - See Benefits</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Mobile Navigation Tab Bar -->
+    <nav id="mobile-bottom-tabs" class="mobile-only-tabs">
+        <a href="#" id="btn-tab-home" class="tab-item active">
+            <span class="material-symbols-outlined">home</span>
+            <span class="tab-label">Home</span>
+        </a>
+        <a href="#" id="btn-tab-tools" class="tab-item">
+            <span class="material-symbols-outlined">widgets</span>
+            <span class="tab-label">Tools</span>
+        </a>
+        <a href="#" id="btn-tab-console" class="tab-item console-center-tab">
+            <div class="console-circle-btn">
+                <span class="material-symbols-outlined">analytics</span>
+            </div>
+            <span class="tab-label">Console</span>
+        </a>
+        <a href="#" id="btn-tab-blog" class="tab-item">
+            <span class="material-symbols-outlined">menu_book</span>
+            <span class="tab-label">Blog</span>
+        </a>
+        <a href="#" id="btn-tab-pro" class="tab-item auth-toggle-btn">
+            <span class="material-symbols-outlined">account_circle</span>
+            <span class="tab-label">Pro</span>
+        </a>
+    </nav>
+
+    <!-- Mobile Tools Drawer Modal -->
+    <div id="mobile-tools-drawer" class="modal-overlay hidden">
+        <div class="role-modal">
+            <button id="btn-close-tools-drawer" class="modal-close-btn">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <div class="modal-header">
+                <h2 class="modal-title">SYSTEM TOOLS</h2>
+                <p class="modal-subtitle">Select utility module</p>
+            </div>
+            <div class="role-options">
+                <button class="role-btn drawer-tool-btn" data-target="rta-view">
+                    <span class="material-symbols-outlined">analytics</span>
+                    <div class="role-info">
+                        <span class="role-name">RTA Spectrogram</span>
+                        <span class="role-desc">ISO Band Analysis</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="module-view">
+                    <span class="material-symbols-outlined">straighten</span>
+                    <div class="role-info">
+                        <span class="role-name">Delay Calculator</span>
+                        <span class="role-desc">Phase Alignment</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="sub-calc-view">
+                    <span class="material-symbols-outlined">speaker</span>
+                    <div class="role-info">
+                        <span class="role-name">Sub Array Calc</span>
+                        <span class="role-desc">Array spacing & configurations</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="tuner-view">
+                    <span class="material-symbols-outlined">tune</span>
+                    <div class="role-info">
+                        <span class="role-name">Precision Tuner</span>
+                        <span class="role-desc">Chromatic Pitch Detection</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="siggen-view">
+                    <span class="material-symbols-outlined">waves</span>
+                    <div class="role-info">
+                        <span class="role-name">Signal Generator</span>
+                        <span class="role-desc">Sine / Pink Noise Sweep</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="ear-training-view">
+                    <span class="material-symbols-outlined">hearing</span>
+                    <div class="role-info">
+                        <span class="role-name">Ear Training</span>
+                        <span class="role-desc">A/B Spectral Identification</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="pinout-view">
+                    <span class="material-symbols-outlined">cable</span>
+                    <div class="role-info">
+                        <span class="role-name">Pinout Reference</span>
+                        <span class="role-desc">Audio / Data standard wiring</span>
+                    </div>
+                </button>
+                <button class="role-btn drawer-tool-btn" data-target="tap-delay-view">
+                    <span class="material-symbols-outlined">ads_click</span>
+                    <div class="role-info">
+                        <span class="role-name">Tap Delay</span>
+                        <span class="role-desc">BPM Tempo Multidivisions</span>
+                    </div>
+                </button>
             </div>
         </div>
     </div>

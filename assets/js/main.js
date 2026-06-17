@@ -366,6 +366,139 @@ function setupNavigation() {
     // Make showView accessible globally for fallbacks
     window.showView = showView;
 
+    // --- Capacitor Haptic Feedback Helper ---
+    function triggerHaptic() {
+        try {
+            const { Haptics } = window.Capacitor?.Plugins || {};
+            if (Haptics && typeof Haptics.impact === 'function') {
+                Haptics.impact({ style: 'light' }).catch(() => {});
+            }
+        } catch (e) {
+            console.warn('Capacitor Haptics failed:', e);
+        }
+    }
+    window.triggerHaptic = triggerHaptic;
+
+    // --- Recently Used Tool Logging ---
+    function logRecentTool(viewId) {
+        const toolViews = ['rta-view', 'module-view', 'sub-calc-view', 'tuner-view', 'siggen-view', 'ear-training-view', 'pinout-view', 'tap-delay-view'];
+        if (toolViews.includes(viewId)) {
+            try {
+                let recent = JSON.parse(localStorage.getItem('soundengg_recent_tools')) || [];
+                recent = recent.filter(id => id !== viewId);
+                recent.unshift(viewId);
+                if (recent.length > 4) recent.pop();
+                localStorage.setItem('soundengg_recent_tools', JSON.stringify(recent));
+                updateRecentlyUsedUI();
+            } catch (e) {
+                console.error('Failed to log recent tool:', e);
+            }
+        }
+    }
+
+    // --- Render Recently Used Tool UI ---
+    function updateRecentlyUsedUI() {
+        const container = document.getElementById('mobile-recently-used-list');
+        if (!container) return;
+        
+        try {
+            const recent = JSON.parse(localStorage.getItem('soundengg_recent_tools')) || [];
+            const toolViews = {
+                'rta-view': { name: 'RTA Analyzer', icon: 'analytics', color: 'cyan' },
+                'module-view': { name: 'Delay Calc', icon: 'straighten', color: 'amber' },
+                'sub-calc-view': { name: 'Sub Arrays', icon: 'speaker', color: 'purple' },
+                'tuner-view': { name: 'Precision Tuner', icon: 'tune', color: 'emerald' },
+                'siggen-view': { name: 'Signal Generator', icon: 'waves', color: 'blue' },
+                'ear-training-view': { name: 'Ear Training', icon: 'hearing', color: 'pink' },
+                'pinout-view': { name: 'Pinout Reference', icon: 'cable', color: 'orange' },
+                'tap-delay-view': { name: 'Tap Delay', icon: 'ads_click', color: 'yellow' }
+            };
+            
+            if (recent.length === 0) {
+                container.innerHTML = `<div class="recent-empty">No recently used tools. Launch a tool above to populate!</div>`;
+                return;
+            }
+            
+            container.innerHTML = recent.map(id => {
+                const tool = toolViews[id];
+                if (!tool) return '';
+                return `
+                    <button class="recent-tool-item" data-target="${id}">
+                        <span class="material-symbols-outlined recent-icon icon-${tool.color}">${tool.icon}</span>
+                        <span class="recent-name">${tool.name}</span>
+                        <span class="material-symbols-outlined recent-chevron">chevron_right</span>
+                    </button>
+                `;
+            }).join('');
+            
+            // Add click listeners to recent items
+            container.querySelectorAll('.recent-tool-item').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const targetId = btn.getAttribute('data-target');
+                    const targetView = document.getElementById(targetId);
+                    if (targetView) {
+                        showView(targetView);
+                    }
+                });
+            });
+        } catch (e) {
+            console.error('Error rendering recently used UI:', e);
+        }
+    }
+    window.updateRecentlyUsedUI = updateRecentlyUsedUI;
+
+    // --- Bottom Tab Bar Visibility & State Sync ---
+    function updateBottomTabBarVisibility(targetView) {
+        const deepSubTools = ['module-view', 'tap-delay-view', 'sub-calc-view', 'tuner-view', 'siggen-view', 'ear-training-view', 'pinout-view'];
+        const tabbar = document.getElementById('mobile-bottom-tabs');
+        if (tabbar) {
+            const isDeep = deepSubTools.includes(targetView.id);
+            if (isDeep) {
+                tabbar.classList.add('hidden-tab-bar');
+            } else {
+                tabbar.classList.remove('hidden-tab-bar');
+            }
+            
+            // Sync active states on bottom tab buttons
+            const btnTabHome = document.getElementById('btn-tab-home');
+            const btnTabConsole = document.getElementById('btn-tab-console');
+            const btnTabBlog = document.getElementById('btn-tab-blog');
+            
+            if (btnTabHome) btnTabHome.classList.toggle('active', targetView === dashboardView);
+            if (btnTabConsole) btnTabConsole.classList.toggle('active', targetView === rtaView);
+            if (btnTabBlog) btnTabBlog.classList.toggle('active', targetView === blogView);
+        }
+    }
+
+    // --- Update Mobile Safe Header Title & Back Button ---
+    function updateMobileHeader(targetView) {
+        const headerTitle = document.getElementById('mobile-header-title');
+        const backBtn = document.getElementById('mobile-header-back');
+        if (headerTitle) {
+            const viewTitles = {
+                'dashboard-view': 'SOUNDENGG CONSOLE',
+                'rta-view': 'RTA SPECTROGRAM',
+                'author-view': 'AUTHOR',
+                'module-view': 'DELAY CALCULATOR',
+                'pinout-view': 'PINOUT REFERENCE',
+                'blog-view': 'ENGINEERING BLOG',
+                'siggen-view': 'SIGNAL GENERATOR',
+                'ear-training-view': 'EAR TRAINING',
+                'tuner-view': 'PRECISION TUNER',
+                'sub-calc-view': 'SUB ARRAY CALC',
+                'tap-delay-view': 'TAP DELAY'
+            };
+            headerTitle.textContent = viewTitles[targetView.id] || 'SOUNDENGG';
+        }
+        if (backBtn) {
+            if (targetView.id === 'dashboard-view') {
+                backBtn.style.visibility = 'hidden';
+            } else {
+                backBtn.style.visibility = 'visible';
+            }
+        }
+    }
+
     /**
      * Senior View Manager: Ensures ONLY one view is visible at any time.
      */
@@ -416,41 +549,81 @@ function setupNavigation() {
             window.stopEarTraining();
         }
         
-        // Hide ALL other views first
-        ALL_VIEWS.forEach(v => {
-            if (v) v.style.display = 'none';
-        });
+        // Log view change for Recently Used feed
+        logRecentTool(targetView.id);
 
-        // Show target
-        targetView.style.display = 'block';
-        targetView.style.opacity = '1'; // Ensure visibility for animation-driven layouts
-        
-        // Handle Nav Highlights
-        updateActiveNav(navButton);
-        
-        // Auto-close mobile menu when navigating
-        closeMobileMenu();
-        
-        // Common Reset
-        window.scrollTo(0, 0);
-        if (typeof window.syncMobileNavDropdownLabel === 'function') {
-            window.syncMobileNavDropdownLabel(targetView.id);
+        // Update mobile bottom tab bar visibility for deep sub-tools
+        updateBottomTabBarVisibility(targetView);
+
+        // Update mobile safe header view name and back chevron visibility
+        updateMobileHeader(targetView);
+
+        // Determine view transition direction type
+        let transitionType = 'fade';
+        if (isBackAction) {
+            transitionType = 'backward';
+        } else if (currentView && currentView !== targetView) {
+            const isMainView = (targetView === dashboardView || targetView === authorView || targetView === blogView);
+            if (!isMainView) {
+                transitionType = 'forward';
+            }
         }
 
-        // Specific View Re-initialization
-        if (targetView === rtaView) {
-            const canvas = document.getElementById('rta-canvas');
-            if (canvas) {
-                canvas.width = canvas.parentElement.clientWidth;
-                canvas.height = canvas.parentElement.clientHeight;
+        const updateDOM = () => {
+            // Hide ALL other views first
+            ALL_VIEWS.forEach(v => {
+                if (v) v.style.display = 'none';
+            });
+
+            // Show target
+            targetView.style.display = 'block';
+            targetView.style.opacity = '1'; // Ensure visibility for animation-driven layouts
+            
+            // Handle Nav Highlights
+            updateActiveNav(navButton);
+            
+            // Auto-close mobile menu when navigating
+            closeMobileMenu();
+            
+            // Common Reset
+            window.scrollTo(0, 0);
+            if (typeof window.syncMobileNavDropdownLabel === 'function') {
+                window.syncMobileNavDropdownLabel(targetView.id);
             }
-        } else if (targetView === tunerView) {
-            if (window.resizeTunerCanvas) {
-                window.resizeTunerCanvas();
+
+            // Specific View Re-initialization
+            if (targetView === rtaView) {
+                const canvas = document.getElementById('rta-canvas');
+                if (canvas) {
+                    canvas.width = canvas.parentElement.clientWidth;
+                    canvas.height = canvas.parentElement.clientHeight;
+                }
+            } else if (targetView === tunerView) {
+                if (window.resizeTunerCanvas) {
+                    window.resizeTunerCanvas();
+                }
+                if (window.drawTunerVisualizer) {
+                    window.drawTunerVisualizer(null);
+                }
             }
-            if (window.drawTunerVisualizer) {
-                window.drawTunerVisualizer(null);
+        };
+
+        // Smooth single-page swaps using the View Transitions API (or direct DOM update fallback)
+        if (currentView && currentView !== targetView && document.startViewTransition) {
+            try {
+                document.startViewTransition({
+                    update: updateDOM,
+                    types: [transitionType]
+                });
+            } catch (e) {
+                try {
+                    document.startViewTransition(updateDOM);
+                } catch (err) {
+                    updateDOM();
+                }
             }
+        } else {
+            updateDOM();
         }
         
         // Push state to browser history for native mobile back button routing
@@ -1268,6 +1441,101 @@ function setupNavigation() {
             }
         }
     }
+
+    // --- Add Native Mobile Platform Body Class ---
+    if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
+        document.body.classList.add('native-mobile-platform');
+    }
+
+    // --- Mobile Safe Header back button ---
+    const mobileHeaderBack = document.getElementById('mobile-header-back');
+    if (mobileHeaderBack) {
+        mobileHeaderBack.addEventListener('click', (e) => {
+            e.preventDefault();
+            goBack();
+        });
+    }
+
+    // --- Mobile Bottom Tab Bar click handlers ---
+    const btnTabHome = document.getElementById('btn-tab-home');
+    const btnTabTools = document.getElementById('btn-tab-tools');
+    const btnTabConsole = document.getElementById('btn-tab-console');
+    const btnTabBlog = document.getElementById('btn-tab-blog');
+    
+    if (btnTabHome) {
+        btnTabHome.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView(dashboardView, btnNavDashboard);
+        });
+    }
+    
+    const mobileToolsDrawer = document.getElementById('mobile-tools-drawer');
+    const btnCloseToolsDrawer = document.getElementById('btn-close-tools-drawer');
+    
+    if (btnTabTools && mobileToolsDrawer) {
+        btnTabTools.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(mobileToolsDrawer);
+        });
+    }
+    if (btnCloseToolsDrawer && mobileToolsDrawer) {
+        btnCloseToolsDrawer.addEventListener('click', () => {
+            closeModal(mobileToolsDrawer);
+        });
+    }
+    if (mobileToolsDrawer) {
+        mobileToolsDrawer.addEventListener('click', (e) => {
+            if (e.target === mobileToolsDrawer) {
+                closeModal(mobileToolsDrawer);
+            }
+        });
+    }
+    
+    document.querySelectorAll('.drawer-tool-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const target = document.getElementById(targetId);
+            if (target) {
+                closeModal(mobileToolsDrawer);
+                showView(target);
+            }
+        });
+    });
+
+    if (btnTabConsole) {
+        btnTabConsole.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView(rtaView);
+        });
+    }
+    if (btnTabBlog) {
+        btnTabBlog.addEventListener('click', (e) => {
+            e.preventDefault();
+            showView(blogView, btnNavBlog);
+        });
+    }
+
+    // --- Mobile Quick Tools Card launchers ---
+    const btnMobileLaunchRta = document.getElementById('btn-mobile-launch-rta');
+    const btnMobileLaunchDelay = document.getElementById('btn-mobile-launch-delay');
+    const btnMobileLaunchSubcalc = document.getElementById('btn-mobile-launch-subcalc');
+    const btnMobileLaunchTuner = document.getElementById('btn-mobile-launch-tuner');
+
+    if (btnMobileLaunchRta) btnMobileLaunchRta.addEventListener('click', () => showView(rtaView));
+    if (btnMobileLaunchDelay) btnMobileLaunchDelay.addEventListener('click', () => showView(moduleView));
+    if (btnMobileLaunchSubcalc) btnMobileLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
+    if (btnMobileLaunchTuner) btnMobileLaunchTuner.addEventListener('click', () => showView(tunerView));
+
+    // --- Global Click Listener for Haptic Feedback on active clicks ---
+    document.addEventListener('click', (e) => {
+        const isClickable = e.target.closest('button, a, .widget, .role-btn, .recent-tool-item, .mobile-tool-card');
+        if (isClickable) {
+            triggerHaptic();
+        }
+    });
+
+    // --- Populate recently used list on load ---
+    updateRecentlyUsedUI();
 
     // Run on load and on hash change
     handleDeepLink();

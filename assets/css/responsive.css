@@ -896,3 +896,531 @@
         line-height: 1.3 !important;
     }
 }
+
+/* ==========================================================================
+   MOBILE UI/UX REDESIGN (max-width: 768px & Capacitor platforms)
+   ========================================================================== */
+
+/* 1. Global View Toggles */
+.mobile-only-header,
+.mobile-only-dashboard,
+#mobile-bottom-tabs,
+#mobile-tools-drawer {
+    display: none !important;
+}
+
+@media (max-width: 768px) {
+    /* Hide Desktop Elements */
+    .top-bar,
+    .desktop-only-dashboard {
+        display: none !important;
+    }
+
+    /* Show Mobile Elements */
+    .mobile-only-header {
+        display: flex !important;
+    }
+    .mobile-only-dashboard {
+        display: block !important;
+    }
+    #mobile-bottom-tabs {
+        display: flex !important;
+    }
+    #mobile-tools-drawer {
+        display: none; /* Controlled by modal logic */
+    }
+}
+
+/* Also apply to Native Capacitor Platform (if not matching max-width) */
+.native-mobile-platform .top-bar,
+.native-mobile-platform .desktop-only-dashboard {
+    display: none !important;
+}
+.native-mobile-platform .mobile-only-header {
+    display: flex !important;
+}
+.native-mobile-platform .mobile-only-dashboard {
+    display: block !important;
+}
+.native-mobile-platform #mobile-bottom-tabs {
+    display: flex !important;
+}
+
+/* 2. Top Safe Mobile Header Styling */
+.mobile-only-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: calc(3.5rem + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 1rem 0 1rem;
+    background: rgba(10, 10, 15, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1.5px solid var(--outline);
+    z-index: 1500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.mobile-header-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    min-height: 44px;
+    min-width: 44px;
+}
+
+.mobile-header-btn span {
+    font-size: 1.8rem;
+}
+
+#mobile-header-title {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.1rem;
+    color: var(--primary);
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+    flex-grow: 1;
+    text-align: center;
+}
+
+/* Offset main-content top padding to account for fixed header */
+@media (max-width: 768px) {
+    .main-content {
+        padding-top: calc(4.5rem + env(safe-area-inset-top, 0px)) !important;
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+        min-height: calc(100vh - 10rem) !important;
+        box-sizing: border-box;
+    }
+}
+.native-mobile-platform .main-content {
+    padding-top: calc(4.5rem + env(safe-area-inset-top, 0px)) !important;
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px)) !important;
+    min-height: calc(100vh - 10rem) !important;
+    box-sizing: border-box;
+}
+
+/* 3. Bottom Tab Bar Styling */
+#mobile-bottom-tabs {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(4.5rem + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background: rgba(10, 10, 15, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1.5px solid var(--outline);
+    z-index: 1500;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    box-sizing: border-box;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.6);
+}
+
+.tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    text-decoration: none;
+    flex-grow: 1;
+    height: 100%;
+    transition: color 0.2s ease;
+    font-size: 0.75rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+}
+
+.tab-item span.material-symbols-outlined {
+    font-size: 1.5rem;
+    margin-bottom: 2px;
+}
+
+.tab-item:hover,
+.tab-item.active {
+    color: var(--primary);
+}
+
+/* Center Floating Circular Button */
+.console-center-tab {
+    position: relative;
+    top: -12px;
+    overflow: visible;
+}
+
+.console-circle-btn {
+    width: 54px;
+    height: 54px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4), 0 0 0 4px rgba(10, 10, 15, 0.92);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.console-circle-btn span {
+    color: #050508 !important;
+    font-size: 1.8rem !important;
+    margin-bottom: 0 !important;
+}
+
+.console-center-tab:active .console-circle-btn {
+    transform: scale(0.92);
+}
+
+.console-center-tab .tab-label {
+    margin-top: 4px;
+}
+
+/* 4. Mobile Dashboard Design */
+.mobile-pro-banner {
+    position: relative;
+    background: linear-gradient(145deg, rgba(0, 242, 254, 0.15), rgba(0, 255, 204, 0.03));
+    border: 1.5px solid var(--outline);
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.banner-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--primary);
+    color: #050508;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 900;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+}
+
+.banner-title {
+    font-family: var(--font-headline);
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--primary);
+    letter-spacing: 1.5px;
+    margin-bottom: 0.25rem;
+    text-shadow: 0 0 8px rgba(0, 242, 254, 0.2);
+}
+
+.banner-tagline {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 1rem;
+}
+
+.banner-btn {
+    background: var(--primary);
+    color: #050508;
+    border: none;
+    font-family: var(--font-headline);
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(0, 242, 254, 0.3);
+}
+
+.mobile-section-title {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin: 1.5rem 0 0.75rem 0;
+}
+
+/* Quick Tools Grid */
+.mobile-quick-tools-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+}
+
+.mobile-tool-card {
+    background: var(--surface-highest);
+    border: 1.5px solid var(--outline);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    min-height: 95px;
+    box-sizing: border-box;
+}
+
+.mobile-tool-card .tool-card-icon {
+    font-size: 1.8rem;
+    transition: transform 0.2s ease;
+}
+
+.mobile-tool-card .tool-card-name {
+    font-family: var(--font-sans);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* Color Accent cards */
+.tool-rta .tool-card-icon { color: #00f2fe; }
+.tool-rta { border-color: rgba(0, 242, 254, 0.3); }
+.tool-rta:active { background: rgba(0, 242, 254, 0.05); }
+
+.tool-delay .tool-card-icon { color: #f59e0b; }
+.tool-delay { border-color: rgba(245, 158, 11, 0.3); }
+.tool-delay:active { background: rgba(245, 158, 11, 0.05); }
+
+.tool-subcalc .tool-card-icon { color: #a855f7; }
+.tool-subcalc { border-color: rgba(168, 85, 247, 0.3); }
+.tool-subcalc:active { background: rgba(168, 85, 247, 0.05); }
+
+.tool-tuner .tool-card-icon { color: #10b981; }
+.tool-tuner { border-color: rgba(16, 185, 129, 0.3); }
+.tool-tuner:active { background: rgba(16, 185, 129, 0.05); }
+
+/* Stats Row */
+.mobile-stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+    margin: 1.5rem 0;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--outline-light);
+    border-radius: 10px;
+    padding: 0.75rem;
+}
+
+.stat-widget {
+    text-align: center;
+}
+
+.stat-number {
+    font-family: var(--font-mono);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.stat-label {
+    font-family: var(--font-sans);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Recently Used Feed */
+.mobile-recent-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.recent-tool-item {
+    display: flex;
+    align-items: center;
+    background: var(--surface-highest);
+    border: 1px solid var(--outline-light);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    width: 100%;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.recent-tool-item:active {
+    border-color: var(--primary);
+    background: rgba(0, 242, 254, 0.05);
+}
+
+.recent-icon {
+    font-size: 1.3rem;
+    margin-right: 0.75rem;
+}
+
+.recent-icon.icon-cyan { color: #00f2fe; }
+.recent-icon.icon-amber { color: #f59e0b; }
+.recent-icon.icon-purple { color: #a855f7; }
+.recent-icon.icon-emerald { color: #10b981; }
+.recent-icon.icon-blue { color: #3b82f6; }
+.recent-icon.icon-pink { color: #ec4899; }
+.recent-icon.icon-orange { color: #f97316; }
+.recent-icon.icon-yellow { color: #eab308; }
+
+.recent-name {
+    font-family: var(--font-sans);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-main);
+    flex-grow: 1;
+    text-align: left;
+}
+
+.recent-chevron {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.recent-empty {
+    font-family: var(--font-sans);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px dashed var(--outline-light);
+    border-radius: 8px;
+}
+
+/* 5. Modals as Bottom Sheets (Slide-Up) on Mobile */
+@media (max-width: 768px) {
+    .modal-overlay {
+        display: flex !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background-color: rgba(0, 0, 0, 0.75) !important;
+    }
+
+    .modal-overlay.hidden {
+        display: none !important;
+    }
+
+    .modal-overlay > div:not(.mobile-ad-loader-content) {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0 !important;
+        margin: 0 !important;
+        padding: 2.5rem 1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        box-sizing: border-box;
+        max-height: 85vh;
+        overflow-y: auto;
+        animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
+}
+
+/* Also apply to Native Capacitor Platform (if not matching max-width) */
+.native-mobile-platform .modal-overlay {
+    display: flex !important;
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background-color: rgba(0, 0, 0, 0.75) !important;
+}
+.native-mobile-platform .modal-overlay.hidden {
+    display: none !important;
+}
+.native-mobile-platform .modal-overlay > div:not(.mobile-ad-loader-content) {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 20px 20px 0 0 !important;
+    margin: 0 !important;
+    padding: 2.5rem 1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
+    border-bottom: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    box-sizing: border-box;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+@keyframes slide-up-sheet {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* 6. View Transition Custom CSS Animations */
+::view-transition-group(root) {
+    animation-duration: 0.28s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Fade (Tab switch) action */
+html:active-view-transition-type(fade)::view-transition-old(root) {
+    animation: fade-out 0.2s ease-out forwards;
+}
+html:active-view-transition-type(fade)::view-transition-new(root) {
+    animation: fade-in 0.2s ease-in forwards;
+}
+
+/* Slide Left (Forward) action */
+html:active-view-transition-type(forward)::view-transition-old(root) {
+    animation: slide-to-left 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+html:active-view-transition-type(forward)::view-transition-new(root) {
+    animation: slide-from-right 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Slide Right (Backward) action */
+html:active-view-transition-type(backward)::view-transition-old(root) {
+    animation: slide-to-right 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+html:active-view-transition-type(backward)::view-transition-new(root) {
+    animation: slide-from-left 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes fade-out {
+    to { opacity: 0; }
+}
+@keyframes fade-in {
+    from { opacity: 0; }
+}
+@keyframes slide-to-left {
+    to { transform: translateX(-30%); opacity: 0.3; }
+}
+@keyframes slide-from-right {
+    from { transform: translateX(100%); }
+}
+@keyframes slide-to-right {
+    to { transform: translateX(100%); }
+}
+@keyframes slide-from-left {
+    from { transform: translateX(-30%); opacity: 0.3; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(root) {
+        animation: none !important;
+    }
+}
