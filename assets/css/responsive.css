@@ -900,7 +900,8 @@
 @media (max-width: 768px) {
     /* Hide Desktop Elements */
     .top-bar,
-    .desktop-only-dashboard {
+    .desktop-only-dashboard,
+    .tool-header-title {
         display: none !important;
     }
 
@@ -2417,4 +2418,31 @@ html.light .search-result-item {
 html.light .search-result-item:hover {
     background: rgba(20, 167, 181, 0.08) !important;
     border-color: rgba(20, 167, 181, 0.3) !important;
+}
+
+/* Light Theme overrides for input fields & wiring search bar */
+html.light .search-wrapper input {
+    background: var(--vfd-bg) !important;
+    color: var(--text-heading) !important;
+    text-shadow: none !important;
+}
+
+html.light .search-wrapper input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+html.light .search-wrapper .material-symbols-outlined {
+    color: var(--text-muted) !important;
+}
+
+html.light .search-wrapper input:focus {
+    box-shadow: var(--vfd-shadow), 0 0 8px rgba(20, 167, 181, 0.25) !important;
+}
+
+html.light .vfd-input-wrap input,
+html.light .vfd-input,
+html.light .vfd-glow {
+    color: var(--text-heading) !important;
+    text-shadow: none !important;
+    box-shadow: none !important;
 }
