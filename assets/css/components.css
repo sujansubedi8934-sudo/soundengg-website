@@ -368,3 +368,47 @@ html.light .global-search:focus-within {
     transform: scale(0.95);
     display: none !important;
 }
+
+/* --- VFD Display & Canvas Screens --- */
+.vfd-screen,
+.canvas-wrapper,
+.vfd-input-wrap,
+.config-visual,
+.vfd-badge {
+    background: var(--vfd-bg) !important;
+    border: 1px solid var(--outline) !important;
+    box-shadow: var(--vfd-shadow) !important;
+    transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Specific glows for VFD display screens in dark mode */
+.vfd-screen {
+    box-shadow: var(--vfd-shadow), var(--vfd-glow) !important;
+    border-color: var(--primary) !important;
+}
+
+html.light .vfd-screen {
+    border-color: var(--outline) !important;
+    box-shadow: var(--vfd-shadow) !important;
+}
+
+/* LCD-style text contrast tuning for Light Mode */
+html.light .vfd-screen span {
+    text-shadow: none !important;
+}
+
+html.light .vfd-screen .tuner-note {
+    color: var(--text-heading) !important; /* Deep navy instead of light teal */
+}
+
+html.light .vfd-screen .tuner-cents {
+    color: var(--text-muted) !important;
+}
+
+html.light .vfd-screen .tuner-cents.in-tune {
+    color: #059669 !important; /* Dark green for LCD contrast */
+}
+
+html.light .vfd-screen #rta-dom-val {
+    color: var(--text-heading) !important; /* Deep navy for sharp LCD contrast */
+}

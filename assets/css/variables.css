@@ -33,6 +33,11 @@
     --font-headline: 'Space Grotesk', sans-serif;
     --font-body: 'Space Grotesk', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
+
+    /* VFD Console screens */
+    --vfd-bg: #020204;
+    --vfd-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.95);
+    --vfd-glow: 0 0 15px rgba(20, 167, 181, 0.15);
 }
 
 html.light {
@@ -62,6 +67,11 @@ html.light {
     --text-primary: var(--text-main);
     --text-secondary: var(--text-muted);
     --accent: #00b4d8;
+
+    /* VFD Console screens in Light Mode */
+    --vfd-bg: #e6eff2; /* Soft retro-LCD backlight color */
+    --vfd-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15);
+    --vfd-glow: none;
 }
 
 * {
