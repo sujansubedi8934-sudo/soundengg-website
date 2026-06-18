@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 15,
-  "latestVersionName": "1.1.0",
+  "latestVersionCode": 16,
+  "latestVersionName": "1.1.1",
   "downloadUrl": "https://play.google.com/apps/internaltest/4701593727903746246",
   "forceUpdate": false,
-  "message": "Critical Google Sign-In and session synchronization fixes are live!"
+  "message": "Improved Tap Tempo layout, added Light Mode VFD UI corrections, and fixed other visual alignments."
 }
