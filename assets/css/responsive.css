@@ -1578,7 +1578,7 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
 /* Layout Grid */
 .tap-delay-grid {
     display: grid;
-    grid-template-columns: 1fr 1.2fr;
+    grid-template-columns: 340px 1fr;
     gap: 1.5rem;
     align-items: start;
     width: 100%;
@@ -1590,6 +1590,20 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
         gap: 1.25rem;
     }
 }
+
+.tap-subdivisions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.85rem;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .tap-subdivisions-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 
 /* Widgets Base Override */
 .tap-delay-widget {
@@ -1778,6 +1792,19 @@ html.light .tap-subdivision-card {
     z-index: 2;
     width: 100%;
 }
+
+@media (min-width: 769px) {
+    .tap-subdivision-card-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+    }
+    .tap-subdivision-copy-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
 
 .tap-subdivision-label {
     font-size: 0.75rem;
