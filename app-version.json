@@ -2,6 +2,6 @@
   "latestVersionCode": 16,
   "latestVersionName": "1.1.1",
   "downloadUrl": "https://play.google.com/apps/internaltest/4701593727903746246",
-  "forceUpdate": false,
+  "forceUpdate": true,
   "message": "Improved Tap Tempo layout, added Light Mode VFD UI corrections, and fixed other visual alignments."
 }

@@ -2,6 +2,17 @@
   "version": 2,
   "outputDirectory": "www",
   "cleanUrls": true,
+  "headers": [
+    {
+      "source": "/app-version.json",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ],
   "routes": [
     {
       "src": "^/service-worker.js$",
