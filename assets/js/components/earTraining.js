@@ -14,6 +14,11 @@ function initEarTraining() {
     const sourceBtns = document.querySelectorAll('#ear-training-view .train-source-btn');
     const tierBtns = document.querySelectorAll('.train-tier-btn');
     const boostBtns = document.querySelectorAll('.train-boost-btn');
+    const modeBtns = document.querySelectorAll('.train-mode-btn');
+    const directionContainer = document.getElementById('ear-train-direction-container');
+    const btnGuessBoost = document.getElementById('btn-guess-boost');
+    const btnGuessCut = document.getElementById('btn-guess-cut');
+    const instructionText = document.querySelector('.ear-train-instruction');
 
     // Pro Feature elements: Custom track uploader and seeker
     const uploadContainer = document.getElementById('train-track-upload-container');
@@ -31,7 +36,10 @@ function initEarTraining() {
     let gainNode;
     
     let isTraining = false;
+    let currentMode = 'spectral'; // 'spectral' or 'eqmatch'
     let currentTargetFreq = 0;
+    let currentTargetDirection = 'boost'; // 'boost' or 'cut'
+    let userGuessDirection = 'boost'; // 'boost' or 'cut'
     let currentBoost = 6;
     let currentSource = 'pink';
     let currentTier = 'octave';
@@ -115,7 +123,10 @@ function initEarTraining() {
         if (btnB) btnB.classList.toggle('active', ch === 'B');
         
         if (filterNode) {
-            const targetGain = (ch === 'B') ? currentBoost : 0;
+            let targetGain = 0;
+            if (ch === 'B') {
+                targetGain = (currentMode === 'eqmatch' && currentTargetDirection === 'cut') ? -currentBoost : currentBoost;
+            }
             filterNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
         }
     }
@@ -131,6 +142,24 @@ function initEarTraining() {
         const idx = Math.floor(Math.random() * freqList.length);
         currentTargetFreq = freqList[idx];
         
+        // Reset direction guess visual and state
+        userGuessDirection = 'boost';
+        if (btnGuessBoost) {
+            btnGuessBoost.style.pointerEvents = '';
+            btnGuessBoost.className = 'ab-channel-btn active-boost';
+        }
+        if (btnGuessCut) {
+            btnGuessCut.style.pointerEvents = '';
+            btnGuessCut.className = 'ab-channel-btn';
+        }
+
+        // Determine target direction randomly in EQ Match mode
+        if (currentMode === 'eqmatch') {
+            currentTargetDirection = Math.random() < 0.5 ? 'boost' : 'cut';
+        } else {
+            currentTargetDirection = 'boost';
+        }
+
         if (currentSource === 'pink') {
             sourceNode = createPinkNoise();
         } else if (currentSource === 'white') {
@@ -154,7 +183,13 @@ function initEarTraining() {
 
         if (filterNode) {
             filterNode.frequency.setTargetAtTime(currentTargetFreq, audioCtx.currentTime, 0.01);
-            filterNode.gain.setTargetAtTime((currentChannel === 'B') ? currentBoost : 0, audioCtx.currentTime, 0.01);
+            
+            let initialGain = 0;
+            if (currentChannel === 'B') {
+                initialGain = (currentTargetDirection === 'cut') ? -currentBoost : currentBoost;
+            }
+            filterNode.gain.setTargetAtTime(initialGain, audioCtx.currentTime, 0.01);
+            
             filterNode.Q.value = (currentTier === 'octave') 
                 ? 2.0 
                 : ((currentTier === 'third') ? 4.32 : 8.65);
@@ -268,16 +303,37 @@ function initEarTraining() {
         if (!isTraining) return;
         
         questionsTotal++;
-        const isCorrect = (Math.abs(selectedFreq - currentTargetFreq) < 0.1);
+        
+        const freqCorrect = (Math.abs(selectedFreq - currentTargetFreq) < 0.1);
+        const dirCorrect = (currentMode === 'eqmatch') ? (userGuessDirection === currentTargetDirection) : true;
+        const isCorrect = freqCorrect && dirCorrect;
         
         const allBtns = optionsContainer.querySelectorAll('.train-option-btn');
         allBtns.forEach(b => b.style.pointerEvents = 'none');
         
+        if (currentMode === 'eqmatch') {
+            if (btnGuessBoost) btnGuessBoost.style.pointerEvents = 'none';
+            if (btnGuessCut) btnGuessCut.style.pointerEvents = 'none';
+
+            if (!dirCorrect) {
+                if (userGuessDirection === 'boost' && btnGuessBoost) {
+                    btnGuessBoost.className = 'ab-channel-btn error-guess';
+                } else if (userGuessDirection === 'cut' && btnGuessCut) {
+                    btnGuessCut.className = 'ab-channel-btn error-guess';
+                }
+            }
+            if (currentTargetDirection === 'boost' && btnGuessBoost) {
+                btnGuessBoost.className = 'ab-channel-btn active-boost';
+            } else if (currentTargetDirection === 'cut' && btnGuessCut) {
+                btnGuessCut.className = 'ab-channel-btn active-cut';
+            }
+        }
+
         if (isCorrect) {
             questionsCorrect++;
             btn.classList.add('correct');
         } else {
-            btn.classList.add('error');
+            if (!freqCorrect) btn.classList.add('error');
             allBtns.forEach(b => {
                 const fText = currentTargetFreq >= 1000 ? (currentTargetFreq/1000).toFixed(2).replace(/\.00$/, '') + 'k' : currentTargetFreq.toString();
                 if (b.textContent === fText) b.classList.add('correct');
@@ -305,6 +361,50 @@ function initEarTraining() {
     if (btnPlayToggle) btnPlayToggle.addEventListener('click', (e) => { if (e) e.preventDefault(); togglePlay(); });
     if (btnA) btnA.addEventListener('click', (e) => { if (e) e.preventDefault(); setChannel('A'); });
     if (btnB) btnB.addEventListener('click', (e) => { if (e) e.preventDefault(); setChannel('B'); });
+
+    // Mode Toggle Buttons
+    modeBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            const mode = btn.getAttribute('data-mode');
+            modeBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentMode = mode;
+            
+            if (directionContainer) {
+                directionContainer.style.display = (currentMode === 'eqmatch') ? 'flex' : 'none';
+            }
+
+            if (instructionText) {
+                if (currentMode === 'eqmatch') {
+                    instructionText.innerHTML = `Listen to A (Dry) and B (Processed). Identify if the frequency in B is boosted or cut, and select the band.`;
+                } else {
+                    instructionText.innerHTML = `Listen to A (Dry) and B (Processed). Identify the boosted frequency.`;
+                }
+            }
+
+            if (isTraining) startChallenge();
+        });
+    });
+
+    // Guess Direction Buttons
+    if (btnGuessBoost) {
+        btnGuessBoost.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            userGuessDirection = 'boost';
+            btnGuessBoost.className = 'ab-channel-btn active-boost';
+            if (btnGuessCut) btnGuessCut.className = 'ab-channel-btn';
+        });
+    }
+
+    if (btnGuessCut) {
+        btnGuessCut.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            userGuessDirection = 'cut';
+            btnGuessCut.className = 'ab-channel-btn active-cut';
+            if (btnGuessBoost) btnGuessBoost.className = 'ab-channel-btn';
+        });
+    }
 
     tierBtns.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -342,7 +442,7 @@ function initEarTraining() {
                 uploadContainer.style.display = (currentSource === 'track') ? 'block' : 'none';
             }
 
-            if (isTraining) startAudio();
+            if (isTraining) startChallenge();
         });
     });
 
@@ -379,7 +479,7 @@ function initEarTraining() {
 
                     // If playing and source is TRACK, reload audio dynamically
                     if (isTraining && currentSource === 'track') {
-                        startAudio();
+                        startChallenge();
                     }
                 } catch (err) {
                     alert("Error decoding audio file. Please try another standard format like MP3 or WAV.");

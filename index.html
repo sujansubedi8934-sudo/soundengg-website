@@ -161,15 +161,22 @@
     </header>
 
     <!-- Hero Section -->
-    <section class="hero-section" style="display: flex; justify-content: center; text-align: center; min-height: calc(100vh - 80px);">
-        <div class="container hero-container" style="max-width: 800px; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%;">
-            <div class="hero-content" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%;">
-                <h1 class="hero-title" style="margin-bottom: 1.5rem;">The Ultimate Toolkit for System Engineers.</h1>
-                <p class="hero-subtitle" style="margin-bottom: 2.5rem; max-width: 650px;">Phase-accurate calculations, pinout references, real-time analysis, and system tuning in one rugged, offline-ready dashboard.</p>
-                <div class="hero-actions" style="justify-content: center;">
-                    <a href="app.html" class="btn btn-primary hero-btn">Start Free Console</a>
-                    <a href="#features" class="btn btn-outline hero-btn">Explore Features</a>
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">The Ultimate Toolkit for System Engineers.</h1>
+            <p class="hero-subtitle">Phase-accurate calculations, pinout references, real-time analysis, and system tuning in one rugged, offline-ready dashboard.</p>
+            <div class="hero-actions">
+                <a href="app.html" class="btn btn-primary hero-btn">Start Free Console</a>
+                <a href="#features" class="btn btn-outline hero-btn">Explore Features</a>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="vfd-glass-panel">
+                <div class="vfd-panel-header">
+                    <span class="status-dot green"></span>
+                    <span class="panel-title">SYSTEM_OSCILLOSCOPE // ACTIVE</span>
                 </div>
+                <canvas id="hero-oscilloscope-canvas"></canvas>
             </div>
         </div>
     </section>
@@ -184,42 +191,42 @@
             
             <div class="feature-grid">
                 <!-- Feature 1 -->
-                <div class="feature-card">
+                <div class="feature-card card-rta">
                     <div class="feature-icon"><span class="material-symbols-outlined">equalizer</span></div>
                     <h3>RTA Analyser</h3>
                     <p>Professional grade Real-Time Analysis with high-resolution visual feedback for precision system tuning and feedback hunting.</p>
                 </div>
                 
                 <!-- Feature 2 -->
-                <div class="feature-card">
+                <div class="feature-card card-eartrain">
                     <div class="feature-icon"><span class="material-symbols-outlined">hearing</span></div>
                     <h3>Ear Training</h3>
                     <p>Develop critical listening skills. Practice identifying frequencies, EQ cuts/boosts, and compression artifacts on the go.</p>
                 </div>
                 
                 <!-- Feature 3 -->
-                <div class="feature-card">
+                <div class="feature-card card-subs">
                     <div class="feature-icon"><span class="material-symbols-outlined">speaker</span></div>
                     <h3>Subwoofer Arrays</h3>
                     <p>Mathematically perfect Cardioid and Broadside configurations. Includes presets for d&b CSA, Gradient, and L-Acoustics arrays.</p>
                 </div>
                 
                 <!-- Feature 4 -->
-                <div class="feature-card">
+                <div class="feature-card card-delay">
                     <div class="feature-icon"><span class="material-symbols-outlined">speed</span></div>
                     <h3>Delay & Time Alignment</h3>
                     <p>Align mains to subs or delay towers with temperature-compensated precision calculations. Perfect phase alignment.</p>
                 </div>
                 
                 <!-- Feature 5 -->
-                <div class="feature-card">
+                <div class="feature-card card-tuner">
                     <div class="feature-icon"><span class="material-symbols-outlined">music_note</span></div>
                     <h3>Instrument Tuner</h3>
                     <p>Highly accurate chromatic tuner designed to grab specific fundamental frequencies quickly during hectic changeovers.</p>
                 </div>
                 
                 <!-- Feature 6 -->
-                <div class="feature-card">
+                <div class="feature-card card-siggen">
                     <div class="feature-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
                     <h3>Signal Generator</h3>
                     <p>Built-in oscillator providing Sine, Pink Noise, and White Noise to instantly test PA systems and verify signal flow.</p>
@@ -549,6 +556,104 @@
                   submitBtn.style.opacity = '1';
               });
           });
+      }
+      
+      // VFD Oscilloscope Simulator Animation
+      const canvas = document.getElementById('hero-oscilloscope-canvas');
+      if (canvas) {
+          const ctx = canvas.getContext('2d');
+          
+          function resizeCanvas() {
+              const rect = canvas.getBoundingClientRect();
+              canvas.width = rect.width * (window.devicePixelRatio || 1);
+              canvas.height = rect.height * (window.devicePixelRatio || 1);
+              ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+          }
+          
+          resizeCanvas();
+          window.addEventListener('resize', resizeCanvas);
+          
+          let offset = 0;
+          
+          function draw() {
+              const rect = canvas.getBoundingClientRect();
+              const w = rect.width;
+              const h = rect.height;
+              if (w === 0 || h === 0) {
+                  requestAnimationFrame(draw);
+                  return;
+              }
+              
+              ctx.fillStyle = '#020204';
+              ctx.fillRect(0, 0, w, h);
+              
+              // 1. Draw grid lines
+              ctx.strokeStyle = 'rgba(20, 167, 181, 0.05)';
+              ctx.lineWidth = 1;
+              const gridSpacing = 20;
+              
+              for (let x = 0; x < w; x += gridSpacing) {
+                  ctx.beginPath();
+                  ctx.moveTo(x, 0);
+                  ctx.lineTo(x, h);
+                  ctx.stroke();
+              }
+              for (let y = 0; y < h; y += gridSpacing) {
+                  ctx.beginPath();
+                  ctx.moveTo(0, y);
+                  ctx.lineTo(w, y);
+                  ctx.stroke();
+              }
+              
+              // Center axes
+              ctx.strokeStyle = 'rgba(20, 167, 181, 0.15)';
+              ctx.beginPath();
+              ctx.moveTo(0, h / 2);
+              ctx.lineTo(w, h / 2);
+              ctx.stroke();
+              ctx.beginPath();
+              ctx.moveTo(w / 2, 0);
+              ctx.lineTo(w / 2, h);
+              ctx.stroke();
+              
+              // 2. Draw multiple waves
+              offset += 0.04;
+              
+              // Base sine wave
+              ctx.strokeStyle = '#14A7B5';
+              ctx.shadowColor = '#14A7B5';
+              ctx.shadowBlur = 6;
+              ctx.lineWidth = 2;
+              ctx.beginPath();
+              for (let x = 0; x < w; x++) {
+                  const angle = (x / w) * Math.PI * 4 + offset;
+                  const y = h / 2 + Math.sin(angle) * 30 * Math.sin(offset * 0.2 + x / w);
+                  if (x === 0) ctx.moveTo(x, y);
+                  else ctx.lineTo(x, y);
+              }
+              ctx.stroke();
+              
+              // Sub-harmonic wave
+              ctx.strokeStyle = '#00ffcc';
+              ctx.shadowColor = '#00ffcc';
+              ctx.shadowBlur = 4;
+              ctx.lineWidth = 1.2;
+              ctx.beginPath();
+              for (let x = 0; x < w; x++) {
+                  const angle = (x / w) * Math.PI * 8 - offset * 1.5;
+                  const y = h / 2 + Math.cos(angle) * 15 * Math.sin(offset * 0.5 - x / w);
+                  if (x === 0) ctx.moveTo(x, y);
+                  else ctx.lineTo(x, y);
+              }
+              ctx.stroke();
+              
+              // Reset shadow
+              ctx.shadowBlur = 0;
+              
+              requestAnimationFrame(draw);
+          }
+          
+          draw();
       }
     </script>
     <!-- Vercel Web Analytics & Speed Insights -->

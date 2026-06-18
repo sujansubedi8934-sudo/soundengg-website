@@ -170,5 +170,123 @@ We have successfully resolved the mobile vertical gap issue and completed the re
 * **In-Tune Glowing State**: Added a dynamic neon green text glow (`text-shadow`) to the cents display when the note is in-tune, improving instant visual feedback.
 
 
+## Subwoofer Array Calculator Redesign (June 18, 2026)
 
+We have successfully redesigned the **Subwoofer Array Calculator** view (`#sub-calc-view` in `app.html`) to align with the premium rack-mount hardware aesthetic and resolve key layout wrapping/vertical stretching issues on mobile viewports.
+
+### 1. Wavelength Grid (3x2 Desktop & 2x3 Mobile)
+* **Fractional Wavelengths**: Restructured the wavelength container to display 6 cards with IDs: `wave-1-8`, `wave-1-6` (New), `wave-1-4`, `wave-1-3` (New), `wave-1-2`, and `wave-1`.
+* **Grid Formatting**: 
+  - On desktop, the grid renders in a balanced **3x2 layout**.
+  - On mobile viewports under 768px, it collapses into a **2x3 grid** with a vertical block format, conserving space and eliminating text wrapping.
+  - The full wavelength (`wave-1`) card is highlighted with a green border and text glow.
+
+### 2. Expandable Frequency Preset Drawer
+* **Accordion Toggle**: Moved the preset frequency buttons (40Hz, 63Hz, 80Hz, 100Hz, 125Hz, 250Hz) into a collapsible settings console drawer (`#subcalc-presets-dropdown`).
+* **Micro-Animations**: Included a chevron toggle button (`#btn-toggle-subcalc-presets`) that rotates 180 degrees smoothly when expanded, revealing the presets in a rounded drawer.
+
+### 3. Unified Clutter-Free Array Configurations Card
+* **Segmented Controls**: Merged the Cardioids, End-Fire, and Broadside panels into a single, clean **Array Configurations** card.
+* **Master Segmented Switch**: Introduced a fluid master segmented control (`CARDIOID` / `END-FIRE` / `BROADSIDE`) using the `.segmented-control` class.
+* **Cardioid Sub-tabs**: Embedded a secondary segmented control for Cardioid types (`2-Box Gradient`, `3-Box CSA`, `4-Box L-Acoustics`).
+* **SVG Visualizer Integration**: Toggling master/sub tabs displays only the active configuration's description, calculated spacing/delay statistics, and corresponding animated SVG layout (Gradient, CSA, L-Acoustics, End-Fire, or Broadside), saving significant screen real estate.
+
+### 4. Collapsible Physics Insights Card
+* **Collapsible Drawer**: Wrapped the lengthy engineering insights description in a collapsible accordion drawer (`#subcalc-theory-card`), allowing the user to hide it and minimize vertical scroll.
+
+### 5. Verification & Sync
+* **Build Check**: Ran `npm run build` to compile production assets into `/www`.
+* **Platform Sync**: Executed `npx cap sync` to synchronize Capacitor platform public folders for iOS and Android.
+
+---
+
+## Pinout Reference Premium Upgrades (June 18, 2026 - Continuation)
+
+We have successfully redesigned the **Pinout Reference** view (`#pinout-view` in `app.html`) to look cleaner, more professional, and highly interactive:
+
+### 1. Bidirectional Pin Highlighting (Hover Pin <-> Table Row)
+* **Automatic Coordinate Mapping**: Created a smart SVG element mapper that calculates the physical distance between pin text labels (e.g. `1`, `2`, `T`, `R`, `S`) and their surrounding vector shapes (circles, rects).
+* **Hover Highlights**: 
+  - Hovering a row in the pin list table automatically highlights and adds a neon cyan glow to the corresponding pin shape in the SVG drawing.
+  - Hovering a pin directly inside the SVG highlights and accents the matching row in the table.
+* **Animations**: Applied smooth CSS filters (`drop-shadow` glows) and transition properties to SVG paths/shapes for interactive responsiveness.
+
+### 2. Sleek Category Filter Pill Bar
+* **Pill Tab Restructuring**: Converted the category select buttons into a horizontally scrollable glassmorphic pill bar (`.pinout-cats`), removing vertical wrapping and making it look extremely attractive on mobile screens.
+* **Glow Active State**: Styled the active category pill to have a bright cyan glow with a drop-shadow.
+
+### 3. VFD Search Input Bar
+* **Rack-Mount Search**: Swapped the standard search input box for a VFD-style hardware screen (`#020204` background) with a cyan inner inset shadow and a monospaced glowing cursor, aligning it with other dashboard tools.
+
+### 4. Fused Assembly & Soldering Datasheets
+* **Solder Specs Panel**: Injected an assembly card inside each connector's accordion containing recommended soldering iron temperature (345°C - 370°C), rosin-core solder type, wire stripping measurements (15mm jacket, 3mm conductor), and wire gauge guidelines.
+* **Signal Routing Maps**: For adapter cables, replaced generic text with a clean, grid-based wire routing datasheet explaining how signal poles are bridged (e.g., tying XLR Pin 3 to Pin 1 for unbalanced lines to avoid hum).
+
+---
+
+## Precision Tuner Upgrades & Smoothing (June 18, 2026 - Continuation)
+
+We have successfully resolved the tuner jitter issues, smoothed the response, and built the Tuning Stability History timeline chart:
+
+### 1. Autocorrelation Pitch Smoothing (Median Filter)
+* **Outlier Filtering**: Implemented a **5-tap sliding median filter** on the raw pitch estimates returned by the autocorrelation algorithm in [tunerEngine.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/components/tunerEngine.js).
+* **Noise Immunity**: Single-frame room noise transients and octave jumps (common in analog mic inputs) are completely filtered out, stabilizing the needle, note name, and cents offset displays.
+* **Exponential Damping**: Applied a tuned `0.85 / 0.15` exponential moving average onto the median filtered pitch for a rock-solid, fluid response.
+
+### 2. Tuning Stability History Canvas Chart
+* **Cent-Drift Timeline Graph**: Designed a scrolling canvas graph (`#tuner-stability-canvas`) inside a new settings widget card displaying the last 150 pitch cents offsets.
+* **Dynamic Grid Layout**: Draws grid reference lines at ±50, ±25, and 0 cents, with a glowing green horizontal line for perfect in-tune target bounds.
+* **Drop-out Detection**: Plots signal dropouts as clean gaps in the scrolling line, instead of falling back to zero or drawing continuous lines during silent intervals.
+* **Telemetry Counters**: Calculates and updates real-time Average Cents Offset (`AVG: X.X¢`) and Maximum Cents Deviation (`MAX: X¢`) stats.
+
+### 3. Fluid Strobe Visualizer Mode
+* **Pill Conveyer Belt**: Refactored the strobe mode from boxy square grids to a premium conveyor of rounded pill blocks styled with cyan/green linear gradients, glow filters, and borders.
+* **Rotational Speed Damping**: Taught the strobe velocity to damp exponentially when approaching perfect pitch. When the note gets within ±3 cents (in-tune), the conveyer crawls at sub-pixel velocities to indicate a near lock-lock, mirroring premium physical rack strobe hardware.
+
+
+## Ear Training EQ Matching Mode & Pro Ad Flash Fix (June 18, 2026 - Continuation)
+
+We have successfully implemented a gamified EQ Matching Quiz mode inside the Ear Training tool and resolved the start-up ad popup flash/race-condition for Pro users:
+
+### 1. Ear Training EQ Matching Quiz Mode (`app.html`, `responsive.css`, `earTraining.js`)
+* **Training Mode Selector**: Integrated a new segmented control row inside the expandable Configuration card to switch between **SPECTRAL ID** (classic mode: find the boosted band) and **EQ MATCHING** (new gamified mode).
+* **Boost vs. Cut Challenge**: When playing in EQ Matching mode, B (Processed) randomly chooses to either boost OR cut the target frequency band by the configured magnitude (e.g. ±3dB, ±6dB, ±12dB).
+* **Dual Guess Input**:
+  - Added a **Guess Action Direction** selector container (`#ear-train-direction-container`) that slides down when EQ Matching is active.
+  - Designed two high-end console-style guess buttons: **BOOST (+)** (lights up green/cyan) and **CUT (-)** (lights up orange/red).
+* **Validation Highlights**:
+  - Tapping a frequency band submits the combination of selected Direction + Band.
+  - Correct answers light up the selected frequency and guess direction green.
+  - Incorrect answers highlight errors in red and reveal the correct answers in green.
+* **ReferenceError Resolution**: Corrected multiple start-up typos where undefined `startAudio()` was called, changing them to point to `startChallenge()` for robust playback.
+
+### 2. Pro Startup Ad Flash Fix (`premium.js`)
+* **Reactive Cached Properties**: Refactored `window.isUserPro` and `window.userSubscriptionTier` from static variables into reactive cached properties using `Object.defineProperty` on the global `window` object.
+* **Bypassing Timing Latencies**: Writes to these variables automatically populate safe local storage keys (`soundengg_cached_is_pro` and `soundengg_cached_sub_tier`). Subsequent app loads read directly from this cache.
+* **Eliminating Race Conditions**: On application launch, `adManager.js` immediately detects the user's Pro status from the local cache rather than waiting for Supabase session network checks, keeping the `#ad-lock-modal` overlay hidden and completely resolving the flash/flicker. If the network later reports the session has expired or the user logged out, the cache is updated and the app locks dynamically.
+ 
+ 
++## Marketing Landing Page Redesign (June 18, 2026 - Continuation)
++
++We have successfully completed a premium redesign of the marketing landing page (`index.html`) to align it with the cybernetic, hardware-inspired console aesthetic of the app without impacting functionality or introducing mini calculators:
++
++### 1. Two-Column Responsive Hero Grid (`index.html`, `pages.css`)
++* **Responsive Desktop Layout**: Overrode the old centering flexbox style to enable the CSS grid layout, producing a modern 2-column format on desktop.
++* **Simulated VFD Oscilloscope visualizer**: Designed a beautiful VFD glass panel container (`.vfd-glass-panel`) on the right side of the hero section.
++* **Lightweight Canvas Waves**: Implemented an optimized, 60fps canvas-drawn audio oscilloscope (`#hero-oscilloscope-canvas`) that renders animated dual-phase sine and sub-harmonic waveforms with custom glow filters and an analog scope grid, reacting dynamically to hover transformations.
++* **Blinking LED status**: Added a simulated blinking green status LED indicator (`.status-dot.green`).
++
++### 2. Glassmorphic Color-Coded Feature Cards (`pages.css`)
++* **Visual Styling**: Updated `.feature-card` to use a glassmorphic background layer (`rgba(13, 22, 35, 0.4)`) with high-blur backdrop filters, custom rounded corners, and a border style matching physical rack equipment.
++* **Interactive Hover Glows**: Configured distinct, color-coded glows on hover for each of the 6 key engineering features:
++  * **RTA Analyser**: Glowing cyan border/shadow.
++  * **Ear Training**: Glowing magenta/pink border/shadow.
++  * **Subwoofer Arrays**: Glowing green border/shadow.
++  * **Delay & Time Alignment**: Glowing deep teal border/shadow.
++  * **Instrument Tuner**: Glowing bright neon green border/shadow.
++  * **Signal Generator**: Glowing orange/red border/shadow.
++
++### 3. Production Compilation & Capacitor Synchronization
++* Successfully ran `npm run build` to copy the updated assets to the `/www` app bundle.
++* Synchronized web assets to Capacitor platforms (iOS/Android) via `npx cap sync`.
 

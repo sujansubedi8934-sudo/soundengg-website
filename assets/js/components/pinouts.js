@@ -280,21 +280,173 @@ window.renderPinouts = function() {
                         <div class="pin-table-container">
                             <table class="pin-table">
                                 <thead><tr><th>Pin</th><th>Signal</th><th>Note</th></tr></thead>
-                                <tbody>${conn.pins.map(p=>`<tr><td><div class="dot-cell"><div class="pd" style="background:${p.color};border:1px solid ${p.border||'rgba(255,255,255,0.1)'}"></div><strong>${p.n}</strong></div></td><td>${p.sig}</td><td class="pin-note">${p.note}</td></tr>`).join('')}</tbody>
+                                <tbody>${conn.pins.map(p=>`<tr class="table-pin-row" data-pin="${p.n}"><td><div class="dot-cell"><div class="pd" style="background:${p.color};border:1px solid ${p.border||'rgba(255,255,255,0.1)'}"></div><strong>${p.n}</strong></div></td><td>${p.sig}</td><td class="pin-note">${p.note}</td></tr>`).join('')}</tbody>
                             </table>
                         </div>
                     </div>
+                    
+                    <!-- Fused Quick Soldering & Connection Guide Panel -->
+                    <div class="soldering-spec-panel" style="margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(255,255,255,0.02); border: 1px dashed var(--outline-light); border-radius: 6px; margin-bottom: 1rem;">
+                        <h5 style="margin: 0 0 0.5rem 0; font-family: var(--font-mono); font-size: 0.75rem; color: var(--primary); text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 4px;">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">bolt</span>
+                            ${conn.cat === 'adapter' ? 'Adapter Signal Routing Map' : 'Professional Assembly Specifications'}
+                        </h5>
+                        <div style="font-size: 0.78rem; line-height: 1.4; color: var(--text-muted);">
+                            ${conn.cat === 'adapter' 
+                                ? `<strong>Wiring Guide:</strong> This adapter bridges unbalanced/balanced formats. Pin 2 carries signal hot (+). Ground continuity is bridged to ${conn.id.includes('unbalanced') || conn.id.includes('rca') ? 'XLR Pins 1 + 3 to prevent floating hum' : 'XLR Pin 1'}.` 
+                                : `<strong>Solder Specs:</strong> Temp: 345°C - 370°C (650°F-700°F). Use Lead-Free SAC305 or Sn60/Pb40 rosin-core solder.<br>
+                                   <strong>Stripping Guide:</strong> Jacket: 15mm (0.6") | Conductors/Shield: 3mm (0.12"). Recommend 20-24 AWG wiring.`
+                            }
+                        </div>
+                    </div>
+
                     <div class="use-row">${conn.uses.map(u=>`<span class="use-tag">${u}</span>`).join('')}</div>
                     ${conn.warn?`<div class="warn-box">⚠ ${conn.warn}</div>`:''}
                     ${conn.note?`<div class="note-box">ℹ ${conn.note}</div>`:''}
                 </div>
             `;
             listEl.appendChild(acc);
+            
+            // Attach bidirectional pin highlighting
+            attachPinoutInteractions(acc, conn.pins);
         });
     });
     
     if(badgeEl) badgeEl.textContent = total + ' CONNECTORS';
 };
+
+function attachPinoutInteractions(accEl, pins) {
+    const svg = accEl.querySelector('svg');
+    if (!svg) return;
+
+    const texts = Array.from(svg.querySelectorAll('text'));
+    const circles = Array.from(svg.querySelectorAll('circle'));
+    const rects = Array.from(svg.querySelectorAll('rect'));
+
+    // Match text and shapes to pins
+    const matchedShapes = [];
+    
+    texts.forEach(text => {
+        const val = text.textContent.trim();
+        const cleanVal = val.toLowerCase();
+        
+        const pin = pins.find(p => {
+            const cleanN = p.n.toLowerCase();
+            return cleanN === cleanVal || 
+                   (cleanVal === 't' && cleanN.includes('tip')) ||
+                   (cleanVal === 'r' && cleanN.includes('ring')) ||
+                   (cleanVal === 's' && cleanN.includes('sleeve')) ||
+                   (cleanVal === 'c' && cleanN.includes('centre')) ||
+                   (cleanVal === 'o' && cleanN.includes('outer')) ||
+                   (cleanVal === 'l' && cleanN.includes('left')) ||
+                   (cleanVal === 'r' && cleanN.includes('right')) ||
+                   (cleanN.includes(cleanVal)) ||
+                   (cleanVal.includes(cleanN));
+        });
+        
+        if (!pin) return;
+
+        const tx = parseFloat(text.getAttribute('x') || 0);
+        const ty = parseFloat(text.getAttribute('y') || 0);
+
+        // Find closest circle
+        let closestCircle = null;
+        let minCircleDist = Infinity;
+        circles.forEach(c => {
+            const cx = parseFloat(c.getAttribute('cx') || 0);
+            const cy = parseFloat(c.getAttribute('cy') || 0);
+            const dist = Math.hypot(cx - tx, cy - ty);
+            if (dist < minCircleDist) {
+                minCircleDist = dist;
+                closestCircle = c;
+            }
+        });
+
+        // Find closest rect
+        let closestRect = null;
+        let minRectDist = Infinity;
+        rects.forEach(r => {
+            const rx = parseFloat(r.getAttribute('x') || 0);
+            const ry = parseFloat(r.getAttribute('y') || 0);
+            const rw = parseFloat(r.getAttribute('width') || 0);
+            const rh = parseFloat(r.getAttribute('height') || 0);
+            const cx = rx + rw / 2;
+            const cy = ry + rh / 2;
+            const dist = Math.hypot(cx - tx, cy - ty);
+            if (dist < minRectDist) {
+                minRectDist = dist;
+                closestRect = r;
+            }
+        });
+
+        // Select closest shape
+        const shape = (minCircleDist < minRectDist) ? closestCircle : closestRect;
+        
+        // Ensure we don't match the outer shell circles/rects
+        if (shape) {
+            const r = parseFloat(shape.getAttribute('r') || 0);
+            const w = parseFloat(shape.getAttribute('width') || 0);
+            if (r > 20 || w > 45) return; // Skip background/shell elements
+            
+            shape.setAttribute('data-pin', pin.n);
+            text.setAttribute('data-pin', pin.n);
+            shape.classList.add('interactive-svg-pin');
+            text.classList.add('interactive-svg-pin');
+            shape.style.cursor = 'pointer';
+            text.style.cursor = 'pointer';
+            
+            matchedShapes.push({ pinName: pin.n, elements: [shape, text] });
+        }
+    });
+
+    // Add event listeners for bidirectional highlighting
+    const tableRows = accEl.querySelectorAll('.table-pin-row');
+    tableRows.forEach(row => {
+        const pinName = row.getAttribute('data-pin');
+        
+        row.addEventListener('mouseenter', () => {
+            row.classList.add('highlight-row');
+            matchedShapes.forEach(m => {
+                if (m.pinName === pinName) {
+                    m.elements.forEach(el => el.classList.add('highlight-pin'));
+                }
+            });
+        });
+        
+        row.addEventListener('mouseleave', () => {
+            row.classList.remove('highlight-row');
+            matchedShapes.forEach(m => {
+                if (m.pinName === pinName) {
+                    m.elements.forEach(el => el.classList.remove('highlight-pin'));
+                }
+            });
+        });
+    });
+
+    matchedShapes.forEach(m => {
+        m.elements.forEach(el => {
+            el.addEventListener('mouseenter', () => {
+                matchedShapes.forEach(other => {
+                    if (other.pinName === m.pinName) {
+                        other.elements.forEach(e => e.classList.add('highlight-pin'));
+                    }
+                });
+                const matchingRow = accEl.querySelector(`.table-pin-row[data-pin="${m.pinName}"]`);
+                if (matchingRow) matchingRow.classList.add('highlight-row');
+            });
+            
+            el.addEventListener('mouseleave', () => {
+                matchedShapes.forEach(other => {
+                    if (other.pinName === m.pinName) {
+                        other.elements.forEach(e => e.classList.remove('highlight-pin'));
+                    }
+                });
+                const matchingRow = accEl.querySelector(`.table-pin-row[data-pin="${m.pinName}"]`);
+                if (matchingRow) matchingRow.classList.remove('highlight-row');
+            });
+        });
+    });
+}
 
 window.togglePinout = function(hdrEl) {
     const body = hdrEl.nextElementSibling;
@@ -302,4 +454,4 @@ window.togglePinout = function(hdrEl) {
     const open = body.classList.contains('open');
     body.classList.toggle('open', !open);
     arrow.classList.toggle('open', !open);
-}
+};

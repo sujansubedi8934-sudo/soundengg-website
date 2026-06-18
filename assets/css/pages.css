@@ -638,16 +638,44 @@
 }
 
 .feature-card {
-    background: var(--surface-higher);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    background: rgba(13, 22, 35, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid var(--outline);
+    border-radius: 16px;
     padding: 2rem;
-    transition: transform 0.2s, border-color 0.2s;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
 .feature-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
+    transform: translateY(-6px);
+}
+
+/* Individual Color-Coded Glows on Hover */
+.feature-card.card-rta:hover {
+    border-color: #00f2fe;
+    box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15), 0 0 15px rgba(0, 242, 254, 0.05);
+}
+.feature-card.card-eartrain:hover {
+    border-color: #ec4899;
+    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.15), 0 0 15px rgba(236, 72, 153, 0.05);
+}
+.feature-card.card-subs:hover {
+    border-color: #10b981;
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15), 0 0 15px rgba(16, 185, 129, 0.05);
+}
+.feature-card.card-delay:hover {
+    border-color: #008B9F;
+    box-shadow: 0 10px 30px rgba(0, 139, 159, 0.15), 0 0 15px rgba(0, 139, 159, 0.05);
+}
+.feature-card.card-tuner:hover {
+    border-color: #00ffcc;
+    box-shadow: 0 10px 30px rgba(0, 255, 204, 0.15), 0 0 15px rgba(0, 255, 204, 0.05);
+}
+.feature-card.card-siggen:hover {
+    border-color: #e24b4a;
+    box-shadow: 0 10px 30px rgba(226, 75, 74, 0.15), 0 0 15px rgba(226, 75, 74, 0.05);
 }
 
 .feature-icon {
@@ -1591,5 +1619,79 @@ html.light body.theme-red .brand-logo {
 
 .article-reader .article-body li strong {
     color: var(--primary);
+}
+
+/* =========================================
+   HERO VISUAL & VFD OSCILLOSCOPE STYLES
+   ========================================= */
+.hero-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    perspective: 1000px;
+}
+
+.vfd-glass-panel {
+    background: #020204;
+    border: 2px solid var(--outline);
+    border-radius: 16px;
+    padding: 1.25rem;
+    width: 100%;
+    max-width: 460px;
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.9), 0 15px 35px rgba(0, 0, 0, 0.7);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.5s ease, box-shadow 0.5s ease;
+    transform: rotateY(-5deg) rotateX(5deg);
+}
+
+.vfd-glass-panel:hover {
+    transform: rotateY(0deg) rotateX(0deg) scale(1.02);
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.9), 0 20px 45px rgba(20, 167, 181, 0.15);
+    border-color: var(--primary);
+}
+
+.vfd-panel-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0.75rem;
+    border-bottom: 1px solid var(--outline-light);
+    padding-bottom: 0.5rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #4CAF50;
+    box-shadow: 0 0 8px #4CAF50;
+}
+
+.status-dot.green {
+    animation: blinkLed 1s infinite alternate;
+}
+
+@keyframes blinkLed {
+    from { opacity: 0.4; filter: drop-shadow(0 0 1px #4CAF50); }
+    to { opacity: 1; filter: drop-shadow(0 0 8px #4CAF50); }
+}
+
+.panel-title {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    color: var(--text-muted);
+    font-weight: bold;
+    letter-spacing: 1.5px;
+}
+
+#hero-oscilloscope-canvas {
+    width: 100%;
+    height: 180px;
+    background: #000;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    display: block;
 }
 

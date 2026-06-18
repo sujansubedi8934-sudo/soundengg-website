@@ -45,12 +45,16 @@ function initSubCalc() {
         let unit_mult = isMetric ? 1 : 3.28084;
 
         let w1_8 = (lambda_m / 8) * unit_mult;
+        let w1_6 = (lambda_m / 6) * unit_mult;
         let w1_4 = (lambda_m / 4) * unit_mult;
+        let w1_3 = (lambda_m / 3) * unit_mult;
         let w1_2 = (lambda_m / 2) * unit_mult;
         let w1   = lambda_m * unit_mult;
 
         document.getElementById('wave-1-8').textContent = w1_8.toFixed(3);
+        document.getElementById('wave-1-6').textContent = w1_6.toFixed(3);
         document.getElementById('wave-1-4').textContent = w1_4.toFixed(3);
+        document.getElementById('wave-1-3').textContent = w1_3.toFixed(3);
         document.getElementById('wave-1-2').textContent = w1_2.toFixed(3);
         document.getElementById('wave-1').textContent = w1.toFixed(3);
 
@@ -83,11 +87,15 @@ function initSubCalc() {
 
         // --- Trigger Cloud Save ---
         if (!skipCloudSave) {
+            const activeMasterTabBtn = document.querySelector('.subcalc-master-tab.active');
+            const activeMaster = activeMasterTabBtn ? activeMasterTabBtn.getAttribute('data-tab') : 'cardioid';
+            
             saveConfigToCloud('subcalc', { 
                 freq: f, 
                 temp: t, 
                 depth: cDepthInput.value,
-                cardioidType: currentCardioid
+                cardioidType: currentCardioid,
+                activeTab: activeMaster
             });
         }
 
@@ -207,6 +215,65 @@ function initSubCalc() {
         });
     });
 
+    // Frequency Presets expandable dropdown toggle
+    const togglePresetsBtn = document.getElementById('btn-toggle-subcalc-presets');
+    const presetsDropdown = document.getElementById('subcalc-presets-dropdown');
+    if (togglePresetsBtn && presetsDropdown) {
+        togglePresetsBtn.addEventListener('click', () => {
+            const isCollapsed = presetsDropdown.classList.contains('collapsed');
+            if (isCollapsed) {
+                presetsDropdown.classList.remove('collapsed');
+                presetsDropdown.classList.add('expanded');
+                presetsDropdown.style.maxHeight = '200px';
+                togglePresetsBtn.querySelector('.chevron-icon').style.transform = 'rotate(180deg)';
+            } else {
+                presetsDropdown.classList.remove('expanded');
+                presetsDropdown.classList.add('collapsed');
+                presetsDropdown.style.maxHeight = '0px';
+                togglePresetsBtn.querySelector('.chevron-icon').style.transform = 'rotate(0deg)';
+            }
+        });
+    }
+
+    // Collapsible Engineering Insight Card toggle
+    const toggleTheoryBtn = document.getElementById('btn-toggle-subcalc-theory');
+    const theoryCard = document.getElementById('subcalc-theory-card');
+    if (toggleTheoryBtn && theoryCard) {
+        toggleTheoryBtn.addEventListener('click', () => {
+            const isCollapsed = theoryCard.classList.contains('collapsed');
+            if (isCollapsed) {
+                theoryCard.classList.remove('collapsed');
+                theoryCard.classList.add('expanded');
+            } else {
+                theoryCard.classList.remove('expanded');
+                theoryCard.classList.add('collapsed');
+            }
+        });
+    }
+
+    // Master configuration tab switching
+    const masterTabs = document.querySelectorAll('.subcalc-master-tab');
+    masterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            masterTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const target = tab.getAttribute('data-tab');
+
+            // Hide all configuration body sections
+            document.getElementById('subcalc-body-cardioid').style.display = 'none';
+            document.getElementById('subcalc-body-endfire').style.display = 'none';
+            document.getElementById('subcalc-body-broadside').style.display = 'none';
+
+            // Show targeted body section
+            const targetBody = document.getElementById(`subcalc-body-${target}`);
+            if (targetBody) {
+                targetBody.style.display = 'flex';
+            }
+            
+            updateCalculations();
+        });
+    });
+
     unitBtn.addEventListener('click', () => {
         const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
         window.globalUnitSystem = nextSystem;
@@ -276,8 +343,15 @@ function initSubCalc() {
                 
                 const activeTab = Array.from(cTabs).find(t => t.getAttribute('data-ctype') === currentCardioid);
                 if (activeTab) activeTab.click();
-                
-                updateCalculations(true); 
+
+                // Restore master tab
+                const savedMaster = data.data.activeTab || 'cardioid';
+                const masterTabBtn = Array.from(document.querySelectorAll('.subcalc-master-tab')).find(t => t.getAttribute('data-tab') === savedMaster);
+                if (masterTabBtn) {
+                    masterTabBtn.click();
+                } else {
+                    updateCalculations(true);
+                }
             }
         } catch (err) {
             console.error('Cloud Pull Error (SubCalc):', err);

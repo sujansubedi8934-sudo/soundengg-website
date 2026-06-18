@@ -1,5 +1,29 @@
-window.isUserPro = false; // Global source of truth for subscription
-window.userSubscriptionTier = 'free';
+// Global source of truth for subscription with safeStorage caching to prevent start-up UI flashes
+let _isUserPro = safeStorage.getItem('soundengg_cached_is_pro') === 'true';
+Object.defineProperty(window, 'isUserPro', {
+    get: function() {
+        return _isUserPro;
+    },
+    set: function(val) {
+        _isUserPro = !!val;
+        safeStorage.setItem('soundengg_cached_is_pro', _isUserPro ? 'true' : 'false');
+    },
+    configurable: true,
+    enumerable: true
+});
+
+let _userSubscriptionTier = safeStorage.getItem('soundengg_cached_sub_tier') || 'free';
+Object.defineProperty(window, 'userSubscriptionTier', {
+    get: function() {
+        return _userSubscriptionTier;
+    },
+    set: function(val) {
+        _userSubscriptionTier = val || 'free';
+        safeStorage.setItem('soundengg_cached_sub_tier', _userSubscriptionTier);
+    },
+    configurable: true,
+    enumerable: true
+});
 
 window.isPremiumActive = function(featureKey) {
     if (window.isUserPro) return true;
