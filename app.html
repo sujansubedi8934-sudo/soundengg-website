@@ -383,7 +383,7 @@
                                 <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; flex: 1; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important; min-width: 0;">
                                     <input type="number" id="delay-temp-mod" class="vfd-glow vfd-input" value="22.4" step="0.1" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;">
                                 </div>
-                                <select id="delay-temp-unit-mod" class="rugged-select" style="height: 38px; padding: 0 8px; border-radius: 6px; font-family: var(--font-mono); font-weight: bold; font-size: 0.75rem; border: 1px solid var(--outline); background: #050508; color: var(--primary); outline: none; cursor: pointer; transition: border-color 0.2s ease;">
+                                <select id="delay-temp-unit-mod" class="rugged-select" style="height: 38px; padding: 0 8px; border-radius: 6px; font-family: var(--font-mono); font-weight: bold; font-size: 0.75rem; border: 1px solid var(--outline); outline: none; cursor: pointer; transition: border-color 0.2s ease;">
                                     <option value="C">°C</option>
                                     <option value="F">°F</option>
                                 </select>
@@ -793,7 +793,7 @@
                     <!-- Left side: VFD Display and Engage Button -->
                     <div style="display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0;">
                         <!-- VFD Display -->
-                        <div style="background: #050508; border: 1px solid var(--outline); padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                        <div class="vfd-screen" style="padding: 8px 12px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
                             <span style="font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-mono); font-weight: bold;">METER_LEVEL</span>
                             <span id="siggen-meter-text" class="vfd-glow" style="font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem; color: var(--primary);">-∞ dB</span>
                         </div>
@@ -837,7 +837,7 @@
             <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 1rem;">
                 <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.75rem;">
                     <span class="train-label" style="font-family: var(--font-mono); font-weight: bold; color: var(--text-heading); text-transform: uppercase;">Frequency Selection</span>
-                    <div class="vfd-input-wrap" style="display: flex; align-items: center; background: #050508; border: 1px solid var(--outline); border-radius: 6px; padding: 4px 10px; gap: 4px;">
+                    <div class="vfd-input-wrap" style="display: flex; align-items: center; gap: 4px;">
                         <input type="number" id="siggen-freq-input" value="1000" min="20" max="20000" class="vfd-glow vfd-input" style="background: transparent; border: none; outline: none; font-family: var(--font-mono); font-weight: bold; font-size: 0.9rem; color: var(--primary); width: 60px; text-align: right; padding: 0;">
                         <span class="vfd-glow text-primary" style="font-family: var(--font-mono); font-size: 0.8rem; font-weight: bold;">Hz</span>
                     </div>
@@ -1033,18 +1033,18 @@
                 
                 <!-- Telemetry VFD Dashboard -->
                 <div class="rta-telemetry-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                    <div class="vfd-screen" style="padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px; background: #020204; border: 1px solid var(--outline); box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);">
+                    <div class="vfd-screen" style="padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px;">
                         <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase;">PEAK LEVEL</span>
                         <span id="rta-peak-val" style="font-family: var(--font-mono); font-size: 1.4rem; font-weight: bold; color: #ff3b30; text-shadow: 0 0 10px rgba(255, 59, 48, 0.4); margin-top: 2px;">-∞ dB</span>
                     </div>
-                    <div class="vfd-screen" style="padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px; background: #020204; border: 1px solid var(--outline); box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);">
+                    <div class="vfd-screen" style="padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px;">
                         <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase;">DOMINANT FREQ</span>
                         <span id="rta-dom-val" style="font-family: var(--font-mono); font-size: 1.4rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(20, 167, 181, 0.4); margin-top: 2px;">--- Hz</span>
                     </div>
                 </div>
 
                 <!-- Visualizer Display Canvas -->
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 450px; background: #020204; border: 1px solid var(--outline); border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.9);">
+                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 450px; border-radius: 12px; overflow: hidden;">
                     <canvas id="rta-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
                     <button id="btn-rta-fullscreen" class="vfd-glow" style="position: absolute; top: 15px; right: 15px; background: rgba(5,5,8,0.75); border: 1px solid var(--primary); border-radius: 6px; color: var(--primary); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: all 0.2s; outline: none; box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);" title="Toggle Fullscreen View">
                         <span class="material-symbols-outlined" style="font-size: 20px;">fullscreen</span>
@@ -1332,7 +1332,7 @@
         <div class="tuner-layout" style="max-width: 800px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 1.5rem; padding: 0 0.5rem 2rem 0.5rem;">
             
             <!-- 1. Big Tuner VFD Display Panel -->
-            <div class="vfd-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: #020204; border: 1.5px solid var(--outline); border-radius: 16px; padding: 2.5rem 1.5rem; box-shadow: inset 0 2px 12px rgba(0,0,0,0.95), 0 0 15px rgba(20, 167, 181, 0.15); border-color: var(--primary);">
+            <div class="vfd-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 2.5rem 1.5rem;">
                 <!-- Cents and Note Area -->
                 <div class="tuner-note-area" style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem;">
                     <span id="tuner-note-display" class="tuner-note" style="font-family: var(--font-headline); font-size: 6.5rem; font-weight: 800; line-height: 1; color: var(--primary); text-shadow: 0 0 20px rgba(20, 167, 181, 0.5);">--</span>
@@ -1349,7 +1349,7 @@
             <!-- 2. Visualizer Canvas Card -->
             <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;">
                 <span class="train-label" style="font-size: 0.75rem;">Microphone Signal Visualizer</span>
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 200px; background: #020204; border: 1px solid var(--outline); border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.95);">
+                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 200px; border-radius: 12px; overflow: hidden;">
                     <canvas id="tuner-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
                 </div>
             </div>
@@ -1360,7 +1360,7 @@
                     <span class="train-label" style="font-size: 0.75rem;">Tuning Stability History</span>
                     <span id="tuner-stability-stats" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted);">AVG: --¢ | MAX: --¢</span>
                 </div>
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 120px; background: #020204; border: 1px solid var(--outline); border-radius: 12px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.95);">
+                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 120px; border-radius: 12px; overflow: hidden;">
                     <canvas id="tuner-stability-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
                 </div>
             </div>
@@ -1374,7 +1374,7 @@
                     <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
                         <span class="train-label">A4 Reference Frequency</span>
                         <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
-                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; background: #020204; border: 1px solid var(--outline); border-radius: 8px; padding: 0.25rem 0.75rem; height: 38px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);">
+                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; height: 38px;">
                                 <input type="number" id="tuner-a4-ref" class="vfd-input" value="440" min="400" max="480" step="1" style="width: 100%; background: transparent; border: none; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1.1rem; text-align: center; text-shadow: 0 0 6px rgba(20, 167, 181, 0.4);">
                             </div>
                             <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">Hz</span>
@@ -1444,7 +1444,7 @@
                     <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
                         <span class="train-label">Target Frequency</span>
                         <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
-                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; background: #020204; border: 1px solid var(--outline); border-radius: 8px; padding: 0.25rem 0.75rem; height: 38px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);">
+                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; height: 38px;">
                                 <input type="number" id="subcalc-freq" class="vfd-input" value="100" min="20" max="20000" style="width: 100%; background: transparent; border: none; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1.1rem; text-shadow: 0 0 6px rgba(20, 167, 181, 0.4);">
                             </div>
                             <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">Hz</span>
@@ -1472,7 +1472,7 @@
                     <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
                         <span class="train-label">Temperature</span>
                         <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
-                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; background: #020204; border: 1px solid var(--outline); border-radius: 8px; padding: 0.25rem 0.75rem; height: 38px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);">
+                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; height: 38px;">
                                 <input type="number" id="subcalc-temp" class="vfd-input" value="20" style="width: 100%; background: transparent; border: none; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1.1rem; text-align: center; text-shadow: 0 0 6px rgba(20, 167, 181, 0.4);">
                             </div>
                             <span id="subcalc-temp-unit" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">°C</span>
@@ -1558,7 +1558,7 @@
                                 <div id="c-depth-input-group" style="display: none; margin-top: 0.5rem;">
                                     <span class="train-label" style="display: block; margin-bottom: 0.25rem;">Cabinet Depth</span>
                                     <div style="display: flex; align-items: center; gap: 0.5rem;">
-                                        <div class="vfd-input-wrap" style="width: 100px; display: flex; align-items: center; background: #020204; border: 1px solid var(--outline); border-radius: 8px; padding: 0.25rem 0.5rem; height: 32px; box-shadow: inset 0 2px 5px rgba(0,0,0,0.8);">
+                                        <div class="vfd-input-wrap" style="width: 100px; display: flex; align-items: center; height: 32px;">
                                             <input type="number" id="c-depth-input" class="vfd-input" value="0.8" step="0.1" style="width: 100%; background: transparent; border: none; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1.1rem; text-align: center; text-shadow: 0 0 6px rgba(20, 167, 181, 0.4);">
                                         </div>
                                         <span class="su-unit text-muted" style="font-family: var(--font-mono); font-size: 0.8rem;">m</span>
@@ -1581,7 +1581,7 @@
                                 </div>
                             </div>
 
-                            <div class="config-visual" style="flex: 1; min-width: 200px; background: #020204; border: 1px solid var(--outline); border-radius: 12px; padding: 0.75rem; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 8px rgba(0,0,0,0.85); height: 140px;">
+                            <div class="config-visual" style="flex: 1; min-width: 200px; border-radius: 12px; padding: 0.75rem; display: flex; align-items: center; justify-content: center; height: 140px;">
                                 <!-- Gradient SVG (Side Profile) -->
                                 <svg id="svg-c-gradient" width="100%" height="80" viewBox="0 0 200 80" style="display: block;">
                                     <defs>
@@ -1654,7 +1654,7 @@
                                 </div>
                             </div>
 
-                            <div class="config-visual" style="flex: 1; min-width: 200px; background: #020204; border: 1px solid var(--outline); border-radius: 12px; padding: 0.75rem; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 8px rgba(0,0,0,0.85); height: 140px;">
+                            <div class="config-visual" style="flex: 1; min-width: 200px; border-radius: 12px; padding: 0.75rem; display: flex; align-items: center; justify-content: center; height: 140px;">
                                 <svg width="100%" height="80" viewBox="0 0 200 80">
                                     <line x1="140" y1="40" x2="180" y2="40" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
                                     <text x="160" y="30" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
@@ -1701,7 +1701,7 @@
                                 </div>
                             </div>
 
-                            <div class="config-visual" style="flex: 1; min-width: 200px; background: #020204; border: 1px solid var(--outline); border-radius: 12px; padding: 0.75rem; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 8px rgba(0,0,0,0.85); height: 140px;">
+                            <div class="config-visual" style="flex: 1; min-width: 200px; border-radius: 12px; padding: 0.75rem; display: flex; align-items: center; justify-content: center; height: 140px;">
                                 <svg width="100%" height="120" viewBox="0 0 200 120">
                                     <line x1="120" y1="60" x2="180" y2="60" stroke="var(--primary)" stroke-width="2" stroke-dasharray="4" marker-end="url(#arrowhead)" />
                                     <text x="150" y="50" fill="var(--primary)" font-size="9" text-anchor="middle" font-family="var(--font-sans)">AUDIENCE</text>
