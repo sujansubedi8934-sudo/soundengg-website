@@ -52,19 +52,21 @@
 <body>
     <!-- Top Mobile Safe Header -->
     <header id="mobile-safe-header" class="mobile-only-header">
-        <!-- Left Area: Back Chevron & Brand Logo -->
+        <!-- Left Area: Back Chevron -->
         <div style="display: flex; align-items: center; min-width: 60px; height: 100%;">
             <button id="mobile-header-back" class="mobile-header-btn" style="visibility: hidden; padding-left: 0; margin-left: -8px;" aria-label="Back">
                 <span class="material-symbols-outlined">chevron_left</span>
             </button>
-            <div id="mobile-header-logo" class="mobile-logo-container">
+        </div>
+        
+        <!-- Center Title / Logo -->
+        <div style="flex-grow: 1; display: flex; justify-content: center; align-items: center; height: 100%;">
+            <div id="mobile-header-logo" class="mobile-logo-container" style="display: flex; align-items: center; justify-content: center; height: 100%;">
                 <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo">
                 <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo">
             </div>
+            <div id="mobile-header-title" style="display: none;"></div>
         </div>
-        
-        <!-- Center Title (Active View name inside tools) -->
-        <div id="mobile-header-title"></div>
         
         <!-- Right Area: Subscription tier pill badge -->
         <div class="mobile-header-badge-container" style="min-width: 60px; display: flex; justify-content: flex-end; align-items: center;">
@@ -115,7 +117,7 @@
                         <span class="material-symbols-outlined dropdown-icon">settings</span>SETTINGS
                     </button>
                     <button id="btn-mobile-auth-toggle" class="mobile-dropdown-btn auth-toggle-btn">
-                        <span class="material-symbols-outlined dropdown-icon">login</span><span class="btn-text">LOGIN/SIGNUP</span>
+                        <span class="material-symbols-outlined dropdown-icon">login</span><span class="btn-text">LOGIN</span>
                     </button>
                     
                     <div class="dropdown-divider"></div>

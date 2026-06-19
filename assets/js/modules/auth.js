@@ -112,11 +112,11 @@ function initAuthSystem() {
                     } else {
                         safeStorage.removeItem('soundengg_user_display_name');
                         if (btnAuthToggle.id === 'btn-tab-menu') {
-                            if (authText) authText.textContent = 'LOGIN/SIGNUP';
+                            if (authText) authText.textContent = 'LOGIN';
                             if (authIcon) authIcon.textContent = 'login';
                         } else {
                             if (authText) {
-                                authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN/SIGNUP' : 'LOG IN';
+                                authText.textContent = btnAuthToggle.classList.contains('mobile-dropdown-btn') ? 'LOGIN' : 'LOG IN';
                             }
                             if (authIcon) authIcon.textContent = 'login';
                         }
