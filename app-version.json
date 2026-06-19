@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 16,
-  "latestVersionName": "1.1.1",
+  "latestVersionCode": 17,
+  "latestVersionName": "1.1.2",
   "downloadUrl": "https://play.google.com/apps/internaltest/4701593727903746246",
   "forceUpdate": true,
-  "message": "Improved Tap Tempo layout, added Light Mode VFD UI corrections, and fixed other visual alignments."
+  "message": "New 3D SE app icon, centered bottom navigation bar, and layout fixes for RTA Spectrogram."
 }
