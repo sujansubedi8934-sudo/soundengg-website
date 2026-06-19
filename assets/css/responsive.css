@@ -1025,7 +1025,9 @@
     justify-content: center;
     color: var(--text-muted);
     text-decoration: none;
-    flex-grow: 1;
+    flex: 1 1 0;
+    width: 20%;
+    max-width: 20%;
     height: 100%;
     transition: color 0.2s ease;
     font-size: 0.75rem;
