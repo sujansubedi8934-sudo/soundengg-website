@@ -2906,6 +2906,22 @@ function initAppVersionCheck() {
     }
 }
 
+// --- Capacitor Native App Logo Swap ---
+function initNativeAppLogo() {
+    if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
+        console.log('[NativeLogo] Swapping header logo for native app...');
+        const mobileHeaderLogoImgs = document.querySelectorAll('#mobile-header-logo img');
+        mobileHeaderLogoImgs.forEach(img => {
+            img.src = 'assets/img/app-icon.png';
+            img.style.height = '32px';
+            img.style.width = '32px';
+            img.style.borderRadius = '6px';
+            img.style.boxShadow = '0 0 10px rgba(0, 170, 255, 0.4)';
+            img.style.border = '1px solid rgba(0, 170, 255, 0.3)';
+        });
+    }
+}
+
 // 7. Global Payment System Initialization DOM Trigger
 const initPageSystems = () => {
     // Start dynamic pricing converter immediately
@@ -2927,6 +2943,9 @@ const initPageSystems = () => {
 
     // Check Capacitor native app build versions for force updates
     initAppVersionCheck();
+
+    // Swap native header logo if running on iOS/Android
+    initNativeAppLogo();
 };
 
 if (document.readyState === 'loading') {
