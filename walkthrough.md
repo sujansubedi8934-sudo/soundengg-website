@@ -327,3 +327,5 @@ We have successfully resolved the native hardware back button loop, incorrect ho
 ### 4. Build & Platform Synchronization
 * Built production resources via `npm run build` and synced to Android/iOS platforms via `npx cap sync`.
 * Incremented `versionCode` to `18` and `versionName` to `1.1.3` in both [app-version.json](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app-version.json) and [build.gradle](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/android/app/build.gradle) to prepare for the new AAB release.
+* Built the signed release Android App Bundle (AAB) successfully using the embedded Android Studio Java Runtime environment: `android/app/build/outputs/bundle/release/app-release.aab`.
+* Copied the signed bundle to the root directory as [app-release.aab](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app-release.aab) and committed it to Git.
