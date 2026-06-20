@@ -282,11 +282,47 @@ We have successfully implemented a gamified EQ Matching Quiz mode inside the Ear
 +  * **RTA Analyser**: Glowing cyan border/shadow.
 +  * **Ear Training**: Glowing magenta/pink border/shadow.
 +  * **Subwoofer Arrays**: Glowing green border/shadow.
-+  * **Delay & Time Alignment**: Glowing deep teal border/shadow.
-+  * **Instrument Tuner**: Glowing bright neon green border/shadow.
-+  * **Signal Generator**: Glowing orange/red border/shadow.
-+
-+### 3. Production Compilation & Capacitor Synchronization
-+* Successfully ran `npm run build` to copy the updated assets to the `/www` app bundle.
-+* Synchronized web assets to Capacitor platforms (iOS/Android) via `npx cap sync`.
+## Marketing Landing Page Redesign (June 18, 2026 - Continuation)
 
+We have successfully completed a premium redesign of the marketing landing page (`index.html`) to align it with the cybernetic, hardware-inspired console aesthetic of the app without impacting functionality or introducing mini calculators:
+
+### 1. Two-Column Responsive Hero Grid (`index.html`, `pages.css`)
+* **Responsive Desktop Layout**: Overrode the old centering flexbox style to enable the CSS grid layout, producing a modern 2-column format on desktop.
+* **Simulated VFD Oscilloscope visualizer**: Designed a beautiful VFD glass panel container (`.vfd-glass-panel`) on the right side of the hero section.
+* **Lightweight Canvas Waves**: Implemented an optimized, 60fps canvas-drawn audio oscilloscope (`#hero-oscilloscope-canvas`) that renders animated dual-phase sine and sub-harmonic waveforms with custom glow filters and an analog scope grid, reacting dynamically to hover transformations.
+* **Blinking LED status**: Added a simulated blinking green status LED indicator (`.status-dot.green`).
+
+### 2. Glassmorphic Color-Coded Feature Cards (`pages.css`)
+* **Visual Styling**: Updated `.feature-card` to use a glassmorphic background layer (`rgba(13, 22, 35, 0.4)`) with high-blur backdrop filters, custom rounded corners, and a border style matching physical rack equipment.
+* **Interactive Hover Glows**: Configured distinct, color-coded glows on hover for each of the 6 key engineering features:
+  * **RTA Analyser**: Glowing cyan border/shadow.
+  * **Ear Training**: Glowing magenta/pink border/shadow.
+  * **Subwoofer Arrays**: Glowing green border/shadow.
+  * **Delay & Time Alignment**: Glowing deep teal border/shadow.
+  * **Instrument Tuner**: Glowing bright neon green border/shadow.
+  * **Signal Generator**: Glowing orange/red border/shadow.
+
+### 3. Production Compilation & Capacitor Synchronization
+* Successfully ran `npm run build` to copy the updated assets to the `/www` app bundle.
+* Synchronized web assets to Capacitor platforms (iOS/Android) via `npx cap sync`.
+
+---
+
+## Android Native Back Button Navigation Fix (June 20, 2026)
+
+We have successfully resolved the native hardware back button loop, incorrect home screen exit behavior, and the AdMob banner overlapping issue:
+
+### 1. Intercepting Native Back Button (`capacitorAppExt.js`)
+* **Dashboard View Verification**: Updated the Capacitor `backButton` event listener for the console view (`app.html`) to dynamically query the DOM for `#dashboard-view` and check its current display state.
+* **Clean App Termination**: If the Dashboard (Home screen) is active, the app directly calls `AppPlugin.exitApp()`. This terminates the native process cleanly, preventing the back button from loading `index.html`, reloading the webview, or looping through previously opened views.
+* **Internal SPA Navigation**: If any other sub-tool is active, it calls the SPA's internal `window.goBack()` function.
+
+### 2. Synchronization of Navigation Stack (`main.js`)
+* **Resetting Stack on Home**: Ensured that whenever the user navigates back to a main view (like the Dashboard/Home screen via the bottom navigation tabs), the custom navigation stack `window.appNavigationHistory` is completely cleared.
+* **Graceful Exit Path**: When the stack is cleared on Home, the hardware back button will see that the Home screen is visible and exit the app. If a user is in another main view (like Blog/Settings/Menu) and presses back, the empty stack will take them back to the Home screen, where the next press exits.
+
+### 3. Resolving AdMob Banner Overlaps
+* **Preventing Page Reloads**: Since the back button no longer triggers redirects to `index.html` followed by page refreshes, the JavaScript context is never lost. The `.has-native-banner` class remains on the `body` element while the banner is visible, keeping bottom tab positions shifted up by `50px` and preventing any overlaps.
+
+### 4. Build & Platform Synchronization
+* Built production resources via `npm run build` and synced to Android/iOS platforms via `npx cap sync`.

@@ -21,10 +21,19 @@ function attachCapacitorBackButton() {
                     return;
                 }
                 
-                if (window.location.hash) {
-                    window.history.back();
+                const dashboardView = document.getElementById('dashboard-view');
+                const isDashboardVisible = dashboardView && (dashboardView.style.display === 'block' || window.getComputedStyle(dashboardView).display === 'block');
+                
+                if (isDashboardVisible) {
+                    AppPlugin.exitApp();
+                } else if (typeof window.goBack === 'function') {
+                    window.goBack();
                 } else {
-                    window.location.href = 'index.html';
+                    if (window.location.hash) {
+                        window.history.back();
+                    } else {
+                        AppPlugin.exitApp();
+                    }
                 }
                 return;
             }
