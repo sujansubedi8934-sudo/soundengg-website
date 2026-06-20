@@ -1,7 +1,7 @@
 {
-  "latestVersionCode": 17,
-  "latestVersionName": "1.1.2",
+  "latestVersionCode": 18,
+  "latestVersionName": "1.1.3",
   "downloadUrl": "https://play.google.com/apps/internaltest/4701593727903746246",
   "forceUpdate": true,
-  "message": "New 3D SE app icon, centered bottom navigation bar, and layout fixes for RTA Spectrogram."
+  "message": "Resolved Android hardware back button loops, home screen navigation exit bugs, and AdMob banner placement overlaps."
 }
