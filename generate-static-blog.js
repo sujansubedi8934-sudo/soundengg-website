@@ -272,7 +272,7 @@ const getTemplate = (blog) => {
          </div>
          <div class="footer-bottom">
              <div class="container">
-                 <p>&copy; 2026 SoundEngg. Built by Engineers for Engineers. [v2.4.0-PRO]</p>
+                 <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
              </div>
          </div>
      </footer>
