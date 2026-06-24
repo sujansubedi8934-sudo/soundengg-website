@@ -1199,7 +1199,8 @@ function initProfessionalRTA() {
 
             isNativeBannerActive = true;
             document.body.classList.add('has-native-banner');
-            document.body.style.paddingBottom = '50px'; // Dynamically pad view to prevent covering navigation elements
+            const isTablet = window.innerWidth >= 768;
+            document.body.style.paddingBottom = isTablet ? '90px' : '50px'; // Dynamically pad view to prevent covering navigation elements
         } catch (err) {
             console.error('Error showing native banner ad:', err);
         }

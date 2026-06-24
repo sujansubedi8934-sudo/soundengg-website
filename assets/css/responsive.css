@@ -1420,7 +1420,13 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
     bottom: 50px !important;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
+    .has-native-banner #mobile-bottom-tabs {
+        bottom: 90px !important;
+    }
+}
+
+@media (max-width: 767px) {
     .has-native-banner .main-content {
         padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 50px) !important;
     }
@@ -1434,6 +1440,15 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
 }
 .native-mobile-platform.has-native-banner .modal-overlay {
     padding-bottom: 50px !important;
+}
+
+@media (min-width: 768px) {
+    .native-mobile-platform.has-native-banner .main-content {
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 90px) !important;
+    }
+    .native-mobile-platform.has-native-banner .modal-overlay {
+        padding-bottom: 90px !important;
+    }
 }
 
 /* Responsive mobile overrides for settings slideout and auth modal box */
