@@ -21,7 +21,8 @@ const filesToCopy = [
     'ads.txt',
     'app-ads.txt',
     'robots.txt',
-    'sitemap.xml'
+    'sitemap.xml',
+    'google69f652e51c080b5b.html'
 ];
 
 // List of folders to copy recursively

@@ -89,8 +89,21 @@ function initProfessionalRTA() {
             };
             stream = await navigator.mediaDevices.getUserMedia(constraints);
             
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Failed to create AudioContext in RTA:", e);
+                startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> AUDIO_ERROR';
+                isAnalyzing = false;
+                return;
+            }
+            if (audioCtx.state === 'suspended') {
+                try {
+                    await audioCtx.resume();
+                } catch (e) {
+                    console.error("Failed to resume AudioContext in RTA:", e);
+                }
+            }
 
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 2048; 
@@ -195,8 +208,20 @@ function initProfessionalRTA() {
             btn.innerHTML = '<span class="material-symbols-outlined" style="font-size: 16px;">volume_up</span> PLAY NOISE';
         } else {
             // Turn on
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            // Turn on
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Failed to create AudioContext for RTA Pink Noise:", e);
+                return;
+            }
+            if (audioCtx.state === 'suspended') {
+                try {
+                    await audioCtx.resume();
+                } catch (e) {
+                    console.error("Failed to resume AudioContext for RTA Pink Noise:", e);
+                }
+            }
 
             // Sync output routing
             const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';

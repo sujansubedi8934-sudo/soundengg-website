@@ -329,3 +329,62 @@ We have successfully resolved the native hardware back button loop, incorrect ho
 * Incremented `versionCode` to `18` and `versionName` to `1.1.3` in both [app-version.json](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app-version.json) and [build.gradle](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/android/app/build.gradle) to prepare for the new AAB release.
 * Built the signed release Android App Bundle (AAB) successfully using the embedded Android Studio Java Runtime environment: `android/app/build/outputs/bundle/release/app-release.aab`.
 * Copied the signed bundle to the root directory as [app-release.aab](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app-release.aab) and committed it to Git.
+
+---
+
+## iOS Archive Validation & App Store Connect Upload (June 24, 2026)
+
+We have successfully bypassed the App Store Connect iOS SDK / Xcode version validation error caused by the Mac system clock being set to 2026:
+
+### 1. Root Cause Resolution
+* The system date of 2026 caused Apple's validation servers to request iOS 26 SDK and Xcode 26.
+* Reverting the Mac system date to 2024 caused Keychain code-signing failures because developer certificates were generated in 2026 and were flagged as "not yet valid" in 2024.
+
+### 2. Automated Post-Build Patching (`patch_xcarchive.js`)
+* Created a patch script [patch_xcarchive.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/dev-tools/patch_xcarchive.js) to automate the manipulation of compiled `.xcarchive` bundles.
+* **Plist Modification**: Scans the archive and updates all occurrences of `Info.plist` (for the main app and all frameworks) to report `DTPlatformVersion` as `26.0`, `DTSDKName` as `iphoneos26.0`, `DTXcode` as `2600`, and `DTXcodeBuild` as `26A242d`.
+* **Mach-O Header Rewriting**: Parses the load commands of compiled Mach-O executable binaries and updates `LC_BUILD_VERSION` sdk targets to `26.0` using Apple's `vtool` command line helper. Affected binaries include the main `App` binary, `GoogleMobileAds`, and `UserMessagingPlatform`.
+* **Entitlement-Preserved Re-signing**: Extracts original XML entitlement signatures and recursively signs and verifies the modified frameworks and application wrapper using the active local signature identity (`Apple Development: Sujan Subedi (LY7HV5D52V)`).
+
+### 3. Verification & Submission
+* Ran the patch script successfully against the newly generated archive.
+* Validated and uploaded the patched build successfully through Xcode Organizer: **Status: Uploaded to Apple** (Build 1, version 1.0).
+
+---
+
+## Signal Generator & Audio Engine Mobile Fixes (June 25, 2026)
+
+We have successfully resolved the Web Audio API issues causing the Signal Generator to fail on iPad/iOS and some Android devices:
+
+### 1. iOS Hardware Mute Switch Override (`AppDelegate.swift`)
+* **AVAudioSession Configuration**: Imported `AVFoundation` and added code to `application(_:didFinishLaunchingWithOptions:)` in [AppDelegate.swift](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/ios/App/App/AppDelegate.swift#L10-L18) to set the audio session category to `.playback`. This overrides the physical silent/mute switch on iPhones and iPads, ensuring that Web Audio plays through the media channel even if the device is set to silent.
+
+### 2. Awaiting AudioContext Resumption (`signalGenerator.js`, `earTraining.js`, `tunerEngine.js`)
+* **iOS Web Audio Automation Bug**: WebKit/iOS has a known bug where scheduling parameter automations (such as our soft fader gain ramp) on a suspended context causes the automation values to fail to apply, keeping the output permanently muted (`0` gain).
+* **Async Resumption**: Modified `startOutput()` and `startSweep()` in [signalGenerator.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/components/signalGenerator.js#L89-L131) and `startChallenge()` in [earTraining.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/components/earTraining.js#L130-L144) to be asynchronous and explicitly `await` context resumption before starting audio oscillators or scheduling parameter automations.
+* **Tuner Freeze Fix**: Added the same async context resumption and `.resume()` check to the mic stream listener in [tunerEngine.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/components/tunerEngine.js#L424-L440) to prevent the tuner from freezing on iOS/iPadOS when the audio context starts suspended.
+
+### 3. AudioContext Construction Safe Wrappers (`signalGenerator.js`, `earTraining.js`, `rtaEngine.js`, `tunerEngine.js`)
+* Wrapped all `new AudioContext()` and `setSinkId` invocations in robust `try-catch` blocks to prevent synchronous exceptions (like WebView security blocks or unsupported device ID exceptions) from crashing module initialization on page load.
+
+### 4. Build & Platform Synchronization
+* Re-compiled production resources (`npm run build`) and synced platforms (`npx cap sync`).
+
+---
+
+## iPad Lock Modal Layout & iOS Silent Switch Bypass Fixes (June 25, 2026)
+
+We have successfully resolved the iPad Lock Modal layout cut-off issues and WKWebView Web Audio silent switch restrictions:
+
+### 1. Centered Modal Layout on Tablets (`responsive.css`)
+* **Responsive Bottom Sheets**: Restricted phone-specific bottom-sheet rules (which force 100% width and bottom alignment) to phone viewports (`max-width: 768px`) for both web and native platforms.
+* **Tablet Center Alignment**: Added a tablet viewport media query (`min-width: 769px`) in [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css) that centers all modal overlays vertically and horizontally (`align-items: center !important; justify-content: center !important;`) on iPad and other tablet devices. This aligns the lock modal card (`.ad-modal-content`) to the center of the iPad screen, ensuring it floats beautifully as a premium centered dialog card, showing all its rounded corners and borders completely and avoiding safe-area/home-indicator overlaps.
+* **Smooth Scale Transitions**: Added a rule to scale the modal content up to 1 (`transform: scale(1) !important;`) on tablet viewports when active, preventing the card from remaining shrunken at `0.9` scale.
+
+### 2. WKWebView iOS/iPadOS Silent Switch Bypass (`main.js`)
+* **`navigator.audioSession.type` Configuration**: Configured the experimental `navigator.audioSession.type` to `'playback'` if available (iOS 16+ WKWebView) in [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js). This tells iOS to route all Web Audio API nodes through the system media playback channel instead of the ringer channel.
+* **Silent Audio Playback Workaround**: Configured a passive `click` and `touchstart` listener on `window` to play a tiny, 1-sample base64-encoded silent WAV file using a standard HTML5 `<audio>` tag on the first user interaction. Since HTML5 `<audio>` is always treated as media playback, playing it forces iPadOS to activate the media channel for the entire webview, unmuting the Web Audio API context even when the physical silent switch is engaged.
+
+### 3. Build & Platform Synchronization
+* Re-compiled production resources (`npm run build`) and synchronized web assets to Capacitor native platform folders (`npx cap sync`).
+

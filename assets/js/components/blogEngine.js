@@ -82,6 +82,47 @@ function initBlog() {
         const container = document.getElementById('article-view');
         container.innerHTML = article.content;
         
+        // Intercept internal links to prevent full page reloads inside WebView / App console
+        const links = container.querySelectorAll('a');
+        links.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && (href.includes('app.html') || href.startsWith('#'))) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    // Extract hash fragment or view parameter
+                    const hashIndex = href.indexOf('#');
+                    let viewKey = '';
+                    if (hashIndex !== -1) {
+                        viewKey = href.substring(hashIndex + 1);
+                    } else {
+                        const urlParams = new URLSearchParams(href.split('?')[1] || '');
+                        viewKey = urlParams.get('view') || '';
+                    }
+
+                    if (viewKey) {
+                        const viewMap = {
+                            'rta': document.getElementById('rta-view'),
+                            'delay': document.getElementById('module-view'),
+                            'pinout': document.getElementById('pinout-view'),
+                            'tuner': document.getElementById('tuner-view'),
+                            'subcalc': document.getElementById('sub-calc-view'),
+                            'siggen': document.getElementById('siggen-view'),
+                            'ear-training': document.getElementById('ear-training-view'),
+                            'author': document.getElementById('author-view'),
+                            'blog': document.getElementById('blog-view'),
+                            'menu': document.getElementById('menu-view'),
+                            'settings': document.getElementById('settings-view')
+                        };
+
+                        const target = viewMap[viewKey];
+                        if (target && typeof window.showView === 'function') {
+                            window.showView(target);
+                        }
+                    }
+                });
+            }
+        });
+
         blogIndex.style.display = 'none';
         
         // Hide search container when reading an article

@@ -421,8 +421,23 @@ function initTuner() {
         if (isTuning) return;
         deviceId = deviceId || safeStorage.getItem('soundengg-mic-id') || 'default';
         const constraints = { audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true };
-        navigator.mediaDevices.getUserMedia(constraints).then(stream => {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        navigator.mediaDevices.getUserMedia(constraints).then(async (stream) => {
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Failed to create AudioContext in Tuner:", e);
+                alert("Could not initialize audio tools.");
+                return;
+            }
+
+            if (audioCtx.state === 'suspended') {
+                try {
+                    await audioCtx.resume();
+                } catch (e) {
+                    console.error("Failed to resume AudioContext in Tuner:", e);
+                }
+            }
+
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 2048;
             mediaStreamSource = audioCtx.createMediaStreamSource(stream);

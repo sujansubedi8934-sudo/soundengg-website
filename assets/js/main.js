@@ -1,4 +1,47 @@
+// --- iOS/iPadOS Silent switch bypass workaround ---
+(function() {
+    // 1. Configure navigator.audioSession if available (iOS 16+ WKWebView)
+    if (typeof navigator !== 'undefined' && navigator.audioSession) {
+        try {
+            navigator.audioSession.type = 'playback';
+            console.log("AudioSession type set to 'playback' for silent mode bypass");
+        } catch (e) {
+            console.warn("Failed to set navigator.audioSession.type:", e);
+        }
+    }
 
+    // 2. Play silent WAV loop trick on first user interaction to force system media channel active
+    let silentAudioTriggered = false;
+    const playSilentAudio = () => {
+        if (silentAudioTriggered) return;
+        silentAudioTriggered = true;
+        
+        try {
+            const audio = new Audio();
+            audio.src = 'data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==';
+            audio.loop = false;
+            audio.volume = 0.01;
+            audio.play().then(() => {
+                console.log("iOS silent switch workaround successfully activated.");
+                cleanup();
+            }).catch(err => {
+                console.warn("Silent audio play failed, retrying on next interaction:", err);
+                silentAudioTriggered = false;
+            });
+        } catch (e) {
+            console.warn("Failed to create/play silent audio tag:", e);
+            silentAudioTriggered = false;
+        }
+    };
+
+    const cleanup = () => {
+        window.removeEventListener('click', playSilentAudio, { capture: true });
+        window.removeEventListener('touchstart', playSilentAudio, { capture: true });
+    };
+
+    window.addEventListener('click', playSilentAudio, { capture: true, passive: true });
+    window.addEventListener('touchstart', playSilentAudio, { capture: true, passive: true });
+})();
 
 // --- AUDIO CONTEXT INTERCEPTOR (Dynamic Output Routing) ---
 window.activeAudioContexts = window.activeAudioContexts || [];
@@ -2924,6 +2967,21 @@ function initNativeAppLogo() {
 
 // 7. Global Payment System Initialization DOM Trigger
 const initPageSystems = () => {
+    // Add platform-ios class if running inside native iOS wrapper to comply with Guideline 3.1.1
+    if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
+        const isIOS = window.Capacitor?.getPlatform() === 'ios';
+        if (isIOS) {
+            document.body.classList.add('platform-ios');
+            document.documentElement.classList.add('platform-ios');
+            
+            // Redirect from pro.html on iOS to prevent displaying the pricing page entirely
+            if (window.location.pathname.includes('pro.html')) {
+                window.location.href = 'app.html';
+                return;
+            }
+        }
+    }
+
     // Start dynamic pricing converter immediately
     initPricingPage();
 

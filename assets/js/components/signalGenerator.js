@@ -33,26 +33,39 @@ function initSignalGenerator() {
 
     function initAudio() {
         if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Failed to create AudioContext:", e);
+                return;
+            }
             
-            // Explicitly sync output device
-            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
-            if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
-                audioCtx.setSinkId(savedOutput).catch(err => {
-                    console.warn("Failed to apply initial sink ID to Signal Generator:", err);
-                });
+            // Explicitly sync output device safely
+            try {
+                const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
+                    audioCtx.setSinkId(savedOutput).catch(err => {
+                        console.warn("Failed to apply initial sink ID to Signal Generator:", err);
+                    });
+                }
+            } catch (err) {
+                console.warn("Failed to retrieve or set output device safely:", err);
             }
 
-            gainNode = audioCtx.createGain();
-            gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // Start muted
-            
-            analyzer = audioCtx.createAnalyser();
-            analyzer.fftSize = 256;
-            
-            gainNode.connect(analyzer);
-            analyzer.connect(audioCtx.destination);
-            
-            updateVisuals();
+            try {
+                gainNode = audioCtx.createGain();
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // Start muted
+                
+                analyzer = audioCtx.createAnalyser();
+                analyzer.fftSize = 256;
+                
+                gainNode.connect(analyzer);
+                analyzer.connect(audioCtx.destination);
+                
+                updateVisuals();
+            } catch (e) {
+                console.error("Failed to build Web Audio graph:", e);
+            }
         }
     }
 
@@ -90,9 +103,18 @@ function initSignalGenerator() {
         return node;
     }
 
-    function startOutput() {
+    async function startOutput() {
         initAudio();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) return;
+
+        // On iOS/Safari, we must await context resumption before scheduling parameters or starting oscillators
+        if (audioCtx.state === 'suspended') {
+            try {
+                await audioCtx.resume();
+            } catch (e) {
+                console.error("Failed to resume AudioContext:", e);
+            }
+        }
 
         if (currentWave === 'white' || currentWave === 'pink') {
             noiseNode = (currentWave === 'white') ? createWhiteNoise() : createPinkNoise();
@@ -169,7 +191,7 @@ function initSignalGenerator() {
         requestAnimationFrame(updateVisuals);
     }
 
-    function startSweep() {
+    async function startSweep() {
         // If noise waveform is active, sweep is not possible. Programmatically click Sine button.
         if (currentWave === 'white' || currentWave === 'pink') {
             const sineBtn = document.querySelector('.wave-btn[data-wave="sine"]');
@@ -179,7 +201,7 @@ function initSignalGenerator() {
         }
 
         if (!isPlaying || !oscillator) {
-            startOutput();
+            await startOutput();
         }
         
         if (!oscillator) {
@@ -229,9 +251,9 @@ function initSignalGenerator() {
 
     // --- Event Listeners ---
 
-    btnToggle.addEventListener('click', () => {
+    btnToggle.addEventListener('click', async () => {
         if (isPlaying) stopOutput();
-        else startOutput();
+        else await startOutput();
     });
 
     // Logarithmic Frequency Mapping
@@ -310,8 +332,8 @@ function initSignalGenerator() {
     });
 
     if (btnSweep) {
-        btnSweep.addEventListener('click', () => {
-            startSweep();
+        btnSweep.addEventListener('click', async () => {
+            await startSweep();
         });
     }
 

@@ -2,5 +2,6 @@
   "appId": "com.soundengg.app",
   "appName": "SoundEngg Console",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "backgroundColor": "#0a0a0f"
 }

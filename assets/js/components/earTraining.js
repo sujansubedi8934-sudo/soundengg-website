@@ -62,23 +62,36 @@ function initEarTraining() {
 
     function initAudio() {
         if (!audioCtx) {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Failed to create AudioContext in Ear Training:", e);
+                return;
+            }
             
-            // Explicitly sync output device
-            const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
-            if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
-                audioCtx.setSinkId(savedOutput).catch(err => {
-                    console.warn("Failed to apply initial sink ID to Ear Training:", err);
-                });
+            // Explicitly sync output device safely
+            try {
+                const savedOutput = safeStorage.getItem('soundengg-output-id') || 'default';
+                if (savedOutput && savedOutput !== 'default' && typeof audioCtx.setSinkId === 'function') {
+                    audioCtx.setSinkId(savedOutput).catch(err => {
+                        console.warn("Failed to apply initial sink ID to Ear Training:", err);
+                    });
+                }
+            } catch (err) {
+                console.warn("Failed to retrieve or set output device safely in Ear Training:", err);
             }
 
-            gainNode = audioCtx.createGain();
-            filterNode = audioCtx.createBiquadFilter();
-            filterNode.type = 'peaking';
-            filterNode.Q.value = 4.32; // 1/3 octave
-            
-            filterNode.connect(gainNode);
-            gainNode.connect(audioCtx.destination);
+            try {
+                gainNode = audioCtx.createGain();
+                filterNode = audioCtx.createBiquadFilter();
+                filterNode.type = 'peaking';
+                filterNode.Q.value = 4.32; // 1/3 octave
+                
+                filterNode.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+            } catch (e) {
+                console.error("Failed to build Web Audio graph in Ear Training:", e);
+            }
         }
     }
 
@@ -131,9 +144,17 @@ function initEarTraining() {
         }
     }
 
-    function startChallenge() {
+    async function startChallenge() {
         initAudio();
-        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) return;
+        
+        if (audioCtx.state === 'suspended') {
+            try {
+                await audioCtx.resume();
+            } catch (e) {
+                console.error("Failed to resume AudioContext in Ear Training:", e);
+            }
+        }
         stopAudio();
 
         const freqList = (currentTier === 'octave') 

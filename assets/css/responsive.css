@@ -1018,6 +1018,18 @@
     box-shadow: 0 -5px 20px rgba(0,0,0,0.6);
 }
 
+/* cover safe area / ad gaps below the navigation bar when shifted up */
+#mobile-bottom-tabs::after {
+    content: '';
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    width: 100%;
+    height: 120px;
+    background: #0a0a0f;
+    z-index: 1;
+}
+
 .tab-item {
     display: flex;
     flex-direction: column;
@@ -1325,30 +1337,59 @@
     }
 }
 
-/* Also apply to Native Capacitor Platform (if not matching max-width) */
-.native-mobile-platform .modal-overlay {
-    display: flex !important;
-    align-items: flex-end !important;
-    justify-content: center !important;
-    padding: 0 !important;
-    background-color: rgba(0, 0, 0, 0.75) !important;
+/* Also apply to Native Capacitor Platform (only on phone viewports to prevent wide stretched bottom sheets on iPad) */
+@media (max-width: 768px) {
+    .native-mobile-platform .modal-overlay {
+        display: flex !important;
+        align-items: flex-end !important;
+        justify-content: center !important;
+        padding: 0 !important;
+        background-color: rgba(0, 0, 0, 0.75) !important;
+    }
+    .native-mobile-platform .modal-overlay.hidden {
+        display: none !important;
+    }
+    .native-mobile-platform .modal-overlay > div:not(.mobile-ad-loader-content) {
+        width: 100% !important;
+        max-width: 100% !important;
+        border-radius: 20px 20px 0 0 !important;
+        margin: 0 !important;
+        padding: 2.5rem 1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
+        border-bottom: none !important;
+        border-left: none !important;
+        border-right: none !important;
+        box-sizing: border-box;
+        max-height: 85vh;
+        overflow-y: auto;
+        animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    }
 }
-.native-mobile-platform .modal-overlay.hidden {
-    display: none !important;
-}
-.native-mobile-platform .modal-overlay > div:not(.mobile-ad-loader-content) {
-    width: 100% !important;
-    max-width: 100% !important;
-    border-radius: 20px 20px 0 0 !important;
-    margin: 0 !important;
-    padding: 2.5rem 1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
-    border-bottom: none !important;
-    border-left: none !important;
-    border-right: none !important;
-    box-sizing: border-box;
-    max-height: 85vh;
-    overflow-y: auto;
-    animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+
+/* For tablet viewports (iPad/Android tablets) on native mobile and desktop */
+@media (min-width: 769px) {
+    .modal-overlay {
+        align-items: center !important; /* Center modals vertically on tablet/desktop */
+        padding: 2rem !important;
+    }
+    .native-mobile-platform .modal-overlay {
+        align-items: center !important;
+        padding: 2rem !important;
+    }
+    .native-mobile-platform .modal-overlay > div:not(.mobile-ad-loader-content) {
+        /* Override mobile bottom sheet styles back to clean centered dialog modal */
+        width: 90% !important;
+        max-width: 500px !important;
+        border-radius: 12px !important;
+        margin: auto !important;
+        padding: 2.5rem !important;
+        border: 1px solid var(--primary) !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.5), 0 0 0 1px inset rgba(255,255,255,0.1) !important;
+        animation: none !important; /* Disable slide-up animation */
+        max-height: 90vh !important;
+    }
+    .modal-overlay:not(.hidden) .ad-modal-content {
+        transform: scale(1) !important;
+    }
 }
 
 @keyframes slide-up-sheet {
@@ -2489,4 +2530,15 @@ html.light .vfd-glow {
     color: var(--text-heading) !important;
     text-shadow: none !important;
     box-shadow: none !important;
+}
+
+/* 8. Apple App Store Guideline 3.1.1 Compliance (Hide Outside Purchase Channels on iOS) */
+.platform-ios #menu-btn-upgrade,
+.platform-ios #btn-profile-upgrade,
+.platform-ios #btn-sub-upgrade,
+.platform-ios #btn-buy-pro,
+.platform-ios .pro-upsell-box,
+.platform-ios .pro-nav-redirect-btn,
+.platform-ios [href*="pro.html"] {
+    display: none !important;
 }
