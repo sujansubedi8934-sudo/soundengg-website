@@ -13,7 +13,6 @@ const filesToCopy = [
     'contact.html',
     'privacy.html',
     'terms.html',
-    'palm6bd854hde9.html',
     'beta.html',
     'manifest.json',
     'service-worker.js',

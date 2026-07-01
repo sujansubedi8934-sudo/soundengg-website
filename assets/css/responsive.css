@@ -2537,6 +2537,10 @@ html.light .vfd-glow {
 .platform-ios #btn-profile-upgrade,
 .platform-ios #btn-sub-upgrade,
 .platform-ios #btn-buy-pro,
+.platform-ios #menu-btn-billing-portal,
+.platform-ios #btn-sub-manage,
+.platform-ios #row-sub-billing,
+.platform-ios #row-sub-provider,
 .platform-ios .pro-upsell-box,
 .platform-ios .pro-nav-redirect-btn,
 .platform-ios [href*="pro.html"] {
