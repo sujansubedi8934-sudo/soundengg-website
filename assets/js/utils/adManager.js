@@ -6,7 +6,7 @@
 const ADMOB_ANDROID_REWARDED_ID = 'ca-app-pub-4117687060036448/8475961821'; // Production/Test Android ID
 const ADMOB_IOS_REWARDED_ID = 'ca-app-pub-4117687060036448/9597471806';     // Production/Test iOS ID
 
-const USE_TEST_REWARDED_ADS = true; // Toggle to false to use production rewarded video IDs
+const USE_TEST_REWARDED_ADS = false; // Toggle to false to use production rewarded video IDs
 const ADMOB_ANDROID_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/5224354917';
 const ADMOB_IOS_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/1712485313';
 
@@ -15,7 +15,7 @@ const ACTIVE_SPONSOR_URL = 'https://soundengg.com/active-sponsor';
 let isSponsorSpotlightFallback = false;
 
 // AdMob Banner unit mappings
-const USE_TEST_BANNER_ADS = true; // Toggle to false to use production banner IDs
+const USE_TEST_BANNER_ADS = false; // Toggle to false to use production banner IDs
 const ADMOB_ANDROID_BANNER_TEST_ID = 'ca-app-pub-3940256099942544/6300978111';
 const ADMOB_IOS_BANNER_TEST_ID = 'ca-app-pub-3940256099942544/2934735716';
 const ADMOB_ANDROID_BANNER_PROD_ID = 'ca-app-pub-4117687060036448/8473227865';
