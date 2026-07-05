@@ -133,10 +133,11 @@
                     }
                 }
             });
-
             // Update Recommendation Alert UI
+            const activeRatio = speakerPower > 0 ? (activeResult.powerPerSpeaker / speakerPower) : 0;
+
             if (activeResult.totalImpedance < 2.0) {
-                // DANGER
+                // DANGER: IMPEDANCE TOO LOW
                 recBox.style.background = 'rgba(239, 68, 68, 0.1)';
                 recBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
                 recIcon.textContent = 'warning';
@@ -144,24 +145,63 @@
                 recTitle.textContent = 'DANGER: DANGEROUS LOAD!';
                 recTitle.style.color = '#ef4444';
                 recDescription.innerHTML = `This wiring mode drops your total impedance load to **${activeResult.totalImpedance.toFixed(2)} Ω**. **DO NOT RUN THIS SETUP!** Most standard professional amplifiers will overheat, go into thermal protect mode, or suffer hardware damage. ${bestMode ? '<br><br>💡 ' + bestVerdict : ''}`;
+            } else if (speakerPower > 0 && ampPower > 0 && activeRatio > 2.5) {
+                // DANGER: EXTREME OVERPOWERING / SPEAKER BLOWOUT RISK
+                recBox.style.background = 'rgba(239, 68, 68, 0.1)';
+                recBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+                recIcon.textContent = 'warning';
+                recIcon.style.color = '#ef4444';
+                recTitle.textContent = 'DANGER: SPEAKER BLOWOUT RISK!';
+                recTitle.style.color = '#ef4444';
+                recDescription.innerHTML = `The amplifier is delivering **${Math.round(activeResult.powerPerSpeaker)}W per speaker**, which is **${activeRatio.toFixed(1)}x** the speaker's RMS rating of **${speakerPower}W**. This extreme power mismatch will likely destroy the speaker voice coils. Use a lower power amplifier or add more speaker cabinets to distribute the load safely. ${bestMode ? '<br><br>💡 ' + bestVerdict : ''}`;
             } else if (activeResult.totalImpedance === 2.0) {
-                // CAUTION
+                // CAUTION: 2.0 OHM LOAD
                 recBox.style.background = 'rgba(245, 158, 11, 0.1)';
                 recBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
                 recIcon.textContent = 'info';
                 recIcon.style.color = '#f59e0b';
                 recTitle.textContent = 'CAUTION: 2.0 Ω LOAD';
                 recTitle.style.color = '#f59e0b';
-                recDescription.innerHTML = `Your load impedance is **2.00 Ω**. Verify that your amplifier spec sheet explicitly states it is "stable down to 2 Ω" before running this system. Otherwise, use a higher impedance wiring setup.<br><br>💡 ${bestVerdict}`;
+                let powerWarning = '';
+                if (speakerPower > 0 && ampPower > 0) {
+                    if (activeRatio > 2.0) {
+                        powerWarning = `<br><span style="color: #f59e0b; font-weight: bold;">[Warning]</span> Speaker is also overpowered by **${activeRatio.toFixed(1)}x**.`;
+                    } else if (activeRatio < 0.4) {
+                        powerWarning = `<br><span style="color: #f59e0b; font-weight: bold;">[Warning]</span> Speaker is also underpowered by **${activeRatio.toFixed(1)}x**.`;
+                    }
+                }
+                recDescription.innerHTML = `Your load impedance is **2.00 Ω**. Verify that your amplifier spec sheet explicitly states it is "stable down to 2 Ω" before running this system. Otherwise, use a higher impedance wiring setup.${powerWarning}<br><br>💡 ${bestVerdict}`;
+            } else if (speakerPower > 0 && ampPower > 0 && activeRatio > 2.0 && activeRatio <= 2.5) {
+                // CAUTION: OVERPOWERED
+                recBox.style.background = 'rgba(245, 158, 11, 0.1)';
+                recBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+                recIcon.textContent = 'info';
+                recIcon.style.color = '#f59e0b';
+                recTitle.textContent = 'CAUTION: OVERPOWERED SETUP';
+                recTitle.style.color = '#f59e0b';
+                recDescription.innerHTML = `The amplifier is delivering **${Math.round(activeResult.powerPerSpeaker)}W per speaker** (${activeRatio.toFixed(1)}x RMS). This exceeds the optimal 1.5x - 2.0x headroom sweet spot. Monitor volume limits closely to prevent thermal damage.<br><br>💡 ${bestVerdict}`;
+            } else if (speakerPower > 0 && ampPower > 0 && activeRatio < 0.4) {
+                // CAUTION: UNDERPOWERED
+                recBox.style.background = 'rgba(245, 158, 11, 0.1)';
+                recBox.style.border = '1px solid rgba(245, 158, 11, 0.3)';
+                recIcon.textContent = 'info';
+                recIcon.style.color = '#f59e0b';
+                recTitle.textContent = 'CAUTION: UNDERPOWERED SETUP';
+                recTitle.style.color = '#f59e0b';
+                recDescription.innerHTML = `The amplifier is delivering only **${Math.round(activeResult.powerPerSpeaker)}W per speaker** (${activeRatio.toFixed(2)}x RMS). This is significantly below the speaker's rating of **${speakerPower}W**. Avoid pushing the amplifier hard to prevent signal clipping, which will damage speaker high-frequency drivers.<br><br>💡 ${bestVerdict}`;
             } else {
                 // SAFE
                 recBox.style.background = 'rgba(16, 185, 129, 0.1)';
                 recBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
                 recIcon.textContent = 'check_circle';
                 recIcon.style.color = '#10b981';
-                recTitle.textContent = 'SYSTEM SAFE';
+                recTitle.textContent = 'SYSTEM SAFE & BALANCED';
                 recTitle.style.color = '#10b981';
-                recDescription.innerHTML = `Total load is **${activeResult.totalImpedance.toFixed(2)} Ω**, which is fully stable. ${bestMode ? '<br><br>💡 ' + bestVerdict : ''}`;
+                let powerMatchText = '';
+                if (speakerPower > 0 && ampPower > 0) {
+                    powerMatchText = ` and power match is safe (**${activeRatio.toFixed(1)}x** headroom match)`;
+                }
+                recDescription.innerHTML = `Total load is **${activeResult.totalImpedance.toFixed(2)} Ω**${powerMatchText}. ${bestMode ? '<br><br>💡 ' + bestVerdict : ''}`;
             }
         }
 
