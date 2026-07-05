@@ -651,6 +651,7 @@ function setupNavigation() {
                     canvas.width = canvas.parentElement.clientWidth;
                     canvas.height = canvas.parentElement.clientHeight;
                 }
+            }
 
         };
 
