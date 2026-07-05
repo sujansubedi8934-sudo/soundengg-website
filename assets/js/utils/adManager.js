@@ -296,8 +296,14 @@ function initAdManager() {
                     bottomBanner.classList.add('hidden');
                     bottomBanner.style.display = 'none';
                 }
-                if (typeof window.showNativeBannerAd === 'function') {
-                    window.showNativeBannerAd(); // Show native bottom banner ad
+                if (!window.isPremiumActive()) {
+                    if (typeof window.showNativeBannerAd === 'function') {
+                        window.showNativeBannerAd(); // Show native bottom banner ad
+                    }
+                } else {
+                    if (typeof window.hideNativeBannerAd === 'function') {
+                        window.hideNativeBannerAd(); // Ensure it is hidden
+                    }
                 }
             } else {
                 if (bottomBanner) {
