@@ -208,15 +208,15 @@
                         </div>
                     </button>
 
-                    <!-- MODULE LAUNCHER: Tuner -->
-                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-tuner" data-category="tools">
+                    <!-- MODULE LAUNCHER: Impedance & Power -->
+                    <button class="widget widget-launcher rugged-bevel brushed-metal" id="btn-launch-impedance" data-category="tools">
                         <div class="launcher-header">
-                            <span class="material-symbols-outlined icon">tune</span>
+                            <span class="material-symbols-outlined icon">settings_input_component</span>
                             <span class="launcher-status">READY</span>
                         </div>
                         <div class="launcher-body">
-                            <h3 class="widget-title">Precision Tuner</h3>
-                            <p class="widget-subtitle">Chromatic Pitch Detection</p>
+                            <h3 class="widget-title">Impedance & Power</h3>
+                            <p class="widget-subtitle">Speaker Load Calculator</p>
                         </div>
                     </button>
 
@@ -309,10 +309,10 @@
                         <span class="material-symbols-outlined tool-card-icon">straighten</span>
                         <span class="tool-card-name">Delay Calc</span>
                     </button>
-                    <!-- 5. Tuner -->
-                    <button class="mobile-tool-card tool-tuner" id="btn-mobile-launch-tuner">
-                        <span class="material-symbols-outlined tool-card-icon">tune</span>
-                        <span class="tool-card-name">Precision Tuner</span>
+                    <!-- 5. Impedance & Power -->
+                    <button class="mobile-tool-card tool-impedance" id="btn-mobile-launch-impedance">
+                        <span class="material-symbols-outlined tool-card-icon">settings_input_component</span>
+                        <span class="tool-card-name">Load Calc</span>
                     </button>
                     <!-- 6. Sub Array Calc -->
                     <button class="mobile-tool-card tool-subcalc" id="btn-mobile-launch-subcalc">
@@ -1294,111 +1294,127 @@
                     </div>
                     <div class="ear-train-stat-block">
                         <span class="stat-label">SCORE</span>
-                        <span class="stat-val" id="train-stat-score">0%</span>
+                    <span class="stat-val" id="train-stat-score">0%</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tuner View (Hidden) -->
-    <div id="tuner-view" class="view-container" style="display:none">
+    <!-- Speaker Impedance & Power Calculator View (Hidden) -->
+    <div id="impedance-view" class="view-container" style="display:none">
         <header class="module-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.25rem 1rem 0.25rem; border-bottom: 1px solid var(--outline-light); margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                 <button class="back-link btn-back-home" type="button" style="margin-right: 4px;">
                     <span class="material-symbols-outlined">arrow_back</span>
                     <span class="back-btn-text">BACK TO DASHBOARD</span>
                 </button>
-                <button class="btn-help" data-tool="tuner" title="Tool Guide" style="background: transparent; border: none; color: var(--primary); display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px; outline: none;">
+                <button class="btn-help" data-tool="impedance" title="Tool Guide" style="background: transparent; border: none; color: var(--primary); display: flex; align-items: center; gap: 4px; cursor: pointer; padding: 4px; outline: none;">
                     <span class="material-symbols-outlined pulse-glow-help" style="font-size: 1.25rem;">help</span>
                     <span class="help-label" style="font-family: var(--font-mono); font-size: 0.65rem; font-weight: bold; letter-spacing: 0.5px; text-transform: uppercase;">HELP</span>
                 </button>
                 <span class="tool-header-title" style="font-family: var(--font-headline); font-weight: bold; font-size: 0.8rem; text-transform: uppercase; color: var(--text-heading); letter-spacing: 0.5px; margin-left: 4px;">
                     <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem; margin-right: 8px;">|</span>
-                    Precision Tuner
+                    Impedance & Power
                 </span>
                 <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem;">|</span>
-                <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Chromatic Tuning Node</span>
-            </div>
-            <div class="header-controls" style="margin-left: auto;">
-                <button id="btn-start-tuner" class="rugged-btn pulse-glow" style="height: 32px; padding: 0 12px; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; gap: 4px;">
-                    <span class="material-symbols-outlined" style="font-size: 14px;">mic</span>
-                    ACTIVATE_MIC
-                </button>
+                <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Speaker Load Calculator</span>
             </div>
         </header>
 
-        <!-- New Modern layout wrapper -->
-        <div class="tuner-layout" style="max-width: 800px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 1.5rem; padding: 0 0.5rem 2rem 0.5rem;">
-            
-            <!-- 1. Big Tuner VFD Display Panel -->
-            <div class="vfd-screen" style="display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 16px; padding: 2.5rem 1.5rem;">
-                <!-- Cents and Note Area -->
-                <div class="tuner-note-area" style="display: flex; align-items: baseline; gap: 0.5rem; margin-bottom: 0.25rem;">
-                    <span id="tuner-note-display" class="tuner-note" style="font-family: var(--font-headline); font-size: 6.5rem; font-weight: 800; line-height: 1; color: var(--primary); text-shadow: 0 0 20px rgba(20, 167, 181, 0.5);">--</span>
-                    <span id="tuner-cents-display" class="tuner-cents" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; color: var(--text-muted); text-shadow: 0 0 10px rgba(255,255,255,0.05);">0¢</span>
-                </div>
-                <!-- Frequency Value display -->
-                <div class="tuner-freq-display" style="font-family: var(--font-mono); font-size: 1.5rem; color: var(--text-heading); letter-spacing: 1.5px; margin-top: 0.5rem;">
-                    <span id="tuner-freq-val" style="font-weight: bold; color: var(--text-heading); text-shadow: 0 0 8px rgba(255,255,255,0.15);">---.-</span> <span style="font-size: 1.1rem; color: var(--text-muted);">Hz</span>
-                </div>
-                <!-- Status text -->
-                <div class="tuner-status-text" id="tuner-status-text" style="font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-top: 1.25rem; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem; width: 80%; text-align: center;">WAITING FOR SIGNAL</div>
-            </div>
-
-            <!-- 2. Visualizer Canvas Card -->
-            <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;">
-                <span class="train-label" style="font-size: 0.75rem;">Microphone Signal Visualizer</span>
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 200px; border-radius: 12px; overflow: hidden;">
-                    <canvas id="tuner-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
+        <div class="calculator-layout" style="max-width: 800px; margin: 0 auto; width: 100%; display: flex; flex-direction: column; gap: 1.5rem; padding: 0 0.5rem 2rem 0.5rem;">
+            <!-- Connection Mode Toggle -->
+            <div class="siggen-widget" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+                <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px;">Wiring Connection Mode</h3>
+                <div style="display: flex; gap: 0.5rem; width: 100%;">
+                    <button class="train-source-btn active connection-mode-btn" data-mode="parallel" style="flex: 1;">Parallel</button>
+                    <button class="train-source-btn connection-mode-btn" data-mode="series" style="flex: 1;">Series</button>
+                    <button class="train-source-btn connection-mode-btn" data-mode="series-parallel" style="flex: 1;" id="btn-mode-series-parallel">Series-Parallel</button>
                 </div>
             </div>
 
-            <!-- 2b. Tuning Stability History (Cent-Drift Timeline Chart) -->
-            <div class="siggen-widget" id="tuner-stability-card" style="display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="train-label" style="font-size: 0.75rem;">Tuning Stability History</span>
-                    <span id="tuner-stability-stats" style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted);">AVG: --¢ | MAX: --¢</span>
-                </div>
-                <div class="canvas-wrapper" style="position: relative; width: 100%; height: 120px; border-radius: 12px; overflow: hidden;">
-                    <canvas id="tuner-stability-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
-                </div>
-            </div>
-
-            <!-- 3. Tuner Setup & Settings Card -->
-            <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem;">
-                <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.5rem;">Tuner Settings</h3>
+            <!-- Speaker Configuration Card -->
+            <div class="siggen-widget" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.5rem;">Speaker Specifications</h3>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; width: 100%;">
-                    <!-- A4 Reference -->
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                        <span class="train-label">A4 Reference Frequency</span>
-                        <div style="display: flex; gap: 0.5rem; align-items: center; width: 100%;">
-                            <div class="vfd-input-wrap" style="flex: 1; display: flex; align-items: center; height: 38px;">
-                                <input type="number" id="tuner-a4-ref" class="vfd-input" value="440" min="400" max="480" step="1" style="width: 100%; background: transparent; border: none; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1.1rem; text-align: center; text-shadow: 0 0 6px rgba(20, 167, 181, 0.4);">
-                            </div>
-                            <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">Hz</span>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem;">
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Speaker Count</label>
+                        <select id="speaker-count" class="vfd-input" style="width: 100%; text-align: center; text-align-last: center;">
+                            <option value="1">1 Cabinet</option>
+                            <option value="2" selected>2 Cabinets</option>
+                            <option value="3">3 Cabinets</option>
+                            <option value="4">4 Cabinets</option>
+                            <option value="6">6 Cabinets</option>
+                            <option value="8">8 Cabinets</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Impedance (per speaker)</label>
+                        <select id="speaker-impedance" class="vfd-input" style="width: 100%; text-align: center; text-align-last: center;">
+                            <option value="2">2 Ω</option>
+                            <option value="4">4 Ω</option>
+                            <option value="8" selected>8 Ω</option>
+                            <option value="16">16 Ω</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">RMS Power (per speaker)</label>
+                        <div style="display: flex; align-items: center; border-bottom: 2px solid var(--outline-light);">
+                            <input type="number" id="speaker-power" class="vfd-input" value="400" min="10" max="5000" style="border: none; width: 100%; background: transparent; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1rem; text-align: center;">
+                            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--primary); padding-right: 0.5rem;">W</span>
                         </div>
                     </div>
-                    
-                    <!-- Noise Gate Threshold -->
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                            <span class="train-label">Noise Gate</span>
-                            <span id="tuner-threshold-val" class="vfd-badge" style="color: var(--primary); font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px;">-28.0 dB</span>
+                </div>
+            </div>
+
+            <!-- Amplifier Configuration Card -->
+            <div class="siggen-widget" style="padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.5rem;">Amplifier Specifications</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Amplifier Power Rating</label>
+                        <div style="display: flex; align-items: center; border-bottom: 2px solid var(--outline-light);">
+                            <input type="number" id="amplifier-power" class="vfd-input" value="1000" min="10" max="20000" style="border: none; width: 100%; background: transparent; outline: none; color: var(--primary); font-family: var(--font-mono); font-size: 1rem; text-align: center;">
+                            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--primary); padding-right: 0.5rem;">W</span>
                         </div>
-                        <input type="range" id="tuner-threshold" min="0.005" max="0.100" step="0.005" value="0.040" class="rugged-slider" style="width: 100%;">
+                    </div>
+                    <div>
+                        <label style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; display: block; margin-bottom: 0.5rem;">At Impedance Load</label>
+                        <select id="amplifier-impedance" class="vfd-input" style="width: 100%; text-align: center; text-align-last: center;">
+                            <option value="2">2 Ω</option>
+                            <option value="4">4 Ω</option>
+                            <option value="8" selected>8 Ω</option>
+                            <option value="16">16 Ω</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Results & Recommendation Panel -->
+            <div class="vfd-screen" style="display: flex; flex-direction: column; border-radius: 16px; padding: 1.5rem; gap: 1rem;">
+                <h3 style="font-size: 0.85rem; color: var(--primary); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px;">Live Calculation Results</h3>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 1rem;">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Total System Load</div>
+                        <div id="result-total-impedance" style="font-family: var(--font-headline); font-size: 2.5rem; font-weight: 800; color: var(--text-heading); margin-top: 0.25rem;">4.00 Ω</div>
+                    </div>
+                    <div>
+                        <div style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px;">Total Delivered Power</div>
+                        <div id="result-total-power" style="font-family: var(--font-headline); font-size: 2.5rem; font-weight: 800; color: var(--text-heading); margin-top: 0.25rem;">2000 W</div>
+                        <div id="result-power-per-speaker" style="font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">(1000 W per speaker)</div>
                     </div>
                 </div>
 
-                <!-- Visual Mode buttons -->
-                <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;">
-                    <span class="train-label">Visualizer Mode</span>
-                    <div class="segmented-control">
-                        <button class="train-source-btn active tuner-mode-btn" data-mode="needle">CLASSIC</button>
-                        <button class="train-source-btn tuner-mode-btn" data-mode="strobe">STROBE</button>
-                        <button class="train-source-btn tuner-mode-btn" data-mode="bar">DIGITAL BAR</button>
+                <!-- Recommendation Alert Box -->
+                <div id="result-recommendation-box" style="padding: 1rem; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; line-height: 1.4; display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div style="display: flex; align-items: center; gap: 6px; font-weight: bold;">
+                        <span class="material-symbols-outlined" id="rec-icon" style="font-size: 1.1rem;">info</span>
+                        <span id="rec-title" style="text-transform: uppercase;">Calculating Setup...</span>
                     </div>
+                    <p id="rec-description" style="margin: 0; color: var(--text-muted); font-size: 0.7rem;"></p>
                 </div>
             </div>
         </div>
@@ -2703,7 +2719,7 @@
     
     <!-- Components -->
     <script src="assets/js/components/rtaEngine.js"></script>
-    <script src="assets/js/components/tunerEngine.js"></script>
+    <script src="assets/js/components/impedanceCalculator.js"></script>
     <script src="assets/js/components/signalGenerator.js"></script>
     <script src="assets/js/components/subCalc.js"></script>
     <script src="assets/js/components/delayCalc.js"></script>

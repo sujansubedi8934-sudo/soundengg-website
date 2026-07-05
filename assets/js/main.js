@@ -224,7 +224,7 @@ const initAuthAndCore = () => {
     safeInit(initBlog, 'initBlog');
     safeInit(initSignalGenerator, 'initSignalGenerator');
     safeInit(initEarTraining, 'initEarTraining');
-    safeInit(initTuner, 'initTuner');
+    safeInit(initImpedanceCalculator, 'initImpedanceCalculator');
     safeInit(initSubCalc, 'initSubCalc');
     safeInit(initTapTempoDelay, 'initTapTempoDelay');
     safeInit(initAdManager, 'initAdManager');
@@ -358,20 +358,20 @@ function setupNavigation() {
     const blogView = document.getElementById('blog-view');
     const siggenView = document.getElementById('siggen-view');
     const earTrainingView = document.getElementById('ear-training-view');
-    const tunerView = document.getElementById('tuner-view');
+    const impedanceView = document.getElementById('impedance-view');
     const subcalcView = document.getElementById('sub-calc-view');
     const tapdelayView = document.getElementById('tap-delay-view');
     const menuView = document.getElementById('menu-view');
     const settingsView = document.getElementById('settings-view');
     
     // IDs for ALL primary views to manage visibility
-    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, tunerView, subcalcView, tapdelayView, menuView, settingsView];
+    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, impedanceView, subcalcView, tapdelayView, menuView, settingsView];
 
     const btnLaunchRta = document.getElementById('btn-launch-rta');
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
     const btnLaunchTapdelay = document.getElementById('btn-launch-tapdelay');
     const btnLaunchPinout = document.getElementById('btn-launch-pinout');
-    const btnLaunchTuner = document.getElementById('btn-launch-tuner');
+    const btnLaunchImpedance = document.getElementById('btn-launch-impedance');
     const btnLaunchSubcalc = document.getElementById('btn-launch-subcalc');
     
     const btnNavDashboard = document.getElementById('btn-nav-dashboard');
@@ -426,7 +426,7 @@ function setupNavigation() {
 
     // --- Recently Used Tool Logging ---
     function logRecentTool(viewId) {
-        const toolViews = ['rta-view', 'module-view', 'sub-calc-view', 'tuner-view', 'siggen-view', 'ear-training-view', 'pinout-view', 'tap-delay-view'];
+        const toolViews = ['rta-view', 'module-view', 'sub-calc-view', 'impedance-view', 'siggen-view', 'ear-training-view', 'pinout-view', 'tap-delay-view'];
         if (toolViews.includes(viewId)) {
             try {
                 let recent = JSON.parse(localStorage.getItem('soundengg_recent_tools')) || [];
@@ -452,7 +452,7 @@ function setupNavigation() {
                 'rta-view': { name: 'RTA Analyzer', icon: 'analytics', color: 'cyan' },
                 'module-view': { name: 'Delay Calc', icon: 'straighten', color: 'amber' },
                 'sub-calc-view': { name: 'Sub Arrays', icon: 'speaker', color: 'purple' },
-                'tuner-view': { name: 'Precision Tuner', icon: 'tune', color: 'emerald' },
+                'impedance-view': { name: 'Impedance & Power', icon: 'settings_input_component', color: 'emerald' },
                 'siggen-view': { name: 'Signal Generator', icon: 'waves', color: 'blue' },
                 'ear-training-view': { name: 'Ear Training', icon: 'hearing', color: 'pink' },
                 'pinout-view': { name: 'Pinout Reference', icon: 'cable', color: 'orange' },
@@ -494,7 +494,7 @@ function setupNavigation() {
 
     // --- Bottom Tab Bar Visibility & State Sync ---
     function updateBottomTabBarVisibility(targetView) {
-        const deepSubTools = ['module-view', 'tap-delay-view', 'sub-calc-view', 'tuner-view', 'siggen-view', 'ear-training-view', 'pinout-view'];
+        const deepSubTools = ['module-view', 'tap-delay-view', 'sub-calc-view', 'impedance-view', 'siggen-view', 'ear-training-view', 'pinout-view'];
         const tabbar = document.getElementById('mobile-bottom-tabs');
         if (tabbar) {
             const isDeep = deepSubTools.includes(targetView.id);
@@ -541,7 +541,7 @@ function setupNavigation() {
                     'pinout-view': 'PINOUT REFERENCE',
                     'siggen-view': 'SIGNAL GENERATOR',
                     'ear-training-view': 'EAR TRAINING',
-                    'tuner-view': 'PRECISION TUNER',
+                    'impedance-view': 'IMPEDANCE & POWER',
                     'sub-calc-view': 'SUB ARRAY CALC',
                     'tap-delay-view': 'TAP DELAY'
                 };
@@ -594,9 +594,7 @@ function setupNavigation() {
         if (targetView !== rtaView && typeof window.stopAnalyzer === 'function') {
             window.stopAnalyzer();
         }
-        if (targetView !== tunerView && typeof window.stopTuner === 'function') {
-            window.stopTuner();
-        }
+
         if (targetView !== siggenView && typeof window.stopSignalGenerator === 'function') {
             window.stopSignalGenerator();
         }
@@ -653,14 +651,7 @@ function setupNavigation() {
                     canvas.width = canvas.parentElement.clientWidth;
                     canvas.height = canvas.parentElement.clientHeight;
                 }
-            } else if (targetView === tunerView) {
-                if (window.resizeTunerCanvas) {
-                    window.resizeTunerCanvas();
-                }
-                if (window.drawTunerVisualizer) {
-                    window.drawTunerVisualizer(null);
-                }
-            }
+
         };
 
         // Smooth single-page swaps using the View Transitions API (or direct DOM update fallback)
@@ -695,7 +686,7 @@ function setupNavigation() {
     if (btnLaunchDelay) btnLaunchDelay.addEventListener('click', () => showView(moduleView));
     if (btnLaunchTapdelay) btnLaunchTapdelay.addEventListener('click', () => showView(tapdelayView));
     if (btnLaunchPinout) btnLaunchPinout.addEventListener('click', () => showView(pinoutView));
-    if (btnLaunchTuner) btnLaunchTuner.addEventListener('click', () => showView(tunerView));
+    if (btnLaunchImpedance) btnLaunchImpedance.addEventListener('click', () => showView(impedanceView));
     if (btnLaunchSubcalc) btnLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
 
     // Listen to browser back/forward buttons (or Android hardware back button via Capacitor default routing)
@@ -1479,7 +1470,7 @@ function setupNavigation() {
                 'rta': rtaView,
                 'delay': moduleView,
                 'pinout': pinoutView,
-                'tuner': tunerView,
+                'impedance': impedanceView,
                 'subcalc': subcalcView,
                 'siggen': siggenView,
                 'ear-training': earTrainingView,
@@ -1564,7 +1555,7 @@ function setupNavigation() {
     const btnMobileLaunchEarTraining = document.getElementById('btn-mobile-launch-ear-training');
     const btnMobileLaunchSiggen = document.getElementById('btn-mobile-launch-siggen');
     const btnMobileLaunchDelay = document.getElementById('btn-mobile-launch-delay');
-    const btnMobileLaunchTuner = document.getElementById('btn-mobile-launch-tuner');
+    const btnMobileLaunchImpedance = document.getElementById('btn-mobile-launch-impedance');
     const btnMobileLaunchSubcalc = document.getElementById('btn-mobile-launch-subcalc');
     const btnMobileLaunchPinout = document.getElementById('btn-mobile-launch-pinout');
     const btnMobileLaunchTapDelay = document.getElementById('btn-mobile-launch-tap-delay');
@@ -1573,7 +1564,7 @@ function setupNavigation() {
     if (btnMobileLaunchEarTraining) btnMobileLaunchEarTraining.addEventListener('click', () => showView(earTrainingView));
     if (btnMobileLaunchSiggen) btnMobileLaunchSiggen.addEventListener('click', () => showView(siggenView));
     if (btnMobileLaunchDelay) btnMobileLaunchDelay.addEventListener('click', () => showView(moduleView));
-    if (btnMobileLaunchTuner) btnMobileLaunchTuner.addEventListener('click', () => showView(tunerView));
+    if (btnMobileLaunchImpedance) btnMobileLaunchImpedance.addEventListener('click', () => showView(impedanceView));
     if (btnMobileLaunchSubcalc) btnMobileLaunchSubcalc.addEventListener('click', () => showView(subcalcView));
     if (btnMobileLaunchPinout) btnMobileLaunchPinout.addEventListener('click', () => showView(pinoutView));
     if (btnMobileLaunchTapDelay) btnMobileLaunchTapDelay.addEventListener('click', () => showView(tapdelayView));
@@ -1972,16 +1963,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 </ul>
             `
         },
-        'tuner': {
-            title: 'PRECISION TUNER',
+        'impedance': {
+            title: 'IMPEDANCE & POWER',
             content: `
                 <h3>What it does</h3>
-                <p>A highly accurate chromatic instrument tuner for guitars, basses, and other acoustic instruments.</p>
+                <p>Calculates combined impedance and delivered power per speaker for Parallel, Series, or Series-Parallel wiring, and recommends the optimal connection mode.</p>
                 <h3>How to use it</h3>
                 <ul>
-                    <li>Place your device near the instrument.</li>
-                    <li>Pluck a string. The tuner will detect the pitch and show you how many cents sharp or flat you are.</li>
-                    <li>Adjust until the needle is dead center.</li>
+                    <li>Input the number of speaker cabinets, their individual impedance, and their power rating (RMS).</li>
+                    <li>Input your amplifier's power rating and its test load impedance.</li>
+                    <li>Toggle between Connection Modes (Parallel, Series, Series-Parallel) to view live results.</li>
+                    <li>Review the color-coded safety rating and optimal connection recommendation at the bottom of the screen.</li>
                 </ul>
             `
         },
