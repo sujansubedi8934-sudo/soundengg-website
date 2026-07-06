@@ -1529,8 +1529,7 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
 
 /* Hide footer links globally on mobile viewports */
 @media (max-width: 768px) {
-    body footer,
-    footer {
+    body:not(.landing-page) footer {
         display: none !important;
     }
     
