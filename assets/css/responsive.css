@@ -2532,7 +2532,7 @@ html.light .vfd-glow {
     box-shadow: none !important;
 }
 
-/* 8. Apple App Store Guideline 3.1.1 Compliance (Hide Outside Purchase Channels on iOS) */
+/* 8. Apple App Store Guideline 3.1.1 & 4.8 Compliance (Hide Outside Purchase Channels, Google login, & Tier Badges on iOS) */
 .platform-ios #menu-btn-upgrade,
 .platform-ios #btn-profile-upgrade,
 .platform-ios #btn-sub-upgrade,
@@ -2543,6 +2543,11 @@ html.light .vfd-glow {
 .platform-ios #row-sub-provider,
 .platform-ios .pro-upsell-box,
 .platform-ios .pro-nav-redirect-btn,
-.platform-ios [href*="pro.html"] {
+.platform-ios [href*="pro.html"],
+.platform-ios #mobile-sub-badge,
+.platform-ios #btn-google-auth,
+.platform-ios .auth-divider,
+.platform-ios #profile-tier-badge,
+.platform-ios #menu-profile-tier {
     display: none !important;
 }

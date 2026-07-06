@@ -162,11 +162,26 @@ function initAdManager() {
             const { AdMob } = window.Capacitor?.Plugins || {};
             if (AdMob) {
                 AdMob.initialize({
-                    requestTrackingAuthorization: true
+                    requestTrackingAuthorization: false
                 }).then(() => {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
                     window.preloadNativeRewardedAd();
+
+                    // App Tracking Transparency Delay Trigger (Guideline 2.1 Bypass)
+                    setTimeout(async () => {
+                        try {
+                            const trackingStatus = await AdMob.trackingAuthorizationStatus();
+                            console.log("App Tracking Transparency status:", trackingStatus.status);
+                            if (trackingStatus.status === 'notDetermined') {
+                                console.log("Requesting App Tracking Transparency authorization...");
+                                const requestResult = await AdMob.requestTrackingAuthorization();
+                                console.log("App Tracking Transparency request result:", requestResult.status);
+                            }
+                        } catch (e) {
+                            console.error("Failed to request App Tracking Transparency authorization:", e);
+                        }
+                    }, 2000);
                 }).catch(err => {
                     console.error("AdMob initialization failed:", err);
                     window.isAdMobInitialized = false;
