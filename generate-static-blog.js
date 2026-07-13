@@ -52,24 +52,24 @@ const getTemplate = (blog) => {
         "@type": "TechArticle",
         "headline": blog.title,
         "description": blog.excerpt,
-        "image": "https://soundengg.com/assets/img/og-preview.png",
+        "image": "https://www.soundengg.com/assets/img/og-preview.png",
         "author": {
             "@type": "Person",
             "name": "Sujan Subedi",
-            "url": "https://soundengg.com/"
+            "url": "https://www.soundengg.com/"
         },
         "publisher": {
             "@type": "Organization",
             "name": "SoundEngg",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://soundengg.com/assets/img/logo.png"
+                "url": "https://www.soundengg.com/assets/img/logo.png"
             }
         },
         "datePublished": "2026-05-15",
         "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": `https://soundengg.com/blog/${blog.id}`
+            "@id": `https://www.soundengg.com/blog/${blog.id}`
         }
     };
 
@@ -81,18 +81,18 @@ const getTemplate = (blog) => {
     <title>${blog.title} | SoundEngg Blog</title>
     <meta name="description" content="${blog.excerpt}">
     <meta name="keywords" content="${keywords}">
-    <link rel="canonical" href="https://soundengg.com/blog/${blog.id}">
+    <link rel="canonical" href="https://www.soundengg.com/blog/${blog.id}">
 
     <!-- Open Graph / Social Media -->
     <meta property="og:type" content="article">
-    <meta property="og:url" content="https://soundengg.com/blog/${blog.id}">
+    <meta property="og:url" content="https://www.soundengg.com/blog/${blog.id}">
     <meta property="og:title" content="${blog.title} | SoundEngg Blog">
     <meta property="og:description" content="${blog.excerpt}">
-    <meta property="og:image" content="https://soundengg.com/assets/img/og-preview.png">
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://soundengg.com/blog/${blog.id}">
+    <meta property="twitter:url" content="https://www.soundengg.com/blog/${blog.id}">
     <meta property="twitter:title" content="${blog.title} | SoundEngg Blog">
     <meta property="twitter:description" content="${blog.excerpt}">
 
@@ -222,8 +222,8 @@ const getTemplate = (blog) => {
              <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
                   <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
                   <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                      <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(blog.title)}&url=${encodeURIComponent('https://soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
-                      <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
+                      <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(blog.title)}&url=${encodeURIComponent('https://www.soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
+                      <a href="https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://www.soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">LinkedIn</a>
                   </div>
               </div>
          </div>
@@ -308,49 +308,49 @@ const generateSitemap = () => {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Core Pages -->
   <url>
-    <loc>https://soundengg.com/</loc>
+    <loc>https://www.soundengg.com/</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/app</loc>
+    <loc>https://www.soundengg.com/app</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/blog</loc>
+    <loc>https://www.soundengg.com/blog</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/pro</loc>
+    <loc>https://www.soundengg.com/pro</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/about</loc>
+    <loc>https://www.soundengg.com/about</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/contact</loc>
+    <loc>https://www.soundengg.com/contact</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/privacy</loc>
+    <loc>https://www.soundengg.com/privacy</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://soundengg.com/terms</loc>
+    <loc>https://www.soundengg.com/terms</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
@@ -361,7 +361,7 @@ const generateSitemap = () => {
 
     blogs.forEach(blog => {
         xml += `  <url>
-    <loc>https://soundengg.com/blog/${blog.id}</loc>
+    <loc>https://www.soundengg.com/blog/${blog.id}</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

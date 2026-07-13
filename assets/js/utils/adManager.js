@@ -11,7 +11,7 @@ const ADMOB_ANDROID_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/5224354917';
 const ADMOB_IOS_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/1712485313';
 
 const USE_DIRECT_SPONSOR = false; // Toggle to true to bypass Google AdMob and use direct affiliate partnerships/support hub
-const ACTIVE_SPONSOR_URL = 'https://soundengg.com/active-sponsor';
+const ACTIVE_SPONSOR_URL = 'https://www.soundengg.com/active-sponsor';
 let isSponsorSpotlightFallback = false;
 
 // AdMob Banner unit mappings

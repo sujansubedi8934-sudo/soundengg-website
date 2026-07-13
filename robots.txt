@@ -1,6 +1,6 @@
 User-agent: *
 Allow: /
-Sitemap: https://soundengg.com/sitemap.xml
+Sitemap: https://www.soundengg.com/sitemap.xml
 
 # Prevent indexing of temporary or administrative folders
 Disallow: /assets/js/
