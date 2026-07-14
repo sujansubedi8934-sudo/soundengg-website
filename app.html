@@ -39,6 +39,30 @@
     </script>
 
     <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
+    <style>
+        /* Bypassing Apple Guideline 3.1.1 for payments outside App Store */
+        .is-ios-app #menu-btn-upgrade,
+        .is-ios-app #btn-profile-upgrade,
+        .is-ios-app #btn-sub-upgrade,
+        .is-ios-app .pro-upsell-box,
+        .is-ios-app #pro-upgrade-modal,
+        .is-ios-app a[href="pro.html"],
+        .is-ios-app a[href*="pro.html"] {
+            display: none !important;
+        }
+    </style>
+    <script>
+        (function() {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            const isIOSApp = isIOS && (window.location.href.startsWith('file://') || window.location.href.includes('capacitor://') || window.location.host === 'localhost');
+            if (isIOSApp || (window.Capacitor && window.Capacitor.getPlatform() === 'ios')) {
+                document.documentElement.classList.add('is-ios-app');
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.body.classList.add('is-ios-app');
+                });
+            }
+        })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
