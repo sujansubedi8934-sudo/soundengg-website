@@ -266,11 +266,7 @@ function initAdManager() {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
                     window.preloadNativeRewardedAd();
-                    window.preloadNativeInterstitialAd().then(() => {
-                        runStartupAd();
-                    }).catch(() => {
-                        runStartupAd();
-                    });
+                    window.preloadNativeInterstitialAd();
 
                     // App Tracking Transparency Delay Trigger (Guideline 2.1 Bypass)
                     setTimeout(async () => {
@@ -529,7 +525,7 @@ function initAdManager() {
                 btnCloseAd.innerHTML = '<span class="material-symbols-outlined" style="animation: spin 1s linear infinite; vertical-align: middle; margin-right: 4px;">sync</span> Loading Ad...';
                 btnCloseAd.disabled = true;
 
-                window.showNativeRewardedAd(
+                window.showNativeInterstitialAd(
                     () => {
                         console.log('Native Lock Ad completed successfully!');
                         grantAccessMinutes(2);
@@ -916,26 +912,15 @@ function initAdManager() {
         }
     });
 
-    // Listen for Pro status changes to instantly hide ads if upgraded
+    // Listen for Pro status changes to instantly lock/unlock
     document.addEventListener('proStatusChanged', (e) => {
         if (e.detail === true) {
             unlockApp();
+        } else {
+            checkAdStatus();
         }
     });
 
-    function runStartupAd() {
-        if (window.isPremiumActive() || IS_EXPO_MODE_ACTIVE) {
-            unlockApp();
-            return;
-        }
-        console.log("Triggering startup ad gate...");
-        window.executeWithAdGate(() => {
-            console.log("Startup ad completed. App unlocked.");
-        }, "STARTUP");
-    }
-
-    // Run initial startup check for Web browsers (Mobile triggers after AdMob initialization is ready)
-    if (!window.isNativeMobile()) {
-        runStartupAd();
-    }
+    // Run initial startup check to show lock overlay if cooldown is expired
+    checkAdStatus();
 }
