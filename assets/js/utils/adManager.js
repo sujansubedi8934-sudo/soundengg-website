@@ -465,14 +465,14 @@ function initAdManager() {
             console.log(`Access to ${featureName} is gated. Triggering direct mobile Interstitial ad...`);
             window.showNativeInterstitialAd(
                 () => {
-                    console.log("Interstitial ad dismissed. Granting 2-minute cooldown...");
-                    // Grant 2 minutes of cooldown to prevent back-to-back ads
-                    safeStorage.setItem('tools_unlocked_until', Date.now() + 2 * 60 * 1000); 
+                    console.log("Interstitial ad dismissed. Granting 10-minute cooldown...");
+                    // Grant 10 minutes of cooldown to prevent back-to-back ads
+                    safeStorage.setItem('tools_unlocked_until', Date.now() + 10 * 60 * 1000); 
                     onSuccessCallback();
                 },
                 () => {
                     console.warn("Failed to show Interstitial ad. Granting access gracefully...");
-                    safeStorage.setItem('tools_unlocked_until', Date.now() + 2 * 60 * 1000);
+                    safeStorage.setItem('tools_unlocked_until', Date.now() + 10 * 60 * 1000);
                     onSuccessCallback();
                 }
             );
@@ -528,18 +528,18 @@ function initAdManager() {
                 window.showNativeInterstitialAd(
                     () => {
                         console.log('Native Lock Ad completed successfully!');
-                        grantAccessMinutes(2);
+                        grantAccessMinutes(10);
                     },
                     () => {
                         console.warn('Native AdMob failed to play. Unlocking app gracefully to prevent lockout.');
                         btnCloseAd.disabled = false;
                         btnCloseAd.innerHTML = originalText;
-                        grantAccessMinutes(2); // Gracefully grant access to prevent lock out
+                        grantAccessMinutes(10); // Gracefully grant access to prevent lock out
                     }
                 );
             } else {
                 // Desktop Web Flow
-                grantAccessMinutes(2);
+                grantAccessMinutes(10);
             }
         });
     }
