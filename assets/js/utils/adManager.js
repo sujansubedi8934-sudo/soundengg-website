@@ -209,14 +209,14 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
             return;
         }
 
-        closeListener = await AdMob.addListener('onInterstitialAdDismissed', () => {
+        closeListener = await AdMob.addListener('interstitialAdDismissed', () => {
             console.log('Native AdMob interstitial dismissed.');
             cleanup();
             window.preloadNativeInterstitialAd();
             if (onDismissedCallback) onDismissedCallback();
         });
 
-        failListener = await AdMob.addListener('onInterstitialAdFailedToShow', (err) => {
+        failListener = await AdMob.addListener('interstitialAdFailedToShow', (err) => {
             console.warn('Native AdMob interstitial failed to show:', err);
             cleanup();
             if (onFailureCallback) onFailureCallback();
