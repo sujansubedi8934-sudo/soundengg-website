@@ -266,7 +266,11 @@ function initAdManager() {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
                     window.preloadNativeRewardedAd();
-                    window.preloadNativeInterstitialAd();
+                    window.preloadNativeInterstitialAd().then(() => {
+                        runStartupAd();
+                    }).catch(() => {
+                        runStartupAd();
+                    });
 
                     // App Tracking Transparency Delay Trigger (Guideline 2.1 Bypass)
                     setTimeout(async () => {
@@ -915,10 +919,19 @@ function initAdManager() {
         }
     });
 
-    // Start app unlocked by default to optimize launch UX. Ads are served on view transitions instead.
-    if (window.isPremiumActive()) {
-        unlockApp();
-    } else {
-        unlockApp();
+    function runStartupAd() {
+        if (window.isPremiumActive() || IS_EXPO_MODE_ACTIVE) {
+            unlockApp();
+            return;
+        }
+        console.log("Triggering startup ad gate...");
+        window.executeWithAdGate(() => {
+            console.log("Startup ad completed. App unlocked.");
+        }, "STARTUP");
+    }
+
+    // Run initial startup check for Web browsers (Mobile triggers after AdMob initialization is ready)
+    if (!window.isNativeMobile()) {
+        runStartupAd();
     }
 }
