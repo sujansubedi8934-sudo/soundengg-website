@@ -916,12 +916,10 @@ function initAdManager() {
         }
     });
 
-    // Listen for Pro status changes to instantly lock/unlock
+    // Listen for Pro status changes to instantly hide ads if upgraded
     document.addEventListener('proStatusChanged', (e) => {
         if (e.detail === true) {
             unlockApp();
-        } else {
-            checkAdStatus();
         }
     });
 
