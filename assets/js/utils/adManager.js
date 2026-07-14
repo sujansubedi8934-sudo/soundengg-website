@@ -10,6 +10,15 @@ const USE_TEST_REWARDED_ADS = false; // Toggle to false to use production reward
 const ADMOB_ANDROID_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/5224354917';
 const ADMOB_IOS_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/1712485313';
 
+// Interstitial Ad Unit mappings (Guideline compliant transitions)
+// Replace with production IDs from AdMob dashboard and toggle USE_TEST_INTERSTITIAL_ADS to false
+const ADMOB_ANDROID_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/8882338662';
+const ADMOB_IOS_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/8882338662'; // If you have a separate one for iOS, let me know!
+
+const USE_TEST_INTERSTITIAL_ADS = false; // Toggle to false to use your production AdMob unit!
+const ADMOB_ANDROID_INTERSTITIAL_TEST_ID = 'ca-app-pub-3940256099942544/1033173712';
+const ADMOB_IOS_INTERSTITIAL_TEST_ID = 'ca-app-pub-3940256099942544/4411468910';
+
 const USE_DIRECT_SPONSOR = false; // Toggle to true to bypass Google AdMob and use direct affiliate partnerships/support hub
 const ACTIVE_SPONSOR_URL = 'https://www.soundengg.com/active-sponsor';
 let isSponsorSpotlightFallback = false;
@@ -136,9 +145,99 @@ window.showNativeRewardedAd = async function showNativeRewardedAd(onRewardCallba
     }
 };
 
+let nativeInterstitialAdLoaded = false;
+
+window.preloadNativeInterstitialAd = async function preloadNativeInterstitialAd() {
+    if (!window.isNativeMobile()) return;
+    if (!window.isAdMobInitialized) {
+        console.warn('preloadNativeInterstitialAd called before AdMob initialization.');
+        return;
+    }
+    if (!navigator.onLine) {
+        console.log('Device is offline. Skipping native interstitial preloading.');
+        return;
+    }
+    try {
+        const { AdMob } = window.Capacitor?.Plugins || {};
+        if (!AdMob) return;
+        const isAndroid = window.Capacitor?.getPlatform() === 'android';
+        let adId;
+        if (USE_TEST_INTERSTITIAL_ADS) {
+            adId = isAndroid ? ADMOB_ANDROID_INTERSTITIAL_TEST_ID : ADMOB_IOS_INTERSTITIAL_TEST_ID;
+        } else {
+            adId = isAndroid ? ADMOB_ANDROID_INTERSTITIAL_ID : ADMOB_IOS_INTERSTITIAL_ID;
+        }
+        console.log('Preloading native interstitial ad with unit ID:', adId);
+        await AdMob.prepareInterstitial({ adId: adId });
+        nativeInterstitialAdLoaded = true;
+    } catch (err) {
+        console.error('Error preloading native interstitial ad:', err);
+        nativeInterstitialAdLoaded = false;
+    }
+};
+
+window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDismissedCallback, onFailureCallback) {
+    if (!window.isNativeMobile()) {
+        if (onFailureCallback) onFailureCallback();
+        return;
+    }
+    if (!window.isAdMobInitialized) {
+        console.warn("showNativeInterstitialAd called before AdMob initialization.");
+        if (onFailureCallback) onFailureCallback();
+        return;
+    }
+    if (!navigator.onLine) {
+        console.warn("Device is offline. Blocking showNativeInterstitialAd.");
+        if (onFailureCallback) onFailureCallback();
+        return;
+    }
+
+    let closeListener, failListener;
+    let isFinalized = false;
+
+    const cleanup = () => {
+        if (isFinalized) return;
+        isFinalized = true;
+        if (closeListener && typeof closeListener.remove === 'function') closeListener.remove();
+        if (failListener && typeof failListener.remove === 'function') failListener.remove();
+    };
+
+    try {
+        const { AdMob } = window.Capacitor?.Plugins || {};
+        if (!AdMob) {
+            if (onFailureCallback) onFailureCallback();
+            return;
+        }
+
+        closeListener = await AdMob.addListener('onInterstitialAdDismissed', () => {
+            console.log('Native AdMob interstitial dismissed.');
+            cleanup();
+            window.preloadNativeInterstitialAd();
+            if (onDismissedCallback) onDismissedCallback();
+        });
+
+        failListener = await AdMob.addListener('onInterstitialAdFailedToShow', (err) => {
+            console.warn('Native AdMob interstitial failed to show:', err);
+            cleanup();
+            if (onFailureCallback) onFailureCallback();
+        });
+
+        if (!nativeInterstitialAdLoaded) {
+            await window.preloadNativeInterstitialAd();
+        }
+        await AdMob.showInterstitial();
+    } catch (err) {
+        console.error('Failed to show native AdMob interstitial:', err);
+        cleanup();
+        if (onFailureCallback) onFailureCallback();
+    }
+};
+
 // Aliases for global compatibility
 window.preloadNativeRewardedAd = window.preloadNativeRewardedAd;
 window.showNativeRewardedAd = window.showNativeRewardedAd;
+window.preloadNativeInterstitialAd = window.preloadNativeInterstitialAd;
+window.showNativeInterstitialAd = window.showNativeInterstitialAd;
 
 
 
@@ -167,6 +266,7 @@ function initAdManager() {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
                     window.preloadNativeRewardedAd();
+                    window.preloadNativeInterstitialAd();
 
                     // App Tracking Transparency Delay Trigger (Guideline 2.1 Bypass)
                     setTimeout(async () => {
@@ -361,7 +461,25 @@ function initAdManager() {
             return;
         }
 
-        console.log(`Access to ${featureName} is gated. Opening central ad gate...`);
+        if (window.isNativeMobile()) {
+            console.log(`Access to ${featureName} is gated. Triggering direct mobile Interstitial ad...`);
+            window.showNativeInterstitialAd(
+                () => {
+                    console.log("Interstitial ad dismissed. Granting 1-hour session access...");
+                    // Grant 1 hour of grace period to prevent triggering ads too frequently on subsequent screens
+                    safeStorage.setItem('tools_unlocked_until', Date.now() + 1 * 60 * 60 * 1000); 
+                    onSuccessCallback();
+                },
+                () => {
+                    console.warn("Failed to show Interstitial ad. Granting access gracefully...");
+                    safeStorage.setItem('tools_unlocked_until', Date.now() + 1 * 60 * 60 * 1000);
+                    onSuccessCallback();
+                }
+            );
+            return;
+        }
+
+        console.log(`Access to ${featureName} is gated. Opening central web ad-gate...`);
         window.pendingAdAction = onSuccessCallback;
         lockApp();
     };
@@ -373,7 +491,7 @@ function initAdManager() {
     }
 
     function startAdCountdown() {
-        countdownVal = 15;
+        countdownVal = 5; // Reduced from 15 to 5 seconds for superior web UX
         countdownEl.textContent = countdownVal;
         btnCloseAd.disabled = true;
         btnCloseAd.innerHTML = '<span class="material-symbols-outlined">lock</span> Wait for Ad';
@@ -797,6 +915,10 @@ function initAdManager() {
         }
     });
 
-    // Run initial check
-    checkAdStatus();
+    // Start app unlocked by default to optimize launch UX. Ads are served on view transitions instead.
+    if (window.isPremiumActive()) {
+        unlockApp();
+    } else {
+        unlockApp();
+    }
 }
