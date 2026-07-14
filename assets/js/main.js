@@ -563,7 +563,7 @@ function setupNavigation() {
         // Find the currently active view
         const currentView = ALL_VIEWS.find(v => v && v.style.display === 'block');
 
-        // Transition ad gate interceptor for free users (triggered on every 3rd tool switch)
+        // Transition ad gate interceptor for free users (triggered on every 2nd tool switch)
         if (!bypassAd && typeof window.executeWithAdGate === 'function' && !window.isUserPro && !window.isPremiumActive()) {
             const isToolView = ['rta-view', 'siggen-view', 'delay-view', 'subcalc-view', 'voltage-view', 'freq-view', 'attenuation-view', 'pinout-view', 'ear-training-view', 'impedance-view'].includes(targetView.id);
             const isCurrentToolView = currentView ? ['rta-view', 'siggen-view', 'delay-view', 'subcalc-view', 'voltage-view', 'freq-view', 'attenuation-view', 'pinout-view', 'ear-training-view', 'impedance-view'].includes(currentView.id) : false;
@@ -571,7 +571,7 @@ function setupNavigation() {
             if (isToolView && isCurrentToolView && currentView !== targetView) {
                 if (!window.toolSwitchCount) window.toolSwitchCount = 0;
                 window.toolSwitchCount++;
-                if (window.toolSwitchCount % 3 === 0) {
+                if (window.toolSwitchCount % 2 === 0) {
                     console.log(`Tool switch count: ${window.toolSwitchCount}. Triggering transition ad...`);
                     window.executeWithAdGate(() => {
                         showView(targetView, navButton, skipHistory, isBackAction, true);
