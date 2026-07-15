@@ -163,20 +163,35 @@
     <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
-            <h1 class="hero-title">The Ultimate Toolkit for System Engineers.</h1>
-            <p class="hero-subtitle">Phase-accurate calculations, pinout references, real-time analysis, and system tuning in one rugged, offline-ready dashboard.</p>
-            <div class="hero-actions">
-                <a href="app.html" class="btn btn-primary hero-btn">Start Free Console</a>
-                <a href="#features" class="btn btn-outline hero-btn">Explore Features</a>
+            <h1 class="hero-title">Professional <span class="brand-teal-text">sound tools</span>, anywhere.</h1>
+            <p class="hero-subtitle">Empower your audio workflow on the go with SoundEngg. Precision, mobility, and real-time analysis at your fingertips. Built for live sound crews, fully functional offline.</p>
+            <div class="hero-actions store-button-grid">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="#" class="btn-store btn-app-store coming-soon-btn" onclick="event.preventDefault();">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">SoundEngg is</span>
+                        <span class="store-maintext">coming to iOS</span>
+                    </div>
+                </a>
+                <a href="app.html" class="btn btn-outline hero-btn inline-console-btn">Launch Web Console</a>
             </div>
         </div>
         <div class="hero-visual">
-            <div class="vfd-glass-panel">
+            <div class="vfd-glass-panel phone-mockup">
                 <div class="vfd-panel-header">
                     <span class="status-dot green"></span>
-                    <span class="panel-title">SYSTEM_OSCILLOSCOPE // ACTIVE</span>
+                    <span class="panel-title">LIVE ANALYZER // ACTIVE</span>
                 </div>
-                <canvas id="hero-oscilloscope-canvas"></canvas>
+                <div class="phone-screen">
+                    <canvas id="hero-oscilloscope-canvas"></canvas>
+                </div>
             </div>
         </div>
     </section>
@@ -193,44 +208,80 @@
                 <!-- Feature 1 -->
                 <div class="feature-card card-rta">
                     <div class="feature-icon"><span class="material-symbols-outlined">equalizer</span></div>
-                    <h3>RTA Analyser</h3>
-                    <p>Professional grade Real-Time Analysis with high-resolution visual feedback for precision system tuning and feedback hunting.</p>
+                    <h3>RTA Spectrum Analyzer</h3>
+                    <p>Professional-grade Real-Time Analysis with high-resolution visual feedback for precision system tuning and feedback frequency hunting.</p>
                 </div>
                 
                 <!-- Feature 2 -->
-                <div class="feature-card card-eartrain">
-                    <div class="feature-icon"><span class="material-symbols-outlined">hearing</span></div>
-                    <h3>Ear Training</h3>
-                    <p>Develop critical listening skills. Practice identifying frequencies, EQ cuts/boosts, and compression artifacts on the go.</p>
+                <div class="feature-card card-delay">
+                    <div class="feature-icon"><span class="material-symbols-outlined">speed</span></div>
+                    <h3>Delay & Time Alignment</h3>
+                    <p>Align mains to subs or delay towers with temperature-compensated precision calculations. Perfect system phase alignment.</p>
                 </div>
                 
                 <!-- Feature 3 -->
                 <div class="feature-card card-subs">
                     <div class="feature-icon"><span class="material-symbols-outlined">speaker</span></div>
-                    <h3>Subwoofer Arrays</h3>
+                    <h3>Subwoofer Array Designer</h3>
                     <p>Mathematically perfect Cardioid and Broadside configurations. Includes presets for d&b CSA, Gradient, and L-Acoustics arrays.</p>
                 </div>
                 
                 <!-- Feature 4 -->
-                <div class="feature-card card-delay">
-                    <div class="feature-icon"><span class="material-symbols-outlined">speed</span></div>
-                    <h3>Delay & Time Alignment</h3>
-                    <p>Align mains to subs or delay towers with temperature-compensated precision calculations. Perfect phase alignment.</p>
+                <div class="feature-card card-pinout">
+                    <div class="feature-icon"><span class="material-symbols-outlined">settings_input_component</span></div>
+                    <h3>Audio Pinout Reference</h3>
+                    <p>Quick wiring reference sheets and terminal guides for standard professional connectors including XLR, Speakon, RJ45, and TRS.</p>
                 </div>
                 
                 <!-- Feature 5 -->
-                <div class="feature-card card-impedance">
-                    <div class="feature-icon"><span class="material-symbols-outlined">settings_input_component</span></div>
-                    <h3>Impedance & Power</h3>
-                    <p>Calculate speaker wiring loads (series/parallel) and match amplifier headroom to keep your PA system running safely.</p>
-                </div>
-                
-                <!-- Feature 6 -->
                 <div class="feature-card card-siggen">
                     <div class="feature-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
                     <h3>Signal Generator</h3>
-                    <p>Built-in oscillator providing Sine, Pink Noise, and White Noise to instantly test PA systems and verify signal flow.</p>
+                    <p>Built-in oscillator providing Sine waves, Pink Noise, and White Noise to instantly test PA systems and verify signal flow.</p>
                 </div>
+                
+                <!-- Feature 6 -->
+                <div class="feature-card card-offline">
+                    <div class="feature-icon"><span class="material-symbols-outlined">wifi_off</span></div>
+                    <h3>100% Offline Mode</h3>
+                    <p>Access your calculations, references, and diagnostics in venues with zero internet connectivity. Fully operational offline.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Showcase Section -->
+    <section id="blog-showcase" class="blog-showcase-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Latest Audio Insights</h2>
+                <p>Read detailed deep dives on system tuning, acoustic design, and live sound workflows from our blog.</p>
+            </div>
+            <div class="blog-showcase-grid">
+                <!-- Blog 1 -->
+                <div class="blog-showcase-card">
+                    <div class="blog-tag">SYSTEM TUNING</div>
+                    <h3>Reading the Riddles: Smaart v8 Fundamentals</h3>
+                    <p>Learn how to capture your first transfer function phase trace, navigate phase wraps, and time-align speakers on-site.</p>
+                    <a href="blog/smaart-fundamentals" class="blog-read-more">Read Article <span class="material-symbols-outlined">arrow_right_alt</span></a>
+                </div>
+                <!-- Blog 2 -->
+                <div class="blog-showcase-card">
+                    <div class="blog-tag">SUBWOOFERS</div>
+                    <h3>Cardioid Subs 101: Keep Low End Off Stage</h3>
+                    <p>A complete beginner's guide to subwoofer arrays. Learn the physics behind cardioid patterns and how to control low frequencies.</p>
+                    <a href="blog/cardioid-subwoofers-101" class="blog-read-more">Read Article <span class="material-symbols-outlined">arrow_right_alt</span></a>
+                </div>
+                <!-- Blog 3 -->
+                <div class="blog-showcase-card">
+                    <div class="blog-tag">LIVE SOUND</div>
+                    <h3>How to Tune a PA System Step-by-Step</h3>
+                    <p>A structured process that takes a room from an empty concrete shell to a high-performance PA system ready for show time.</p>
+                    <a href="blog/pa-system-tuning" class="blog-read-more">Read Article <span class="material-symbols-outlined">arrow_right_alt</span></a>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <a href="blog.html" class="btn btn-outline">Explore All Articles</a>
             </div>
         </div>
     </section>
@@ -305,18 +356,13 @@
                     </form>
                 </div>
 
-                <!-- Right: Location & Details -->
+                <!-- Right: Contact Details -->
                 <div class="contact-details-side">
                     <div class="detail-group">
-                        <h3 class="detail-label">LOCATION & DETAILS</h3>
+                        <h3 class="detail-label">CONTACT DETAILS</h3>
                         
                         <div class="detail-item">
-                            <h4>LOCATION</h4>
-                            <p>455, Main Rd, Jai Shree Colony,<br>Ganapati Nagar, Udaipur,<br>Rajasthan 313001</p>
-                        </div>
-
-                        <div class="detail-item">
-                            <h4>DIRECT CONTACT</h4>
+                            <h4>DIRECT SUPPORT</h4>
                             <div class="contact-methods">
                                 <a href="mailto:sujan@soundengg.com" class="contact-method">
                                     <span class="material-symbols-outlined">mail</span>
@@ -329,8 +375,8 @@
                     <!-- Bottom Bar -->
                     <div class="contact-bottom-bar">
                         <div class="location-tag">
-                            <span class="material-symbols-outlined">location_on</span>
-                            <span>Udaipur, Rajasthan</span>
+                            <span class="material-symbols-outlined">support_agent</span>
+                            <span>Direct Response Console</span>
                         </div>
                     </div>
                 </div>
