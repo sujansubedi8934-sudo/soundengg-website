@@ -2665,10 +2665,26 @@ function showCheckoutConfirmModal(user, plan) {
     };
 
     const proceedBtn = modal.querySelector('#btn-proceed-to-payment');
-    proceedBtn.onclick = () => {
+    proceedBtn.onclick = async () => {
         proceedBtn.disabled = true;
         proceedBtn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s infinite linear;">sync</span> LAUNCHING SECURE GATEWAY...`;
         
+        // Native mobile route via RevenueCat purchases SDK
+        if (window.isNativeMobile && window.isNativeMobile()) {
+            modal.remove();
+            if (window.billingManager && typeof window.billingManager.purchasePackage === 'function') {
+                const res = await window.billingManager.purchasePackage(plan);
+                if (res.success) {
+                    alert("Thank you! Your Pro Upgrade was successful.");
+                } else if (res.error && res.error !== "Cancelled" && !res.error.includes("user cancelled")) {
+                    alert("Transaction failed: " + res.error);
+                }
+            } else {
+                alert("Error: Native billing manager is not active.");
+            }
+            return;
+        }
+
         if (window.isIndiaUser) {
             if (typeof Razorpay === 'undefined') {
                 console.log("Loading Razorpay SDK dynamically...");
