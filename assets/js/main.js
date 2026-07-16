@@ -2329,13 +2329,13 @@ async function initPricingPage() {
         if (modalYearly) modalYearly.innerHTML = '₹1,999<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
         if (modalLifetime) modalLifetime.innerHTML = '₹3,499';
     } else {
-        if (priceMonthly) priceMonthly.innerHTML = '$2.99<span>/month</span>';
-        if (priceYearly) priceYearly.innerHTML = '$29.99<span>/year</span>';
-        if (priceLifetime) priceLifetime.innerHTML = '$49.99<span>one-time</span>';
+        if (priceMonthly) priceMonthly.innerHTML = '$1.99<span>/month</span>';
+        if (priceYearly) priceYearly.innerHTML = '$19.99<span>/year</span>';
+        if (priceLifetime) priceLifetime.innerHTML = '$34.99<span>one-time</span>';
 
-        if (modalMonthly) modalMonthly.innerHTML = '$2.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span>';
-        if (modalYearly) modalYearly.innerHTML = '$29.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
-        if (modalLifetime) modalLifetime.innerHTML = '$49.99';
+        if (modalMonthly) modalMonthly.innerHTML = '$1.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span>';
+        if (modalYearly) modalYearly.innerHTML = '$19.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
+        if (modalLifetime) modalLifetime.innerHTML = '$34.99';
     }
 
     // Bind checkout click listeners
@@ -2384,9 +2384,9 @@ window.showRazorpaySimOverlay = function(plan) {
         else if (plan === 'yearly') { priceLabel = '₹1,999 / year'; }
         else { priceLabel = '₹3,499 one-time'; }
     } else {
-        if (plan === 'monthly') { priceLabel = '$2.99 / month'; }
-        else if (plan === 'yearly') { priceLabel = '$29.99 / year'; }
-        else { priceLabel = '$49.99 one-time'; }
+        if (plan === 'monthly') { priceLabel = '$1.99 / month'; }
+        else if (plan === 'yearly') { priceLabel = '$19.99 / year'; }
+        else { priceLabel = '$34.99 one-time'; }
     }
 
     const overlay = document.createElement('div');
@@ -2603,13 +2603,13 @@ function showCheckoutConfirmModal(user, plan) {
     } else {
         if (plan === 'monthly') {
             planTitle = "Monthly Pro Subscription";
-            planCost = "$2.99";
+            planCost = "$1.99";
         } else if (plan === 'yearly') {
             planTitle = "Yearly Pro Subscription";
-            planCost = "$29.99";
+            planCost = "$19.99";
         } else {
             planTitle = "Lifetime Pro Access";
-            planCost = "$49.99";
+            planCost = "$34.99";
         }
     }
 
