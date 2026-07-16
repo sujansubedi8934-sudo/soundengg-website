@@ -3,8 +3,8 @@
  * Integrates RevenueCat's Capacitor Purchases SDK with Supabase Auth
  */
 
-const REVENUECAT_IOS_API_KEY = "appl_placeholder_key_here";
-const REVENUECAT_ANDROID_API_KEY = "goog_placeholder_key_here";
+const REVENUECAT_IOS_API_KEY = "test_jJwYMCBMjObenYRxyfglVMzOakP";
+const REVENUECAT_ANDROID_API_KEY = "test_jJwYMCBMjObenYRxyfglVMzOakP";
 const ENTITLEMENT_ID = "pro"; // Match your entitlement ID set up in RevenueCat Dashboard
 
 window.billingManager = {
