@@ -104,9 +104,11 @@ window.billingManager = {
         
         if (isProEntitled) {
             const activeEntitled = customerInfo.entitlements.active[ENTITLEMENT_ID];
-            // Match transaction product identifiers to determine monthly/annual/lifetime tier
+            // Match transaction product identifiers to determine monthly/yearly/lifetime tier
             if (activeEntitled.productIdentifier.includes("lifetime")) {
                 window.userSubscriptionTier = "lifetime";
+            } else if (activeEntitled.productIdentifier.includes("yearly")) {
+                window.userSubscriptionTier = "yearly";
             } else {
                 window.userSubscriptionTier = "pro";
             }
