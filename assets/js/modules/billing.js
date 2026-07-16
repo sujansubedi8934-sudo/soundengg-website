@@ -5,7 +5,7 @@
 
 const REVENUECAT_IOS_API_KEY = "test_jJwYMCBMjObenYRxyfglVMzOakP";
 const REVENUECAT_ANDROID_API_KEY = "test_jJwYMCBMjObenYRxyfglVMzOakP";
-const ENTITLEMENT_ID = "pro"; // Match your entitlement ID set up in RevenueCat Dashboard
+const ENTITLEMENT_ID = "SoundEngg Pro"; // Match your entitlement ID set up in RevenueCat Dashboard
 
 window.billingManager = {
     purchases: null,
