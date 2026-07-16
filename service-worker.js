@@ -16,6 +16,7 @@ const URLS_TO_CACHE = [
     '/assets/js/modules/utils.js',
     '/assets/js/modules/theme.js',
     '/assets/js/modules/premium.js',
+    '/assets/js/modules/billing.js',
     '/assets/js/modules/auth.js',
     '/assets/js/utils/audioCalcs.js',
     '/assets/js/utils/adManager.js',
