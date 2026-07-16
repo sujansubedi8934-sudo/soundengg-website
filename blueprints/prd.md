@@ -88,3 +88,11 @@ graph TD
 *   **Multitrack Audio Player:** No audio playback tracks or virtual mixing consoles.
 *   **3D Acoustic Room Modeler:** No graphical room modeling (this requires high CPU desktops).
 *   **Hardware Interface USB Drivers:** No custom ASIO/CoreAudio hardware syncing (built-in microphone/audio output is the focus).
+
+---
+
+## 🤖 Prompt to Generate This Document
+```text
+"Act as a senior product manager with experience in early-stage startups. I am building an app and I need you to create a detailed Product Requirements Document for it. The document should cover — what the app does, who it is for, what problem it solves, all core features with must-have vs nice-to-have classification, how a user flows through the app from start to finish, what the MVP looks like, how success will be measured, and what we are deliberately NOT building in version one. My app idea is: SoundEngg, a fast, offline-first mobile toolkit for professional audio technicians."
+```
+

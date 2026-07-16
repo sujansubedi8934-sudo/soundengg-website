@@ -126,3 +126,11 @@ When components or connections fail, SoundEngg handles failures gracefully to pr
     *   *Handling:* If a JWT session expires while the app is open, the Supabase client-side listener triggers an automatic refresh token query in the background. If the refresh fails (user password changed elsewhere), the app logs out gracefully, updates cached local permissions to `free`, and informs the user.
 *   **Edge Case 3: App Initial Launch with No Network Connection**
     *   *Handling:* The service worker immediately serves the static PWA shell. Supabase auth initialization catches the net error and skips cloud sync, logging the user in under the cached local profile.
+
+---
+
+## 🤖 Prompt to Generate This Document
+```text
+"Act as a senior security engineer who specializes in early-stage product security. Create a Security and Access Document for my app. It should cover the authentication method that best fits my use case, all user roles and exactly what each role can and cannot do, row-level security rules for the database, a complete error handling guide for all major failure points, and a list of edge cases I need to handle before launch. Write everything in plain English so a non-technical founder can understand it. My app idea is: SoundEngg, a fast, offline-first mobile toolkit for professional audio technicians."
+```
+

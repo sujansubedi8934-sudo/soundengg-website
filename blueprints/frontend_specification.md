@@ -108,3 +108,11 @@ Tracks store transactions and updates native entitlements.
     *   *Method:* `Purchases.purchasePackage({ aPackage: selectedPkg })`
     *   *Expected Response:* Returns updated `customerInfo` containing active entitlement tags.
 
+---
+
+## 🤖 Prompt to Generate This Document
+```text
+"Act as a senior UI/UX designer and frontend architect. Create a Frontend Specification Document for my app. It should define a complete design system including color palette with hex codes, typography choices, component styles for buttons, inputs, cards and modals, spacing and layout rules. It should also include a full API and integration spec for every third party service my app will use — what each service does, which endpoints are called, what data is sent and what response is expected. My app idea is: SoundEngg, a fast, offline-first mobile toolkit for professional audio technicians."
+```
+
+

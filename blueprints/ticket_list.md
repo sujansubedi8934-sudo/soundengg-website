@@ -105,3 +105,11 @@ This document tracks all buildable tickets, priorities, and execution status for
     *   Android app update compiles and deploys natively.
 *   **Dependencies:** SE-203
 *   **Status:** `TODO`
+
+---
+
+## 🤖 Prompt to Generate This Document
+```text
+"Act as a senior engineering lead who breaks down products into buildable tasks. Based on my PRD, create a complete Feature Ticket List for my app. For each feature, write a ticket that includes the feature name, a clear description of what needs to be built, acceptance criteria that defines when the task is done, any dependencies on other features that must be completed first, and a priority label — must-have for launch, should-have, or nice-to-have. Write each ticket so it can be directly used as a prompt for an AI coding tool. My PRD is: [paste your PRD here]"
+```
+

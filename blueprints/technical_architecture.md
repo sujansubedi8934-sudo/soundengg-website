@@ -105,3 +105,11 @@ The client files use standard variables loaded at app initialization. Since thes
 *   **No Secret Keys in Client Bundle:** Under no circumstances should the **Supabase `service_role` key** or the **RevenueCat Secret API Key** be embedded in the HTML/JS frontend source files. If exposed, these keys bypass Row Level Security (RLS) policies and allow database modifications.
 *   **Vercel / Hosting Environment Keys:** If the app utilizes edge functions or server-side redirects (e.g. for API routes), these private variables must be stored in the **Vercel Settings > Environment Variables** dashboard rather than being committed to the Git repository.
 
+---
+
+## 🤖 Prompt to Generate This Document
+```text
+"Act as a senior software architect who has built and scaled multiple SaaS products. Based on my app idea, create a complete Technical Architecture Document. It should include the recommended tech stack with reasoning for each choice, the complete file and folder structure of the project, the full database schema with all tables, fields, and relationships explained in plain English, and any environment variables or configuration notes I need to be aware of before I start building. My app idea is: SoundEngg, a fast, offline-first mobile toolkit for professional audio technicians."
+```
+
+
