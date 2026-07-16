@@ -17,8 +17,5 @@ project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/d
 include ':capacitor-haptics'
 project(':capacitor-haptics').projectDir = new File('../node_modules/@capacitor/haptics/android')
 
-include ':revenuecat-purchases-capacitor'
-project(':revenuecat-purchases-capacitor').projectDir = new File('../node_modules/@revenuecat/purchases-capacitor/android')
-
 include ':capacitor-razorpay'
 project(':capacitor-razorpay').projectDir = new File('../node_modules/capacitor-razorpay/android')

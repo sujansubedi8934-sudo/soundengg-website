@@ -14,7 +14,6 @@ dependencies {
     implementation project(':capacitor-browser')
     implementation project(':capacitor-device')
     implementation project(':capacitor-haptics')
-    implementation project(':revenuecat-purchases-capacitor')
     implementation project(':capacitor-razorpay')
 
 }
