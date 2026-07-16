@@ -86,3 +86,22 @@ The repository is structured logically to separate global styles, static assets,
     *   **Native App:** Calls `window.billingManager.purchasePackage(plan)`, triggering native store sheets.
     *   **Web Browser:** Redirects to Lemon Squeezy (International) or Razorpay (India) secure checkouts.
 *   Once a purchase is successful, RevenueCat triggers a secure background webhook directly to the Supabase Database to update the user's subscription tier in Postgres, ensuring instant cross-platform synchronizations.
+
+---
+
+## 5. Environment & Configuration Settings
+
+To maintain security and ensure the app behaves predictably across staging and production environments, the project relies on specific configurations:
+
+### Client-Side Public Parameters
+The client files use standard variables loaded at app initialization. Since these are client-facing, they must only contain **Public** credentials:
+
+*   **`SUPABASE_URL`** (Configured in `app.html` / `index.html`): The API endpoint for your Supabase project (e.g. `https://ewudkzyjcvjxxqpqnqiy.supabase.co`).
+*   **`SUPABASE_ANON_KEY`**: The anonymous public key that allows basic client-side access through Supabase's RLS policies.
+*   **`REVENUECAT_IOS_API_KEY`** (Configured in `billing.js`): The Public API key generated in the RevenueCat dashboard for Apple store integrations (`test_jJwYMCBMjObenYRxyfglVMzOakP`).
+*   **`REVENUECAT_ANDROID_API_KEY`** (Configured in `billing.js`): The Public API key generated in the RevenueCat dashboard for Google Play integrations.
+
+### ⚠️ Critical Security Rules:
+*   **No Secret Keys in Client Bundle:** Under no circumstances should the **Supabase `service_role` key** or the **RevenueCat Secret API Key** be embedded in the HTML/JS frontend source files. If exposed, these keys bypass Row Level Security (RLS) policies and allow database modifications.
+*   **Vercel / Hosting Environment Keys:** If the app utilizes edge functions or server-side redirects (e.g. for API routes), these private variables must be stored in the **Vercel Settings > Environment Variables** dashboard rather than being committed to the Git repository.
+
