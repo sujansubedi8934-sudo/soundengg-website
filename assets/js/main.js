@@ -2998,14 +2998,9 @@ const initPageSystems = () => {
     if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
         const isIOS = window.Capacitor?.getPlatform() === 'ios';
         if (isIOS) {
+            // Add platform-ios class to the body and document element
             document.body.classList.add('platform-ios');
             document.documentElement.classList.add('platform-ios');
-            
-            // Redirect from pro.html on iOS to prevent displaying the pricing page entirely
-            if (window.location.pathname.includes('pro.html')) {
-                window.location.href = 'app.html';
-                return;
-            }
         }
     }
 
