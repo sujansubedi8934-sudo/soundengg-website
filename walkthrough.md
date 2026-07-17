@@ -388,3 +388,24 @@ We have successfully resolved the iPad Lock Modal layout cut-off issues and WKWe
 ### 3. Build & Platform Synchronization
 * Re-compiled production resources (`npm run build`) and synchronized web assets to Capacitor native platform folders (`npx cap sync`).
 
+---
+
+## Native iOS In-App Purchase Integration & App Store Resubmission (July 17, 2026)
+
+We have successfully implemented native Apple In-App Purchases, solved a credential-handshake issue, routed purchase screens dynamically within the application wrapper, persisted transactions in the cloud database, and submitted Build 8 for App Store approval:
+
+### 1. In-App Purchase UI & Redirection Bypasses (`main.js`, `app.html`, `responsive.css`)
+* **Dynamic Click Interceptor**: Programmed a global listener in [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js) that catches any clicks on links pointing to `pro.html` inside native mobile apps. This intercepts the standard web navigation path and opens the premium `#plan-selector-modal` directly within the native view controller layout.
+* **Hiding Web-Only Comparison Elements**: Added class identifiers and media queries in [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css) and [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html) to hide comparison links on native platforms, preventing navigation loops.
+
+### 2. Correcting RevenueCat Handshake Credentials (`billing.js`)
+* **Case-Sensitive API Key Correction**: Corrected a case-sensitive typo in [billing.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/modules/billing.js) where a lowercase `e` was used instead of uppercase `E` in the production RevenueCat App Store key (`appl_colKSceOQdHfEjWTEocAwJkBjGj`). This resolved the `Invalid API Key` rejection and enabled the native StoreKit Sandbox sheet to slide up successfully on device checkouts.
+
+### 3. Supabase Cloud Sync & Purchase Persistency (`billing.js`)
+* **Real-Time Entitlement Sync**: Added asynchronous write commands to `updateUserEntitlements()` in [billing.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/modules/billing.js) to sync the active RevenueCat iOS entitlement state to the Supabase `profiles` table. On purchase success, it automatically sets `is_pro: true`, `subscription_tier: "lifetime" | "yearly" | "pro"`, `subscription_provider: "apple_iap"`, and the subscription product/expiry IDs. This prevents the app from resetting to the Free tier on launch.
+
+### 4. Apple Submission & Verification
+* **Local Device Verification**: Successfully ran a clean compile inside Xcode and verified sandbox purchases on a physical iPad Air, successfully upgrading the user to the Lifetime tier.
+* **Bumped Xcode Build Config**: Bumped `CURRENT_PROJECT_VERSION` to `8` inside [project.pbxproj](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/ios/App/App.xcodeproj/project.pbxproj) to create a unique build package.
+* **App Store Connect Resubmission**: Uploaded Build 1.0 (8) to TestFlight, attached Monthly, Yearly, and Lifetime products to the version draft, and submitted the package to Apple Reviewers in the **"Waiting for Review"** state with full test accounts and resolution descriptions.
+
