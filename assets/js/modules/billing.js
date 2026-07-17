@@ -90,7 +90,7 @@ window.billingManager = {
     /**
      * Handles updating premium status in the global window object and refreshing the UI
      */
-    updateUserEntitlements: function(customerInfo) {
+    updateUserEntitlements: async function(customerInfo) {
         if (!customerInfo || !customerInfo.entitlements || !customerInfo.entitlements.active) {
             return;
         }
@@ -102,8 +102,11 @@ window.billingManager = {
         // Update local session variables
         window.isUserPro = isProEntitled;
         
+        let targetTier = "free";
+        let activeEntitled = null;
+
         if (isProEntitled) {
-            const activeEntitled = customerInfo.entitlements.active[ENTITLEMENT_ID];
+            activeEntitled = customerInfo.entitlements.active[ENTITLEMENT_ID];
             // Match transaction product identifiers to determine monthly/yearly/lifetime tier
             if (activeEntitled.productIdentifier.includes("lifetime")) {
                 window.userSubscriptionTier = "lifetime";
@@ -112,6 +115,7 @@ window.billingManager = {
             } else {
                 window.userSubscriptionTier = "pro";
             }
+            targetTier = window.userSubscriptionTier;
         } else {
             window.userSubscriptionTier = "free";
         }
@@ -119,6 +123,52 @@ window.billingManager = {
         // Trigger global layout refreshes
         if (typeof window.updatePremiumUI === 'function') {
             window.updatePremiumUI();
+        }
+
+        // --- SUPABASE CLOUD SYNC LOGIC ---
+        if (window.supabaseClient) {
+            try {
+                const { data: { session } } = await window.supabaseClient.auth.getSession();
+                const user = session?.user;
+                if (user) {
+                    // Fetch existing profile to protect other subscription providers (Stripe, Razorpay, etc.)
+                    const { data: profile } = await window.supabaseClient
+                        .from('profiles')
+                        .select('subscription_provider, is_pro, subscription_tier')
+                        .eq('id', user.id)
+                        .single();
+
+                    if (isProEntitled) {
+                        // If user is Pro in RevenueCat, always update Supabase
+                        console.log(`[Billing] Syncing Pro status to Supabase for ${user.email}...`);
+                        await window.supabaseClient
+                            .from('profiles')
+                            .update({
+                                is_pro: true,
+                                subscription_tier: targetTier,
+                                subscription_provider: 'apple_iap',
+                                subscription_id: activeEntitled.productIdentifier,
+                                subscription_expires_at: activeEntitled.expirationDate || null
+                            })
+                            .eq('id', user.id);
+                    } else if (profile && profile.subscription_provider === 'apple_iap' && profile.is_pro) {
+                        // If they are no longer Pro on Apple, but the database still says Apple Pro, downgrade them
+                        console.log(`[Billing] Downgrading expired Apple subscription in Supabase...`);
+                        await window.supabaseClient
+                            .from('profiles')
+                            .update({
+                                is_pro: false,
+                                subscription_tier: 'free',
+                                subscription_provider: null,
+                                subscription_id: null,
+                                subscription_expires_at: null
+                            })
+                            .eq('id', user.id);
+                    }
+                }
+            } catch (err) {
+                console.error("[Billing] Failed to sync entitlements with Supabase database:", err);
+            }
         }
     },
 
