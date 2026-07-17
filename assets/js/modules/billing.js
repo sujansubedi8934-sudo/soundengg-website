@@ -138,8 +138,12 @@ window.billingManager = {
             const offerings = await this.purchases.getOfferings();
             
             if (offerings.current && offerings.current.availablePackages.length > 0) {
-                // Find matching package
-                const pkgToBuy = offerings.current.availablePackages.find(p => p.packageType === productIdentifier || p.storeProduct.identifier === productIdentifier);
+                const pkgToBuy = offerings.current.availablePackages.find(p => {
+                    const type = p.packageType ? p.packageType.toLowerCase() : "";
+                    const id = p.storeProduct && p.storeProduct.identifier ? p.storeProduct.identifier.toLowerCase() : "";
+                    const target = productIdentifier.toLowerCase();
+                    return type === target || id === target || type === ('$' + target) || type === target.replace('$', '');
+                });
                 
                 if (pkgToBuy) {
                     const { customerInfo } = await this.purchases.purchasePackage({ aPackage: pkgToBuy });
