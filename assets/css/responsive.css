@@ -2537,6 +2537,7 @@ html.light .vfd-glow {
 .platform-ios #row-sub-billing,
 .platform-ios #row-sub-provider,
 .platform-ios #btn-google-auth,
-.platform-ios .auth-divider {
+.platform-ios .auth-divider,
+.native-mobile #btn-compare-benefits {
     display: none !important;
 }

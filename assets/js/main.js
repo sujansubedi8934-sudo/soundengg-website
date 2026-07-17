@@ -2994,14 +2994,41 @@ function initNativeAppLogo() {
 
 // 7. Global Payment System Initialization DOM Trigger
 const initPageSystems = () => {
-    // Add platform-ios class if running inside native iOS wrapper to comply with Guideline 3.1.1
+    // Add native-mobile and platform-specific classes if running inside native mobile wrapper
     if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
-        const isIOS = window.Capacitor?.getPlatform() === 'ios';
-        if (isIOS) {
-            // Add platform-ios class to the body and document element
+        document.body.classList.add('native-mobile');
+        document.documentElement.classList.add('native-mobile');
+        const platform = window.Capacitor?.getPlatform();
+        if (platform === 'ios') {
             document.body.classList.add('platform-ios');
             document.documentElement.classList.add('platform-ios');
+        } else if (platform === 'android') {
+            document.body.classList.add('platform-android');
+            document.documentElement.classList.add('platform-android');
         }
+
+        // Intercept all clicks on upgrade links pointing to pro.html and display plan selector modal directly
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (link) {
+                const href = link.getAttribute('href');
+                if (href && (href === 'pro.html' || href.includes('pro.html'))) {
+                    e.preventDefault();
+                    const planSelectorModal = document.getElementById('plan-selector-modal');
+                    if (planSelectorModal) {
+                        // Close any open conflicting modals
+                        const profileModal = document.getElementById('profile-modal');
+                        if (profileModal) closeModal(profileModal);
+                        const proUpgradeModal = document.getElementById('pro-upgrade-modal');
+                        if (proUpgradeModal) closeModal(proUpgradeModal);
+                        const adLockModal = document.getElementById('ad-lock-modal');
+                        if (adLockModal) closeModal(adLockModal);
+
+                        openModal(planSelectorModal);
+                    }
+                }
+            }
+        });
     }
 
     // Start dynamic pricing converter immediately
