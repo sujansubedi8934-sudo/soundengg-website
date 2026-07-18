@@ -5,6 +5,7 @@
   "main": "service-worker.js",
   "scripts": {
     "build": "node build-app.js",
+    "bump": "node dev-tools/bump-version.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
