@@ -409,3 +409,21 @@ We have successfully implemented native Apple In-App Purchases, solved a credent
 * **Bumped Xcode Build Config**: Bumped `CURRENT_PROJECT_VERSION` to `8` inside [project.pbxproj](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/ios/App/App.xcodeproj/project.pbxproj) to create a unique build package.
 * **App Store Connect Resubmission**: Uploaded Build 1.0 (8) to TestFlight, attached Monthly, Yearly, and Lifetime products to the version draft, and submitted the package to Apple Reviewers in the **"Waiting for Review"** state with full test accounts and resolution descriptions.
 
+---
+
+## Automated Cross-Platform Version Bumping Script (July 18, 2026)
+
+We have successfully created a developer automation utility to synchronize and increment build codes and marketing version strings across all platforms:
+
+### 1. Unified Version Controller Script (`bump-version.js`)
+* Created a node utility [bump-version.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/dev-tools/bump-version.js) in the `dev-tools` folder. 
+* Parses CLI arguments to increment the version semantic layout (patch, minor, major) or manually define version names and codes.
+* Synchronizes changes simultaneously across:
+  * [app-version.json](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app-version.json) (web metadata source of truth).
+  * [build.gradle](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/android/app/build.gradle) (Android target configurations: `versionCode` and `versionName`).
+  * [project.pbxproj](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/ios/App/App.xcodeproj/project.pbxproj) (iOS targets: `CURRENT_PROJECT_VERSION` and `MARKETING_VERSION`).
+
+### 2. NPM Command Bindings (`package.json`)
+* Mapped the command to npm scripts in [package.json](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/package.json): `"bump": "node dev-tools/bump-version.js"`.
+* Executed the utility to safely bump the active build version to version **`1.1.7` (Build 22)** on all platforms cleanly.
+
