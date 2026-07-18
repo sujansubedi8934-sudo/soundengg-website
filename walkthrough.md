@@ -427,3 +427,21 @@ We have successfully created a developer automation utility to synchronize and i
 * Mapped the command to npm scripts in [package.json](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/package.json): `"bump": "node dev-tools/bump-version.js"`.
 * Executed the utility to safely bump the active build version to version **`1.1.7` (Build 22)** on all platforms cleanly.
 
+---
+
+## App Store Review Purchase Crash & Webview Freeze Resolution (July 18, 2026)
+
+We resolved the issue reported by the Apple Review team where tapping "Proceed to secure payment" failed and left the screen obscured:
+
+### 1. Thread-Safe, Premium Custom Dialog Override (`utils.js`)
+* **The Root Cause**: Using synchronous JavaScript `alert()` inside Capacitor webviews on iOS/iPadOS freezes the rendering and touch event dispatch threads in WKWebView. Dismissing it leaves the webview in an input-disabled state, making the app appear "obscured" or frozen.
+* **The Solution**: Overrode the global `window.alert` in [utils.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/modules/utils.js) with a custom, non-blocking HTML/CSS overlay modal.
+* **Aesthetics & Behavior**: Designed with glowing neon styling (red/warning icons for errors, green icons for success). It is 100% thread-safe, ensures touch input remains active, and matches the premium dark visual language of the console.
+
+### 2. Upgraded In-App Purchase Fallback Strategy (`billing.js`)
+* **Robust Offerings Handling**: Wrapped the `getOfferings()` query in a nested try-catch block. If the App Store Connect Sandbox has unapproved offerings, the error is caught gracefully instead of terminating the transaction.
+* **StoreProduct Object Fetching**: Instead of passing a raw string identifier (which throws an SDK TypeError) during the fallback direct product purchase, we call `getProducts({ productIdentifiers: [productIdentifier] })` first to resolve the formal `StoreProduct` object from StoreKit, then pass it to `purchaseStoreProduct`.
+
+### 3. Build Synchronized to Build 23
+* Ran the cross-platform bumping script to prepare version **`1.1.8` (Build 23)** and ran `npx cap sync` to deploy the changes to Xcode.
+
