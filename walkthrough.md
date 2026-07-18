@@ -441,6 +441,7 @@ We resolved the issue reported by the Apple Review team where tapping "Proceed t
 ### 2. Upgraded In-App Purchase Fallback Strategy (`billing.js`)
 * **Robust Offerings Handling**: Wrapped the `getOfferings()` query in a nested try-catch block. If the App Store Connect Sandbox has unapproved offerings, the error is caught gracefully instead of terminating the transaction.
 * **StoreProduct Object Fetching**: Instead of passing a raw string identifier (which throws an SDK TypeError) during the fallback direct product purchase, we call `getProducts({ productIdentifiers: [productIdentifier] })` first to resolve the formal `StoreProduct` object from StoreKit, then pass it to `purchaseStoreProduct`.
+* **Explicit Product ID Mapping**: Map abstract plan values (`'monthly'`, `'yearly'`, `'lifetime'`) to their corresponding App Store Connect product IDs (`com.soundengg.app.monthly`, `com.soundengg.app.yearly`, `com.soundengg.app.lifetime`) before querying StoreKit or falling back to raw product checkouts.
 
 ### 3. Build Synchronized to Build 23
 * Ran the cross-platform bumping script to prepare version **`1.1.8` (Build 23)** and ran `npx cap sync` to deploy the changes to Xcode.
