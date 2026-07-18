@@ -182,7 +182,15 @@ window.billingManager = {
             return { success: false, error: "Not initialized" };
         }
 
-        console.log(`[Billing] Requesting purchase of: ${productIdentifier}...`);
+        // Map abstract plan names ('monthly', 'yearly', 'lifetime') to real App Store Connect / Play Store IDs
+        const idMap = {
+            'monthly': 'com.soundengg.app.monthly',
+            'yearly': 'com.soundengg.app.yearly',
+            'lifetime': 'com.soundengg.app.lifetime'
+        };
+        const resolvedProductId = idMap[productIdentifier.toLowerCase()] || productIdentifier;
+
+        console.log(`[Billing] Requesting purchase of: ${productIdentifier} (mapped: ${resolvedProductId})...`);
 
         // 1. Try to purchase using Offerings (RevenueCat standard flow)
         try {
@@ -192,7 +200,12 @@ window.billingManager = {
                     const type = p.packageType ? p.packageType.toLowerCase() : "";
                     const id = p.storeProduct && p.storeProduct.identifier ? p.storeProduct.identifier.toLowerCase() : "";
                     const target = productIdentifier.toLowerCase();
-                    return type === target || id === target || type === ('$' + target) || type === target.replace('$', '');
+                    const resolvedTarget = resolvedProductId.toLowerCase();
+                    
+                    return type === target || id === target || 
+                           type === resolvedTarget || id === resolvedTarget ||
+                           type === ('$' + target) || type === target.replace('$', '') ||
+                           type === ('$' + resolvedTarget) || type === resolvedTarget.replace('$', '');
                 });
                 
                 if (pkgToBuy) {
@@ -208,8 +221,9 @@ window.billingManager = {
 
         // 2. Fallback: Try to query product directly and purchase via StoreProduct object (iOS App Store sandbox compliant)
         try {
-            console.log(`[Billing] Fetching product details for ID: ${productIdentifier}...`);
-            const products = await this.purchases.getProducts({ productIdentifiers: [productIdentifier] });
+            console.log(`[Billing] Fetching product details for ID: ${resolvedProductId}...`);
+            const res = await this.purchases.getProducts({ productIdentifiers: [resolvedProductId] });
+            const products = res && res.products ? res.products : [];
             
             if (products && products.length > 0) {
                 const productToBuy = products[0];
@@ -220,8 +234,8 @@ window.billingManager = {
             }
             
             // 3. Absolute Final Fallback: Try raw identifier in case the SDK version accepts it
-            console.log(`[Billing] Direct product query returned empty. Attempting raw identifier fallback...`);
-            const { customerInfo } = await this.purchases.purchaseStoreProduct({ storeProduct: productIdentifier });
+            console.log(`[Billing] Direct product query returned empty. Attempting raw identifier fallback for: ${resolvedProductId}...`);
+            const { customerInfo } = await this.purchases.purchaseStoreProduct({ storeProduct: resolvedProductId });
             this.updateUserEntitlements(customerInfo);
             return { success: window.isUserPro, customerInfo };
 
