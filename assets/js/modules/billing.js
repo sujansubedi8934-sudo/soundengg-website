@@ -182,12 +182,12 @@ window.billingManager = {
             return { success: false, error: "Not initialized" };
         }
 
+        console.log(`[Billing] Requesting purchase of: ${productIdentifier}...`);
+
+        // 1. Try to purchase using Offerings (RevenueCat standard flow)
         try {
-            console.log(`[Billing] Requesting purchase of: ${productIdentifier}...`);
-            // Fetch packages
             const offerings = await this.purchases.getOfferings();
-            
-            if (offerings.current && offerings.current.availablePackages.length > 0) {
+            if (offerings && offerings.current && offerings.current.availablePackages.length > 0) {
                 const pkgToBuy = offerings.current.availablePackages.find(p => {
                     const type = p.packageType ? p.packageType.toLowerCase() : "";
                     const id = p.storeProduct && p.storeProduct.identifier ? p.storeProduct.identifier.toLowerCase() : "";
@@ -196,13 +196,31 @@ window.billingManager = {
                 });
                 
                 if (pkgToBuy) {
+                    console.log(`[Billing] Found matching package in offerings. Launching package checkout...`);
                     const { customerInfo } = await this.purchases.purchasePackage({ aPackage: pkgToBuy });
                     this.updateUserEntitlements(customerInfo);
                     return { success: window.isUserPro, customerInfo };
                 }
             }
+        } catch (offeringErr) {
+            console.warn("[Billing] Failed to fetch offerings. Proceeding to direct product checkout fallback:", offeringErr);
+        }
+
+        // 2. Fallback: Try to query product directly and purchase via StoreProduct object (iOS App Store sandbox compliant)
+        try {
+            console.log(`[Billing] Fetching product details for ID: ${productIdentifier}...`);
+            const products = await this.purchases.getProducts({ productIdentifiers: [productIdentifier] });
             
-            // Fallback to direct product purchase if offerings aren't populated
+            if (products && products.length > 0) {
+                const productToBuy = products[0];
+                console.log(`[Billing] Found direct product: ${productToBuy.identifier}. Launching store product checkout...`);
+                const { customerInfo } = await this.purchases.purchaseStoreProduct({ storeProduct: productToBuy });
+                this.updateUserEntitlements(customerInfo);
+                return { success: window.isUserPro, customerInfo };
+            }
+            
+            // 3. Absolute Final Fallback: Try raw identifier in case the SDK version accepts it
+            console.log(`[Billing] Direct product query returned empty. Attempting raw identifier fallback...`);
             const { customerInfo } = await this.purchases.purchaseStoreProduct({ storeProduct: productIdentifier });
             this.updateUserEntitlements(customerInfo);
             return { success: window.isUserPro, customerInfo };
