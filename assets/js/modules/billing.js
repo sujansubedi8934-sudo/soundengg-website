@@ -228,16 +228,13 @@ window.billingManager = {
             if (products && products.length > 0) {
                 const productToBuy = products[0];
                 console.log(`[Billing] Found direct product: ${productToBuy.identifier}. Launching store product checkout...`);
-                const { customerInfo } = await this.purchases.purchaseStoreProduct({ storeProduct: productToBuy });
+                const { customerInfo } = await this.purchases.purchaseStoreProduct({ product: productToBuy });
                 this.updateUserEntitlements(customerInfo);
                 return { success: window.isUserPro, customerInfo };
             }
             
-            // 3. Absolute Final Fallback: Try raw identifier in case the SDK version accepts it
-            console.log(`[Billing] Direct product query returned empty. Attempting raw identifier fallback for: ${resolvedProductId}...`);
-            const { customerInfo } = await this.purchases.purchaseStoreProduct({ storeProduct: resolvedProductId });
-            this.updateUserEntitlements(customerInfo);
-            return { success: window.isUserPro, customerInfo };
+            // 3. Throw clean exception if product is not found in local StoreKit database
+            throw new Error(`Product identifier '${resolvedProductId}' was not found in the App Store configuration.`);
 
         } catch (err) {
             console.error("[Billing] Purchase transaction failed or cancelled:", err);
