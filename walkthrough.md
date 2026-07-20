@@ -484,7 +484,8 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
   * **Flex Row Layout**: Grouped the buttons in a new `.auth-social-group` wrapper class styled as a flex row (`display: flex; gap: 0.75rem; width: 100%;`) inside [modals.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/modals.css#L422-L427).
   * **Scrollable Height safety bounds**: Set `max-height: calc(100vh - 4rem); overflow-y: auto;` inside `.auth-modal`'s base stylesheet configuration to make the card scrollable on short/landscape screen viewports, ensuring content never spills out.
 
-
-
-
-
+### 7. Login Info Section Color Fix (Light Mode)
+* **The Issue**: In light theme, the title label "Author / System Architect" and some user stat elements (like `FREE TIER` status and `N/A` date) inside the login overlay were invisible (white text on a white/light-gray background) because they had an inline `color: #fff;` style hardcoded.
+* **The Resolution**:
+  * Updated [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L1982) to change the "Author / System Architect" text style to `color: var(--primary);` so it dynamically resolves to the theme's cyan/turquoise color and stands out clearly in both light and dark modes.
+  * Replaced the hardcoded white colors on profile billing stats with `color: var(--text-heading);` so they automatically toggle high-contrast black/white values depending on the active theme mode.
