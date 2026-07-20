@@ -97,6 +97,10 @@ function initSubCalc() {
                 cardioidType: currentCardioid,
                 activeTab: activeMaster
             });
+
+            if (typeof window.trackUsageForRating === 'function') {
+                window.trackUsageForRating();
+            }
         }
 
         // --- SVG ANIMATIONS ---
@@ -358,8 +362,72 @@ function initSubCalc() {
         }
     }
 
+    // --- Share Button Event Handler ---
+    const btnShareSub = document.getElementById('btn-share-subcalc');
+    if (btnShareSub) {
+        btnShareSub.addEventListener('click', (e) => {
+            e.preventDefault();
+            const f = freqInput.value;
+            const t = tempInput.value;
+            const d = cDepthInput ? cDepthInput.value : '';
+            const activeMasterTabBtn = document.querySelector('.subcalc-master-tab.active');
+            const activeMaster = activeMasterTabBtn ? activeMasterTabBtn.getAttribute('data-tab') : 'cardioid';
+            
+            const shareUrl = `${window.location.origin}${window.location.pathname}?view=subcalc&freq=${f}&temp=${t}&depth=${d}&type=${currentCardioid}&tab=${activeMaster}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    if (typeof window.showSoundEnggToast === 'function') {
+                        window.showSoundEnggToast('Subwoofer configuration copied to clipboard!');
+                    } else {
+                        alert('Link copied to clipboard: ' + shareUrl);
+                    }
+                }).catch(() => {
+                    alert('Share Link: ' + shareUrl);
+                });
+            } else {
+                alert('Share Link: ' + shareUrl);
+            }
+            
+            if (typeof window.trackUsageForRating === 'function') {
+                window.trackUsageForRating();
+            }
+        });
+    }
+
+    // --- Process Shared URL Link on Load ---
+    if (viewParam === 'subcalc') {
+        const freqQ = urlParams.get('freq');
+        const tempQ = urlParams.get('temp');
+        const depthQ = urlParams.get('depth');
+        const typeQ = urlParams.get('type');
+        const tabQ = urlParams.get('tab');
+        
+        if (freqQ) freqInput.value = parseInt(freqQ);
+        if (tempQ) tempInput.value = parseFloat(tempQ);
+        if (depthQ && cDepthInput) cDepthInput.value = parseFloat(depthQ);
+        if (typeQ) {
+            currentCardioid = typeQ;
+            const activeTab = Array.from(cTabs).find(t => t.getAttribute('data-ctype') === currentCardioid);
+            if (activeTab) {
+                cTabs.forEach(t => t.classList.remove('active'));
+                activeTab.classList.add('active');
+            }
+        }
+        if (tabQ) {
+            const masterTabBtn = Array.from(document.querySelectorAll('.subcalc-master-tab')).find(t => t.getAttribute('data-tab') === tabQ);
+            if (masterTabBtn) {
+                masterTabBtn.click();
+            }
+        }
+    }
+
     syncUI();
-    pull();
+    if (viewParam !== 'subcalc') {
+        pull();
+    } else {
+        updateCalculations(true);
+    }
 
     document.addEventListener('authSuccess', pull);
 }

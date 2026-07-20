@@ -7,7 +7,21 @@ function initDelayCalc() {
     const progressEl = document.getElementById('delay-progress-mod');
     const progressPercentEl = document.getElementById('delay-progress-percent');
 
+    const btnShareDelay = document.getElementById('btn-share-delay');
+
     if (!distInput || !tempInput || !outputEl || !progressEl) return;
+
+    // --- Parse URL Share Parameters ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
+    if (viewParam === 'delay') {
+        const distQ = urlParams.get('dist');
+        const tempQ = urlParams.get('temp');
+        const unitQ = urlParams.get('unit');
+        if (distQ) distInput.value = parseFloat(distQ);
+        if (tempQ) tempInput.value = parseFloat(tempQ);
+        if (unitQ) tempUnitSelect.value = unitQ;
+    }
 
     function update(skipCloudSave = false) {
         const dist = parseFloat(distInput.value) || 0;
@@ -39,6 +53,9 @@ function initDelayCalc() {
         // Trigger Cloud Save if not just loading
         if (!skipCloudSave) {
             saveConfigToCloud('delay', { dist, temp, tUnit });
+            if (typeof window.trackUsageForRating === 'function') {
+                window.trackUsageForRating();
+            }
         }
     }
 
@@ -56,7 +73,7 @@ function initDelayCalc() {
                 .eq('config_type', 'delay')
                 .maybeSingle();
 
-            if (data && data.data) {
+            if (data && data.data && viewParam !== 'delay') {
                 distInput.value = data.data.dist;
                 tempInput.value = data.data.temp;
                 tempUnitSelect.value = data.data.tUnit;
@@ -72,6 +89,34 @@ function initDelayCalc() {
     tempUnitSelect.addEventListener('change', () => update());
     document.addEventListener('unitsChanged', () => update(true));
     
+    if (btnShareDelay) {
+        btnShareDelay.addEventListener('click', (e) => {
+            e.preventDefault();
+            const d = distInput.value;
+            const t = tempInput.value;
+            const u = tempUnitSelect.value;
+            const shareUrl = `${window.location.origin}${window.location.pathname}?view=delay&dist=${d}&temp=${t}&unit=${u}`;
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    if (typeof window.showSoundEnggToast === 'function') {
+                        window.showSoundEnggToast('Delay calculation copied! Share with your crew.');
+                    } else {
+                        alert('Link copied to clipboard: ' + shareUrl);
+                    }
+                }).catch(() => {
+                    alert('Share Link: ' + shareUrl);
+                });
+            } else {
+                alert('Share Link: ' + shareUrl);
+            }
+            
+            if (typeof window.trackUsageForRating === 'function') {
+                window.trackUsageForRating();
+            }
+        });
+    }
+
     // Collapsible theory card
     const theoryCard = document.getElementById('delay-theory-card');
     const btnToggleTheory = document.getElementById('btn-toggle-delay-theory');

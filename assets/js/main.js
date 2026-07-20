@@ -1576,6 +1576,15 @@ function setupNavigation() {
                 setTimeout(() => {
                     showView(target, navBtn);
                     console.log(`Deep link triggered: ${viewParam}`);
+                    
+                    // Trigger shared loading notification toast
+                    if (urlParams.get('dist') || urlParams.get('freq')) {
+                        setTimeout(() => {
+                            if (typeof window.showSoundEnggToast === 'function') {
+                                window.showSoundEnggToast('Shared calculation loaded successfully!');
+                            }
+                        }, 800);
+                    }
                 }, 100);
             }
         }
@@ -3119,6 +3128,9 @@ const initPageSystems = () => {
 
     // Swap native header logo if running on iOS/Android
     initNativeAppLogo();
+
+    // Boot up Smart Banner, Rating alert, and Toast notifications
+    initGrowthLoops();
 };
 
 if (document.readyState === 'loading') {
@@ -3194,6 +3206,129 @@ function setupAuthorContactForm() {
             });
         });
     }
+}
+
+// =========================================================================
+// PRODUCT-LED ORGANIC GROWTH & RETENTION ENGINE
+// =========================================================================
+
+function initGrowthLoops() {
+    
+    // 1. Toast Notification Service
+    window.showSoundEnggToast = function(message) {
+        const toast = document.getElementById('soundengg-toast');
+        const toastText = document.getElementById('soundengg-toast-text');
+        if (!toast || !toastText) return;
+        toastText.textContent = message;
+        toast.classList.add('show');
+        setTimeout(() => {
+            toast.classList.remove('show');
+        }, 3500);
+    };
+
+    // 2. In-App Store Review / Rating Trigger
+    window.trackUsageForRating = function() {
+        if (localStorage.getItem('soundengg-rated') === 'true') return;
+
+        let count = parseInt(localStorage.getItem('soundengg-calc-count')) || 0;
+        count++;
+        localStorage.setItem('soundengg-calc-count', count);
+
+        // Prompt user after 15 interactions
+        if (count === 15) {
+            const ratingDialog = document.getElementById('app-rating-dialog');
+            if (ratingDialog) {
+                const btnRedirect = document.getElementById('btn-rating-store-redirect');
+                if (btnRedirect) {
+                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                    if (isIOS) {
+                        btnRedirect.href = 'https://apps.apple.com/app/soundengg-console/id123456789';
+                    } else {
+                        btnRedirect.href = 'https://play.google.com/store/apps/details?id=com.soundengg.console';
+                    }
+                }
+
+                const btnLater = document.getElementById('btn-rating-later');
+                if (btnLater) {
+                    btnLater.onclick = function() {
+                        ratingDialog.close();
+                        localStorage.setItem('soundengg-calc-count', '0'); // Snooze counter
+                    };
+                }
+
+                if (btnRedirect) {
+                    btnRedirect.onclick = function() {
+                        localStorage.setItem('soundengg-rated', 'true');
+                        ratingDialog.close();
+                    };
+                }
+
+                // Fallback for older browsers without declarative light dismiss support
+                if (!('closedBy' in HTMLDialogElement.prototype)) {
+                    ratingDialog.onclick = function(event) {
+                        if (event.target !== ratingDialog) return;
+                        const rect = ratingDialog.getBoundingClientRect();
+                        const isDialogContent = (
+                            rect.top <= event.clientY &&
+                            event.clientY <= rect.top + rect.height &&
+                            rect.left <= event.clientX &&
+                            event.clientX <= rect.left + rect.width
+                        );
+                        if (!isDialogContent) ratingDialog.close();
+                    };
+                }
+
+                setTimeout(() => {
+                    ratingDialog.showModal();
+                }, 1500);
+            }
+        }
+    };
+
+    // 3. Smart App Banner Trigger (Mobile web browsers only)
+    function initSmartAppBanner() {
+        const banner = document.getElementById('web-smart-banner');
+        const closeBtn = document.getElementById('btn-close-smart-banner');
+        if (!banner || !closeBtn) return;
+
+        // Never show if running inside the Capacitor Native App build container
+        if (window.Capacitor || (typeof window.isNativeMobile === 'function' && window.isNativeMobile())) {
+            banner.style.display = 'none';
+            return;
+        }
+
+        // Do not show if recently dismissed (remember choice for 7 days)
+        const dismissedTime = localStorage.getItem('soundengg-banner-dismissed');
+        if (dismissedTime) {
+            const diff = Date.now() - parseInt(dismissedTime);
+            if (diff < 7 * 24 * 60 * 60 * 1000) {
+                banner.style.display = 'none';
+                return;
+            }
+        }
+
+        // Display banner on mobile or tablet viewport widths
+        const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone|iPad|iPod/.test(navigator.userAgent);
+        if (isMobile) {
+            banner.style.display = 'flex';
+            document.body.style.paddingTop = '54px'; // Shift content layout down to avoid header collisions
+        } else {
+            banner.style.display = 'none';
+        }
+
+        closeBtn.onclick = function(e) {
+            e.preventDefault();
+            banner.style.transform = 'translateY(-100%)';
+            banner.style.opacity = '0';
+            document.body.style.paddingTop = '0';
+            localStorage.setItem('soundengg-banner-dismissed', Date.now().toString());
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 300);
+        };
+    }
+
+    initSmartAppBanner();
 }
 
 

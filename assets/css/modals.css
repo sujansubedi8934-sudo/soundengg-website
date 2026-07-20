@@ -974,3 +974,156 @@ html.light .auth-modal-box {
 html.light .settings-header .close-btn:hover {
     background: rgba(0, 0, 0, 0.05);
 }
+
+/* ==========================================================================
+   ORGANIC GROWTH & VIRAL LOOPS STYLES
+   ========================================================================== */
+
+/* Smart App Banner CSS styling matching modern glassmorphic look */
+.smart-app-banner {
+    background: rgba(13, 13, 20, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1.5px solid var(--outline);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 9999;
+    box-sizing: border-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+html.light .smart-app-banner {
+    background: rgba(245, 245, 247, 0.95);
+    border-bottom: 1.5px solid rgba(0,0,0,0.1);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+.smart-banner-logo {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid var(--outline);
+    margin-right: 0.75rem;
+}
+
+html.light .smart-banner-logo {
+    border-color: rgba(0,0,0,0.1);
+}
+
+.smart-banner-info h4 {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--text-heading);
+    font-weight: 700;
+    letter-spacing: -0.2px;
+}
+
+.smart-banner-info p {
+    margin: 2px 0 0 0;
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+.smart-banner-btn {
+    background: var(--primary);
+    color: #050508 !important;
+    font-weight: bold;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.smart-banner-btn:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.smart-banner-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    outline: none;
+    margin-right: 0.25rem;
+}
+
+/* Toast notifications system */
+.toast-container {
+    position: fixed;
+    bottom: 5.5rem; /* sits above bottom navigation bar */
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.toast-container.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+html.light .toast-container {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* Accessible Dialog details */
+dialog#app-rating-dialog {
+    background: #0a0a0f;
+    border: 1px solid var(--outline);
+    border-radius: 12px;
+    color: var(--text-main);
+    padding: 1.5rem;
+    max-width: 90vw;
+    width: 380px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+    outline: none;
+}
+
+html.light dialog#app-rating-dialog {
+    background: #ffffff;
+    border-color: rgba(0,0,0,0.1);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+dialog#app-rating-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+

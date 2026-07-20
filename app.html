@@ -65,6 +65,30 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
+    <!-- Smart App Banner for mobile web viewports -->
+    <div id="web-smart-banner" class="smart-app-banner" style="display: none;">
+        <div style="display: flex; align-items: center;">
+            <button class="smart-banner-close" id="btn-close-smart-banner" aria-label="Dismiss Banner">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img src="assets/img/logo.png" alt="SoundEngg Logo" class="smart-banner-logo" onerror="this.src='https://www.soundengg.com/assets/img/logo.png'">
+            <div class="smart-banner-info">
+                <h4>SoundEngg Console</h4>
+                <p>Offline Live Sound Field Companion</p>
+            </div>
+        </div>
+        <div class="smart-banner-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+            <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" class="smart-banner-btn" style="background: rgba(255,255,255,0.06); border: 1px solid var(--outline); color: #fff !important; display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.65rem; height: 28px; box-shadow: none;">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align: middle;"><path d="M3.609 1.814L13.783 12 3.609 22.186A2.22 2.22 0 0 1 3 20.598V3.402c0-.665.234-1.25.609-1.588zm10.88 10.89l2.766 2.766L4.853 22.164l9.636-9.46zm3.56-3.56l3.705 2.115a1.86 1.86 0 0 1 0 3.226l-3.705 2.115-3.06-3.06 3.06-3.066zm-4.326-4.32l-9.636 9.46 12.402-6.698-2.766-2.762z"/></svg>
+                PLAY STORE
+            </a>
+            <a href="https://apps.apple.com/app/soundengg-console/id123456789" target="_blank" class="smart-banner-btn" style="background: var(--primary); color: #050508 !important; display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.65rem; height: 28px; box-shadow: none;">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align: middle;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.2.67-2.92 1.49-.62.71-1.16 1.85-1.01 2.96 1.12.09 2.27-.58 2.94-1.39z"/></svg>
+                APP STORE
+            </a>
+        </div>
+    </div>
+
     <!-- Top Mobile Safe Header -->
     <header id="mobile-safe-header" class="mobile-only-header">
         <!-- Left Area: Back Chevron & Brand Logo -->
@@ -426,6 +450,12 @@
                         <div class="meter-track" style="height: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; padding: 1px; box-sizing: border-box; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
                             <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #00ffcc 100%); border-radius: 999px; box-shadow: 0 0 8px var(--primary); transition: width 0.1s ease;"></div>
                         </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                        <button id="btn-share-delay" class="rugged-btn pulse-glow" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 0.7rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--outline); background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s; height: 34px; color: var(--text-heading);">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">share</span> SHARE CONFIG
+                        </button>
                     </div>
                 </div>
 
@@ -1450,10 +1480,14 @@
                 <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem;">|</span>
                 <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Sub Array Alignment</span>
             </div>
-            <div class="header-controls" style="margin-left: auto;">
+            <div class="header-controls" style="margin-left: auto; display: flex; gap: 8px;">
                 <button id="btn-subcalc-unit" class="rugged-btn pulse-glow" data-unit="metric" style="height: 32px; padding: 0 12px; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; gap: 4px;">
                     <span class="material-symbols-outlined" style="font-size: 14px;">straighten</span>
                     USE IMPERIAL (FT/°F)
+                </button>
+                <button id="btn-share-subcalc" class="rugged-btn pulse-glow" style="height: 32px; padding: 0 12px; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; gap: 4px;">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">share</span>
+                    SHARE CONFIG
                 </button>
             </div>
         </header>
@@ -2806,5 +2840,26 @@
     <script src="https://assets.lemonsqueezy.com/lemon.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@capacitor/app@8.1.0/dist/plugin.js"></script>
 <script src="assets/js/utils/capacitorAppExt.js"></script>
+
+    <!-- App Rating Dialog Prompt (closedby="any" enables native light dismissal) -->
+    <dialog id="app-rating-dialog" closedby="any" aria-labelledby="appRatingTitle">
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px;">
+            <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--primary); text-shadow: 0 0 15px rgba(0,242,254,0.3);">star_rate</span>
+            <h3 id="appRatingTitle" style="margin: 0; font-size: 1.1rem; color: var(--text-heading); font-weight: bold; font-family: var(--font-sans);">Finding SoundEngg Helpful?</h3>
+            <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; font-family: var(--font-sans);">
+                Leave a quick rating on the store! Review signals help other sound technicians discover our offline console and keep the app 100% free and developer-run.
+            </p>
+        </div>
+        <div class="dialog-actions">
+            <button id="btn-rating-later" class="rugged-btn" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 12px; cursor: pointer; border: 1px solid var(--outline); background: transparent;">LATER</button>
+            <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" id="btn-rating-store-redirect" target="_blank" class="rugged-btn pulse-glow" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 16px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: bold; background: var(--primary); color: #050508 !important;">RATE NOW</a>
+        </div>
+    </dialog>
+
+    <!-- Custom Toast Notifications Container -->
+    <div id="soundengg-toast" class="toast-container">
+        <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.1rem;">check_circle</span>
+        <span id="soundengg-toast-text" style="font-family: var(--font-mono); font-size: 0.72rem; color: #fff;">Action completed successfully!</span>
+    </div>
 </body>
 </html>

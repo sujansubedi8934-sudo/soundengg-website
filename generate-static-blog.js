@@ -197,6 +197,27 @@ const getTemplate = (blog) => {
                  </script>
              </div>
              
+             <!-- Mobile App Promotion Field Companion Banner -->
+             <div class="blog-promo-banner-card" style="margin-top: 3rem; background: linear-gradient(135deg, rgba(20, 167, 181, 0.08) 0%, rgba(10, 10, 15, 0.6) 100%); border: 1px solid var(--border-color, #222); border-radius: 12px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
+                 <div style="flex: 1; min-width: 250px; text-align: left;">
+                     <h4 style="margin: 0; font-size: 0.95rem; color: #fff; font-weight: bold; display: flex; align-items: center; gap: 6px; font-family: Space Grotesk, sans-serif;">
+                         <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.2rem; vertical-align: middle;">work</span> 
+                         Your Live Sound Field Companion
+                     </h4>
+                     <p style="margin: 6px 0 0 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; font-family: Space Grotesk, sans-serif;">
+                         Get the offline-ready <strong>SoundEngg Console</strong> app. Quick delay calculations, subwoofer spacing layouts, and pro audio pinout reference guides right in your pocket.
+                     </p>
+                 </div>
+                 <div class="store-badge-wrap" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
+                     <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" style="display: block; transition: transform 0.2s ease;">
+                         <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height: 38px;">
+                     </a>
+                     <a href="https://apps.apple.com/app/soundengg-console/id123456789" target="_blank" style="display: block; transition: transform 0.2s ease;">
+                         <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" style="height: 38px;">
+                     </a>
+                 </div>
+             </div>
+             
              <!-- Author Bio Card -->
              <div class="author-card rugged-bevel brushed-metal" style="margin-top: 4rem; padding: 2.5rem; background: var(--surface-low, #121212); border: 1px solid var(--border-color, #222); border-radius: 16px; display: flex; flex-direction: column; gap: 1.5rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);">
                  <div style="display: flex; flex-direction: row; align-items: center; gap: 1.5rem; flex-wrap: wrap;">
