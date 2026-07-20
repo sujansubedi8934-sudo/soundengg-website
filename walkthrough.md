@@ -477,6 +477,14 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
 * **The Issue**: The Google Login button (`#btn-google-auth`) and the separating divider were hidden on iOS viewports using a CSS `display: none !important` rule inside `assets/css/responsive.css` to comply with App Store policies back when native Apple Sign-In was not configured.
 * **The Resolution**: Removed `.platform-ios #btn-google-auth` and `.platform-ios .auth-divider` from the hidden CSS declarations list inside [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css#L2534-L2541). Since native Apple Sign-In is now fully functional, presenting both social login options side-by-side complies with Apple App Store Guideline 4.8.
 
+### 6. Side-by-Side Social Logins & Overflow Fix
+* **The Issue**: Vertically stacking full-width buttons ("Continue with Google" and "Continue with Apple") inside the login card caused the auth modal height to exceed the viewport height in landscape mode on iPads/tablets, resulting in the Apple Sign-In button overflowing outside the modal border card container.
+* **The Resolution**:
+  * **Shortened Labels**: Changed button labels from "Continue with Google/Apple" to simply **"Google"** and **"Apple"** inside [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L2115-L2135).
+  * **Flex Row Layout**: Grouped the buttons in a new `.auth-social-group` wrapper class styled as a flex row (`display: flex; gap: 0.75rem; width: 100%;`) inside [modals.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/modals.css#L422-L427).
+  * **Scrollable Height safety bounds**: Set `max-height: calc(100vh - 4rem); overflow-y: auto;` inside `.auth-modal`'s base stylesheet configuration to make the card scrollable on short/landscape screen viewports, ensuring content never spills out.
+
+
 
 
 
