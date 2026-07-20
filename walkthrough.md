@@ -489,3 +489,7 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
 * **The Resolution**:
   * Updated [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L1982) to change the "Author / System Architect" text style to `color: var(--primary);` so it dynamically resolves to the theme's cyan/turquoise color and stands out clearly in both light and dark modes.
   * Replaced the hardcoded white colors on profile billing stats with `color: var(--text-heading);` so they automatically toggle high-contrast black/white values depending on the active theme mode.
+
+### 8. Bottom Navigation Circular RTA Button Fix
+* **The Issue**: On iPad/iOS WKWebView, the center floating RTA button (`.console-circle-btn`) was rendering as a square with slightly rounded corners instead of a perfect circle.
+* **The Resolution**: Added `border-radius: 50% !important;` directly to the `.console-circle-btn` base rule and its active state rule inside [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css#L1071) and [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css#L1528) to force WebKit to render the button and its dynamic outline glow shadow as a perfect circle.
