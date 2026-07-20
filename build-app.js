@@ -14,6 +14,7 @@ const filesToCopy = [
     'privacy.html',
     'terms.html',
     'beta.html',
+    'demo-organic-growth.html',
     'manifest.json',
     'service-worker.js',
     'app-version.json',

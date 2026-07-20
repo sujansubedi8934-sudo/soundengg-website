@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <title>SoundEngg: Organic Growth & Viral Loops Demo</title>
+    
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <style>
+        /* Extra styling to make the demo page clean, standalone, and visually striking */
+        body {
+            background-color: #050508;
+            color: var(--text-main, #d1d5db);
+            font-family: var(--font-sans, 'Space Grotesk', sans-serif);
+            margin: 0;
+            padding: 0;
+        }
+
+        .demo-container {
+            max-width: 800px;
+            margin: 100px auto 4rem auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .demo-header {
+            border-bottom: 2px solid var(--outline);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-section-title {
+            font-family: var(--font-mono, 'JetBrains Mono', monospace);
+            font-size: 0.75rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        /* Smart App Banner CSS styling matching modern glassmorphic look */
+        .smart-app-banner {
+            background: rgba(13, 13, 20, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1.5px solid var(--outline);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 2000;
+            box-sizing: border-box;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .smart-banner-logo {
+            width: 42px;
+            height: 42px;
+            border-radius: 8px;
+            border: 1px solid var(--outline);
+            margin-right: 0.75rem;
+        }
+
+        .smart-banner-info h4 {
+            margin: 0;
+            font-size: 0.85rem;
+            color: #fff;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .smart-banner-info p {
+            margin: 2px 0 0 0;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+        }
+
+        .smart-banner-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .smart-banner-btn {
+            background: var(--primary);
+            color: #050508 !important;
+            font-weight: bold;
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+        }
+
+        .smart-banner-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+        }
+
+        .smart-banner-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px;
+            outline: none;
+        }
+
+        /* Toast notifications system */
+        .toast-container {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0, 242, 254, 0.15);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 3000;
+            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .toast-container.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Floating Blog Promo Banner styling */
+        .blog-promo-banner-card {
+            background: linear-gradient(135deg, rgba(20, 167, 181, 0.08) 0%, rgba(10, 10, 15, 0.6) 100%);
+            border: 1px solid var(--outline);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .store-badge-wrap {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .store-badge-wrap img {
+            height: 38px;
+            display: block;
+            border-radius: 6px;
+        }
+
+        /* Standardized Dialog Styles for light dismissal support */
+        dialog {
+            background: #0a0a0f;
+            border: 1px solid var(--outline);
+            border-radius: 12px;
+            color: var(--text-main);
+            padding: 1.5rem;
+            max-width: 90vw;
+            width: 400px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            outline: none;
+        }
+
+        dialog::backdrop {
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+
+        .dialog-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. Smart App Banner -->
+    <div id="demo-smart-banner" class="smart-app-banner">
+        <div style="display: flex; align-items: center;">
+            <button class="smart-banner-close" id="btn-close-banner" aria-label="Dismiss Banner">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            <img src="assets/img/logo.png" alt="SoundEngg Logo" class="smart-banner-logo" onerror="this.src='https://www.soundengg.com/assets/img/logo.png'">
+            <div class="smart-banner-info">
+                <h4>SoundEngg Console</h4>
+                <p>Offline Live Audio & Measurement tools</p>
+            </div>
+        </div>
+        <div class="smart-banner-actions">
+            <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" class="smart-banner-btn" id="smart-banner-action-link">INSTALL</a>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="demo-container">
+        
+        <div class="demo-header">
+            <h1 style="margin: 0; color: #fff; font-size: 1.75rem; font-weight: 900; letter-spacing: -0.5px;">Organic Growth Sandbox</h1>
+            <p style="margin: 0.5rem 0 0 0; color: var(--text-muted); font-size: 0.85rem; line-height: 1.5;">
+                This page simulates all components of our proposed **Product-Led Organic Growth Strategy**. 
+                You can test calculations, generate share parameters, trigger review requests, and inspect visual banner mockups offline.
+            </p>
+        </div>
+
+        <!-- Section: Share Configuration loops -->
+        <div class="siggen-widget" style="padding: 1.5rem;">
+            <div class="demo-section-title">Component 2: Calculators Share Link (Viral Loops)</div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">
+                
+                <!-- Delay Calc Sandbox -->
+                <div class="settings-console-widget" style="border: 1px solid var(--outline); padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-family: var(--font-mono); font-weight: bold; font-size: 0.85rem; color: #fff;">Delay Calculator</span>
+                        <span class="status-badge active" style="font-size: 0.55rem; padding: 1px 6px;">SANDBOX_LIVE</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase;">Distance (m/ft)</label>
+                            <input type="number" id="demo-delay-dist" class="vfd-input" value="12.5" step="0.5" style="border: 1px solid var(--outline); padding: 6px 10px; border-radius: 4px; background: transparent; font-family: var(--font-mono); color: var(--primary);">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase;">Temperature</label>
+                            <input type="number" id="demo-delay-temp" class="vfd-input" value="20.0" step="0.5" style="border: 1px solid var(--outline); padding: 6px 10px; border-radius: 4px; background: transparent; font-family: var(--font-mono); color: var(--primary);">
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; border: 1px dashed var(--outline); padding: 8px; border-radius: 4px; background: rgba(0,0,0,0.2);">
+                        <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);">RESULT MS:</span>
+                        <span id="demo-delay-result" style="font-family: var(--font-mono); font-weight: bold; color: var(--primary); font-size: 1.1rem; text-shadow: 0 0 4px var(--primary);">36.34 ms</span>
+                    </div>
+
+                    <button id="btn-share-delay-demo" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.7rem; font-family: var(--font-mono); height: 34px;">
+                        <span class="material-symbols-outlined" style="font-size: 0.9rem;">share</span> SHARE DELAY CONFIG
+                    </button>
+                </div>
+
+                <!-- Sub Array Sandbox -->
+                <div class="settings-console-widget" style="border: 1px solid var(--outline); padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-family: var(--font-mono); font-weight: bold; font-size: 0.85rem; color: #fff;">Subwoofer Array Spacing</span>
+                        <span class="status-badge active" style="font-size: 0.55rem; padding: 1px 6px;">SANDBOX_LIVE</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase;">Frequency (Hz)</label>
+                            <input type="number" id="demo-sub-freq" class="vfd-input" value="63" step="1" style="border: 1px solid var(--outline); padding: 6px 10px; border-radius: 4px; background: transparent; font-family: var(--font-mono); color: var(--primary);">
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 4px;">
+                            <label style="font-size: 0.6rem; color: var(--text-muted); font-family: var(--font-mono); text-transform: uppercase;">Cabinet Depth (m)</label>
+                            <input type="number" id="demo-sub-depth" class="vfd-input" value="0.8" step="0.1" style="border: 1px solid var(--outline); padding: 6px 10px; border-radius: 4px; background: transparent; font-family: var(--font-mono); color: var(--primary);">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; border: 1px dashed var(--outline); padding: 8px; border-radius: 4px; background: rgba(0,0,0,0.2);">
+                        <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted);">REAR DELAY MS:</span>
+                        <span id="demo-sub-result" style="font-family: var(--font-mono); font-weight: bold; color: var(--primary); font-size: 1.1rem; text-shadow: 0 0 4px var(--primary);">6.3 ms</span>
+                    </div>
+
+                    <button id="btn-share-sub-demo" class="btn btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.7rem; font-family: var(--font-mono); height: 34px;">
+                        <span class="material-symbols-outlined" style="font-size: 0.9rem;">share</span> SHARE SUB CONFIG
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Current URL status check -->
+            <div style="margin-top: 1rem; padding: 0.75rem; border: 1px solid var(--outline-light); border-radius: 6px; background: #07070a; font-family: var(--font-mono); font-size: 0.7rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="pulse" style="width: 6px; height: 6px; background: var(--primary); border-radius: 50%;"></span>
+                    <span style="color: var(--text-muted);">ACTIVE QUERY PARAMS:</span>
+                </div>
+                <div id="demo-url-display" style="color: var(--primary); word-break: break-all;">No active parameters</div>
+            </div>
+        </div>
+
+        <!-- Section: App Rating trigger sandbox -->
+        <div class="siggen-widget" style="padding: 1.5rem;">
+            <div class="demo-section-title">Component 3: Usage-Based App Rating Trigger</div>
+            <p style="margin: 0.5rem 0 1rem 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                To maximize search rankings, we prompt users to rate the app only after they demonstrate high engagement (e.g., performing 5 successful calculations).
+            </p>
+            
+            <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+                <button id="btn-simulate-usage" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-family: var(--font-mono); font-weight: bold; height: 36px; padding: 0 16px;">
+                    <span class="material-symbols-outlined" style="font-size: 1rem;">plus_one</span> SIMULATE CALCULATION INTERACTION
+                </button>
+                <button id="btn-reset-usage" class="btn btn-outline" style="height: 36px; padding: 0 12px; font-size: 0.7rem; font-family: var(--font-mono);">
+                    RESET COUNTER
+                </button>
+            </div>
+            
+            <div style="margin-top: 1rem; display: flex; gap: 2rem; font-family: var(--font-mono); font-size: 0.75rem;">
+                <div>Engagement Count: <span id="usage-counter-val" style="color: var(--primary); font-weight: bold;">0</span> / 5</div>
+                <div>Trigger Status: <span id="usage-status-val" style="color: #ef4444; font-weight: bold;">WAITING</span></div>
+            </div>
+        </div>
+
+        <!-- Section: SEO Article download promo mock -->
+        <div class="siggen-widget" style="padding: 1.5rem;">
+            <div class="demo-section-title">Component 4: SEO Article App CTA Banner (Preview)</div>
+            <p style="margin: 0.5rem 0 1.25rem 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.4;">
+                When readers search Google and land on any of our 49 static SEO blog posts, they see this prominent bottom action block prompting them to install the offline app for live show stability.
+            </p>
+
+            <!-- The generated template visual mockup -->
+            <div class="blog-promo-banner-card">
+                <div style="flex: 1; min-width: 250px;">
+                    <h4 style="margin: 0; font-size: 0.95rem; color: #fff; font-weight: bold; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.2rem;">offline_bolt</span> 
+                        Tuning Sound Systems in the Field?
+                    </h4>
+                    <p style="margin: 4px 0 0 0; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                        Get the offline-ready **SoundEngg Console** app. Run RTAs, check connector pinouts, and align sub arrays with 0% network reliance.
+                    </p>
+                </div>
+                <div class="store-badge-wrap" style="display: flex; gap: 0.5rem;">
+                    <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" style="display: block;">
+                        <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height: 38px;">
+                    </a>
+                    <a href="https://apps.apple.com/app/soundengg-console/id123456789" target="_blank" style="display: block;">
+                        <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" style="height: 38px;">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Rating Dialog Prompt -->
+    <dialog id="demo-rating-dialog" closedby="any" aria-labelledby="ratingTitle">
+        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px;">
+            <span class="material-symbols-outlined" style="font-size: 3rem; color: var(--primary); text-shadow: 0 0 15px rgba(0,242,254,0.3);">star_rate</span>
+            <h3 id="ratingTitle" style="margin: 0; font-size: 1.1rem; color: #fff; font-weight: bold;">Finding SoundEngg Helpful?</h3>
+            <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">
+                Leave a quick rating on the store! Review signals help other techs discover our offline console and keep the app 100% free and developer-run.
+            </p>
+        </div>
+        <div class="dialog-actions">
+            <button id="btn-dialog-later" class="btn btn-outline" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 12px; cursor: pointer;">LATER</button>
+            <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" id="btn-dialog-rate" target="_blank" class="btn btn-primary" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 16px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: bold; color: #050508 !important;">RATE NOW</a>
+        </div>
+    </dialog>
+
+    <!-- Notification Toast Container -->
+    <div id="demo-toast" class="toast-container">
+        <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.1rem;">check_circle</span>
+        <span id="toast-text" style="font-family: var(--font-mono); font-size: 0.72rem; color: #fff;">Action completed successfully!</span>
+    </div>
+
+    <!-- Interactive script logic -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- Toast Notification helper ---
+            const toast = document.getElementById('demo-toast');
+            const toastText = document.getElementById('toast-text');
+            function showToast(message) {
+                toastText.textContent = message;
+                toast.classList.add('show');
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3500);
+            }
+
+            // --- Query Parameter Parsing & Pre-populating ---
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewParam = urlParams.get('view');
+            const urlDisplay = document.getElementById('demo-url-display');
+            
+            if (window.location.search) {
+                urlDisplay.textContent = window.location.search;
+                showToast(`Shared parameters loaded for: ${viewParam || 'sandbox'}`);
+            }
+
+            // --- Delay calculator sandbox ---
+            const delayDist = document.getElementById('demo-delay-dist');
+            const delayTemp = document.getElementById('demo-delay-temp');
+            const delayResult = document.getElementById('demo-delay-result');
+            const btnShareDelay = document.getElementById('btn-share-delay-demo');
+
+            // Apply url query parameter overrides if present
+            if (viewParam === 'delay') {
+                const distQ = urlParams.get('dist');
+                const tempQ = urlParams.get('temp');
+                if (distQ) delayDist.value = parseFloat(distQ);
+                if (tempQ) delayTemp.value = parseFloat(tempQ);
+            }
+
+            function updateDelay() {
+                const dist = parseFloat(delayDist.value) || 0;
+                const temp = parseFloat(delayTemp.value) || 0;
+                // Calculate Speed of sound (331.3 + 0.6 * Temp)
+                const speed = 331.3 + (0.6 * temp);
+                const delay = (dist / speed) * 1000;
+                delayResult.textContent = `${delay.toFixed(2)} ms`;
+            }
+            delayDist.addEventListener('input', updateDelay);
+            delayTemp.addEventListener('input', updateDelay);
+            updateDelay();
+
+            btnShareDelay.addEventListener('click', () => {
+                const d = delayDist.value;
+                const t = delayTemp.value;
+                const shareUrl = `${window.location.origin}${window.location.pathname}?view=delay&dist=${d}&temp=${t}`;
+                
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('Link copied! Paste it in browser to load these exact delay settings.');
+                }).catch(() => {
+                    alert(`Share Link: ${shareUrl}`);
+                });
+            });
+
+            // --- Sub Array calculator sandbox ---
+            const subFreq = document.getElementById('demo-sub-freq');
+            const subDepth = document.getElementById('demo-sub-depth');
+            const subResult = document.getElementById('demo-sub-result');
+            const btnShareSub = document.getElementById('btn-share-sub-demo');
+
+            // Apply url query parameter overrides if present
+            if (viewParam === 'subcalc') {
+                const freqQ = urlParams.get('freq');
+                const depthQ = urlParams.get('depth');
+                if (freqQ) subFreq.value = parseInt(freqQ);
+                if (depthQ) subDepth.value = parseFloat(depthQ);
+            }
+
+            function updateSub() {
+                const f = parseFloat(subFreq.value) || 63;
+                const d = parseFloat(subDepth.value) || 0.8;
+                // Simplified CSA delay: Spacing (d) / Speed (343m/s) * 1000
+                const delay = (d / 343) * 1000;
+                subResult.textContent = `${delay.toFixed(1)} ms`;
+            }
+            subFreq.addEventListener('input', updateSub);
+            subDepth.addEventListener('input', updateSub);
+            updateSub();
+
+            btnShareSub.addEventListener('click', () => {
+                const f = subFreq.value;
+                const d = subDepth.value;
+                const shareUrl = `${window.location.origin}${window.location.pathname}?view=subcalc&freq=${f}&depth=${d}`;
+                
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    showToast('Sub config link copied to clipboard!');
+                }).catch(() => {
+                    alert(`Share Link: ${shareUrl}`);
+                });
+            });
+
+            // --- Smart App Banner Toggle ---
+            const smartBanner = document.getElementById('demo-smart-banner');
+            const btnCloseBanner = document.getElementById('btn-close-banner');
+            const installBtn = document.getElementById('smart-banner-action-link');
+
+            // Detect user platform for specific store link
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            if (isIOS) {
+                installBtn.textContent = 'DOWNLOAD';
+                installBtn.href = 'https://apps.apple.com/app/soundengg-console/id123456789';
+            }
+
+            btnCloseBanner.addEventListener('click', () => {
+                smartBanner.style.transform = 'translateY(-100%)';
+                smartBanner.style.opacity = '0';
+                showToast('Smart App Banner dismissed (would remember for 7 days in production).');
+            });
+
+            // --- App Rating Dialog simulation ---
+            const btnSimUsage = document.getElementById('btn-simulate-usage');
+            const btnResetUsage = document.getElementById('btn-reset-usage');
+            const usageCounter = document.getElementById('usage-counter-val');
+            const usageStatus = document.getElementById('usage-status-val');
+            const ratingDialog = document.getElementById('demo-rating-dialog');
+            const btnLater = document.getElementById('btn-later');
+
+            // Custom Dialog Fallback click detection
+            if (!('closedBy' in HTMLDialogElement.prototype)) {
+                ratingDialog.addEventListener('click', (event) => {
+                    if (event.target !== ratingDialog) return;
+                    const rect = ratingDialog.getBoundingClientRect();
+                    const isDialogContent = (
+                        rect.top <= event.clientY &&
+                        event.clientY <= rect.top + rect.height &&
+                        rect.left <= event.clientX &&
+                        event.clientX <= rect.left + rect.width
+                    );
+                    if (!isDialogContent) ratingDialog.close();
+                });
+            }
+
+            document.getElementById('btn-dialog-later').addEventListener('click', () => {
+                ratingDialog.close();
+                showToast('Prompt dismissed. Will prompt again in 30 days.');
+            });
+
+            let count = parseInt(localStorage.getItem('soundengg-demo-clicks')) || 0;
+            usageCounter.textContent = count;
+            if (count >= 5) {
+                usageStatus.textContent = 'TRIGGERED';
+                usageStatus.style.color = '#10b981';
+            }
+
+            btnSimUsage.addEventListener('click', () => {
+                count++;
+                localStorage.setItem('soundengg-demo-clicks', count);
+                usageCounter.textContent = count;
+                
+                if (count === 5) {
+                    usageStatus.textContent = 'TRIGGERED';
+                    usageStatus.style.color = '#10b981';
+                    ratingDialog.showModal();
+                    showToast('Milestone reached! Opening rating request dialog.');
+                } else if (count > 5) {
+                    ratingDialog.showModal();
+                } else {
+                    showToast(`Interaction recorded! Run ${5 - count} more times to trigger popup.`);
+                }
+            });
+
+            btnResetUsage.addEventListener('click', () => {
+                count = 0;
+                localStorage.setItem('soundengg-demo-clicks', '0');
+                usageCounter.textContent = '0';
+                usageStatus.textContent = 'WAITING';
+                usageStatus.style.color = '#ef4444';
+                showToast('Usage counters reset.');
+            });
+
+        });
+    </script>
+</body>
+</html>
