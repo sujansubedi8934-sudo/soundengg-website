@@ -494,3 +494,13 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
 * **The Issue**: On iPad/iOS WKWebView, the center floating RTA button (`.console-circle-btn`) was rendering as a square with slightly rounded corners instead of a perfect circle.
 * **The Resolution**: Added `border-radius: 50% !important;` directly to the `.console-circle-btn` base rule and its active state rule inside [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css#L1071) and [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css#L1528) to force WebKit to render the button and its dynamic outline glow shadow as a perfect circle.
 * **Platform Sync**: Ran `npx cap sync android` to ensure these visual improvements, theme contrast updates, and layout refactors are deployed to Android packages.
+
+### 9. Product-Led Organic Growth & Viral Loops Engine
+* **Component 1 (Smart App Banner):** Added `#web-smart-banner` to [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L68) with styled Play Store and App Store redirect buttons. The banner only shows on mobile/tablet web browsers (hidden inside Capacitor app contexts) and snoop-dismisses for 7 days via LocalStorage.
+* **Component 2 (Calculators Share Parameter Loop):**
+  * Added `SHARE CONFIG` buttons to the Delay and Subwoofer Spacing calculators in [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L454).
+  * Implemented parameters parsing & clipboard link copying inside [delayCalc.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/components/delayCalc.js#L14) and [subCalc.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/components/subCalc.js#L361).
+  * Added parsing hooks and a success Toast trigger alert inside [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js#L1579).
+* **Component 3 (App Rating / Review Prompt):** Added `#app-rating-dialog` to [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L2842). Implemented tracking loops in [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js#L3215) that prompt users to review the app on their device's store after 15 successful calculator interactions.
+* **Component 4 (SEO-to-App Blog Templates):** Updated the generator script in [generate-static-blog.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/generate-static-blog.js#L200) to append a prominent, responsive "Live Sound Field Companion" promotion card with store badges to the bottom of all 49 static SEO article deep dives.
+

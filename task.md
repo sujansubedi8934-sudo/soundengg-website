@@ -1,15 +1,18 @@
-# Task Checklist - Ear Training Redesign & Mobile Margin Correction
+# Task Checklist - Organic Growth & Viral Loops
 
-- `[x]` Correct top margin gap on mobile viewports
-    - `[x]` Add `margin-top: 0 !important;` to `.main-content` in mobile viewport style query inside `responsive.css`
-    - `[x]` Add `margin-top: 0 !important;` to `.native-mobile-platform .main-content` inside `responsive.css`
-- `[x]` Redesign Ear Training View (`app.html`, `responsive.css`)
-    - `[x]` Restructure the HTML markup of `#ear-training-view` inside `app.html` to group settings, A/B console, stats, and frequency options in structured widgets
-    - `[x]` Add CSS rules inside `responsive.css` for `.ear-training-grid`, `.ear-train-widget`, `.ear-train-instruction`, `.play-btn-outer-ring`, `.train-play-button`, `.ab-channel-btn`, and settings buttons
-    - `[x]` Style the stats panels inside `.ear-train-stats-grid` and option band chips inside `.train-options-grid-flat`
-- `[x]` Verification & Testing
-    - `[x]` Run production build `npm run build`
-    - `[x]` Synchronize web assets `npx cap sync`
-    - `[x]` Verify functionality and responsive layout that the large space between the top bar and "ENGINEERING TOOLS" is resolved on mobile
-    - `[x]` Verify that the Ear Training view layout is updated, clean, and interactive
-    - `[x]` Verify that correctness/error state highlight colors and light/dark theme contrast are correct
+- [x] Component 1: Smart App Banner Setup
+    - [x] Add `#web-smart-banner` HTML markup & styling in `app.html`
+    - [x] Implement conditional visibility check in `main.js` (detecting mobile web vs native)
+    - [x] Hook dismiss button to LocalStorage tracker
+- [x] Component 2: Calculators Share Link
+    - [x] Add "SHARE CONFIG" buttons to Delay and Sub Array calculator widgets in `app.html`
+    - [x] Write click listener and serialization routine in `delayCalc.js`
+    - [x] Write click listener and serialization routine in `subCalc.js`
+    - [x] Update `handleDeepLink` in `main.js` to parse URL params, pre-fill inputs, and trigger a success Toast
+- [x] Component 3: In-App Store Review Prompt
+    - [x] Create HTML dialog markup for store rating prompt in `app.html`
+    - [x] Implement usage tracking log and dialog trigger in `main.js`
+    - [x] Add click handlers redirecting to App Store and Google Play Store respectively
+- [x] Component 4: SEO-to-App Blog Banners
+    - [x] Update `getTemplate` in `generate-static-blog.js` to append sticky mobile download CTAs on all posts
+    - [x] Build & compile to verify output
