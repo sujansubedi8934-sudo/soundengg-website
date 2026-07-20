@@ -1068,7 +1068,7 @@
     width: 54px;
     height: 54px;
     background: linear-gradient(135deg, var(--primary), var(--accent));
-    border-radius: 50%;
+    border-radius: 50% !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1525,6 +1525,7 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
 .tab-item.active .console-circle-btn {
     box-shadow: 0 0 20px rgba(0, 242, 254, 0.8), 0 0 0 4px var(--primary);
     transform: translateY(-2px);
+    border-radius: 50% !important;
 }
 
 /* Hide footer links globally on mobile viewports */
