@@ -14,7 +14,7 @@ function initProfessionalRTA() {
     const labelsContainer = document.getElementById('rta-labels');
     const btnCapture = document.getElementById('btn-capture-snapshot');
     
-    let audioCtx, analyser, source, stream;
+    let audioCtx, analyser, source, stream, rafID = null, lastFrameTime = 0;
     let dataArray, bufferLength;
     let rtaPinkNoiseNode = null;
     let rtaPinkNoiseGainNode = null;
@@ -141,7 +141,10 @@ function initProfessionalRTA() {
         }
         if (!isAnalyzing) return;
         isAnalyzing = false;
-        if (rafID) cancelAnimationFrame(rafID);
+        if (rafID) {
+            cancelAnimationFrame(rafID);
+            rafID = null;
+        }
         if (stream) {
             stream.getTracks().forEach(t => t.stop());
             stream = null;
@@ -269,9 +272,22 @@ function initProfessionalRTA() {
         return '#14A7B5'; // Turquoise
     }
 
-    function draw() {
-        if (!isInitialized) return;
-        requestAnimationFrame(draw);
+    function draw(timestamp) {
+        if (!isAnalyzing || !isInitialized) {
+            rafID = null;
+            return;
+        }
+        rafID = requestAnimationFrame(draw);
+
+        if (!timestamp) timestamp = performance.now();
+        const elapsed = timestamp - lastFrameTime;
+        const frameInterval = 1000 / 60; // 60 FPS target (~16.67ms)
+
+        if (elapsed < frameInterval) {
+            return; // Skip rendering this frame to maintain 60 FPS target
+        }
+        
+        lastFrameTime = timestamp - (elapsed % frameInterval);
         
         // Manual FFT with Hanning Window
         analyser.getFloatTimeDomainData(timeData);
@@ -1684,7 +1700,10 @@ function initProfessionalRTA() {
             if (isAnalyzing) {
                 // Hot-swap active stream
                 isAnalyzing = false;
-                if (rafID) cancelAnimationFrame(rafID);
+                if (rafID) {
+                    cancelAnimationFrame(rafID);
+                    rafID = null;
+                }
                 if (stream) {
                     stream.getTracks().forEach(t => t.stop());
                     stream = null;
@@ -1721,7 +1740,10 @@ function initProfessionalRTA() {
         }
         if (isAnalyzing) {
             isAnalyzing = false;
-            if (rafID) cancelAnimationFrame(rafID);
+            if (rafID) {
+                cancelAnimationFrame(rafID);
+                rafID = null;
+            }
             if (stream) {
                 stream.getTracks().forEach(t => t.stop());
                 stream = null;
