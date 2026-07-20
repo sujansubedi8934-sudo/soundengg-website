@@ -473,5 +473,10 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
 * **The Resolution**: Registered the `soundengg` URL scheme inside [Info.plist](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/ios/App/App/Info.plist#L62-L73) under `CFBundleURLTypes`. 
 * **Verification**: Ran a complete debug compilation using `xcodebuild` targeting `App.xcodeproj`, which finished successfully (**BUILD SUCCEEDED**). Deep linking redirects are now fully captured by both iOS and Android native apps!
 
+### 5. Enabled Google Auth Button on iOS Native App
+* **The Issue**: The Google Login button (`#btn-google-auth`) and the separating divider were hidden on iOS viewports using a CSS `display: none !important` rule inside `assets/css/responsive.css` to comply with App Store policies back when native Apple Sign-In was not configured.
+* **The Resolution**: Removed `.platform-ios #btn-google-auth` and `.platform-ios .auth-divider` from the hidden CSS declarations list inside [responsive.css](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/css/responsive.css#L2534-L2541). Since native Apple Sign-In is now fully functional, presenting both social login options side-by-side complies with Apple App Store Guideline 4.8.
+
+
 
 
