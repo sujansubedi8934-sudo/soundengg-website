@@ -2531,13 +2531,11 @@ html.light .vfd-glow {
     box-shadow: none !important;
 }
 
-/* 8. Apple App Store Guideline 3.1.1 & 4.8 Compliance (Keep Google auth and web-based billing options hidden on iOS) */
+/* 8. Apple App Store Guideline 3.1.1 & 4.8 Compliance (Keep web-based billing options hidden on iOS) */
 .platform-ios #menu-btn-billing-portal,
 .platform-ios #btn-sub-manage,
 .platform-ios #row-sub-billing,
 .platform-ios #row-sub-provider,
-.platform-ios #btn-google-auth,
-.platform-ios .auth-divider,
 .native-mobile #btn-compare-benefits {
     display: none !important;
 }
