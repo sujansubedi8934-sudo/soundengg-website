@@ -256,6 +256,8 @@ html.light .role-btn:hover {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    max-height: calc(100vh - 4rem);
+    overflow-y: auto;
     animation: modal-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
@@ -418,6 +420,12 @@ html.light .auth-modal {
 
 .auth-divider span {
     padding: 0 1rem;
+}
+
+.auth-social-group {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
 }
 
 .auth-social-btn {
