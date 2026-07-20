@@ -1434,6 +1434,73 @@ function setupNavigation() {
             });
         }
 
+        // REAL Apple Auth
+        const btnApple = document.getElementById('btn-apple-auth');
+        if (btnApple) {
+            btnApple.addEventListener('click', async () => {
+                if (!window.supabaseClient) return alert('Auth not configured.');
+                
+                try {
+                    const isNative = (typeof window.isNativeMobile === 'function' && window.isNativeMobile());
+                    const isIOS = isNative && window.Capacitor?.getPlatform() === 'ios';
+
+                    if (isIOS) {
+                        const AppleSignInPlugin = window.Capacitor?.Plugins?.SignInWithApple;
+                        if (!AppleSignInPlugin) {
+                            throw new Error("Apple Sign-In plugin is not available on this platform.");
+                        }
+
+                        console.log('[AppleAuth] Launching native iOS Apple Sign-In sheet...');
+                        const result = await AppleSignInPlugin.authorize({
+                            clientId: 'com.soundengg.app', // iOS bundle ID
+                            scopes: 'email name'
+                        });
+
+                        if (result && result.response && result.response.identityToken) {
+                            console.log('[AppleAuth] Native login successful, passing identity token to Supabase...');
+                            const { data, error } = await window.supabaseClient.auth.signInWithIdToken({
+                                provider: 'apple',
+                                token: result.response.identityToken
+                            });
+                            
+                            if (error) throw error;
+                            closeModal(authModalOverlay);
+                        } else {
+                            throw new Error("Failed to receive authentication token from Apple.");
+                        }
+                    } else {
+                        // Web or Android Redirect Fallback
+                        console.log('[AppleAuth] Launching OAuth redirect fallback...');
+                        const redirectUrl = isNative
+                            ? 'soundengg://login-callback'
+                            : window.location.origin + window.location.pathname;
+
+                        const { data, error } = await window.supabaseClient.auth.signInWithOAuth({
+                            provider: 'apple',
+                            options: {
+                                redirectTo: redirectUrl,
+                                skipBrowserRedirect: isNative
+                            }
+                        });
+                        
+                        if (error) throw error;
+                        
+                        if (isNative && data?.url) {
+                            const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
+                            if (BrowserPlugin && typeof BrowserPlugin.open === 'function') {
+                                console.log('[AppleAuth] Opening Custom Tab with OAuth url:', data.url);
+                                await BrowserPlugin.open({ url: data.url });
+                            } else {
+                                window.open(data.url, '_system');
+                            }
+                        }
+                    }
+                } catch (error) {
+                    alert('Apple login failed: ' + error.message);
+                }
+            });
+        }
+
 
     // Gallery Zoom Logic
     const galleryBoxes = document.querySelectorAll('.gallery-img-box');
