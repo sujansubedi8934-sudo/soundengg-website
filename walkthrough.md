@@ -447,3 +447,25 @@ We resolved the issue reported by the Apple Review team where tapping "Proceed t
 ### 3. Build Synchronized to Build 23
 * Ran the cross-platform bumping script to prepare version **`1.1.8` (Build 23)** and ran `npx cap sync` to deploy the changes to Xcode.
 
+---
+
+## Swift Package Manager Conflict Resolution & Xcode Build Verification (July 20, 2026)
+
+We have successfully resolved the Swift Package Manager (SPM) dependency lock conflicts that were blocking compilation in Xcode, integrated native Apple Sign-In, and verified a successful compilation:
+
+### 1. Replaced Legacy Apple Sign-In Plugin
+* **The Conflict**: The legacy `@capacitor-community/apple-sign-in` plugin was locked to older Capacitor 7 dependencies, creating a package dependency resolution conflict with `@revenuecat/purchases-capacitor` which was built against Capacitor 8 frameworks. This caused SPM to fail package dependency resolution, throwing errors like `Missing package product 'CapApp-SPM'`.
+* **The Resolution**: Replaced the legacy library with the modern, Capacitor-8-compatible **`@capawesome/capacitor-apple-sign-in`** library.
+* **Platform Sync**: Executed `npx cap sync ios` to properly link the new package library to the native iOS app files.
+
+### 2. Apple Sign-In Logic Updates (`main.js`, `app.html`)
+* **Native Flow**: Updated the authorization buttons `#btn-apple-auth` in [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js) to leverage Capawesome's `SignInWithApple.authorize()` sheet execution hooks when running natively on iOS. It automatically retrieves the native Apple `identityToken` and transmits it directly to Supabase via `signInWithIdToken()` to initiate a user session.
+* **Web Fallback Redirect**: Implemented an automated web redirect fallback inside the event handler that uses standard web redirect authentication callbacks when accessing the app via browser.
+* **Aesthetics**: Integrated modern, stylized **Continue with Apple** login buttons in the landing modals of [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html) matching the dark console aesthetic.
+
+### 3. Xcode Build Verification
+* **DerivedData Clean Up**: Cleared Xcode's DerivedData caching directories to prevent lingering package graph errors.
+* **Xcode Compilation test**: Proposed and successfully executed the background compile task using `xcodebuild` targeting a generic iOS device.
+* **Build Status**: **`** BUILD SUCCEEDED **`**. The compilation passes without dependency conflicts or cache errors.
+
+

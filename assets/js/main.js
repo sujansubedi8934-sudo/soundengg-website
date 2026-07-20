@@ -1445,22 +1445,21 @@ function setupNavigation() {
                     const isIOS = isNative && window.Capacitor?.getPlatform() === 'ios';
 
                     if (isIOS) {
-                        const AppleSignInPlugin = window.Capacitor?.Plugins?.SignInWithApple;
+                        const AppleSignInPlugin = window.Capacitor?.Plugins?.AppleSignIn;
                         if (!AppleSignInPlugin) {
                             throw new Error("Apple Sign-In plugin is not available on this platform.");
                         }
 
                         console.log('[AppleAuth] Launching native iOS Apple Sign-In sheet...');
-                        const result = await AppleSignInPlugin.authorize({
-                            clientId: 'com.soundengg.app', // iOS bundle ID
-                            scopes: 'email name'
+                        const result = await AppleSignInPlugin.signIn({
+                            scopes: ['EMAIL', 'FULL_NAME']
                         });
 
-                        if (result && result.response && result.response.identityToken) {
+                        if (result && result.idToken) {
                             console.log('[AppleAuth] Native login successful, passing identity token to Supabase...');
                             const { data, error } = await window.supabaseClient.auth.signInWithIdToken({
                                 provider: 'apple',
-                                token: result.response.identityToken
+                                token: result.idToken
                             });
                             
                             if (error) throw error;
