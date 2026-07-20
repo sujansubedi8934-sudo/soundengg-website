@@ -468,4 +468,10 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
 * **Xcode Compilation test**: Proposed and successfully executed the background compile task using `xcodebuild` targeting a generic iOS device.
 * **Build Status**: **`** BUILD SUCCEEDED **`**. The compilation passes without dependency conflicts or cache errors.
 
+### 4. Custom URL Scheme Integration for Google & Apple Sign-In Redirects
+* **The Issue**: When triggering Google Sign-in or secondary web-redirect sign-ins on native iOS, the authorization callback redirects to `soundengg://login-callback` to restore the user session. However, the custom URL scheme `soundengg` was not registered inside iOS's target configuration files, preventing iOS from intercepting the URL redirect.
+* **The Resolution**: Registered the `soundengg` URL scheme inside [Info.plist](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/ios/App/App/Info.plist#L62-L73) under `CFBundleURLTypes`. 
+* **Verification**: Ran a complete debug compilation using `xcodebuild` targeting `App.xcodeproj`, which finished successfully (**BUILD SUCCEEDED**). Deep linking redirects are now fully captured by both iOS and Android native apps!
+
+
 
