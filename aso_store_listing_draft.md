@@ -117,4 +117,7 @@ Sharpen your ears on the road. Practice identifying frequencies, bands, and dB c
 • SYSTEM TECH COMPANION: Crafted by working system engineers who understand exactly what tools are needed during soundcheck.
 
 Keep your settings calibrated. Download SoundEngg Utility Kit today!
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://soundengg.com/privacy
 ```
