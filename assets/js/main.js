@@ -1196,17 +1196,23 @@ function setupNavigation() {
                         const plan = card.getAttribute('data-plan') || 'yearly';
                         closeModal(planSelectorModal);
                         
+                        let session = null;
                         if (window.supabaseClient) {
-                            const { data: { session } } = await window.supabaseClient.auth.getSession();
-                            if (session) {
-                                showCheckoutConfirmModal(session.user, plan);
+                            const { data: { session: currentSession } } = await window.supabaseClient.auth.getSession();
+                            session = currentSession;
+                        }
+
+                        if (session) {
+                            showCheckoutConfirmModal(session.user, plan);
+                        } else {
+                            // On native mobile builds, allow guest checkouts without forcing sign-in (Apple compliant)
+                            if (window.isNativeMobile && window.isNativeMobile()) {
+                                showCheckoutConfirmModal(null, plan);
                             } else {
                                 alert('Please sign in or register to complete your purchase.');
                                 const authModalOverlay = document.getElementById('auth-modal-overlay');
                                 if (authModalOverlay) authModalOverlay.classList.remove('hidden');
                             }
-                        } else {
-                            alert('Authentication client not initialized.');
                         }
                     });
                 });
@@ -2695,6 +2701,13 @@ function showCheckoutConfirmModal(user, plan) {
     modal.className = 'modal-overlay';
     modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,8,0.92); display: flex; align-items: center; justify-content: center; z-index: 10000; font-family: var(--font-mono), monospace; color: #fff;';
 
+    const emailDisplay = user ? user.email : "Guest User (Device Local)";
+    const guestNoticeHtml = !user ? `
+        <p style="font-size: 0.72rem; color: #ffaa00; margin-top: 1rem; line-height: 1.3; text-align: left; font-family: var(--font-mono); border: 1px dashed rgba(255, 170, 0, 0.3); padding: 8px; border-radius: 4px;">
+            ⚠️ <strong>Optional Registration:</strong> You can purchase as a guest. To access your purchase on other devices later, you can register an account in the profile menu at any time.
+        </p>
+    ` : "";
+
     modal.innerHTML = `
         <div class="modal-content auth-modal-box" style="max-width: 440px; width: 90%; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">
             <button id="btn-close-checkout-confirm" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px;"><span class="material-symbols-outlined">close</span></button>
@@ -2716,9 +2729,10 @@ function showCheckoutConfirmModal(user, plan) {
                     <span style="font-size: 0.85rem; color: var(--primary); font-weight: bold;">${planCost}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-top: 0.25rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-dim);">ACCOUNT EMAIL</span>
-                    <span style="font-size: 0.85rem; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 200px;">${user.email}</span>
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">ACCOUNT</span>
+                    <span style="font-size: 0.85rem; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 200px;">${emailDisplay}</span>
                 </div>
+                ${guestNoticeHtml}
             </div>
             
             <button id="btn-proceed-to-payment" style="width: 100%; border: none; padding: 14px; font-weight: bold; font-family: var(--font-mono); font-size: 0.95rem; cursor: pointer; border-radius: 4px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
