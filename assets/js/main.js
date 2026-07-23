@@ -1189,6 +1189,32 @@ function setupNavigation() {
                 planSelectorModal.addEventListener('click', (e) => {
                     if (e.target === planSelectorModal) closeModal(planSelectorModal);
                 });
+
+                const btnRestorePurchases = document.getElementById('btn-restore-purchases');
+                if (btnRestorePurchases) {
+                    btnRestorePurchases.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        if (window.billingManager && typeof window.billingManager.restorePurchases === 'function') {
+                            try {
+                                btnRestorePurchases.textContent = "Restoring...";
+                                const res = await window.billingManager.restorePurchases();
+                                if (res && res.success) {
+                                    alert("Purchases successfully restored!");
+                                    closeModal(planSelectorModal);
+                                } else {
+                                    alert("No previous purchases found to restore.");
+                                }
+                            } catch (err) {
+                                console.error("Restore failed:", err);
+                                alert("Failed to restore purchases: " + err.message);
+                            } finally {
+                                btnRestorePurchases.textContent = "Restore Purchases";
+                            }
+                        } else {
+                            alert("Restore is only supported on native mobile apps.");
+                        }
+                    });
+                }
                 
                 // Clicking plan cards inside modal triggers checkout
                 planSelectorModal.querySelectorAll('.plan-card-option').forEach(card => {
