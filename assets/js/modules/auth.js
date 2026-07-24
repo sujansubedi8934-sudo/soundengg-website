@@ -248,6 +248,11 @@ function initAuthSystem() {
 async function syncSubscriptionStatus(session) {
     if (!window.supabaseClient) return;
     if (!session) {
+        const isNative = typeof window.isNativeMobile === 'function' && window.isNativeMobile();
+        if (isNative && window.isUserPro) {
+            console.log('[syncSubscriptionStatus] Logged out but native Pro is active. Keeping Pro.');
+            return;
+        }
         window.isUserPro = false;
         window.userSubscriptionTier = 'free';
         if (window.updatePremiumUI) window.updatePremiumUI();
@@ -343,9 +348,14 @@ async function syncSubscriptionStatus(session) {
                 .eq('id', session.user.id)
                 .maybeSingle();
             if (fallbackData) {
-                window.isUserPro = !!fallbackData.is_pro;
-                window.userSubscriptionTier = fallbackData.subscription_tier || (window.isUserPro ? 'pro' : 'free');
-                data = { is_pro: fallbackData.is_pro, subscription_tier: window.userSubscriptionTier };
+                const isNative = typeof window.isNativeMobile === 'function' && window.isNativeMobile();
+                if (isNative && window.isUserPro) {
+                    console.log('[syncSubscriptionStatus] Native mobile Pro active, skipping Supabase fallback overwrite.');
+                } else {
+                    window.isUserPro = !!fallbackData.is_pro;
+                    window.userSubscriptionTier = fallbackData.subscription_tier || (window.isUserPro ? 'pro' : 'free');
+                }
+                data = { is_pro: window.isUserPro, subscription_tier: window.userSubscriptionTier };
             }
         }
 
@@ -535,8 +545,13 @@ async function syncSubscriptionStatus(session) {
             const isExpired = expiresAt && !isNaN(expiresAt.getTime()) && expiresAt < now;
 
             const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
-            window.isUserPro = !!data.is_pro && isTierPro && !isExpired;
-            window.userSubscriptionTier = data.subscription_tier;
+            const isNative = typeof window.isNativeMobile === 'function' && window.isNativeMobile();
+            if (isNative && window.isUserPro) {
+                console.log('[syncSubscriptionStatus] Native mobile Pro active, skipping Supabase overwrite.');
+            } else {
+                window.isUserPro = !!data.is_pro && isTierPro && !isExpired;
+                window.userSubscriptionTier = data.subscription_tier;
+            }
             console.log('Cloud Sync Success. Pro:', window.isUserPro);
             
             const profileTierBadge = document.getElementById('profile-tier-badge');
