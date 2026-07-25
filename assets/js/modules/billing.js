@@ -178,7 +178,12 @@ window.billingManager = {
      */
     purchasePackage: async function(productIdentifier) {
         if (!this.isInitialized) {
-            alert("Billing system is currently offline or not configured yet. Please try again later.");
+            const isAndroid = window.Capacitor && window.Capacitor.getPlatform() === 'android';
+            if (isAndroid) {
+                alert("In-App Purchases are currently available on iOS. You can access Pro features on our website at soundengg.com or unlock features instantly with short ads!");
+            } else {
+                alert("Billing system is currently initializing. Please try again in a moment.");
+            }
             return { success: false, error: "Not initialized" };
         }
 
