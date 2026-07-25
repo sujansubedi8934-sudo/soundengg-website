@@ -34,7 +34,9 @@
     </style>
     <script>
         window.onload = function() {
-            var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            // Detect iOS devices as well as iPadOS (which reports as MacIntel with touch points)
+            var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             var isAndroid = /Android/.test(navigator.userAgent);
             
             if (isIOS) {
