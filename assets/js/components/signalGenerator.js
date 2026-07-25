@@ -315,14 +315,9 @@ function initSignalGenerator() {
             
             currentWave = newWave;
 
-            // Hide sweep for noise
-            if (currentWave === 'white' || currentWave === 'pink') {
-                sweepSection.style.opacity = '0.3';
-                sweepSection.style.pointerEvents = 'none';
-            } else {
-                sweepSection.style.opacity = '1';
-                sweepSection.style.pointerEvents = 'all';
-            }
+            // Keep sweep active at all times
+            sweepSection.style.opacity = '1';
+            sweepSection.style.pointerEvents = 'all';
             
             if (wasPlaying) {
                 setTimeout(startOutput, 100);
@@ -355,15 +350,7 @@ function initSignalGenerator() {
         });
     });
 
-    // Collapsible sweep card
-    const sweepCard = document.getElementById('siggen-sweep-card');
-    const btnToggleSweep = document.getElementById('btn-toggle-siggen-sweep');
-    if (btnToggleSweep && sweepCard) {
-        btnToggleSweep.addEventListener('click', (e) => {
-            e.preventDefault();
-            sweepCard.classList.toggle('expanded');
-        });
-    }
+    // Sweep card toggle listener deactivated (always shown)
 
     // Collapsible operational notes card
     const notesCard = document.getElementById('siggen-notes-card');
@@ -407,14 +394,9 @@ function initSignalGenerator() {
                     btn.classList.toggle('active', btn.getAttribute('data-wave') === currentWave);
                 });
 
-                // Update sweep section visibility
-                if (currentWave === 'white' || currentWave === 'pink') {
-                    sweepSection.style.opacity = '0.3';
-                    sweepSection.style.pointerEvents = 'none';
-                } else {
-                    sweepSection.style.opacity = '1';
-                    sweepSection.style.pointerEvents = 'all';
-                }
+                // Keep sweep active at all times
+                sweepSection.style.opacity = '1';
+                sweepSection.style.pointerEvents = 'all';
             }
         } catch (err) {
             console.error('Cloud Pull Error (SigGen):', err);
