@@ -22,8 +22,7 @@ const filesToCopy = [
     'app-ads.txt',
     'robots.txt',
     'sitemap.xml',
-    'google69f652e51c080b5b.html',
-    'soundengg.apk'
+    'google69f652e51c080b5b.html'
 ];
 
 // List of folders to copy recursively
