@@ -1760,8 +1760,7 @@ html.light body.theme-red .brand-logo {
     line-height: 1.1;
 }
 
-/* Floating Glassmorphic QR Code Card (Option 2) */
-/* Floating Glassmorphic QR Code Card (Option 2 - Clean Stack Above Mockup) */
+/* Floating Glassmorphic QR Code Card (1.5x Scaled Box) */
 .qr-floating-card {
     position: relative;
     top: 0;
@@ -1774,26 +1773,26 @@ html.light body.theme-red .brand-logo {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1.5px solid var(--primary);
-    border-radius: 14px;
-    padding: 10px 14px;
-    gap: 12px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 16px 20px;
+    gap: 16px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 255, 255, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    max-width: 280px;
+    max-width: 380px;
     width: 100%;
 }
 
 .qr-floating-card:hover {
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.8), 0 0 25px rgba(0, 255, 255, 0.3);
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 25px 55px rgba(0, 0, 0, 0.85), 0 0 35px rgba(0, 255, 255, 0.35);
 }
 
 .qr-code {
-    width: 64px;
-    height: 64px;
-    border-radius: 6px;
-    border: 1px solid var(--outline-light);
-    padding: 3px;
+    width: 96px;
+    height: 96px;
+    border-radius: 8px;
+    border: 1.5px solid var(--outline-light);
+    padding: 5px;
     background: #0c0e17;
     flex-shrink: 0;
 }
@@ -1805,7 +1804,7 @@ html.light body.theme-red .brand-logo {
 }
 
 .qr-title {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #fff;
     font-family: var(--font-mono);
@@ -1814,10 +1813,10 @@ html.light body.theme-red .brand-logo {
 }
 
 .qr-desc {
-    font-size: 0.65rem;
+    font-size: 0.8rem;
     color: var(--text-muted);
-    line-height: 1.25;
-    margin-top: 2px;
+    line-height: 1.35;
+    margin-top: 4px;
 }
 
 @media (max-width: 768px) {
