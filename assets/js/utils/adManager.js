@@ -13,7 +13,7 @@ const ADMOB_IOS_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/1712485313';
 // Interstitial Ad Unit mappings (Guideline compliant transitions)
 // Replace with production IDs from AdMob dashboard and toggle USE_TEST_INTERSTITIAL_ADS to false
 const ADMOB_ANDROID_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/8882338662';
-const ADMOB_IOS_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/8882338662'; // If you have a separate one for iOS, let me know!
+const ADMOB_IOS_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/6642471524';
 
 const USE_TEST_INTERSTITIAL_ADS = false; // Toggle to false to use your production AdMob unit!
 const ADMOB_ANDROID_INTERSTITIAL_TEST_ID = 'ca-app-pub-3940256099942544/1033173712';
