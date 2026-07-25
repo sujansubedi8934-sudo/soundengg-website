@@ -19,6 +19,8 @@ www/
 *.swp
 .buildlog/
 .history
+*.aab
+*.apk
 
 
 
