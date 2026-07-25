@@ -1462,7 +1462,7 @@ function initProfessionalRTA() {
             }
             
             // Dispatch event globally to update modules like RTA (snapshots), Spectrogram, Ear Training, etc.
-            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: true }));
+            document.dispatchEvent(new CustomEvent('proStatusChanged', { detail: window.isPremiumActive() }));
             
             if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
                 const blogId = window.pendingArticleToOpen;

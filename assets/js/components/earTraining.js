@@ -587,7 +587,7 @@ function initEarTraining() {
 
     // Handle Pro Status Changed to update tier buttons
     document.addEventListener('proStatusChanged', (e) => {
-        const isPro = e.detail;
+        const isPro = window.isPremiumActive('ear_training');
         tierBtns.forEach(btn => {
             const tier = btn.getAttribute('data-tier');
             // Only 1/6 Octave is Pro-locked now
