@@ -3282,7 +3282,7 @@ function initGrowthLoops() {
                 if (btnRedirect) {
                     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
                     if (isIOS) {
-                        btnRedirect.href = 'https://apps.apple.com/app/soundengg-console/id123456789';
+                        btnRedirect.href = 'https://apps.apple.com/us/app/soundengg/id6783749210';
                     } else {
                         btnRedirect.href = 'https://play.google.com/store/apps/details?id=com.soundengg.console';
                     }

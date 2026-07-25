@@ -212,7 +212,7 @@ const getTemplate = (blog) => {
                      <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" style="display: block; transition: transform 0.2s ease;">
                          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height: 38px;">
                      </a>
-                     <a href="https://apps.apple.com/app/soundengg-console/id123456789" target="_blank" style="display: block; transition: transform 0.2s ease;">
+                     <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" style="display: block; transition: transform 0.2s ease;">
                          <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" alt="Download on the App Store" style="height: 38px;">
                      </a>
                  </div>
