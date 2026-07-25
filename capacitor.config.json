@@ -3,5 +3,9 @@
   "appName": "SoundEngg Console",
   "webDir": "www",
   "bundledWebRuntime": false,
-  "backgroundColor": "#0a0a0f"
+  "backgroundColor": "#0a0a0f",
+  "server": {
+    "iosScheme": "https",
+    "hostname": "localhost"
+  }
 }
