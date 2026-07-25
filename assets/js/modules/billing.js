@@ -38,8 +38,8 @@ window.billingManager = {
                 apiKey = REVENUECAT_ANDROID_API_KEY;
             }
 
-            if (!apiKey || apiKey.includes("placeholder")) {
-                console.warn("[Billing] RevenueCat API keys are not yet configured. Please update them in assets/js/modules/billing.js.");
+            if (!apiKey || apiKey.startsWith("test_") || apiKey.includes("placeholder")) {
+                console.warn("[Billing] RevenueCat API key is unconfigured or set to a test key ('" + apiKey + "'). Skipping Purchases.configure to prevent release build force-close. Please set REVENUECAT_ANDROID_API_KEY to your Google Play Public API key (goog_...).");
                 return;
             }
 
