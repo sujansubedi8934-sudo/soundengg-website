@@ -265,7 +265,7 @@ function initAdManager() {
                 }).then(() => {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
-                    window.preloadNativeRewardedAd();
+                    // window.preloadNativeRewardedAd(); // Disabled: using Interstitial ads instead of Rewarded video
                     window.preloadNativeInterstitialAd();
 
                     // App Tracking Transparency Delay Trigger (Guideline 2.1 Bypass)

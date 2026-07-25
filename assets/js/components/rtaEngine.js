@@ -1321,7 +1321,7 @@ function initProfessionalRTA() {
         const mobileLoader = document.getElementById('mobile-ad-loader');
         
         if (window.isNativeMobile()) {
-            console.log('Native mobile detected. Launching native AdMob Rewarded Video...');
+            console.log('Native mobile detected. Launching native AdMob Interstitial...');
             
             if (mobileLoader) {
                 mobileLoader.classList.add('active');
@@ -1338,7 +1338,6 @@ function initProfessionalRTA() {
             }
 
             let hasAdStartedOrFailed = false;
-            let nativeRewardGranted = false;
 
             const failSafeTimeout = setTimeout(() => {
                 if (!hasAdStartedOrFailed) {
@@ -1349,70 +1348,47 @@ function initProfessionalRTA() {
                 }
             }, 2000);
 
-            window.showNativeRewardedAd(
+            window.showNativeInterstitialAd(
                 () => {
+                    // Ad watched and dismissed successfully
                     clearTimeout(failSafeTimeout);
                     hasAdStartedOrFailed = true;
-                    nativeRewardGranted = true;
                     if (mobileLoader) mobileLoader.classList.remove('active');
-                    console.log('Native AdMob Reward granted!');
-                    // Call grantAdRewardSuccess(false) to silently unlock the features in safeStorage/UI without showing a blocking alert popup yet.
+                    console.log('Native AdMob Interstitial watched & dismissed!');
+                    
+                    // Grant feature unlock
                     grantAdRewardSuccess(false);
+                    closeAdPlayback(false);
+
+                    setTimeout(() => {
+                        let displayName = "SoundEngg Pro Features";
+                        if (currentUnlockFeatureKey) {
+                            if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
+                                displayName = "Selected Premium Guide";
+                            } else if (currentUnlockFeatureKey === 'spectrogram') {
+                                displayName = "60FPS Spectrogram Waterfall";
+                            } else if (currentUnlockFeatureKey === 'snapshots') {
+                                displayName = "10 Multi-Overlay RTA Snapshots";
+                            } else if (currentUnlockFeatureKey === 'mic_calibration') {
+                                displayName = "Custom Mic Calibration Loader";
+                            } else if (currentUnlockFeatureKey === 'ear_training') {
+                                displayName = "1/6 ISO Octave Ear Training";
+                            } else if (currentUnlockFeatureKey === 'ear_training_track') {
+                                displayName = "Reference Track";
+                            }
+                        }
+                        alert(`🎉 Awesome! You have successfully unlocked ${displayName} for the next 4 hours.`);
+                    }, 300);
                 },
                 () => {
+                    // Ad failed to show
                     if (!hasAdStartedOrFailed) {
                         clearTimeout(failSafeTimeout);
                         hasAdStartedOrFailed = true;
-                        console.warn('Native AdMob failed. Falling back to browser simulation.');
+                        console.warn('Native AdMob Interstitial failed. Falling back to browser simulation.');
                         if (mobileLoader) mobileLoader.classList.remove('active');
                         triggerBrowserAdPlayback();
                     }
-                },
-                () => {
-                    if (!hasAdStartedOrFailed) {
-                        clearTimeout(failSafeTimeout);
-                        hasAdStartedOrFailed = true;
-                        console.log('Native AdMob started showing. Removing loading overlay.');
-                        if (mobileLoader) mobileLoader.classList.remove('active');
-                    }
-                },
-                () => {
-                    console.log('Native AdMob ad dismiss callback triggered.');
-                    setTimeout(() => {
-                        if (nativeRewardGranted) {
-                            // Crucial fix: Close the fallback/spotlight modal if it was opened due to a timeout race condition
-                            closeAdPlayback(false);
-
-                            // Defer the blocking confirmation alert popup until AFTER the native ad activity is completely dismissed and closed.
-                            setTimeout(() => {
-                                let displayName = "SoundEngg Pro Features";
-                                if (currentUnlockFeatureKey) {
-                                    if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
-                                        displayName = "Selected Premium Guide";
-                                    } else if (currentUnlockFeatureKey === 'spectrogram') {
-                                        displayName = "60FPS Spectrogram Waterfall";
-                                    } else if (currentUnlockFeatureKey === 'snapshots') {
-                                        displayName = "10 Multi-Overlay RTA Snapshots";
-                                    } else if (currentUnlockFeatureKey === 'mic_calibration') {
-                                        displayName = "Custom Mic Calibration Loader";
-                                    } else if (currentUnlockFeatureKey === 'ear_training') {
-                                        displayName = "1/6 ISO Octave Ear Training";
-                                    } else if (currentUnlockFeatureKey === 'ear_training_track') {
-                                        displayName = "Reference Track";
-                                    }
-                                }
-                                alert(`🎉 Awesome! You have successfully unlocked ${displayName} for the next 4 hours.`);
-                            }, 300);
-                        } else {
-                            console.log('Native AdMob ad dismissed early without granting reward. Restoring upgrade modals.');
-                            if (isAdRewardForPro) {
-                                const proUpgradeModal = document.getElementById('pro-upgrade-modal');
-                                if (proUpgradeModal) proUpgradeModal.classList.remove('hidden');
-                                const dynamicUpgradeModal = document.getElementById('dynamic-upgrade-modal');
-                                if (dynamicUpgradeModal) dynamicUpgradeModal.classList.remove('hidden');
-                            }
-                        }
-                    }, 100);
                 }
             );
             return;
