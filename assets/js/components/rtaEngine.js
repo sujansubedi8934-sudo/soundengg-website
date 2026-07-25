@@ -1341,12 +1341,12 @@ function initProfessionalRTA() {
 
             const failSafeTimeout = setTimeout(() => {
                 if (!hasAdStartedOrFailed) {
-                    console.warn('Native AdMob timed out after 2000ms. Falling back to browser simulation.');
+                    console.warn('Native AdMob timed out after 8000ms. Falling back to browser simulation.');
                     hasAdStartedOrFailed = true;
                     if (mobileLoader) mobileLoader.classList.remove('active');
                     triggerBrowserAdPlayback();
                 }
-            }, 2000);
+            }, 8000);
 
             window.showNativeInterstitialAd(
                 () => {

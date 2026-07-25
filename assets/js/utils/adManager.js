@@ -182,9 +182,21 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         return;
     }
     if (!window.isAdMobInitialized) {
-        console.warn("showNativeInterstitialAd called before AdMob initialization.");
-        if (onFailureCallback) onFailureCallback();
-        return;
+        console.warn("showNativeInterstitialAd called before AdMob initialization. Auto-initializing...");
+        try {
+            const { AdMob } = window.Capacitor?.Plugins || {};
+            if (AdMob) {
+                await AdMob.initialize({ requestTrackingAuthorization: false });
+                window.isAdMobInitialized = true;
+            } else {
+                if (onFailureCallback) onFailureCallback();
+                return;
+            }
+        } catch (e) {
+            console.error("AdMob auto-init failed:", e);
+            if (onFailureCallback) onFailureCallback();
+            return;
+        }
     }
     if (!navigator.onLine) {
         console.warn("Device is offline. Blocking showNativeInterstitialAd.");
@@ -223,6 +235,7 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         });
 
         if (!nativeInterstitialAdLoaded) {
+            console.log('Preloading interstitial before show...');
             await window.preloadNativeInterstitialAd();
         }
         await AdMob.showInterstitial();
