@@ -2784,8 +2784,9 @@ function showCheckoutConfirmModal(user, plan) {
         proceedBtn.disabled = true;
         proceedBtn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s infinite linear;">sync</span> LAUNCHING SECURE GATEWAY...`;
         
-        // Native mobile route via RevenueCat purchases SDK
-        if (window.isNativeMobile && window.isNativeMobile()) {
+        // Native mobile route: iOS uses RevenueCat App Store IAP, Android uses Razorpay/LemonSqueezy
+        const isIOSNative = window.isNativeMobile && window.isNativeMobile() && window.Capacitor && window.Capacitor.getPlatform() === 'ios';
+        if (isIOSNative) {
             modal.remove();
             if (window.billingManager && typeof window.billingManager.purchasePackage === 'function') {
                 const res = await window.billingManager.purchasePackage(plan);
