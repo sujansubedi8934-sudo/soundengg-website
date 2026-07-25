@@ -1962,3 +1962,24 @@ html.light body.theme-red .brand-logo {
     }
 }
 
+/* Layout block container for store links and QR code side-by-side */
+.hero-download-block {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+}
+
+.hero-buttons-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.store-badge-row {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
