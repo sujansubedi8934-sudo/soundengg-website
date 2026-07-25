@@ -1626,10 +1626,12 @@ html.light body.theme-red .brand-logo {
    ========================================= */
 .hero-visual {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     width: 100%;
     perspective: 1000px;
+    position: relative;
 }
 
 .vfd-glass-panel {
@@ -1758,38 +1760,38 @@ html.light body.theme-red .brand-logo {
     line-height: 1.1;
 }
 
-/* QR Code Card Styles */
-.qr-container {
-    display: flex;
-    margin-top: 1.5rem;
-    width: 100%;
-}
-
-.qr-card {
+/* Floating Glassmorphic QR Code Card (Option 2) */
+.qr-floating-card {
+    position: absolute;
+    top: -25px;
+    left: -35px;
+    z-index: 25;
     display: flex;
     align-items: center;
-    background: rgba(0, 38, 77, 0.15);
-    border: 1.5px solid var(--outline-light);
-    border-radius: 12px;
-    padding: 12px 16px;
-    gap: 16px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    max-width: 380px;
+    background: rgba(10, 10, 15, 0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid var(--primary);
+    border-radius: 14px;
+    padding: 10px 14px;
+    gap: 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(0, 255, 255, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 260px;
 }
 
-.qr-card:hover {
-    border-color: var(--primary);
-    box-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+.qr-floating-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.85), 0 0 30px rgba(0, 255, 255, 0.35);
 }
 
 .qr-code {
-    width: 72px;
-    height: 72px;
+    width: 64px;
+    height: 64px;
     border-radius: 6px;
     border: 1px solid var(--outline-light);
-    padding: 4px;
-    background: #0a0a0f;
+    padding: 3px;
+    background: #0c0e17;
     flex-shrink: 0;
 }
 
@@ -1800,7 +1802,7 @@ html.light body.theme-red .brand-logo {
 }
 
 .qr-title {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #fff;
     font-family: var(--font-mono);
@@ -1809,10 +1811,19 @@ html.light body.theme-red .brand-logo {
 }
 
 .qr-desc {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--text-muted);
-    line-height: 1.3;
-    margin-top: 4px;
+    line-height: 1.25;
+    margin-top: 2px;
+}
+
+@media (max-width: 1024px) {
+    .qr-floating-card {
+        position: relative;
+        top: 0;
+        left: 0;
+        margin-bottom: 1rem;
+    }
 }
 
 @media (max-width: 768px) {
@@ -1823,8 +1834,8 @@ html.light body.theme-red .brand-logo {
 
 /* Smartphone Frame Mockup */
 .phone-mockup {
-    width: 290px;
-    height: 380px;
+    width: 280px;
+    height: 350px;
     border: 8px solid var(--outline-light);
     border-radius: 32px;
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.8), 0 0 25px rgba(20,167,181,0.1) !important;
