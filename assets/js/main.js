@@ -2225,9 +2225,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnRequestMic) {
         btnRequestMic.addEventListener('click', async () => {
             try {
-                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AudioSessionPlugin) {
+                const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
+                if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
                     try {
-                        await window.Capacitor.Plugins.AudioSessionPlugin.configureAudioSession();
+                        await audioPlugin.configureAudioSession();
                     } catch (e) {
                         console.warn("AudioSessionPlugin call warning:", e);
                     }

@@ -8,9 +8,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
+    private var audioSessionObservation: NSKeyValueObservation?
+
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Explicitly instruct Google Mobile Ads SDK not to overwrite our app's AVAudioSession category!
         MobileAds.shared.audioVideoManager.isAudioSessionApplicationManaged = true
+        startAudioSessionMonitoring()
         enforceAudioSessionCategory()
         return true
     }
@@ -21,6 +24,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         enforceAudioSessionCategory()
+    }
+
+    private func startAudioSessionMonitoring() {
+        let session = AVAudioSession.sharedInstance()
+        audioSessionObservation = session.observe(\.category, options: [.initial, .new]) { session, change in
+            if session.category != .playAndRecord {
+                print("⚡ [AudioSessionGuard] Detected category change to \(session.category). Forcing back to .playAndRecord...")
+                do {
+                    try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers])
+                    try session.setActive(true, options: .notifyOthersOnDeactivation)
+                } catch {
+                    print("⚡ [AudioSessionGuard Error]: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     private func enforceAudioSessionCategory() {
