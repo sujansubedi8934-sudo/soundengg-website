@@ -2225,6 +2225,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnRequestMic) {
         btnRequestMic.addEventListener('click', async () => {
             try {
+                if (typeof window.hideNativeBannerAd === 'function') {
+                    try {
+                        await window.hideNativeBannerAd();
+                    } catch (e) {
+                        console.warn("Error hiding banner before mic request:", e);
+                    }
+                }
                 const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
                 if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
                     try {
