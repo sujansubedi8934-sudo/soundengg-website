@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>SoundEngg Console</string>
+        <string>SoundEngg</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -48,7 +48,7 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>SoundEngg Console requires microphone access to enable the Real-Time Analyzer (RTA) audio analysis tools.</string>
+	<string>SoundEngg requires microphone access to enable the Real-Time Analyzer (RTA) audio analysis tools.</string>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-4117687060036448~1381133498</string>
 	<key>NSUserTrackingUsageDescription</key>

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">SoundEngg Console</string>
-    <string name="title_activity_main">SoundEngg Console</string>
+    <string name="app_name">SoundEngg</string>
+    <string name="title_activity_main">SoundEngg</string>
     <string name="package_name">com.soundengg.app</string>
     <string name="custom_url_scheme">com.soundengg.app</string>
     <string name="admob_app_id">ca-app-pub-3940256099942544~3347511713</string>
