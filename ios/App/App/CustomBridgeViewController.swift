@@ -3,7 +3,8 @@ import Capacitor
 import WebKit
 import AVFoundation
 
-class CustomBridgeViewController: CAPBridgeViewController {
+@objc(CustomBridgeViewController)
+public class CustomBridgeViewController: CAPBridgeViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
