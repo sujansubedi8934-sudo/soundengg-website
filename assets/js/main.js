@@ -1,46 +1,14 @@
-// --- iOS/iPadOS Silent switch bypass workaround ---
+// --- iOS/iPadOS AudioSession configuration for Web Tools ---
 (function() {
-    // 1. Configure navigator.audioSession if available (iOS 16+ WKWebView)
+    // Configure navigator.audioSession if available (iOS 16+ WKWebView & Safari)
     if (typeof navigator !== 'undefined' && navigator.audioSession) {
         try {
-            navigator.audioSession.type = 'playback';
-            console.log("AudioSession type set to 'playback' for silent mode bypass");
+            navigator.audioSession.type = 'play-and-record';
+            console.log("AudioSession type configured to 'play-and-record' for measurement tools.");
         } catch (e) {
             console.warn("Failed to set navigator.audioSession.type:", e);
         }
     }
-
-    // 2. Play silent WAV loop trick on first user interaction to force system media channel active
-    let silentAudioTriggered = false;
-    const playSilentAudio = () => {
-        if (silentAudioTriggered) return;
-        silentAudioTriggered = true;
-        
-        try {
-            const audio = new Audio();
-            audio.src = 'data:audio/wav;base64,UklGRjIAAABXQVZFZm10IBIAAAABAAEAQB8AAEAfAAABAAgAAABmYWN0BAAAAAAAAABkYXRhAAAAAA==';
-            audio.loop = false;
-            audio.volume = 0.01;
-            audio.play().then(() => {
-                console.log("iOS silent switch workaround successfully activated.");
-                cleanup();
-            }).catch(err => {
-                console.warn("Silent audio play failed, retrying on next interaction:", err);
-                silentAudioTriggered = false;
-            });
-        } catch (e) {
-            console.warn("Failed to create/play silent audio tag:", e);
-            silentAudioTriggered = false;
-        }
-    };
-
-    const cleanup = () => {
-        window.removeEventListener('click', playSilentAudio, { capture: true });
-        window.removeEventListener('touchstart', playSilentAudio, { capture: true });
-    };
-
-    window.addEventListener('click', playSilentAudio, { capture: true, passive: true });
-    window.addEventListener('touchstart', playSilentAudio, { capture: true, passive: true });
 })();
 
 // --- AUDIO CONTEXT INTERCEPTOR (Dynamic Output Routing) ---

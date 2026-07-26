@@ -8,13 +8,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
 
-    private var audioSessionObservation: NSKeyValueObservation?
-    private var isRestoringCategory = false
-
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Explicitly instruct Google Mobile Ads SDK not to overwrite our app's AVAudioSession category!
+        // Instruct Google Mobile Ads SDK not to overwrite our app's AVAudioSession category!
         MobileAds.shared.audioVideoManager.isAudioSessionApplicationManaged = true
-        startAudioSessionMonitoring()
         enforceAudioSessionCategory()
         return true
     }
@@ -25,31 +21,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationDidBecomeActive(_ application: UIApplication) {
         enforceAudioSessionCategory()
-    }
-
-    private func startAudioSessionMonitoring() {
-        let session = AVAudioSession.sharedInstance()
-        audioSessionObservation = session.observe(\.category, options: [.new]) { [weak self] session, change in
-            guard let self = self else { return }
-            if self.isRestoringCategory { return }
-
-            if session.category != .playAndRecord {
-                print("⚡ [AudioSessionGuard] Detected category change to \(session.category). Restoring .playAndRecord...")
-                self.isRestoringCategory = true
-                DispatchQueue.main.async {
-                    do {
-                        let currentSession = AVAudioSession.sharedInstance()
-                        if currentSession.category != .playAndRecord {
-                            try currentSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
-                            try currentSession.setActive(true)
-                        }
-                    } catch {
-                        print("⚡ [AudioSessionGuard Error]: \(error.localizedDescription)")
-                    }
-                    self.isRestoringCategory = false
-                }
-            }
-        }
     }
 
     private func enforceAudioSessionCategory() {
