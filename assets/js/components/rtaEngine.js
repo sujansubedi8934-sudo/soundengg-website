@@ -84,6 +84,13 @@ function initProfessionalRTA() {
         }
 
         try {
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AudioSessionPlugin) {
+                try {
+                    await window.Capacitor.Plugins.AudioSessionPlugin.configureAudioSession();
+                } catch (e) {
+                    console.warn("AudioSessionPlugin call warning:", e);
+                }
+            }
             const constraints = { 
                 audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true 
             };

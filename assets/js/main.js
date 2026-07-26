@@ -2225,6 +2225,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnRequestMic) {
         btnRequestMic.addEventListener('click', async () => {
             try {
+                if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.AudioSessionPlugin) {
+                    try {
+                        await window.Capacitor.Plugins.AudioSessionPlugin.configureAudioSession();
+                    } catch (e) {
+                        console.warn("AudioSessionPlugin call warning:", e);
+                    }
+                }
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 stream.getTracks().forEach(t => t.stop());
                 btnRequestMic.textContent = 'Access Granted';
