@@ -10,7 +10,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Explicitly instruct Google Mobile Ads SDK not to overwrite our app's AVAudioSession category!
-        GADMobileAds.sharedInstance().audioVideoManager.audioSessionIsApplicationManaged = true
+        GADMobileAds.sharedInstance.audioVideoManager.audioSessionIsApplicationManaged = true
         enforceAudioSessionCategory()
         return true
     }

@@ -8,7 +8,7 @@ public class AudioSessionPlugin: CAPPlugin {
     
     override public func load() {
         super.load()
-        GADMobileAds.sharedInstance().audioVideoManager.audioSessionIsApplicationManaged = true
+        GADMobileAds.sharedInstance.audioVideoManager.audioSessionIsApplicationManaged = true
         enforcePlayAndRecord()
         NotificationCenter.default.addObserver(
             self,
