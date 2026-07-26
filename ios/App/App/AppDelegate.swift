@@ -30,12 +30,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let session = AVAudioSession.sharedInstance()
         audioSessionObservation = session.observe(\.category, options: [.initial, .new]) { session, change in
             if session.category != .playAndRecord {
-                print("⚡ [AudioSessionGuard] Detected category change to \(session.category). Forcing back to .playAndRecord...")
-                do {
-                    try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers])
-                    try session.setActive(true, options: .notifyOthersOnDeactivation)
-                } catch {
-                    print("⚡ [AudioSessionGuard Error]: \(error.localizedDescription)")
+                print("⚡ [AudioSessionGuard] Detected category change to \(session.category). Restoring .playAndRecord asynchronously...")
+                DispatchQueue.main.async {
+                    do {
+                        let currentSession = AVAudioSession.sharedInstance()
+                        if currentSession.category != .playAndRecord {
+                            try currentSession.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
+                            try currentSession.setActive(true)
+                        }
+                    } catch {
+                        print("⚡ [AudioSessionGuard Error]: \(error.localizedDescription)")
+                    }
                 }
             }
         }
