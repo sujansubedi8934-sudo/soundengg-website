@@ -350,7 +350,15 @@ function initSignalGenerator() {
         });
     });
 
-    // Sweep card toggle listener deactivated (always shown)
+    // Collapsible sweep card
+    const sweepCard = document.getElementById('siggen-sweep-card');
+    const btnToggleSweep = document.getElementById('btn-toggle-siggen-sweep');
+    if (btnToggleSweep && sweepCard) {
+        btnToggleSweep.addEventListener('click', (e) => {
+            e.preventDefault();
+            sweepCard.classList.toggle('expanded');
+        });
+    }
 
     // Collapsible operational notes card
     const notesCard = document.getElementById('siggen-notes-card');
