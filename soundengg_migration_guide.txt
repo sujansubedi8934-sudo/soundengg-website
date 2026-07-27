@@ -1,0 +1,84 @@
+================================================================================
+SOUNDENGG CONSOLE - DEVELOPER MIGRATION & BACKUP GUIDE
+================================================================================
+Generated on: 2026-07-27
+
+This document outlines all critical backup and restoration steps required before 
+fully resetting your Mac laptop, ensuring you do not lose project code, signing 
+keys, or developer configurations.
+
+--------------------------------------------------------------------------------
+1. CRITICAL ASSET BACKUPS (DO NOT WIPE WITHOUT THESE)
+--------------------------------------------------------------------------------
+
+[A] ANDROID KEYSTORE FILE (CRITICAL)
+- Path: android/app/upload-keystore.jks
+- Why: This file is ignored by Git (*.jks is in .gitignore). If lost, Google Play 
+  will reject all future updates forever because signatures must match.
+- Action: Copy 'upload-keystore.jks' to a secure USB drive or Google Drive.
+
+[B] PUSH LOCAL GIT COMMITS
+- Status: Your local Git branch is 10 commits ahead of remote main.
+- Action: Run the following command to push all work to GitHub:
+  $ git push origin main
+  (Alternatively, backup the entire 'soundengg-website' folder to USB/Cloud).
+
+[C] EXPORT IOS SIGNING KEYCHAIN CERTIFICATES
+- Why: Contains the private keys signing the iOS App Store build.
+- Action: 
+  1. Open Keychain Access on your Mac.
+  2. Search for "Developer" and "Distribution" certificates.
+  3. Right-click, select Export, and save them as .p12 files.
+
+--------------------------------------------------------------------------------
+2. SYSTEM CONFIGURATIONS & AI MEMORY BACKUP
+--------------------------------------------------------------------------------
+
+Run this terminal command to automatically package your dev lists & AI memory:
+$ mkdir -p ~/Desktop/Dev_Essentials_Backup
+$ cp -r ~/.gemini ~/Desktop/Dev_Essentials_Backup/Gemini_Settings
+$ brew bundle dump --file=~/Desktop/Dev_Essentials_Backup/Brewfile
+$ npm list -g --depth=0 > ~/Desktop/Dev_Essentials_Backup/npm_global_packages.txt
+$ code --list-extensions > ~/Desktop/Dev_Essentials_Backup/vscode_extensions.txt
+
+Folder to backup: ~/Desktop/Dev_Essentials_Backup
+
+--------------------------------------------------------------------------------
+3. PASSWORDS & ACCESS TOKENS BACKUP
+--------------------------------------------------------------------------------
+
+[A] SSH KEYS (GITHUB/SERVERS ACCESS)
+- Action: Run this command to backup all your SSH keys:
+  $ cp -r ~/.ssh ~/Desktop/SSH_Backup
+
+[B] SAFARI PASSWORDS
+- Action: Already saved inside the Keychain backup!
+
+[C] CHROME PASSWORDS
+- Action: Open Chrome -> chrome://password-manager/settings -> click Export.
+
+--------------------------------------------------------------------------------
+4. HOW TO RESTORE EVERYTHING ON YOUR NEW/RESET MAC
+--------------------------------------------------------------------------------
+
+1. RESTORE AI ASSISTANT MEMORY:
+   $ cp -r /path/to/backup/Gemini_Settings ~/.gemini
+
+2. RESTORE HOMEBREW PACKAGES:
+   $ brew bundle --file=/path/to/backup/Brewfile
+
+3. RESTORE SSH KEYS:
+   $ cp -r /path/to/backup/SSH_Backup ~/.ssh
+   $ chmod 700 ~/.ssh && chmod 600 ~/.ssh/*
+
+4. RESTORE KEYCHAIN CERTIFICATES:
+   Double-click the exported .p12 files and enter their passwords.
+
+5. RESTORE VS CODE EXTENSIONS:
+   $ xargs -n 1 code --install-extension < /path/to/backup/vscode_extensions.txt
+
+6. RESTORE ANDROID KEYSTORE:
+   Copy 'upload-keystore.jks' back to the 'android/app/' directory.
+
+================================================================================
+================================================================================
