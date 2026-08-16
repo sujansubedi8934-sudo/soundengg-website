@@ -1235,13 +1235,9 @@ function initProfessionalRTA() {
             if (!AdMob) return;
 
             const isAndroid = window.Capacitor.getPlatform() === 'android';
-            let adId = '';
-            
-            if (USE_TEST_BANNER_ADS) {
-                adId = isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID;
-            } else {
-                adId = isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID;
-            }
+            let adId = USE_TEST_BANNER_ADS ? 
+                (isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID) : 
+                (isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID);
 
             console.log('Showing native bottom banner ad with unit ID:', adId);
             
@@ -1258,7 +1254,30 @@ function initProfessionalRTA() {
             const isTablet = window.innerWidth >= 768;
             document.body.style.paddingBottom = isTablet ? '90px' : '50px'; // Dynamically pad view to prevent covering navigation elements
         } catch (err) {
-            console.error('Error showing native banner ad:', err);
+            console.error('Error showing native banner ad with production ID:', err);
+            // Fallback attempt: Try test banner ID if production unit returned No ad to show in debug build
+            try {
+                const { AdMob } = window.Capacitor?.Plugins || {};
+                const isAndroid = window.Capacitor.getPlatform() === 'android';
+                const testAdId = isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID;
+                console.log('Attempting test banner ad fallback with unit ID:', testAdId);
+                await AdMob.showBanner({
+                    adId: testAdId,
+                    adSize: 'ADAPTIVE_BANNER',
+                    position: 'BOTTOM_CENTER',
+                    margin: 0,
+                    isTesting: true
+                });
+                isNativeBannerActive = true;
+                document.body.classList.add('has-native-banner');
+                const isTablet = window.innerWidth >= 768;
+                document.body.style.paddingBottom = isTablet ? '90px' : '50px';
+            } catch (fallbackErr) {
+                console.error('Fallback test banner ad also failed:', fallbackErr);
+                isNativeBannerActive = false;
+                document.body.classList.remove('has-native-banner');
+                document.body.style.paddingBottom = '0px';
+            }
         }
     };
 
@@ -1274,6 +1293,11 @@ function initProfessionalRTA() {
             el.style.display = 'none';
         });
 
+        // Always clean up DOM banner padding and class states
+        isNativeBannerActive = false;
+        document.body.classList.remove('has-native-banner');
+        document.body.style.paddingBottom = '0px';
+
         if (!window.isNativeMobile()) return;
 
         if (!window.isAdMobInitialized) {
@@ -1283,14 +1307,6 @@ function initProfessionalRTA() {
 
         if (!navigator.onLine) {
             console.log('Device is offline. Skipping native removeBanner to prevent crash.');
-            isNativeBannerActive = false;
-            document.body.classList.remove('has-native-banner');
-            document.body.style.paddingBottom = '0px';
-            return;
-        }
-
-        if (!isNativeBannerActive) {
-            console.log('Native banner is not active. Skipping native removeBanner.');
             return;
         }
 
@@ -1300,9 +1316,6 @@ function initProfessionalRTA() {
 
             console.log('Removing native bottom banner ad...');
             await AdMob.removeBanner();
-            isNativeBannerActive = false;
-            document.body.classList.remove('has-native-banner');
-            document.body.style.paddingBottom = '0px';
         } catch (err) {
             console.error('Error hiding native banner ad:', err);
         }
