@@ -631,6 +631,13 @@ function setupNavigation() {
                     canvas.width = canvas.parentElement.clientWidth;
                     canvas.height = canvas.parentElement.clientHeight;
                 }
+                if (typeof window.hideNativeBannerAd === 'function') {
+                    window.hideNativeBannerAd();
+                }
+            } else {
+                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                    window.showNativeBannerAd();
+                }
             }
 
         };

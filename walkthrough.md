@@ -504,3 +504,31 @@ We have successfully resolved the Swift Package Manager (SPM) dependency lock co
 * **Component 3 (App Rating / Review Prompt):** Added `#app-rating-dialog` to [app.html](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/app.html#L2842). Implemented tracking loops in [main.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/assets/js/main.js#L3215) that prompt users to review the app on their device's store after 15 successful calculator interactions.
 * **Component 4 (SEO-to-App Blog Templates):** Updated the generator script in [generate-static-blog.js](file:///Users/sujansubedi/Documents/GitHub/soundengg-website/generate-static-blog.js#L200) to append a prominent, responsive "Live Sound Field Companion" promotion card with store badges to the bottom of all 49 static SEO article deep dives.
 
+---
+
+## Native Android Banner Ad Restoration Fix (August 16, 2026)
+
+### Root Cause
+When opening the **RTA Spectrogram View** (`#rta-view`), `startAnalyzer()` calls `hideNativeBannerAd()`, which hides HTML sponsor banners and executes `AdMob.removeBanner()` on native Android/iOS so the banner ad does not block RTA controls or the visualizer canvas. 
+
+However, when navigating back to the Home screen (`#dashboard-view`) or any other non-RTA tool, `showView()` previously failed to call `showNativeBannerAd()`. As a result, once RTA view was opened, banner ads were removed and never re-shown for the remainder of the session.
+
+### Technical Implementation (`main.js`)
+* Updated `updateDOM()` inside `showView()` in [main.js](file:///Users/sai/Documents/GitHub/soundengg-website/assets/js/main.js):
+  * **Inside `#rta-view`**: Ensures `hideNativeBannerAd()` is called so the full viewport height is preserved for the RTA canvas and frequency displays.
+  * **Outside `#rta-view` (Home & non-RTA tools)**: If the user is on the Free tier (`!window.isPremiumActive()`), automatically invokes `showNativeBannerAd()`.
+* **Behavior**:
+  * On native Android/iOS, `showNativeBannerAd()` calls `AdMob.showBanner()`, adds `.has-native-banner` to `document.body`, and shifts `#mobile-bottom-tabs` up by `50px` so the native banner sits cleanly at the bottom without obscuring tab navigation.
+  * If `isNativeBannerActive` is already `true`, it exits early without unnecessary network/API calls.
+
+### Verification & Platform Synchronization
+1. Re-compiled production web assets and static SEO blog posts:
+   ```bash
+   npm run build
+   ```
+2. Synchronized native Capacitor platform assets for Android and iOS:
+   ```bash
+   npx cap sync
+   ```
+   * **Status:** Passed cleanly in `0.525s`.
+
