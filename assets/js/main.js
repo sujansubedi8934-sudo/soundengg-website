@@ -1679,11 +1679,52 @@ function setupNavigation() {
     if (btnMobileLaunchTapDelay) btnMobileLaunchTapDelay.addEventListener('click', () => showView(tapdelayView));
 
     // --- Inline Menu View Preference Bindings ---
+    function openExternalOrInAppUrl(url) {
+        const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
+        if (typeof window.isNativeMobile === 'function' && window.isNativeMobile() && BrowserPlugin && typeof BrowserPlugin.open === 'function') {
+            BrowserPlugin.open({ url: url });
+        } else {
+            window.open(url, '_blank');
+        }
+    }
+
     const btnMenuNavAuthor = document.getElementById('btn-menu-nav-author');
     if (btnMenuNavAuthor) {
         btnMenuNavAuthor.addEventListener('click', (e) => {
             e.preventDefault();
             showView(authorView);
+        });
+    }
+
+    const btnMenuNavPrivacy = document.getElementById('btn-menu-nav-privacy');
+    if (btnMenuNavPrivacy) {
+        btnMenuNavPrivacy.addEventListener('click', (e) => {
+            e.preventDefault();
+            openExternalOrInAppUrl('https://soundengg.com/privacy.html');
+        });
+    }
+
+    const btnMenuNavTerms = document.getElementById('btn-menu-nav-terms');
+    if (btnMenuNavTerms) {
+        btnMenuNavTerms.addEventListener('click', (e) => {
+            e.preventDefault();
+            openExternalOrInAppUrl('https://soundengg.com/terms.html');
+        });
+    }
+
+    const footerLinkPrivacy = document.getElementById('footer-link-privacy');
+    if (footerLinkPrivacy) {
+        footerLinkPrivacy.addEventListener('click', (e) => {
+            e.preventDefault();
+            openExternalOrInAppUrl('https://soundengg.com/privacy.html');
+        });
+    }
+
+    const footerLinkTerms = document.getElementById('footer-link-terms');
+    if (footerLinkTerms) {
+        footerLinkTerms.addEventListener('click', (e) => {
+            e.preventDefault();
+            openExternalOrInAppUrl('https://soundengg.com/terms.html');
         });
     }
 
