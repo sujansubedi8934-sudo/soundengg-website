@@ -322,31 +322,9 @@ function initAdManager() {
         }
     }
 
-    let countdownInterval;
-    let countdownVal = 15;
-
     function checkAdStatus() {
-        // If PALM EXPO mode is active, always bypass the ad-gate instantly
-        if (IS_EXPO_MODE_ACTIVE) {
-            console.log("⚡ PALM EXPO 2026 ACTIVE MODE: Instant premium access, ads disabled.");
-            unlockApp();
-            return;
-        }
-
-        // If user is premium active, always unlocked
-        if (window.isPremiumActive()) {
-            unlockApp();
-            return;
-        }
-
-        const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
-        const now = Date.now();
-
-        if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
-            unlockApp();
-        } else {
-            lockApp();
-        }
+        // Cold start opens directly to the clean dashboard with passive banner active (no blocking startup popup)
+        unlockApp();
     }
 
     function lockApp() {
