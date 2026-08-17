@@ -1644,7 +1644,7 @@ function initProfessionalRTA() {
         }
     }
 
-    // Floating Button Click Trigger
+    // Floating Button Click Trigger (Toggle / Exit Fullscreen)
     const btnFullscreen = document.getElementById('btn-rta-fullscreen');
     if (btnFullscreen) {
         btnFullscreen.addEventListener('click', (e) => {
@@ -1657,6 +1657,14 @@ function initProfessionalRTA() {
             } else {
                 startAdPlayback(false);
             }
+        });
+    }
+
+    const btnCloseFullscreen = document.getElementById('btn-rta-close-fullscreen');
+    if (btnCloseFullscreen) {
+        btnCloseFullscreen.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleRtaFullscreen(false);
         });
     }
 
