@@ -532,3 +532,29 @@ However, when navigating back to the Home screen (`#dashboard-view`) or any othe
    ```
    * **Status:** Passed cleanly in `0.525s`.
 
+---
+
+## Above-Bottom-Tabs Banner Ad Layout Restructure (August 17, 2026)
+
+### Objective
+Redesign the mobile banner ad layout to match industry standards (e.g. Hamro Patro design pattern):
+* The **Bottom Navigation Bar** sits permanently at the very bottom of the screen (`bottom: 0`, respecting safe-area-insets).
+* The **Native AdMob Banner** is positioned **directly ABOVE the bottom navigation bar**.
+* The **Scrollable Content** padding is dynamically expanded when the banner is active so content never clips under the ad.
+
+### Technical Implementation
+1. **Permanent Bottom Bar Docking ([responsive.css](file:///Users/sai/Documents/GitHub/soundengg-website/assets/css/responsive.css#L1018-L1495))**:
+   * Removed `.has-native-banner #mobile-bottom-tabs { bottom: 50px !important; }` and removed the hacky `#mobile-bottom-tabs::after` 120px backdrop block.
+   * Ensured `#mobile-bottom-tabs` is permanently anchored to `bottom: 0 !important;` in all states.
+   * Added `#mobile-bottom-tabs.hidden-tab-bar { display: none !important; }` for full-screen tools.
+   * Set `.has-native-banner .main-content` padding-bottom to `calc(5.5rem + env(safe-area-inset-bottom, 0px) + 60px)`.
+
+2. **Native AdMob Margin Positioning ([rtaEngine.js](file:///Users/sai/Documents/GitHub/soundengg-website/assets/js/components/rtaEngine.js#L1238-L1285))**:
+   * Dynamically calculated `bannerMargin` based on bottom tab visibility: `bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0`.
+   * Passed `position: 'BOTTOM_CENTER'` with `margin: bannerMargin` to `AdMob.showBanner()`, anchoring the banner directly on top of the tab bar.
+   * Bound `bannerAdLoaded` and `bannerAdFailedToLoad` listeners in [adManager.js](file:///Users/sai/Documents/GitHub/soundengg-website/assets/js/utils/adManager.js#L285-L300) to ensure `.has-native-banner` is only toggled when an ad is truly rendered.
+
+3. **Platform Build & Sync**:
+   * Re-compiled web assets via `npm run build`.
+   * Synced native iOS and Android projects via `npx cap sync`.
+

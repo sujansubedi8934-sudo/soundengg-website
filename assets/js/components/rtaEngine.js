@@ -1239,20 +1239,25 @@ function initProfessionalRTA() {
                 (isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID) : 
                 (isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID);
 
-            console.log('Showing native bottom banner ad with unit ID:', adId);
+            const bottomTabs = document.getElementById('mobile-bottom-tabs');
+            const isTabsVisible = bottomTabs && window.getComputedStyle(bottomTabs).display !== 'none' && !bottomTabs.classList.contains('hidden-tab-bar');
+            const isTablet = window.innerWidth >= 768;
+            
+            // Set margin so banner ad sits directly on top of the bottom navigation bar
+            const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
+
+            console.log('Showing native bottom banner ad with unit ID:', adId, 'margin:', bannerMargin);
             
             await AdMob.showBanner({
                 adId: adId,
                 adSize: 'ADAPTIVE_BANNER',
                 position: 'BOTTOM_CENTER',
-                margin: 0,
+                margin: bannerMargin,
                 isTesting: USE_TEST_BANNER_ADS
             });
 
             isNativeBannerActive = true;
             document.body.classList.add('has-native-banner');
-            const isTablet = window.innerWidth >= 768;
-            document.body.style.paddingBottom = isTablet ? '90px' : '50px'; // Dynamically pad view to prevent covering navigation elements
         } catch (err) {
             console.error('Error showing native banner ad with production ID:', err);
             // Fallback attempt: Try test banner ID if production unit returned No ad to show in debug build
@@ -1260,23 +1265,25 @@ function initProfessionalRTA() {
                 const { AdMob } = window.Capacitor?.Plugins || {};
                 const isAndroid = window.Capacitor.getPlatform() === 'android';
                 const testAdId = isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID;
-                console.log('Attempting test banner ad fallback with unit ID:', testAdId);
+                const bottomTabs = document.getElementById('mobile-bottom-tabs');
+                const isTabsVisible = bottomTabs && window.getComputedStyle(bottomTabs).display !== 'none' && !bottomTabs.classList.contains('hidden-tab-bar');
+                const isTablet = window.innerWidth >= 768;
+                const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
+
+                console.log('Attempting test banner ad fallback with unit ID:', testAdId, 'margin:', bannerMargin);
                 await AdMob.showBanner({
                     adId: testAdId,
                     adSize: 'ADAPTIVE_BANNER',
                     position: 'BOTTOM_CENTER',
-                    margin: 0,
+                    margin: bannerMargin,
                     isTesting: true
                 });
                 isNativeBannerActive = true;
                 document.body.classList.add('has-native-banner');
-                const isTablet = window.innerWidth >= 768;
-                document.body.style.paddingBottom = isTablet ? '90px' : '50px';
             } catch (fallbackErr) {
                 console.error('Fallback test banner ad also failed:', fallbackErr);
                 isNativeBannerActive = false;
                 document.body.classList.remove('has-native-banner');
-                document.body.style.paddingBottom = '0px';
             }
         }
     };
@@ -1296,7 +1303,6 @@ function initProfessionalRTA() {
         // Always clean up DOM banner padding and class states
         isNativeBannerActive = false;
         document.body.classList.remove('has-native-banner');
-        document.body.style.paddingBottom = '0px';
 
         if (!window.isNativeMobile()) return;
 

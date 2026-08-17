@@ -1018,16 +1018,8 @@
     box-shadow: 0 -5px 20px rgba(0,0,0,0.6);
 }
 
-/* cover safe area / ad gaps below the navigation bar when shifted up */
-#mobile-bottom-tabs::after {
-    content: '';
-    position: absolute;
-    top: calc(100% - 1px);
-    left: 0;
-    width: 100%;
-    height: 120px;
-    background: #0a0a0f;
-    z-index: 1;
+#mobile-bottom-tabs.hidden-tab-bar {
+    display: none !important;
 }
 
 .tab-item {
@@ -1456,39 +1448,28 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
     }
 }
 
-/* 7. Native Banner Ad Mitigations (Shift UI Elements Up) */
-.has-native-banner #mobile-bottom-tabs {
-    bottom: 50px !important;
+/* 7. Native Banner Ad Mitigations (Tabs permanently docked at bottom 0, content scrolls above banner) */
+#mobile-bottom-tabs {
+    bottom: 0 !important;
+}
+
+.has-native-banner .main-content {
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 60px) !important;
 }
 
 @media (min-width: 768px) {
-    .has-native-banner #mobile-bottom-tabs {
-        bottom: 90px !important;
-    }
-}
-
-@media (max-width: 767px) {
     .has-native-banner .main-content {
-        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 50px) !important;
-    }
-    .has-native-banner .modal-overlay {
-        padding-bottom: 50px !important;
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 100px) !important;
     }
 }
 
 .native-mobile-platform.has-native-banner .main-content {
-    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 50px) !important;
-}
-.native-mobile-platform.has-native-banner .modal-overlay {
-    padding-bottom: 50px !important;
+    padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 60px) !important;
 }
 
 @media (min-width: 768px) {
     .native-mobile-platform.has-native-banner .main-content {
-        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 90px) !important;
-    }
-    .native-mobile-platform.has-native-banner .modal-overlay {
-        padding-bottom: 90px !important;
+        padding-bottom: calc(5.5rem + env(safe-area-inset-bottom, 0px) + 100px) !important;
     }
 }
 

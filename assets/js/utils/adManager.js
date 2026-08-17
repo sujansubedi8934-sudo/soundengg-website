@@ -287,15 +287,12 @@ function initAdManager() {
                             console.log("AdMob Banner Ad loaded successfully.");
                             window.isNativeBannerActive = true;
                             document.body.classList.add('has-native-banner');
-                            const isTablet = window.innerWidth >= 768;
-                            document.body.style.paddingBottom = isTablet ? '90px' : '50px';
                         });
 
                         AdMob.addListener('bannerAdFailedToLoad', (err) => {
                             console.warn("AdMob Banner Ad failed to load (No ad to show):", err);
                             window.isNativeBannerActive = false;
                             document.body.classList.remove('has-native-banner');
-                            document.body.style.paddingBottom = '0px';
                         });
                     } catch (e) {
                         console.warn("Could not attach AdMob banner event listeners:", e);
