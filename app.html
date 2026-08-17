@@ -716,8 +716,143 @@
             </div>
         </div>
 
+        <!-- MODULE VIEW: Privacy Policy (In-App) -->
+        <div id="privacy-view" class="view-container" style="display: none;">
+            <header class="dashboard-header module-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.25rem 1rem 0.25rem; border-bottom: 1px solid var(--outline-light); margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <button class="back-link btn-back-home" type="button" style="margin-right: 4px;">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        <span class="back-btn-text">BACK TO DASHBOARD</span>
+                    </button>
+                    <span class="tool-header-title" style="font-family: var(--font-headline); font-weight: bold; font-size: 0.8rem; text-transform: uppercase; color: var(--text-heading); letter-spacing: 0.5px; margin-left: 4px;">
+                        <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem; margin-right: 8px;">|</span>
+                        Privacy Policy
+                    </span>
+                    <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem;">|</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Data & Microphone Security</span>
+                </div>
+            </header>
 
+            <div class="module-content" style="max-width: 860px; margin: 0 auto; padding-bottom: 3rem;">
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <!-- Section 1 -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">info</span> 1. Information Collection
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem;">At SoundEngg, we prioritize the privacy of our visitors and audio technicians. We collect minimal information strictly necessary to deliver a seamless audio engineering workspace:</p>
+                        <ul style="color: #94a3b8; font-size: 0.84rem; line-height: 1.6; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <li><strong style="color: #fff;">Account Information:</strong> When you register via Supabase / Apple Sign-In, we securely store your email address and profile preferences to synchronize active toolkit setups and custom presets.</li>
+                            <li><strong style="color: #fff;">System Diagnostics:</strong> Following standard technical procedures, we log anonymous diagnostic metrics to continuously test and calibrate DSP math.</li>
+                        </ul>
+                    </div>
 
+                    <!-- Section 2: Real-time Audio -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">mic</span> 2. Real-Time Audio & Microphone Processing
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem;">SoundEngg requests device microphone access (utilizing the <code>RECORD_AUDIO</code> / iOS Microphone permission) purely to perform ephemeral mathematical calculations locally on your hardware:</p>
+                        <ul style="color: #94a3b8; font-size: 0.84rem; line-height: 1.6; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <li><strong style="color: #fff;">Fast Fourier Transform (FFT):</strong> Computes real-time 31-band and high-resolution spectral distributions for the Real-Time Analyzer (RTA).</li>
+                            <li><strong style="color: #fff;">Peak & Fundamental Frequency Detection:</strong> Identifies live room resonances and feedback frequencies.</li>
+                        </ul>
+                        <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: rgba(0, 242, 254, 0.08); border-left: 3px solid var(--primary); border-radius: 6px; font-size: 0.84rem; color: #e2e8f0; line-height: 1.5;">
+                            <strong>Zero Audio Storage Guarantee:</strong> Zero audio data is recorded, saved, cached, or transmitted to any server. Audio buffers exist only in volatile RAM for milliseconds and are discarded immediately after calculation.
+                        </div>
+                    </div>
+
+                    <!-- Section 3: AdMob -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: #f59e0b; font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">ads_click</span> 3. Google AdMob & Privacy Controls
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem;">SoundEngg serves non-disruptive advertisements using Google AdMob. On mobile devices, standard anonymous advertising identifiers (Apple IDFA or Google AAID) are handled strictly in accordance with App Store & Google Play privacy policies.</p>
+                        <p style="color: #94a3b8; font-size: 0.84rem; line-height: 1.6;">You can upgrade to <strong>SoundEngg Pro</strong> at any time to permanently remove all advertisements and unlock unrestricted offline functionality.</p>
+                    </div>
+
+                    <!-- Section 4: Data Security -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">security</span> 4. Enterprise-Grade Data Security
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">Authentication is securely routed through Supabase with end-to-end TLS encryption. Passwords and credentials are never stored in raw plaintext.</p>
+                    </div>
+
+                    <!-- Section 5: Account Deletion -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">delete_forever</span> 5. User Data Deletion Rights
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">You can permanently delete your account and all associated profile configs at any time using the in-app "Delete My Account" button located in the Preferences tab, or by emailing <a href="mailto:legal@soundengg.com" style="color: var(--primary);">legal@soundengg.com</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE VIEW: Terms of Service (In-App) -->
+        <div id="terms-view" class="view-container" style="display: none;">
+            <header class="dashboard-header module-header" style="display: flex; justify-content: space-between; align-items: center; padding: 0.5rem 0.25rem 1rem 0.25rem; border-bottom: 1px solid var(--outline-light); margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.75rem;">
+                <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                    <button class="back-link btn-back-home" type="button" style="margin-right: 4px;">
+                        <span class="material-symbols-outlined">arrow_back</span>
+                        <span class="back-btn-text">BACK TO DASHBOARD</span>
+                    </button>
+                    <span class="tool-header-title" style="font-family: var(--font-headline); font-weight: bold; font-size: 0.8rem; text-transform: uppercase; color: var(--text-heading); letter-spacing: 0.5px; margin-left: 4px;">
+                        <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem; margin-right: 8px;">|</span>
+                        Terms of Service
+                    </span>
+                    <span class="header-divider" style="color: var(--outline-light); font-family: var(--font-mono); font-size: 0.8rem;">|</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">User Agreements & Safety</span>
+                </div>
+            </header>
+
+            <div class="module-content" style="max-width: 860px; margin: 0 auto; padding-bottom: 3rem;">
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <!-- Section 1 -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">gavel</span> 1. Agreement to Terms
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">By accessing the Titan Console application, you agree to be bound by these Terms of Service. These terms apply to all audio engineers, technicians, and system designers deploying our utilities.</p>
+                    </div>
+
+                    <!-- Section 2: Safety Disclaimer -->
+                    <div class="settings-console-widget" style="background: #1a1215; border: 1.5px solid rgba(239, 68, 68, 0.35); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: #ef4444; font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">warning</span> 2. Engineering & Safety Disclaimer
+                        </h3>
+                        <p style="color: #fca5a5; font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem;"><strong>CRITICAL NOTICE:</strong> All calculators, delay alignments, cardioid subwoofer spacing formulas, and measurement tools are designed as precision advisory aids. Live sound reinforcement involves extreme acoustic and high-voltage electrical energy.</p>
+                        <p style="color: #cbd5e1; font-size: 0.84rem; line-height: 1.6;">Always verify theoretical calculations against physical laser distance meters and verified manufacturer guidelines before driving high-voltage amplifier channels.</p>
+                    </div>
+
+                    <!-- Section 3: Intellectual Property -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">copyright</span> 3. Intellectual Property Rights
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">All DSP algorithms, interactive schematic generators, acoustic delay matrices, and application logic are the proprietary intellectual property of SoundEngg.</p>
+                    </div>
+
+                    <!-- Section 4: Pro Subscriptions & Refunds -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">verified</span> 4. Pro Subscriptions & Guarantee
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6; margin-bottom: 0.75rem;">SoundEngg Pro is available as Monthly, Yearly, and Lifetime licenses. In-app purchases are securely processed through Apple App Store (In-App Purchases) on iOS and Google Play Billing on Android.</p>
+                        <p style="color: #94a3b8; font-size: 0.84rem; line-height: 1.6;">For web purchases, we provide a 7-day money-back guarantee via <a href="mailto:support@soundengg.com" style="color: var(--primary);">support@soundengg.com</a>.</p>
+                    </div>
+
+                    <!-- Section 5: Support -->
+                    <div class="settings-console-widget" style="background: #121620; border: 1px solid rgba(0, 242, 254, 0.22); border-radius: 14px; padding: 1.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                        <h3 style="color: var(--primary); font-family: var(--font-headline); font-size: 1.05rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="font-size: 1.25rem;">contact_support</span> 5. Further Assistance
+                        </h3>
+                        <p style="color: #cbd5e1; font-size: 0.88rem; line-height: 1.6;">If you have any questions regarding usage terms, licensing, or corporate deployment, please contact our engineering support team at <a href="mailto:support@soundengg.com" style="color: var(--primary);">support@soundengg.com</a>.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
     <!-- Settings View (Inline Page) -->
     <div id="settings-view" class="view-container" style="display: none;">

@@ -325,9 +325,11 @@ function setupNavigation() {
     const tapdelayView = document.getElementById('tap-delay-view');
     const menuView = document.getElementById('menu-view');
     const settingsView = document.getElementById('settings-view');
+    const privacyView = document.getElementById('privacy-view');
+    const termsView = document.getElementById('terms-view');
     
     // IDs for ALL primary views to manage visibility
-    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, impedanceView, subcalcView, tapdelayView, menuView, settingsView];
+    const ALL_VIEWS = [dashboardView, rtaView, authorView, moduleView, pinoutView, blogView, siggenView, earTrainingView, impedanceView, subcalcView, tapdelayView, menuView, settingsView, privacyView, termsView];
 
     const btnLaunchRta = document.getElementById('btn-launch-rta');
     const btnLaunchDelay = document.getElementById('btn-launch-delay');
@@ -1700,7 +1702,7 @@ function setupNavigation() {
     if (btnMenuNavPrivacy) {
         btnMenuNavPrivacy.addEventListener('click', (e) => {
             e.preventDefault();
-            openExternalOrInAppUrl('https://soundengg.com/privacy.html');
+            showView(privacyView);
         });
     }
 
@@ -1708,23 +1710,7 @@ function setupNavigation() {
     if (btnMenuNavTerms) {
         btnMenuNavTerms.addEventListener('click', (e) => {
             e.preventDefault();
-            openExternalOrInAppUrl('https://soundengg.com/terms.html');
-        });
-    }
-
-    const footerLinkPrivacy = document.getElementById('footer-link-privacy');
-    if (footerLinkPrivacy) {
-        footerLinkPrivacy.addEventListener('click', (e) => {
-            e.preventDefault();
-            openExternalOrInAppUrl('https://soundengg.com/privacy.html');
-        });
-    }
-
-    const footerLinkTerms = document.getElementById('footer-link-terms');
-    if (footerLinkTerms) {
-        footerLinkTerms.addEventListener('click', (e) => {
-            e.preventDefault();
-            openExternalOrInAppUrl('https://soundengg.com/terms.html');
+            showView(termsView);
         });
     }
 
