@@ -2969,52 +2969,116 @@ window.syncMobileNavDropdownLabel = syncMobileNavDropdownLabel;
 // --- Capacitor App Version Verification & Force Updates ---
 function initAppVersionCheck() {
     if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
-        console.log('[VersionCheck] Native mobile detected, checking build version...');
+        console.log('[VersionCheck] Native mobile detected, verifying store version status...');
         const DevicePlugin = window.Capacitor?.Plugins?.Device;
+        const platform = window.Capacitor?.getPlatform ? window.Capacitor.getPlatform() : 'web';
+        const isIOS = platform === 'ios';
+        const isAndroid = platform === 'android';
+
         if (DevicePlugin) {
             DevicePlugin.getInfo().then(async (info) => {
-                const currentBuild = parseInt(info.appBuild, 10);
-                console.log('[VersionCheck] Local App Build:', currentBuild);
+                const currentBuild = parseInt(info.appBuild, 10) || 0;
+                const currentVersionName = info.appVersion || "1.0.0";
+                console.log('[VersionCheck] Local Platform:', platform, 'Build:', currentBuild, 'Version:', currentVersionName);
                 
                 const currentBuildEl = document.getElementById('update-current-build');
                 if (currentBuildEl) {
-                    currentBuildEl.textContent = currentBuild;
+                    currentBuildEl.textContent = `${currentVersionName} (${currentBuild})`;
                 }
                 
                 try {
-                    // Bypass caching to fetch version settings live
-                    const res = await fetch('https://www.soundengg.com/app-version.json?t=' + Date.now());
-                    if (!res.ok) {
-                        throw new Error(`Failed to fetch version metadata (Status: ${res.status})`);
+                    let hasNewVersion = false;
+                    let latestStoreVersion = currentVersionName;
+                    let requiredBuild = currentBuild;
+                    let downloadUrl = isIOS 
+                        ? 'https://apps.apple.com/us/app/soundengg/id6783749210' 
+                        : 'https://play.google.com/store/apps/details?id=com.soundengg.app';
+                    let updateMessage = "A new version of SoundEngg is available with RTA optimizations and performance upgrades.";
+                    let isForceUpdate = false;
+
+                    // 1. Fetch SoundEngg central version configuration
+                    try {
+                        const res = await fetch('https://www.soundengg.com/app-version.json?t=' + Date.now());
+                        if (res.ok) {
+                            const versionConfig = await res.json();
+                            requiredBuild = parseInt(versionConfig.latestVersionCode, 10) || currentBuild;
+                            isForceUpdate = !!versionConfig.forceUpdate;
+                            if (versionConfig.message) updateMessage = versionConfig.message;
+                            if (isIOS && versionConfig.iosDownloadUrl) {
+                                downloadUrl = versionConfig.iosDownloadUrl;
+                            } else if (isAndroid && versionConfig.androidDownloadUrl) {
+                                downloadUrl = versionConfig.androidDownloadUrl;
+                            } else if (versionConfig.downloadUrl) {
+                                downloadUrl = versionConfig.downloadUrl;
+                            }
+                            if (versionConfig.latestVersionName) {
+                                latestStoreVersion = versionConfig.latestVersionName;
+                            }
+                            if (currentBuild < requiredBuild) {
+                                hasNewVersion = true;
+                            }
+                        }
+                    } catch (configErr) {
+                        console.warn('[VersionCheck] Central config fetch warning:', configErr);
                     }
-                    const versionConfig = await res.json();
-                    const requiredBuild = parseInt(versionConfig.latestVersionCode, 10);
-                    console.log('[VersionCheck] Remote Required Build:', requiredBuild, 'Force Update:', versionConfig.forceUpdate);
-                    
+
+                    // 2. On iOS, cross-verify with Apple's public iTunes Lookup API
+                    if (isIOS) {
+                        try {
+                            const itunesRes = await fetch('https://itunes.apple.com/lookup?bundleId=com.soundengg.app&t=' + Date.now());
+                            if (itunesRes.ok) {
+                                const itunesData = await itunesRes.json();
+                                if (itunesData.resultCount > 0 && itunesData.results[0]?.version) {
+                                    const appStoreVersion = itunesData.results[0].version;
+                                    console.log('[VersionCheck] Live App Store Version:', appStoreVersion);
+                                    if (itunesData.results[0].trackViewUrl) {
+                                        downloadUrl = itunesData.results[0].trackViewUrl;
+                                    }
+                                    // Semantic version comparison
+                                    if (appStoreVersion !== currentVersionName && compareSemVer(appStoreVersion, currentVersionName) > 0) {
+                                        hasNewVersion = true;
+                                        latestStoreVersion = appStoreVersion;
+                                    }
+                                }
+                            }
+                        } catch (itunesErr) {
+                            console.warn('[VersionCheck] iTunes lookup warning:', itunesErr);
+                        }
+                    }
+
                     const requiredBuildEl = document.getElementById('update-required-build');
                     if (requiredBuildEl) {
-                        requiredBuildEl.textContent = requiredBuild;
+                        requiredBuildEl.textContent = `${latestStoreVersion} (${requiredBuild})`;
                     }
                     
-                    if (currentBuild < requiredBuild) {
-                        console.warn('[VersionCheck] App build is stale! Triggering update prompt...');
+                    if (hasNewVersion) {
+                        console.warn('[VersionCheck] Update available! Presenting update prompt to user...');
                         const updateOverlay = document.getElementById('update-modal-overlay');
                         if (updateOverlay) {
                             openModal(updateOverlay);
                             
                             const downloadBtn = document.getElementById('btn-update-download');
-                            if (downloadBtn && versionConfig.downloadUrl) {
-                                downloadBtn.href = versionConfig.downloadUrl;
+                            if (downloadBtn) {
+                                downloadBtn.href = downloadUrl;
+                                downloadBtn.onclick = (e) => {
+                                    e.preventDefault();
+                                    const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
+                                    if (BrowserPlugin && typeof BrowserPlugin.open === 'function') {
+                                        BrowserPlugin.open({ url: downloadUrl });
+                                    } else {
+                                        window.open(downloadUrl, '_system');
+                                    }
+                                };
                             }
                             
                             const messageEl = document.getElementById('update-modal-message');
-                            if (messageEl && versionConfig.message) {
-                                messageEl.textContent = versionConfig.message;
+                            if (messageEl) {
+                                messageEl.textContent = updateMessage;
                             }
 
                             const laterBtn = document.getElementById('btn-update-later');
                             if (laterBtn) {
-                                if (versionConfig.forceUpdate) {
+                                if (isForceUpdate) {
                                     laterBtn.style.display = 'none';
                                 } else {
                                     laterBtn.style.display = 'block';
@@ -3025,7 +3089,7 @@ function initAppVersionCheck() {
                             }
                         }
                     } else {
-                        console.log('[VersionCheck] App version is up to date.');
+                        console.log('[VersionCheck] SoundEngg version is up to date:', currentVersionName, `(Build ${currentBuild})`);
                     }
                 } catch (err) {
                     console.error('[VersionCheck] Error verifying app updates:', err);
@@ -3039,6 +3103,19 @@ function initAppVersionCheck() {
     } else {
         console.log('[VersionCheck] App is running in standard web browser/PWA. Version checking bypassed.');
     }
+}
+
+// Helper: Semantic Version Comparison (returns 1 if v1 > v2, -1 if v1 < v2, 0 if equal)
+function compareSemVer(v1, v2) {
+    const p1 = (v1 || '').split('.').map(n => parseInt(n, 10) || 0);
+    const p2 = (v2 || '').split('.').map(n => parseInt(n, 10) || 0);
+    for (let i = 0; i < Math.max(p1.length, p2.length); i++) {
+        const num1 = p1[i] || 0;
+        const num2 = p2[i] || 0;
+        if (num1 > num2) return 1;
+        if (num1 < num2) return -1;
+    }
+    return 0;
 }
 
 // --- Capacitor Native App Logo Swap ---

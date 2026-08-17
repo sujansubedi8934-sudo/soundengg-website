@@ -1,7 +1,9 @@
 {
   "latestVersionCode": 36,
   "latestVersionName": "1.1.12",
-  "downloadUrl": "https://play.google.com/apps/internaltest/4701593727903746246",
-  "forceUpdate": true,
-  "message": "Production release with active AdMob ads enabled."
+  "iosDownloadUrl": "https://apps.apple.com/us/app/soundengg/id6783749210",
+  "androidDownloadUrl": "https://play.google.com/store/apps/details?id=com.soundengg.app",
+  "downloadUrl": "https://play.google.com/store/apps/details?id=com.soundengg.app",
+  "forceUpdate": false,
+  "message": "A new version of SoundEngg is available with RTA engine optimizations and checkout improvements."
 }
