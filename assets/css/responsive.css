@@ -1517,12 +1517,12 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
     color: #050508 !important;
 }
 
-/* Hide footer links globally on mobile viewports */
-@media (max-width: 768px) {
-    body:not(.landing-page) footer {
-        display: none !important;
-    }
-    
+/* Hide footer links globally on native mobile apps (iPad, tablet & phone) and inside app console */
+.native-mobile-platform footer,
+body:not(.landing-page) footer {
+    display: none !important;
+}
+
     /* Preferences Menu View Styling */
     #menu-view {
         padding: 1.25rem 1rem;
