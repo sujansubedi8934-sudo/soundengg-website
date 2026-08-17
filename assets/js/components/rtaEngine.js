@@ -1451,15 +1451,17 @@ function initProfessionalRTA() {
             }
 
             let hasAdStartedOrFailed = false;
+            const isMacDesktop = (typeof navigator !== 'undefined' && (navigator.platform === 'MacIntel' || navigator.userAgent.includes('Macintosh')));
+            const timeoutDuration = isMacDesktop ? 2500 : 7000;
 
             const failSafeTimeout = setTimeout(() => {
                 if (!hasAdStartedOrFailed) {
-                    console.warn('Native AdMob timed out after 8000ms. Falling back to browser simulation.');
+                    console.warn(`Native AdMob timed out after ${timeoutDuration}ms. Falling back to browser simulation.`);
                     hasAdStartedOrFailed = true;
                     if (mobileLoader) mobileLoader.classList.remove('active');
                     triggerBrowserAdPlayback();
                 }
-            }, 8000);
+            }, timeoutDuration);
 
             window.showNativeInterstitialAd(
                 () => {
