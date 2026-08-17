@@ -1049,28 +1049,30 @@
     color: var(--primary);
 }
 
-/* Center Floating Circular Button */
+/* Center Rectangular/Pill Button for RTA */
 .console-center-tab {
     position: relative;
-    top: -12px;
+    top: 0;
     overflow: visible;
 }
 
 .console-circle-btn {
-    width: 54px;
-    height: 54px;
-    background: linear-gradient(135deg, var(--primary), var(--accent));
-    border-radius: 50% !important;
+    width: 46px;
+    height: 30px;
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(0, 255, 204, 0.1));
+    border: 1.5px solid var(--primary);
+    border-radius: 8px !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4), 0 0 0 4px rgba(10, 10, 15, 0.92);
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.25);
+    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    margin-bottom: 2px;
 }
 
 .console-circle-btn span {
-    color: #050508 !important;
-    font-size: 1.8rem !important;
+    color: var(--primary) !important;
+    font-size: 1.45rem !important;
     margin-bottom: 0 !important;
 }
 
@@ -1079,7 +1081,10 @@
 }
 
 .console-center-tab .tab-label {
-    margin-top: 4px;
+    margin-top: 2px;
+    color: var(--primary);
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
 
 /* 4. Mobile Dashboard Design */
@@ -1501,9 +1506,15 @@ html:active-view-transition-type(backward)::view-transition-new(root) {
 
 /* Enhancements for center Console tab active state glow */
 .tab-item.active .console-circle-btn {
-    box-shadow: 0 0 20px rgba(0, 242, 254, 0.8), 0 0 0 4px var(--primary);
-    transform: translateY(-2px);
-    border-radius: 50% !important;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-color: #ffffff;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.6), 0 2px 8px rgba(0, 0, 0, 0.6);
+    transform: scale(1.05);
+    border-radius: 8px !important;
+}
+
+.tab-item.active .console-circle-btn span {
+    color: #050508 !important;
 }
 
 /* Hide footer links globally on mobile viewports */
