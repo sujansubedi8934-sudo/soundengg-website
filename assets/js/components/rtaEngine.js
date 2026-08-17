@@ -106,10 +106,15 @@ function initProfessionalRTA() {
                     console.warn("AudioSessionPlugin call warning:", e);
                 }
             }
-            const constraints = { 
+            let constraints = { 
                 audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true 
             };
-            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+            } catch (constraintErr) {
+                console.warn("Exact mic constraint failed, falling back to default audio input:", constraintErr);
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            }
             
             try {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
