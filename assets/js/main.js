@@ -525,15 +525,32 @@ function setupNavigation() {
         // Find the currently active view
         const currentView = ALL_VIEWS.find(v => v && v.style.display === 'block');
 
-        // Transition ad gate interceptor for free users (triggered on tool transitions)
+        // Transition ad gate interceptor for free users (smart frequency & periodic Pro consent)
         if (!bypassAd && typeof window.executeWithAdGate === 'function' && !window.isUserPro && !window.isPremiumActive()) {
             const isToolView = ['rta-view', 'siggen-view', 'delay-view', 'subcalc-view', 'voltage-view', 'freq-view', 'attenuation-view', 'pinout-view', 'ear-training-view', 'impedance-view'].includes(targetView.id);
             
             if (isToolView && currentView !== targetView) {
                 if (!window.toolSwitchCount) window.toolSwitchCount = 0;
                 window.toolSwitchCount++;
-                if (window.toolSwitchCount % 1 === 0) {
-                    console.log(`Tool transition to ${targetView.id}. Triggering interstitial ad...`);
+                
+                // 1st switch & every 5th switch: Ask for consent / Show Support SoundEngg & Pro Upgrade modal
+                // Other switches: Trigger smooth interstitial ad on every 2nd switch
+                const isConsentMilestone = (window.toolSwitchCount === 1 || window.toolSwitchCount % 5 === 0);
+                const isEverySecondSwitch = (window.toolSwitchCount % 2 === 0);
+                
+                if (isConsentMilestone) {
+                    console.log(`Tool switch #${window.toolSwitchCount} (Milestone). Presenting Pro Support Modal...`);
+                    window.pendingAdAction = () => {
+                        showView(targetView, navButton, skipHistory, isBackAction, true);
+                    };
+                    if (typeof window.triggerMobileLock === 'function') {
+                        window.triggerMobileLock();
+                    } else if (typeof window.lockApp === 'function') {
+                        window.lockApp();
+                    }
+                    return;
+                } else if (isEverySecondSwitch) {
+                    console.log(`Tool switch #${window.toolSwitchCount}. Triggering direct Interstitial ad...`);
                     window.executeWithAdGate(() => {
                         showView(targetView, navButton, skipHistory, isBackAction, true);
                     }, targetView.id);
@@ -2969,21 +2986,49 @@ window.syncMobileNavDropdownLabel = syncMobileNavDropdownLabel;
 function initAppVersionCheck() {
     if (typeof window.isNativeMobile === 'function' && window.isNativeMobile()) {
         console.log('[VersionCheck] Native mobile detected, verifying store version status...');
+        const AppPlugin = window.Capacitor?.Plugins?.App;
         const DevicePlugin = window.Capacitor?.Plugins?.Device;
         const platform = window.Capacitor?.getPlatform ? window.Capacitor.getPlatform() : 'web';
         const isIOS = platform === 'ios';
         const isAndroid = platform === 'android';
 
-        if (DevicePlugin) {
-            DevicePlugin.getInfo().then(async (info) => {
-                const currentBuild = parseInt(info.appBuild, 10) || 0;
-                const currentVersionName = info.appVersion || "1.0.0";
-                console.log('[VersionCheck] Local Platform:', platform, 'Build:', currentBuild, 'Version:', currentVersionName);
-                
-                const currentBuildEl = document.getElementById('update-current-build');
-                if (currentBuildEl) {
-                    currentBuildEl.textContent = `${currentVersionName} (${currentBuild})`;
+        async function resolveAppVersion() {
+            let build = 0;
+            let version = "1.0.0";
+            if (AppPlugin && typeof AppPlugin.getInfo === 'function') {
+                try {
+                    const appInfo = await AppPlugin.getInfo();
+                    build = parseInt(appInfo.build, 10) || 0;
+                    version = appInfo.version || "1.0.0";
+                } catch (e) {
+                    console.warn('[VersionCheck] AppPlugin.getInfo error:', e);
                 }
+            }
+            if (!build && DevicePlugin && typeof DevicePlugin.getInfo === 'function') {
+                try {
+                    const devInfo = await DevicePlugin.getInfo();
+                    build = parseInt(devInfo.appBuild || devInfo.build, 10) || 0;
+                    version = devInfo.appVersion || devInfo.version || version;
+                } catch (e) {
+                    console.warn('[VersionCheck] DevicePlugin.getInfo error:', e);
+                }
+            }
+            return { build, version };
+        }
+
+        resolveAppVersion().then(async ({ build: currentBuild, version: currentVersionName }) => {
+            console.log('[VersionCheck] Local Platform:', platform, 'Build:', currentBuild, 'Version:', currentVersionName);
+            
+            // If local build is unresolved, avoid false trigger
+            if (currentBuild <= 0 && currentVersionName === "1.0.0") {
+                console.log('[VersionCheck] Local build info not available. Bypassing check.');
+                return;
+            }
+
+            const currentBuildEl = document.getElementById('update-current-build');
+            if (currentBuildEl) {
+                currentBuildEl.textContent = `${currentVersionName} (${currentBuild})`;
+            }
                 
                 try {
                     let hasNewVersion = false;

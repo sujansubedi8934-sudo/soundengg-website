@@ -348,6 +348,9 @@ function initAdManager() {
         triggerBrowserLock();
     }
 
+    window.lockApp = lockApp;
+    window.triggerMobileLock = triggerMobileLock;
+    
     function triggerMobileLock() {
         modal.classList.remove('hidden');
 
