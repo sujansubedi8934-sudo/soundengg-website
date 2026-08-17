@@ -1327,33 +1327,30 @@
         overflow-y: auto;
         animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }
-}
-
-/* Also apply to Native Capacitor Platform (only on phone viewports to prevent wide stretched bottom sheets on iPad) */
+/* Also apply to Native Capacitor Platform (clean centered dialog floating above bottom banner) */
 @media (max-width: 768px) {
     .native-mobile-platform .modal-overlay {
         display: flex !important;
-        align-items: flex-end !important;
+        align-items: center !important;
         justify-content: center !important;
-        padding: 0 !important;
-        background-color: rgba(0, 0, 0, 0.75) !important;
+        padding: 1rem 1rem calc(75px + env(safe-area-inset-bottom, 0px)) 1rem !important;
+        background-color: rgba(0, 0, 0, 0.85) !important;
     }
     .native-mobile-platform .modal-overlay.hidden {
         display: none !important;
     }
     .native-mobile-platform .modal-overlay > div:not(.mobile-ad-loader-content) {
-        width: 100% !important;
-        max-width: 100% !important;
-        border-radius: 20px 20px 0 0 !important;
-        margin: 0 !important;
-        padding: 2.5rem 1.5rem calc(2.5rem + env(safe-area-inset-bottom, 0px)) 1.5rem !important;
-        border-bottom: none !important;
-        border-left: none !important;
-        border-right: none !important;
+        width: 92% !important;
+        max-width: 480px !important;
+        border-radius: 14px !important;
+        margin: auto !important;
+        padding: 2rem 1.5rem !important;
+        border: 1px solid var(--primary) !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 0 1px inset rgba(255,255,255,0.1) !important;
         box-sizing: border-box;
-        max-height: 85vh;
+        max-height: 80vh;
         overflow-y: auto;
-        animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+        animation: none !important;
     }
 }
 

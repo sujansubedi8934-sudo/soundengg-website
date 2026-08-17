@@ -10,8 +10,8 @@
     z-index: 2000; /* Senior Priority: Higher than everything else */
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Changed from center to prevent top clipping */
-    padding: 2rem 1rem;
+    align-items: center; /* Clean optical vertical center */
+    padding: 1.5rem 1rem calc(75px + env(safe-area-inset-bottom, 0px)) 1rem;
     overflow-y: auto;
     transition: opacity 0.4s ease, visibility 0.4s;
     pointer-events: auto; /* Ensure events are captured */
