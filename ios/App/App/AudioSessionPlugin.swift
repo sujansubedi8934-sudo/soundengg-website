@@ -16,10 +16,27 @@ public class AudioSessionPlugin: CAPPlugin {
             name: AVAudioSession.routeChangeNotification,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleInterruption),
+            name: AVAudioSession.interruptionNotification,
+            object: nil
+        )
     }
 
     @objc func handleRouteChange(notification: Notification) {
         enforcePlayAndRecord()
+    }
+
+    @objc func handleInterruption(notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
+        if type == .ended {
+            enforcePlayAndRecord()
+        }
     }
 
     @objc func configureAudioSession(_ call: CAPPluginCall) {
@@ -35,7 +52,7 @@ public class AudioSessionPlugin: CAPPlugin {
     private func enforcePlayAndRecord() -> Bool {
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers])
+            try session.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP, .mixWithOthers])
             try session.setActive(true, options: .notifyOthersOnDeactivation)
             return true
         } catch {

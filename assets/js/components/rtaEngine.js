@@ -1150,65 +1150,84 @@ function initProfessionalRTA() {
 
 
     // --- Robust Audio Engine Recovery on Lifecycle & Ad Interruptions ---
-    async function resumeRtaAudioEngine() {
-        if (!isAnalyzing) return;
-        
-        console.log("[RTA Engine] Recovering Audio Engine & Mic Stream on app resume...");
-        
-        // 1. Resume AudioContext if suspended or interrupted
-        if (audioCtx) {
-            if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
-                try {
-                    await audioCtx.resume();
-                    console.log("[RTA Engine] AudioContext resumed. State:", audioCtx.state);
-                } catch (err) {
-                    console.warn("[RTA Engine] Failed to resume AudioContext directly:", err);
-                }
-            }
+    async function restartAnalyzer() {
+        console.log("[RTA Engine] Forcing full hardware audio pipeline restart...");
+        if (rafID) {
+            cancelAnimationFrame(rafID);
+            rafID = null;
         }
-        
-        // 2. Check if Mic Stream track is alive
-        const track = stream ? stream.getAudioTracks()[0] : null;
-        const isTrackDead = !track || track.readyState === 'ended' || track.muted;
-        
-        if (isTrackDead) {
-            console.log("[RTA Engine] Mic track was terminated by iOS/iPadOS lifecycle. Re-acquiring stream...");
+        if (stream) {
             try {
-                const savedMicId = safeStorage.getItem('soundengg-mic-id') || 'default';
-                if (stream) {
-                    stream.getTracks().forEach(t => t.stop());
-                }
-                
-                const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
-                if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
-                    try { await audioPlugin.configureAudioSession(); } catch(e){}
-                }
-                
-                const constraints = { 
-                    audio: (savedMicId && savedMicId !== 'default') ? { deviceId: { exact: savedMicId } } : true 
-                };
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                if (audioCtx && analyser) {
-                    if (source) {
-                        try { source.disconnect(); } catch(e){}
-                    }
-                    source = audioCtx.createMediaStreamSource(stream);
-                    source.connect(analyser);
-                }
-            } catch (micErr) {
-                console.error("[RTA Engine] Re-acquiring mic stream failed:", micErr);
-            }
+                stream.getTracks().forEach(t => t.stop());
+            } catch (e) {}
+            stream = null;
+        }
+        if (source) {
+            try { source.disconnect(); } catch(e){}
+            source = null;
         }
         
-        // 3. Ensure animation frame loop is running
-        if (!rafID && isAnalyzing) {
+        const savedMicId = safeStorage.getItem('soundengg-mic-id') || 'default';
+        
+        try {
+            const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
+            if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+                try {
+                    await audioPlugin.configureAudioSession();
+                } catch (e) {
+                    console.warn("AudioSessionPlugin configureAudioSession warning:", e);
+                }
+            }
+            
+            const constraints = { 
+                audio: (savedMicId && savedMicId !== 'default') ? { deviceId: { exact: savedMicId } } : true 
+            };
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
+                try { await audioCtx.resume(); } catch (e) {}
+            }
+            
+            if (!analyser) {
+                analyser = audioCtx.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = 0;
+            }
+            
+            source = audioCtx.createMediaStreamSource(stream);
+            source.connect(analyser);
+            
+            bufferLength = analyser.frequencyBinCount;
+            dataArray = new Float32Array(bufferLength);
+            timeData = new Float32Array(analyser.fftSize);
+            smoothedDataArray = new Float32Array(bufferLength).fill(-100);
+            
+            precomputeCalibrationOffsets();
+            isInitialized = true;
+            isAnalyzing = true;
+            
+            if (startBtn) {
+                startBtn.classList.remove('pulse-glow');
+                startBtn.classList.add('active', 'danger-btn');
+                startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
+            }
+            
+            syncRtaCanvasSize();
             lastFrameTime = performance.now();
             rafID = requestAnimationFrame(draw);
+            console.log("[RTA Engine] Hardware audio pipeline successfully restarted!");
+        } catch (err) {
+            console.error("[RTA Engine] Restart audio pipeline failed:", err);
         }
-        
-        // 4. Re-sync canvas dimensions
-        syncRtaCanvasSize();
+    }
+    window.restartAnalyzer = restartAnalyzer;
+
+    async function resumeRtaAudioEngine() {
+        if (!isAnalyzing) return;
+        await restartAnalyzer();
     }
     window.resumeRtaAudioEngine = resumeRtaAudioEngine;
 
@@ -1494,6 +1513,14 @@ function initProfessionalRTA() {
                     grantAdRewardSuccess(false);
                     closeAdPlayback(false);
 
+                    // Re-engage audio capture pipeline immediately
+                    if (isAnalyzing) {
+                        restartAnalyzer();
+                        setTimeout(() => {
+                            if (isAnalyzing) restartAnalyzer();
+                        }, 400);
+                    }
+
                     setTimeout(() => {
                         let displayName = "SoundEngg Pro Features";
                         if (currentUnlockFeatureKey) {
@@ -1597,6 +1624,10 @@ function initProfessionalRTA() {
         } else {
             isAdRewardClaimed = true;
             toggleRtaFullscreen(true);
+            restartAnalyzer();
+            setTimeout(() => {
+                if (isAnalyzing) restartAnalyzer();
+            }, 400);
         }
     }
 
