@@ -285,6 +285,12 @@ function initProfessionalRTA() {
             rafID = null;
             return;
         }
+
+        // Auto-recover if audio context was suspended in background
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(() => {});
+        }
+
         rafID = requestAnimationFrame(draw);
 
         if (!timestamp) timestamp = performance.now();
@@ -565,6 +571,7 @@ function initProfessionalRTA() {
     }
 
     function drawDominantOverlay() {
+        if (!isAnalyzing || domFreqDisplay === '--- Hz') return;
         ctx.save();
         // Use explicit font stack as canvas API doesn't support CSS variables
         ctx.font = "bold 54px 'Space Grotesk', sans-serif";
@@ -581,7 +588,13 @@ function initProfessionalRTA() {
         const domFreqEl = document.getElementById('rta-dom-val');
         
         const maxDB = Math.max(...peakData);
-        if (peakValEl) peakValEl.textContent = `${(maxDB + calibrationOffset).toFixed(1)} dB`;
+        if (peakValEl) {
+            if (!isAnalyzing || maxDB <= -95) {
+                peakValEl.textContent = `-∞ dB`;
+            } else {
+                peakValEl.textContent = `${(maxDB + calibrationOffset).toFixed(1)} dB`;
+            }
+        }
         
         let maxFFT = -120;
         let domIdx = 0;
@@ -591,8 +604,14 @@ function initProfessionalRTA() {
                 domIdx = i;
             }
         }
-        const domFreq = Math.round(domIdx * (audioCtx.sampleRate / analyser.fftSize));
-        domFreqDisplay = `${domFreq} Hz`;
+        if (!isAnalyzing || maxFFT <= -85) {
+            domFreqDisplay = `--- Hz`;
+        } else {
+            const sampleRate = audioCtx ? audioCtx.sampleRate : 48000;
+            const fftSize = analyser ? analyser.fftSize : 2048;
+            const domFreq = Math.round(domIdx * (sampleRate / fftSize));
+            domFreqDisplay = `${domFreq} Hz`;
+        }
         if (domFreqEl) domFreqEl.textContent = domFreqDisplay;
     }
 
@@ -1130,6 +1149,69 @@ function initProfessionalRTA() {
     document.addEventListener('authSuccess', pullSnapshots);
 
 
+    // --- Robust Audio Engine Recovery on Lifecycle & Ad Interruptions ---
+    async function resumeRtaAudioEngine() {
+        if (!isAnalyzing) return;
+        
+        console.log("[RTA Engine] Recovering Audio Engine & Mic Stream on app resume...");
+        
+        // 1. Resume AudioContext if suspended or interrupted
+        if (audioCtx) {
+            if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
+                try {
+                    await audioCtx.resume();
+                    console.log("[RTA Engine] AudioContext resumed. State:", audioCtx.state);
+                } catch (err) {
+                    console.warn("[RTA Engine] Failed to resume AudioContext directly:", err);
+                }
+            }
+        }
+        
+        // 2. Check if Mic Stream track is alive
+        const track = stream ? stream.getAudioTracks()[0] : null;
+        const isTrackDead = !track || track.readyState === 'ended' || track.muted;
+        
+        if (isTrackDead) {
+            console.log("[RTA Engine] Mic track was terminated by iOS/iPadOS lifecycle. Re-acquiring stream...");
+            try {
+                const savedMicId = safeStorage.getItem('soundengg-mic-id') || 'default';
+                if (stream) {
+                    stream.getTracks().forEach(t => t.stop());
+                }
+                
+                const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
+                if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+                    try { await audioPlugin.configureAudioSession(); } catch(e){}
+                }
+                
+                const constraints = { 
+                    audio: (savedMicId && savedMicId !== 'default') ? { deviceId: { exact: savedMicId } } : true 
+                };
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                if (audioCtx && analyser) {
+                    if (source) {
+                        try { source.disconnect(); } catch(e){}
+                    }
+                    source = audioCtx.createMediaStreamSource(stream);
+                    source.connect(analyser);
+                }
+            } catch (micErr) {
+                console.error("[RTA Engine] Re-acquiring mic stream failed:", micErr);
+            }
+        }
+        
+        // 3. Ensure animation frame loop is running
+        if (!rafID && isAnalyzing) {
+            lastFrameTime = performance.now();
+            rafID = requestAnimationFrame(draw);
+        }
+        
+        // 4. Re-sync canvas dimensions
+        syncRtaCanvasSize();
+    }
+    window.resumeRtaAudioEngine = resumeRtaAudioEngine;
+
     // --- Premium Fullscreen & Rewarded Ad Features ---
     function syncRtaCanvasSize() {
         const wrapper = canvas.parentElement;
@@ -1172,6 +1254,14 @@ function initProfessionalRTA() {
             if (typeof window.hideNativeBannerAd === 'function') {
                 window.hideNativeBannerAd();
             }
+            
+            syncRtaCanvasSize();
+            
+            if (!isAnalyzing) {
+                startAnalyzer();
+            } else {
+                resumeRtaAudioEngine();
+            }
         } else {
             isFullscreenActive = false;
             window.isRtaFullscreenActive = false;
@@ -1184,9 +1274,13 @@ function initProfessionalRTA() {
             if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
                 window.showNativeBannerAd();
             }
+            
+            syncRtaCanvasSize();
+            
+            if (isAnalyzing) {
+                resumeRtaAudioEngine();
+            }
         }
-        
-        syncRtaCanvasSize();
     }
 
     let isAdRewardForPro = false;
@@ -1809,6 +1903,33 @@ function initProfessionalRTA() {
         window.populateAllAudioDevices();
     } else {
         getDevices();
+    }
+
+    // Lifecycle Event Listeners for Auto-Recovery on iPad / iOS / Android
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible' && isAnalyzing) {
+            resumeRtaAudioEngine();
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        if (isAnalyzing) {
+            resumeRtaAudioEngine();
+        }
+    });
+
+    window.addEventListener('pageshow', () => {
+        if (isAnalyzing) {
+            resumeRtaAudioEngine();
+        }
+    });
+
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.App) {
+        window.Capacitor.Plugins.App.addListener('appStateChange', (state) => {
+            if (state.isActive && isAnalyzing) {
+                resumeRtaAudioEngine();
+            }
+        });
     }
 
     // Expose RTA drawing and reward functions globally to window scope
