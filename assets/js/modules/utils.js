@@ -48,6 +48,9 @@ function openModal(modal) {
     modal.style.visibility = 'visible';
     modal.style.opacity = '1';
     document.body.classList.add('modal-open');
+    if (typeof window.hideNativeBannerAd === 'function') {
+        window.hideNativeBannerAd();
+    }
 }
 
 function closeModal(modal) {
@@ -58,6 +61,9 @@ function closeModal(modal) {
     modal.style.visibility = '';
     modal.style.opacity = '';
     document.body.classList.remove('modal-open');
+    if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+        window.showNativeBannerAd();
+    }
 }
 
 function getDeviceMetadata() {

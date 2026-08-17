@@ -2305,10 +2305,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         if (proModal) proModal.classList.remove('hidden');
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd();
+        }
     };
     
     window.closeProUpgradeModal = function() {
         if (proModal) proModal.classList.add('hidden');
+        if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+            window.showNativeBannerAd();
+        }
     };
     
     if (btnClosePro) btnClosePro.addEventListener('click', window.closeProUpgradeModal);

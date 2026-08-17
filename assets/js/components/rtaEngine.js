@@ -1331,6 +1331,9 @@ function initProfessionalRTA() {
     };
 
     function startAdPlayback(forPro = false) {
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd();
+        }
         isAdRewardForPro = !!forPro;
         
         // Hide pro/dynamic upgrade modals to avoid overlay/click blocking
@@ -1608,6 +1611,9 @@ function initProfessionalRTA() {
                 alertBox.style.display = 'block';
                 setTimeout(() => {
                     if (modal) modal.classList.remove('active');
+                    if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                        window.showNativeBannerAd();
+                    }
                     if (isAdRewardForPro) {
                         const proUpgradeModal = document.getElementById('pro-upgrade-modal');
                         if (proUpgradeModal) proUpgradeModal.classList.remove('hidden');
@@ -1617,6 +1623,9 @@ function initProfessionalRTA() {
                 }, 1800);
             } else {
                 if (modal) modal.classList.remove('active');
+                if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                    window.showNativeBannerAd();
+                }
                 if (isAdRewardForPro) {
                     const proUpgradeModal = document.getElementById('pro-upgrade-modal');
                     if (proUpgradeModal) proUpgradeModal.classList.remove('hidden');
@@ -1626,6 +1635,9 @@ function initProfessionalRTA() {
             }
         } else {
             if (modal) modal.classList.remove('active');
+            if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                window.showNativeBannerAd();
+            }
         }
     }
 
