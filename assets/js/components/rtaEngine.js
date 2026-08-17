@@ -84,13 +84,6 @@ function initProfessionalRTA() {
         }
 
         try {
-            if (typeof window.hideNativeBannerAd === 'function') {
-                try {
-                    await window.hideNativeBannerAd();
-                } catch (e) {
-                    console.warn("Error hiding banner before mic capture:", e);
-                }
-            }
             const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
             if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
                 try {
@@ -1169,18 +1162,28 @@ function initProfessionalRTA() {
         
         if (targetState) {
             isFullscreenActive = true;
+            window.isRtaFullscreenActive = true;
             wrapper.classList.add('fullscreen-canvas');
             if (btnFullscreen) {
                 btnFullscreen.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">fullscreen_exit</span>';
             }
             document.body.style.overflow = 'hidden'; // Stop background scrolling
+            // Fullscreen RTA hides native banner ad to give full screen visualizer
+            if (typeof window.hideNativeBannerAd === 'function') {
+                window.hideNativeBannerAd();
+            }
         } else {
             isFullscreenActive = false;
+            window.isRtaFullscreenActive = false;
             wrapper.classList.remove('fullscreen-canvas');
             if (btnFullscreen) {
                 btnFullscreen.innerHTML = '<span class="material-symbols-outlined" style="font-size: 20px;">fullscreen</span>';
             }
             document.body.style.overflow = ''; // Restore background scrolling
+            // Exiting fullscreen restores native banner ad
+            if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                window.showNativeBannerAd();
+            }
         }
         
         syncRtaCanvasSize();

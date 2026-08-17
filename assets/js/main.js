@@ -631,13 +631,11 @@ function setupNavigation() {
                     canvas.width = canvas.parentElement.clientWidth;
                     canvas.height = canvas.parentElement.clientHeight;
                 }
-                if (typeof window.hideNativeBannerAd === 'function') {
-                    window.hideNativeBannerAd();
-                }
-            } else {
-                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
-                    window.showNativeBannerAd();
-                }
+            }
+
+            // Keep banner ad visible across all views and tools (unless in RTA fullscreen mode or Pro active)
+            if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                window.showNativeBannerAd();
             }
 
         };
@@ -2200,13 +2198,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnRequestMic) {
         btnRequestMic.addEventListener('click', async () => {
             try {
-                if (typeof window.hideNativeBannerAd === 'function') {
-                    try {
-                        await window.hideNativeBannerAd();
-                    } catch (e) {
-                        console.warn("Error hiding banner before mic request:", e);
-                    }
-                }
                 const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
                 if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
                     try {
