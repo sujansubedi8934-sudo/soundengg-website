@@ -660,9 +660,9 @@ function initAdManager() {
 
             const options = {
                 key: keyId,
-                name: "SoundEngg Console",
+                name: "SoundEngg: RTA & Audio Utility",
                 description: planDescription,
-                image: "assets/img/logo.png",
+                image: "https://soundengg.com/assets/img/app-icon.jpg",
                 prefill: {
                     name: user.email ? user.email.split('@')[0] : "Audio Engineer",
                     email: user.email || ""
