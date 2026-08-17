@@ -77,10 +77,24 @@ function initProfessionalRTA() {
     let isAnalyzing = false;
     
     window.startAnalyzer = async function startAnalyzer(deviceId) {
-        if (isAnalyzing) return;
+        if (isAnalyzing && audioCtx && audioCtx.state === 'running') return;
         deviceId = deviceId || safeStorage.getItem('soundengg-mic-id') || 'default';
+        
+        if (rafID) {
+            cancelAnimationFrame(rafID);
+            rafID = null;
+        }
         if (stream) {
-            stream.getTracks().forEach(t => t.stop());
+            try { stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            stream = null;
+        }
+        if (source) {
+            try { source.disconnect(); } catch (e) {}
+            source = null;
+        }
+        if (audioCtx) {
+            try { await audioCtx.close(); } catch (e) {}
+            audioCtx = null;
         }
 
         try {
@@ -98,7 +112,7 @@ function initProfessionalRTA() {
             stream = await navigator.mediaDevices.getUserMedia(constraints);
             
             try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             } catch (e) {
                 console.error("Failed to create AudioContext in RTA:", e);
                 startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> AUDIO_ERROR';
@@ -135,6 +149,7 @@ function initProfessionalRTA() {
             startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
             
             getDevices();
+            lastFrameTime = performance.now();
             rafID = requestAnimationFrame(draw);
         } catch (e) {
             console.error("Mic access failed", e);
@@ -143,25 +158,31 @@ function initProfessionalRTA() {
         }
     };
 
-    function stopAnalyzer() {
+    async function stopAnalyzer() {
         if (isRtaPinkNoiseActive) {
             toggleRtaPinkNoise();
         }
-        if (!isAnalyzing) return;
         isAnalyzing = false;
         if (rafID) {
             cancelAnimationFrame(rafID);
             rafID = null;
         }
         if (stream) {
-            stream.getTracks().forEach(t => t.stop());
+            try { stream.getTracks().forEach(t => t.stop()); } catch (e) {}
             stream = null;
         }
-        if (audioCtx) {
-            audioCtx.suspend();
+        if (source) {
+            try { source.disconnect(); } catch (e) {}
+            source = null;
         }
-        startBtn.classList.remove('active', 'danger-btn');
-        startBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span> START MEASUREMENT';
+        if (audioCtx) {
+            try { await audioCtx.close(); } catch (e) {}
+            audioCtx = null;
+        }
+        if (startBtn) {
+            startBtn.classList.remove('active', 'danger-btn');
+            startBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span> START MEASUREMENT';
+        }
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         drawGridAndLabels();
@@ -1151,82 +1172,14 @@ function initProfessionalRTA() {
 
     // --- Robust Audio Engine Recovery on Lifecycle & Ad Interruptions ---
     async function restartAnalyzer() {
-        console.log("[RTA Engine] Forcing full hardware audio pipeline restart...");
-        if (rafID) {
-            cancelAnimationFrame(rafID);
-            rafID = null;
-        }
-        if (stream) {
-            try {
-                stream.getTracks().forEach(t => t.stop());
-            } catch (e) {}
-            stream = null;
-        }
-        if (source) {
-            try { source.disconnect(); } catch(e){}
-            source = null;
-        }
-        
-        const savedMicId = safeStorage.getItem('soundengg-mic-id') || 'default';
-        
-        try {
-            const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
-            if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
-                try {
-                    await audioPlugin.configureAudioSession();
-                } catch (e) {
-                    console.warn("AudioSessionPlugin configureAudioSession warning:", e);
-                }
-            }
-            
-            const constraints = { 
-                audio: (savedMicId && savedMicId !== 'default') ? { deviceId: { exact: savedMicId } } : true 
-            };
-            stream = await navigator.mediaDevices.getUserMedia(constraints);
-            
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended' || audioCtx.state === 'interrupted') {
-                try { await audioCtx.resume(); } catch (e) {}
-            }
-            
-            if (!analyser) {
-                analyser = audioCtx.createAnalyser();
-                analyser.fftSize = 2048;
-                analyser.smoothingTimeConstant = 0;
-            }
-            
-            source = audioCtx.createMediaStreamSource(stream);
-            source.connect(analyser);
-            
-            bufferLength = analyser.frequencyBinCount;
-            dataArray = new Float32Array(bufferLength);
-            timeData = new Float32Array(analyser.fftSize);
-            smoothedDataArray = new Float32Array(bufferLength).fill(-100);
-            
-            precomputeCalibrationOffsets();
-            isInitialized = true;
-            isAnalyzing = true;
-            
-            if (startBtn) {
-                startBtn.classList.remove('pulse-glow');
-                startBtn.classList.add('active', 'danger-btn');
-                startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
-            }
-            
-            syncRtaCanvasSize();
-            lastFrameTime = performance.now();
-            rafID = requestAnimationFrame(draw);
-            console.log("[RTA Engine] Hardware audio pipeline successfully restarted!");
-        } catch (err) {
-            console.error("[RTA Engine] Restart audio pipeline failed:", err);
-        }
+        console.log("[RTA Engine] Cleanly restarting hardware audio pipeline...");
+        await stopAnalyzer();
+        await new Promise(res => setTimeout(res, 120));
+        await startAnalyzer();
     }
     window.restartAnalyzer = restartAnalyzer;
 
     async function resumeRtaAudioEngine() {
-        if (!isAnalyzing) return;
         await restartAnalyzer();
     }
     window.resumeRtaAudioEngine = resumeRtaAudioEngine;
@@ -1443,11 +1396,18 @@ function initProfessionalRTA() {
         }
     };
 
+    let wasAnalyzingBeforeAd = false;
+
     function startAdPlayback(forPro = false) {
         if (typeof window.hideNativeBannerAd === 'function') {
             window.hideNativeBannerAd();
         }
         isAdRewardForPro = !!forPro;
+        wasAnalyzingBeforeAd = isAnalyzing;
+
+        if (isAnalyzing) {
+            stopAnalyzer();
+        }
         
         // Hide pro/dynamic upgrade modals to avoid overlay/click blocking
         if (isAdRewardForPro) {
@@ -1513,13 +1473,9 @@ function initProfessionalRTA() {
                     grantAdRewardSuccess(false);
                     closeAdPlayback(false);
 
-                    // Re-engage audio capture pipeline immediately
-                    if (isAnalyzing) {
-                        restartAnalyzer();
-                        setTimeout(() => {
-                            if (isAnalyzing) restartAnalyzer();
-                        }, 400);
-                    }
+                    setTimeout(async () => {
+                        await startAnalyzer();
+                    }, 350);
 
                     setTimeout(() => {
                         let displayName = "SoundEngg Pro Features";
@@ -1624,10 +1580,9 @@ function initProfessionalRTA() {
         } else {
             isAdRewardClaimed = true;
             toggleRtaFullscreen(true);
-            restartAnalyzer();
-            setTimeout(() => {
-                if (isAnalyzing) restartAnalyzer();
-            }, 400);
+            setTimeout(async () => {
+                await startAnalyzer();
+            }, 350);
         }
     }
 
