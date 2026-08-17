@@ -40,7 +40,7 @@ serve(async (req) => {
 
       // --- UNIFIED RAZORPAY GATEWAY (DOMESTIC & INTERNATIONAL) ---
       if (plan === "lifetime") {
-        const amount = isUSD ? 4999 : 349900; // $49.99 USD in cents OR ₹3,499 INR in paise
+        const amount = isUSD ? 3499 : 349900; // $34.99 USD in cents OR ₹3,499 INR in paise
         const currency = isUSD ? "USD" : "INR";
 
         const orderBody: any = {
@@ -73,7 +73,7 @@ serve(async (req) => {
         });
       } else if (isUSD) {
         // International Non-Recurring Passes (1 Month / 1 Year) via Razorpay One-Time Orders
-        const amount = plan === "monthly" ? 299 : 1499; // $2.99 or $14.99 in cents
+        const amount = plan === "monthly" ? 199 : 1999; // $1.99 or $19.99 in cents
         const currency = "USD";
 
         const orderBody: any = {

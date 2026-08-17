@@ -611,13 +611,13 @@ function initAdManager() {
         } else {
             currency = "USD";
             if (plan === 'monthly') {
-                amount = 299;
+                amount = 199;
                 planDescription = "Monthly SoundEngg Pro Subscription";
             } else if (plan === 'yearly') {
-                amount = 2999;
+                amount = 1999;
                 planDescription = "Yearly SoundEngg Pro Subscription";
             } else {
-                amount = 4999;
+                amount = 3499;
                 planDescription = "Lifetime SoundEngg Pro Access";
             }
         }
