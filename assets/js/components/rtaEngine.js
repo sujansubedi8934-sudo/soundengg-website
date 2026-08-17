@@ -1507,6 +1507,9 @@ function initProfessionalRTA() {
     }
 
     function triggerBrowserAdPlayback(isOffline = false) {
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd();
+        }
         const modal = document.getElementById('ad-reward-modal');
         const sponsorContainer = document.querySelector('.ad-sponsor-container');
         const btnClaim = document.getElementById('btn-ad-reward-claim');
