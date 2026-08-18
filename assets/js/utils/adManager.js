@@ -235,8 +235,17 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         });
 
         if (!nativeInterstitialAdLoaded) {
-            console.log('Preloading interstitial before show...');
-            await window.preloadNativeInterstitialAd();
+            console.log('Preloading interstitial before show with 3.5s safety timeout...');
+            const preloadPromise = window.preloadNativeInterstitialAd();
+            const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Ad preload timeout')), 3500));
+            try {
+                await Promise.race([preloadPromise, timeoutPromise]);
+            } catch (timeoutErr) {
+                console.warn('Ad preload timed out or failed, falling back gracefully:', timeoutErr);
+                cleanup();
+                if (onFailureCallback) onFailureCallback();
+                return;
+            }
         }
         await AdMob.showInterstitial();
     } catch (err) {
@@ -362,6 +371,11 @@ function initAdManager() {
             const videoAdContainer = modal.querySelector('.video-ad-container');
             if (videoAdContainer) {
                 videoAdContainer.style.display = 'none';
+            }
+
+            // Eagerly preload interstitial ad in background so it displays instantly when tapped
+            if (!nativeInterstitialAdLoaded && typeof window.preloadNativeInterstitialAd === 'function') {
+                window.preloadNativeInterstitialAd();
             }
 
             // Enable the button by default on native mobile to watch ad
