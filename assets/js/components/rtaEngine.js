@@ -1,3 +1,12 @@
+// 1/6 Octave ISO Standard Center Frequencies
+const ISO_FREQS = [
+    20, 22.4, 25, 28, 31.5, 35.5, 40, 45, 50, 56, 63, 71, 80, 90, 100, 
+    112, 125, 140, 160, 180, 200, 224, 250, 280, 315, 355, 400, 450, 500, 560, 630, 710, 800, 900, 1000, 
+    1120, 1250, 1400, 1600, 1800, 2000, 2240, 2500, 2800, 3150, 3550, 4000, 4500, 5000, 5600, 6300, 7100, 8000, 9000, 10000, 
+    11200, 12500, 14000, 16000, 18000, 20000
+];
+window.ISO_FREQS = ISO_FREQS;
+
 function initProfessionalRTA() {
     const canvas = document.getElementById('rta-canvas');
     if (!canvas) return;
@@ -91,9 +100,9 @@ function initProfessionalRTA() {
             }
 
             if (isVisible) {
-                return `<span class="freq-label active-anchor" data-idx="${i}" style="flex: 1; text-align: center; font-size: ${width < 500 ? '0.50rem' : '0.62rem'}; font-weight: bold; color: var(--text-main);">${labelText}</span>`;
+                return `<span class="freq-label active-anchor" data-idx="${i}" style="flex: 1; text-align: center; font-size: ${width < 500 ? '0.52rem' : '0.62rem'}; font-weight: bold; color: #00f2fe; text-shadow: 0 0 6px rgba(0, 242, 254, 0.45); user-select: none;">${labelText}</span>`;
             } else {
-                return `<span class="freq-label dot-tick" data-idx="${i}" style="flex: 1; text-align: center; opacity: 0.2; font-size: 0.55rem; color: var(--text-muted);">·</span>`;
+                return `<span class="freq-label dot-tick" data-idx="${i}" style="flex: 1; text-align: center; opacity: 0.35; font-size: 0.55rem; color: rgba(0, 242, 254, 0.5); user-select: none;">·</span>`;
             }
         }).join('');
     }
@@ -134,6 +143,8 @@ function initProfessionalRTA() {
         ctx.moveTo(38, baseY);
         ctx.lineTo(canvas.width, baseY);
         ctx.stroke();
+
+        updateFrequencyLabels();
     }
     window.syncRtaIdleState = drawIdleState;
 
