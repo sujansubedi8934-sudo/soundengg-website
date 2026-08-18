@@ -168,7 +168,7 @@ function initProfessionalRTA() {
 
             // 2. Configure mobile session if available
             try {
-                const audioPlugin = window.Capacitor?.Plugins?.AudioSessionPlugin;
+                const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
                 if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
                     await audioPlugin.configureAudioSession();
                 }
@@ -176,27 +176,17 @@ function initProfessionalRTA() {
                 console.warn("AudioSessionPlugin not active:", pluginErr);
             }
 
-            // 3. Acquire mic stream
-            let streamSuccess = false;
+            // 3. Acquire mic stream with clean universal fallback
+            let constraints = { audio: true };
             if (deviceId && deviceId !== 'default') {
-                try {
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        audio: { deviceId: { exact: deviceId } } 
-                    });
-                    streamSuccess = true;
-                } catch (exactErr) {
-                    console.warn("Exact deviceId failed, falling back to default mic:", exactErr);
-                }
+                constraints = { audio: { deviceId: { exact: deviceId } } };
             }
 
-            if (!streamSuccess) {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    audio: {
-                        echoCancellation: false,
-                        noiseSuppression: false,
-                        autoGainControl: false
-                    } 
-                });
+            try {
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+            } catch (constraintErr) {
+                console.warn("Exact constraint failed, falling back to audio: true", constraintErr);
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             }
             
             analyser = audioCtx.createAnalyser();
