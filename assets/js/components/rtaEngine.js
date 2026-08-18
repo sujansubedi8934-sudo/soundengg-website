@@ -466,15 +466,15 @@ function initProfessionalRTA() {
         ctx.font = canvas.width < 500 ? "10px 'JetBrains Mono', monospace" : "12px 'JetBrains Mono', monospace";
         ctx.lineWidth = 0.5;
 
-        // dB Range to show: from calibrationOffset - 100 to calibrationOffset
+        // 1. Draw dB Y-Axis Range: from calibrationOffset - 100 to calibrationOffset
         const minDisplayDB = Math.floor((calibrationOffset - 100) / 10) * 10;
         const maxDisplayDB = Math.ceil(calibrationOffset / 10) * 10;
 
         for (let displayDB = minDisplayDB; displayDB <= maxDisplayDB; displayDB += 10) {
             const internalDB = displayDB - calibrationOffset;
-            const y = canvas.height - (internalDB + 100) * (canvas.height / 100);
+            const y = (canvas.height - 24) - (internalDB + 100) * ((canvas.height - 24) / 100);
 
-            if (y < 0 || y > canvas.height) continue;
+            if (y < 0 || y > canvas.height - 24) continue;
 
             // Draw Grid Line
             ctx.beginPath();
@@ -488,6 +488,74 @@ function initProfessionalRTA() {
             ctx.fillStyle = textColor;
             ctx.fillText(`${displayDB}`, 34, y + 4);
         }
+
+        // 2. Draw Frequency X-Axis Bottom Strip & Frequency Labels
+        const freqAnchors = canvas.width < 500
+            ? [
+                { f: 20, label: '20' },
+                { f: 50, label: '50' },
+                { f: 100, label: '100' },
+                { f: 250, label: '250' },
+                { f: 500, label: '500' },
+                { f: 1000, label: '1k' },
+                { f: 2500, label: '2.5k' },
+                { f: 5000, label: '5k' },
+                { f: 10000, label: '10k' },
+                { f: 20000, label: '20k' }
+            ]
+            : [
+                { f: 20, label: '20' },
+                { f: 31.5, label: '31.5' },
+                { f: 50, label: '50' },
+                { f: 80, label: '80' },
+                { f: 125, label: '125' },
+                { f: 200, label: '200' },
+                { f: 315, label: '315' },
+                { f: 500, label: '500' },
+                { f: 800, label: '800' },
+                { f: 1250, label: '1.25k' },
+                { f: 2000, label: '2k' },
+                { f: 3150, label: '3.15k' },
+                { f: 5000, label: '5k' },
+                { f: 8000, label: '8k' },
+                { f: 12500, label: '12.5k' },
+                { f: 20000, label: '20k' }
+            ];
+
+        // Bottom background band for frequency markers
+        ctx.fillStyle = isLight ? 'rgba(235, 240, 245, 0.95)' : 'rgba(3, 5, 8, 0.95)';
+        ctx.fillRect(0, canvas.height - 24, canvas.width, 24);
+
+        ctx.beginPath();
+        ctx.setLineDash([]);
+        ctx.strokeStyle = isLight ? 'rgba(0, 139, 159, 0.3)' : 'rgba(0, 242, 254, 0.3)';
+        ctx.moveTo(0, canvas.height - 24);
+        ctx.lineTo(canvas.width, canvas.height - 24);
+        ctx.stroke();
+
+        ctx.textAlign = 'center';
+        ctx.font = canvas.width < 500 ? "9px 'JetBrains Mono', monospace" : "11px 'JetBrains Mono', monospace";
+        ctx.fillStyle = textColor;
+
+        const logMin = Math.log10(20);
+        const logMax = Math.log10(20000);
+
+        freqAnchors.forEach(anchor => {
+            const normX = (Math.log10(anchor.f) - logMin) / (logMax - logMin);
+            const x = 38 + normX * (canvas.width - 48);
+
+            // Vertical dashed grid line
+            ctx.beginPath();
+            ctx.setLineDash([3, 5]);
+            ctx.strokeStyle = gridColor;
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, canvas.height - 24);
+            ctx.stroke();
+
+            // Label text
+            ctx.fillText(anchor.label, x, canvas.height - 7);
+        });
+
         ctx.restore();
     }
 
@@ -1253,8 +1321,10 @@ function initProfessionalRTA() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         } else {
-            canvas.width = wrapper.clientWidth;
-            canvas.height = wrapper.clientHeight;
+            const w = wrapper.clientWidth || canvas.clientWidth || window.innerWidth;
+            const h = wrapper.clientHeight || canvas.clientHeight || 320;
+            canvas.width = Math.max(320, w);
+            canvas.height = Math.max(260, h);
         }
         
         // Resize spectrogram waterfall cache canvas in lockstep

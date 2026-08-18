@@ -647,6 +647,11 @@ function setupNavigation() {
                 if (typeof window.syncRtaIdleState === 'function') {
                     window.syncRtaIdleState();
                 }
+                setTimeout(() => {
+                    if (typeof window.syncRtaIdleState === 'function') {
+                        window.syncRtaIdleState();
+                    }
+                }, 60);
             }
 
             // Keep banner ad visible across all views and tools (unless in RTA fullscreen mode or Pro active)
