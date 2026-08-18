@@ -368,10 +368,10 @@ function initProfessionalRTA() {
         if (val > 70) return '#378ADD'; // Light Blue
         return '#14A7B5'; // Turquoise
     }
-
     function draw(timestamp) {
-        if (!isAnalyzing || !isInitialized) {
+        if (!isAnalyzing && !isRtaPinkNoiseActive) {
             rafID = null;
+            drawIdleState();
             return;
         }
 
@@ -387,42 +387,39 @@ function initProfessionalRTA() {
         const frameInterval = 1000 / 60; // 60 FPS target (~16.67ms)
 
         if (elapsed < frameInterval) {
-            return; // Skip rendering this frame to maintain 60 FPS target
+            return;
         }
         
         lastFrameTime = timestamp - (elapsed % frameInterval);
         
-        // Manual FFT with Hanning Window
-        analyser.getFloatTimeDomainData(timeData);
-        
-        // 1. Apply Hanning Window
-        const N = timeData.length;
-        const windowedData = new Float32Array(N);
-        for (let i = 0; i < N; i++) {
-            const hanning = 0.5 * (1 - Math.cos(2 * Math.PI * i / (N - 1)));
-            windowedData[i] = timeData[i] * hanning;
-        }
-
-        // 2. Perform FFT
-        analyser.getFloatFrequencyData(dataArray);
-
-        // 3. Apply Averaging / Smoothing
-        const alpha = 1 / (averagingFactor + 1);
-        for (let i = 0; i < bufferLength; i++) {
-            // Clamp data to a reasonable floor to avoid -Infinity issues in rendering
-            if (dataArray[i] < -120) dataArray[i] = -120;
+        // 1. Process mic input IF analyser is active
+        if (isAnalyzing && analyser && dataArray && timeData) {
+            analyser.getFloatTimeDomainData(timeData);
             
-            smoothedDataArray[i] = (dataArray[i] * alpha) + (smoothedDataArray[i] * (1 - alpha));
-            
-            // Apply Mic Calibration Correction if enabled
-            let calCorr = (calEnabled && calOffsets && calOffsets[i]) ? calOffsets[i] : 0;
-            dataArray[i] = smoothedDataArray[i] + calCorr;
-        }
+            const N = timeData.length;
+            const windowedData = new Float32Array(N);
+            for (let i = 0; i < N; i++) {
+                const hanning = 0.5 * (1 - Math.cos(2 * Math.PI * i / (N - 1)));
+                windowedData[i] = timeData[i] * hanning;
+            }
 
-        // Apply Averaging / Smoothing to Pink Noise if active
-        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
-            rtaPinkNoiseAnalyserNode.getFloatFrequencyData(rtaPinkNoiseDataArray);
+            analyser.getFloatFrequencyData(dataArray);
+
+            const alpha = 1 / (averagingFactor + 1);
             for (let i = 0; i < bufferLength; i++) {
+                if (dataArray[i] < -120) dataArray[i] = -120;
+                smoothedDataArray[i] = (dataArray[i] * alpha) + (smoothedDataArray[i] * (1 - alpha));
+                let calCorr = (calEnabled && calOffsets && calOffsets[i]) ? calOffsets[i] : 0;
+                dataArray[i] = smoothedDataArray[i] + calCorr;
+            }
+        }
+
+        // 2. Process Pink Noise generator output IF active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode && rtaPinkNoiseDataArray && rtaPinkNoiseSmoothedDataArray) {
+            rtaPinkNoiseAnalyserNode.getFloatFrequencyData(rtaPinkNoiseDataArray);
+            const alpha = 1 / (averagingFactor + 1);
+            const pLen = rtaPinkNoiseDataArray.length;
+            for (let i = 0; i < pLen; i++) {
                 if (rtaPinkNoiseDataArray[i] < -120) rtaPinkNoiseDataArray[i] = -120;
                 rtaPinkNoiseSmoothedDataArray[i] = (rtaPinkNoiseDataArray[i] * alpha) + (rtaPinkNoiseSmoothedDataArray[i] * (1 - alpha));
             }
@@ -430,6 +427,9 @@ function initProfessionalRTA() {
 
         if (currentMode !== 'waterfall') {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const isLight = document.documentElement.classList.contains('light');
+            ctx.fillStyle = isLight ? '#F0F2F5' : '#030508';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         
         if (currentMode === 'rta') {
@@ -482,46 +482,41 @@ function initProfessionalRTA() {
 
     function drawRTA() {
         const barWidth = canvas.width / ISO_FREQS.length;
-        const sampleRate = audioCtx.sampleRate;
+        const sampleRate = (audioCtx && audioCtx.sampleRate) ? audioCtx.sampleRate : 48000;
         const nyquist = sampleRate / 2;
 
         ISO_FREQS.forEach((centerFreq, i) => {
             const x = i * barWidth;
-            const ratio = Math.pow(2, 1/12); // Half of 1/6 for band edges
-            const lowFreq = centerFreq / ratio;
-            const highFreq = centerFreq * ratio;
-            
-            const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
-            const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
-            
-            let sum = 0;
-            let count = 0;
-            for (let b = lowBin; b <= highBin; b++) {
-                sum += dataArray[b];
-                count++;
-            }
-            
-            let db = count > 0 ? sum / count : -100;
-            if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
-            
-            // Apply extra fine calibration correction to weighted RTA bands
-            if (calEnabled) {
-                db += getCalOffsetForFreq(centerFreq);
+            let db = -100;
+
+            if (isAnalyzing && dataArray && bufferLength) {
+                const ratio = Math.pow(2, 1/12);
+                const lowFreq = centerFreq / ratio;
+                const highFreq = centerFreq * ratio;
+                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
+                const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
+                
+                let sum = 0;
+                let count = 0;
+                for (let b = lowBin; b <= highBin; b++) {
+                    sum += dataArray[b];
+                    count++;
+                }
+                db = count > 0 ? sum / count : -100;
+                if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
+                if (calEnabled) db += getCalOffsetForFreq(centerFreq);
+
+                if (db > peakData[i]) peakData[i] = db;
             }
 
-            if (db > peakData[i]) peakData[i] = db;
-            
-            // --- Draw Multi-Snapshots (RTA) ---
+            // Draw snapshots
             snapshots.forEach(snap => {
-                if (!snap.visible) return;
+                if (!snap.visible || !snap.rta || snap.rta[i] === undefined) return;
                 const snapDb = snap.rta[i];
                 if (snapDb > -100) {
                     const snapH = Math.max(0, (snapDb + 100) * (canvas.height / 100));
-                    // Draw faint background fill
-                    ctx.fillStyle = snap.color + '22'; // 13% opacity
+                    ctx.fillStyle = snap.color + '22';
                     ctx.fillRect(x + 1, canvas.height - snapH, barWidth - 2, snapH);
-                    
-                    // Snapshot line
                     ctx.beginPath();
                     ctx.strokeStyle = snap.color;
                     ctx.globalAlpha = 0.6;
@@ -534,25 +529,7 @@ function initProfessionalRTA() {
                 }
             });
 
-            if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
-                const w = barWidth - 2;
-                const hMic = Math.max(2, (db + 100) * (canvas.height / 100));
-
-                // 1. Draw Mic Input (Cyan) as filled bars
-                ctx.fillStyle = 'rgba(20, 167, 181, 0.8)'; // brand cyan with 80% opacity
-                ctx.fillRect(x + 1, canvas.height - hMic, w, hMic);
-                
-                ctx.strokeStyle = '#14A7B5';
-                ctx.lineWidth = 1.5;
-                ctx.strokeRect(x + 1, canvas.height - hMic, w, hMic);
-
-                if (peakHoldEnabled) {
-                    const isLight = document.documentElement.classList.contains('light');
-                    const ph = (peakData[i] + 100) * (canvas.height / 100);
-                    ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
-                    ctx.fillRect(x + 1, canvas.height - ph - 2, w, 2);
-                }
-            } else {
+            if (isAnalyzing) {
                 const h = Math.max(2, (db + 100) * (canvas.height / 100));
                 ctx.fillStyle = getSPLColor(db);
                 ctx.fillRect(x + 1, canvas.height - h, barWidth - 2, h);
@@ -566,21 +543,22 @@ function initProfessionalRTA() {
             }
         });
 
-        // 2. Draw Pink Noise Output (Bold Pink Curve) overlaying on top of the RTA bars
-        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+        // Draw Pink Noise curve if active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode && rtaPinkNoiseSmoothedDataArray) {
             ctx.beginPath();
             ctx.strokeStyle = '#FF2E93';
             ctx.lineWidth = 2.5;
             ctx.shadowBlur = 6;
             ctx.shadowColor = 'rgba(255, 46, 147, 0.6)';
             
+            const pBufLen = rtaPinkNoiseSmoothedDataArray.length;
             ISO_FREQS.forEach((centerFreq, i) => {
                 const x = i * barWidth;
                 const ratio = Math.pow(2, 1/12);
                 const lowFreq = centerFreq / ratio;
                 const highFreq = centerFreq * ratio;
-                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
-                const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
+                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * pBufLen));
+                const highBin = Math.min(pBufLen - 1, Math.floor(highFreq / nyquist * pBufLen));
                 
                 let pinkSum = 0;
                 let count = 0;
@@ -595,30 +573,26 @@ function initProfessionalRTA() {
                 const centerX = x + barWidth / 2;
                 const centerY = canvas.height - hPink;
                 
-                if (i === 0) {
-                    ctx.moveTo(centerX, centerY);
-                } else {
-                    ctx.lineTo(centerX, centerY);
-                }
+                if (i === 0) ctx.moveTo(centerX, centerY);
+                else ctx.lineTo(centerX, centerY);
             });
             ctx.stroke();
-            ctx.shadowBlur = 0; // Reset shadow glow
+            ctx.shadowBlur = 0;
         }
     }
 
     function drawFFT() {
-        const sliceWidth = canvas.width / bufferLength;
-
-        // --- Draw Multi-Snapshots (Curve) ---
+        // Draw Multi-Snapshots
         snapshots.forEach(snap => {
-            if (!snap.visible) return;
+            if (!snap.visible || !snap.fft || !snap.fft.length) return;
             ctx.beginPath();
             ctx.strokeStyle = snap.color;
             ctx.lineWidth = 1.5;
             ctx.globalAlpha = 0.7;
             ctx.setLineDash([4, 4]);
-            for (let i = 0; i < bufferLength; i++) {
-                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
+            const sLen = snap.fft.length;
+            for (let i = 0; i < sLen; i++) {
+                const x = (Math.log10(i + 1) / Math.log10(sLen)) * canvas.width;
                 const db = snap.fft[i];
                 const y = canvas.height - (db + 100) * (canvas.height / 100);
                 if (i === 0) ctx.moveTo(x, y);
@@ -629,28 +603,31 @@ function initProfessionalRTA() {
             ctx.globalAlpha = 1.0;
         });
 
-        ctx.beginPath();
-        ctx.strokeStyle = '#14A7B5';
-        ctx.lineWidth = 1.5;
-        
-        for (let i = 0; i < bufferLength; i++) {
-            let dbVal = dataArray[i];
-            const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
-            const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
-            if (i === 0) ctx.moveTo(x, y);
-            else ctx.lineTo(x, y);
+        // Draw mic spectrum curve
+        if (isAnalyzing && dataArray && bufferLength) {
+            ctx.beginPath();
+            ctx.strokeStyle = '#14A7B5';
+            ctx.lineWidth = 1.5;
+            for (let i = 0; i < bufferLength; i++) {
+                let dbVal = dataArray[i];
+                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
+                const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
         }
-        ctx.stroke();
 
-        // 2. Draw Pink Noise Output (Bold Pink) if active
-        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+        // Draw Pink Noise Output (Bold Pink) if active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode && rtaPinkNoiseSmoothedDataArray) {
+            const pLen = rtaPinkNoiseSmoothedDataArray.length;
             ctx.beginPath();
             ctx.strokeStyle = '#FF2E93';
             ctx.lineWidth = 2.0;
             
-            for (let i = 0; i < bufferLength; i++) {
+            for (let i = 0; i < pLen; i++) {
                 let dbVal = rtaPinkNoiseSmoothedDataArray[i];
-                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
+                const x = (Math.log10(i + 1) / Math.log10(pLen)) * canvas.width;
                 const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
@@ -662,9 +639,8 @@ function initProfessionalRTA() {
     function drawDominantOverlay() {
         if (!isAnalyzing || domFreqDisplay === '--- Hz') return;
         ctx.save();
-        // Use explicit font stack as canvas API doesn't support CSS variables
         ctx.font = "bold 54px 'Space Grotesk', sans-serif";
-        ctx.fillStyle = '#14A7B5'; // Cyan/Turquoise
+        ctx.fillStyle = '#14A7B5';
         ctx.textAlign = 'center';
         ctx.shadowBlur = 15;
         ctx.shadowColor = 'rgba(20, 167, 181, 0.7)';
@@ -676,7 +652,7 @@ function initProfessionalRTA() {
         const peakValEl = document.getElementById('rta-peak-val');
         const domFreqEl = document.getElementById('rta-dom-val');
         
-        const maxDB = Math.max(...peakData);
+        const maxDB = (peakData && peakData.length) ? Math.max(...peakData) : -100;
         if (peakValEl) {
             if (!isAnalyzing || maxDB <= -95) {
                 peakValEl.textContent = `-∞ dB`;
@@ -685,20 +661,26 @@ function initProfessionalRTA() {
             }
         }
         
+        if (!isAnalyzing || !dataArray || !bufferLength) {
+            domFreqDisplay = `--- Hz`;
+            if (domFreqEl) domFreqEl.textContent = domFreqDisplay;
+            return;
+        }
+
         let maxFFT = -120;
         let domIdx = 0;
-        for (let i = 2; i < bufferLength; i++) { // Skip DC
+        for (let i = 2; i < bufferLength; i++) {
             if (dataArray[i] > maxFFT) {
                 maxFFT = dataArray[i];
                 domIdx = i;
             }
         }
-        if (!isAnalyzing || maxFFT <= -85) {
+        if (maxFFT <= -85) {
             domFreqDisplay = `--- Hz`;
         } else {
-            const sampleRate = audioCtx ? audioCtx.sampleRate : 48000;
+            const sampleRate = (audioCtx && audioCtx.sampleRate) ? audioCtx.sampleRate : 48000;
             const fftSize = analyser ? analyser.fftSize : 2048;
-            const domFreq = Math.round(domIdx * (sampleRate / fftSize));
+            const domFreq = Math.round(domIdx * sampleRate / fftSize);
             domFreqDisplay = `${domFreq} Hz`;
         }
         if (domFreqEl) domFreqEl.textContent = domFreqDisplay;
