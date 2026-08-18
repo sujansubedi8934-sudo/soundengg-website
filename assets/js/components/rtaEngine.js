@@ -65,53 +65,13 @@ function initProfessionalRTA() {
     // A-Weighting Look-up Table for 1/6 octave (interpolated centers)
     const A_WEIGHTS = { 20:-50.5, 22.4:-48.0, 25:-44.7, 28:-41.6, 31.5:-39.4, 35.5:-37.0, 40:-34.6, 45:-32.4, 50:-30.2, 56:-28.2, 63:-26.2, 71:-24.1, 80:-22.5, 90:-20.8, 100:-19.1, 112:-17.5, 125:-16.1, 140:-14.7, 160:-13.4, 180:-12.2, 200:-10.9, 224:-9.6, 250:-8.6, 280:-7.5, 315:-6.6, 355:-5.7, 400:-4.8, 450:-4.0, 500:-3.2, 560:-2.5, 630:-1.9, 710:-1.3, 800:-0.8, 900:-0.4, 1000:0, 1120:0.3, 1250:0.6, 1400:0.8, 1600:1.0, 1800:1.1, 2000:1.2, 2240:1.3, 2500:1.3, 2800:1.3, 3150:1.2, 3550:1.1, 4000:1.0, 4500:0.8, 5000:0.5, 5600:0.2, 6300:-0.1, 7100:-0.5, 8000:-1.1, 9000:-1.7, 10000:-2.5, 11200:-3.3, 12500:-4.3, 14000:-5.4, 16000:-6.6, 18000:-7.9, 20000:-9.3 };
 
-    // Adaptive Dynamic Frequency Labels Generator
-    function updateFrequencyLabels() {
-        if (!labelsContainer) return;
-        const width = labelsContainer.clientWidth || window.innerWidth;
-        
-        let visibleIndices = new Set();
-        if (width < 500) {
-            // Mobile (under 500px): 10 Key Anchors evenly distributed from 20 Hz to 20 kHz
-            // Indices corresponding to: 20, 50, 100, 250, 500, 1k, 2.5k, 5k, 10k, 20k
-            [0, 8, 14, 22, 28, 34, 42, 48, 54, 60].forEach(idx => visibleIndices.add(idx));
-        } else if (width < 850) {
-            // Tablet / iPad Portrait (500px - 850px): 16 Major 1/3-octave anchors
-            for (let i = 0; i < ISO_FREQS.length; i += 4) {
-                visibleIndices.add(i);
-            }
-            visibleIndices.add(ISO_FREQS.length - 1);
-        } else {
-            // iPad Landscape / Desktop (850px+): Full 31-Band ISO Standard
-            for (let i = 0; i < ISO_FREQS.length; i += 2) {
-                visibleIndices.add(i);
-            }
-            visibleIndices.add(ISO_FREQS.length - 1);
-        }
-
+    // Inject Labels (Simplified for 1/6 density)
+    if (labelsContainer) {
         labelsContainer.innerHTML = ISO_FREQS.map((f, i) => {
-            const isVisible = visibleIndices.has(i);
-            let labelText = '';
-            if (f >= 1000) {
-                const kVal = f / 1000;
-                labelText = (f % 1000 === 0 ? kVal : (kVal >= 10 ? Math.round(kVal) : kVal.toFixed(1)).replace('.0', '')) + 'k';
-            } else {
-                labelText = f >= 100 ? Math.round(f) : f;
-            }
-
-            if (isVisible) {
-                return `<span class="freq-label active-anchor" data-idx="${i}" style="flex: 1; text-align: center; font-size: ${width < 500 ? '0.52rem' : '0.62rem'}; font-weight: bold; color: #00f2fe; text-shadow: 0 0 6px rgba(0, 242, 254, 0.45); user-select: none;">${labelText}</span>`;
-            } else {
-                return `<span class="freq-label dot-tick" data-idx="${i}" style="flex: 1; text-align: center; opacity: 0.35; font-size: 0.55rem; color: rgba(0, 242, 254, 0.5); user-select: none;">·</span>`;
-            }
+            const isMajor = i % 2 === 0; // Show label every 2 bands
+            return isMajor ? `<span class="freq-label active-anchor">${f >= 1000 ? (f/1000)+'k' : f}</span>` : `<span class="freq-label dot-tick">·</span>`;
         }).join('');
     }
-
-    // Initialize labels and bind window resize event
-    updateFrequencyLabels();
-    window.addEventListener('resize', () => {
-        if (labelsContainer) updateFrequencyLabels();
-    });
 
     async function getDevices() {
         try {
@@ -123,31 +83,8 @@ function initProfessionalRTA() {
         } catch (e) { console.error("Device enumeration failed", e); }
     }
 
-    function drawIdleState() {
-        if (!canvas) return;
-        syncRtaCanvasSize();
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw background
-        const isLight = document.documentElement.classList.contains('light');
-        ctx.fillStyle = isLight ? '#F0F2F5' : '#030508';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        drawGridAndLabels();
-        
-        // Draw idle baseline line
-        ctx.beginPath();
-        ctx.strokeStyle = isLight ? 'rgba(0, 139, 159, 0.25)' : 'rgba(0, 242, 254, 0.25)';
-        ctx.lineWidth = 1.5;
-        const baseY = canvas.height - 4;
-        ctx.moveTo(38, baseY);
-        ctx.lineTo(canvas.width, baseY);
-        ctx.stroke();
-
-        updateFrequencyLabels();
-    }
-    window.syncRtaIdleState = drawIdleState;
-
+    let isAnalyzing = false;
+    
     window.startAnalyzer = async function startAnalyzer(deviceId) {
         if (isAnalyzing && audioCtx && audioCtx.state === 'running') return;
         deviceId = deviceId || safeStorage.getItem('soundengg-mic-id') || 'default';
@@ -156,74 +93,82 @@ function initProfessionalRTA() {
             cancelAnimationFrame(rafID);
             rafID = null;
         }
+        if (stream) {
+            try { stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+            stream = null;
+        }
+        if (source) {
+            try { source.disconnect(); } catch (e) {}
+            source = null;
+        }
+        if (audioCtx) {
+            try { await audioCtx.close(); } catch (e) {}
+            audioCtx = null;
+        }
 
         try {
-            // 1. Instantiate AudioContext immediately on user interaction thread (Safari/iOS requirement)
-            if (!audioCtx || audioCtx.state === 'closed') {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
-            if (audioCtx.state === 'suspended') {
-                try { await audioCtx.resume(); } catch (e) {}
-            }
-
-            // 2. Configure mobile session if available
-            try {
-                const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
-                if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+            const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
+            if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+                try {
                     await audioPlugin.configureAudioSession();
+                } catch (e) {
+                    console.warn("AudioSessionPlugin call warning:", e);
                 }
-            } catch (pluginErr) {
-                console.warn("AudioSessionPlugin not active:", pluginErr);
             }
-
-            // 3. Acquire mic stream with clean universal fallback
-            let constraints = { audio: true };
-            if (deviceId && deviceId !== 'default') {
-                constraints = { audio: { deviceId: { exact: deviceId } } };
-            }
-
+            let constraints = { 
+                audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true 
+            };
             try {
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
             } catch (constraintErr) {
-                console.warn("Exact constraint failed, falling back to audio: true", constraintErr);
+                console.warn("Exact mic constraint failed, falling back to default audio input:", constraintErr);
                 stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             }
             
+            try {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.error("Failed to create AudioContext in RTA:", e);
+                startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> AUDIO_ERROR';
+                isAnalyzing = false;
+                return;
+            }
+            if (audioCtx.state === 'suspended') {
+                try {
+                    await audioCtx.resume();
+                } catch (e) {
+                    console.error("Failed to resume AudioContext in RTA:", e);
+                }
+            }
+
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 2048; 
-            analyser.smoothingTimeConstant = 0;
+            analyser.smoothingTimeConstant = 0; // We'll do custom smoothing
             
             source = audioCtx.createMediaStreamSource(stream);
             source.connect(analyser);
-
+ 
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Float32Array(bufferLength);
             timeData = new Float32Array(analyser.fftSize);
             smoothedDataArray = new Float32Array(bufferLength).fill(-100);
             
+            // Precompute calibration offsets matching the current bin count
             precomputeCalibrationOffsets();
             
             isInitialized = true;
             isAnalyzing = true;
-            if (startBtn) {
-                startBtn.classList.remove('pulse-glow');
-                startBtn.classList.add('active', 'danger-btn');
-                startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
-            }
+            startBtn.classList.remove('pulse-glow');
+            startBtn.classList.add('active', 'danger-btn');
+            startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
             
-            syncRtaCanvasSize();
-            updateFrequencyLabels();
             getDevices();
             lastFrameTime = performance.now();
             rafID = requestAnimationFrame(draw);
         } catch (e) {
-            console.error("Mic access failed:", e);
-            if (startBtn) {
-                startBtn.classList.remove('active', 'danger-btn');
-                startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> ACCESS_DENIED';
-            }
+            console.error("Mic access failed", e);
+            startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> ACCESS_DENIED';
             isAnalyzing = false;
-            drawIdleState();
         }
     };
 
@@ -250,11 +195,11 @@ function initProfessionalRTA() {
         }
         if (startBtn) {
             startBtn.classList.remove('active', 'danger-btn');
-            startBtn.classList.add('pulse-glow');
-            startBtn.innerHTML = '<span class="material-symbols-outlined">mic</span> INITIALIZE_CORE';
+            startBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span> START MEASUREMENT';
         }
         
-        drawIdleState();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawGridAndLabels();
     }
     window.stopAnalyzer = stopAnalyzer;
 
@@ -369,10 +314,10 @@ function initProfessionalRTA() {
         if (val > 70) return '#378ADD'; // Light Blue
         return '#14A7B5'; // Turquoise
     }
+
     function draw(timestamp) {
-        if (!isAnalyzing && !isRtaPinkNoiseActive) {
+        if (!isAnalyzing || !isInitialized) {
             rafID = null;
-            drawIdleState();
             return;
         }
 
@@ -388,39 +333,42 @@ function initProfessionalRTA() {
         const frameInterval = 1000 / 60; // 60 FPS target (~16.67ms)
 
         if (elapsed < frameInterval) {
-            return;
+            return; // Skip rendering this frame to maintain 60 FPS target
         }
         
         lastFrameTime = timestamp - (elapsed % frameInterval);
         
-        // 1. Process mic input IF analyser is active
-        if (isAnalyzing && analyser && dataArray && timeData) {
-            analyser.getFloatTimeDomainData(timeData);
-            
-            const N = timeData.length;
-            const windowedData = new Float32Array(N);
-            for (let i = 0; i < N; i++) {
-                const hanning = 0.5 * (1 - Math.cos(2 * Math.PI * i / (N - 1)));
-                windowedData[i] = timeData[i] * hanning;
-            }
-
-            analyser.getFloatFrequencyData(dataArray);
-
-            const alpha = 1 / (averagingFactor + 1);
-            for (let i = 0; i < bufferLength; i++) {
-                if (dataArray[i] < -120) dataArray[i] = -120;
-                smoothedDataArray[i] = (dataArray[i] * alpha) + (smoothedDataArray[i] * (1 - alpha));
-                let calCorr = (calEnabled && calOffsets && calOffsets[i]) ? calOffsets[i] : 0;
-                dataArray[i] = smoothedDataArray[i] + calCorr;
-            }
+        // Manual FFT with Hanning Window
+        analyser.getFloatTimeDomainData(timeData);
+        
+        // 1. Apply Hanning Window
+        const N = timeData.length;
+        const windowedData = new Float32Array(N);
+        for (let i = 0; i < N; i++) {
+            const hanning = 0.5 * (1 - Math.cos(2 * Math.PI * i / (N - 1)));
+            windowedData[i] = timeData[i] * hanning;
         }
 
-        // 2. Process Pink Noise generator output IF active
-        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode && rtaPinkNoiseDataArray && rtaPinkNoiseSmoothedDataArray) {
+        // 2. Perform FFT
+        analyser.getFloatFrequencyData(dataArray);
+
+        // 3. Apply Averaging / Smoothing
+        const alpha = 1 / (averagingFactor + 1);
+        for (let i = 0; i < bufferLength; i++) {
+            // Clamp data to a reasonable floor to avoid -Infinity issues in rendering
+            if (dataArray[i] < -120) dataArray[i] = -120;
+            
+            smoothedDataArray[i] = (dataArray[i] * alpha) + (smoothedDataArray[i] * (1 - alpha));
+            
+            // Apply Mic Calibration Correction if enabled
+            let calCorr = (calEnabled && calOffsets && calOffsets[i]) ? calOffsets[i] : 0;
+            dataArray[i] = smoothedDataArray[i] + calCorr;
+        }
+
+        // Apply Averaging / Smoothing to Pink Noise if active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
             rtaPinkNoiseAnalyserNode.getFloatFrequencyData(rtaPinkNoiseDataArray);
-            const alpha = 1 / (averagingFactor + 1);
-            const pLen = rtaPinkNoiseDataArray.length;
-            for (let i = 0; i < pLen; i++) {
+            for (let i = 0; i < bufferLength; i++) {
                 if (rtaPinkNoiseDataArray[i] < -120) rtaPinkNoiseDataArray[i] = -120;
                 rtaPinkNoiseSmoothedDataArray[i] = (rtaPinkNoiseDataArray[i] * alpha) + (rtaPinkNoiseSmoothedDataArray[i] * (1 - alpha));
             }
@@ -428,9 +376,6 @@ function initProfessionalRTA() {
 
         if (currentMode !== 'waterfall') {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const isLight = document.documentElement.classList.contains('light');
-            ctx.fillStyle = isLight ? '#F0F2F5' : '#030508';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
         
         if (currentMode === 'rta') {
@@ -453,139 +398,87 @@ function initProfessionalRTA() {
 
         ctx.save();
         ctx.textAlign = 'right';
-        ctx.font = canvas.width < 500 ? "10px 'JetBrains Mono', monospace" : "12px 'JetBrains Mono', monospace";
+        ctx.font = "12px 'Space Grotesk', sans-serif";
         ctx.lineWidth = 0.5;
 
-        // 1. Draw dB Y-Axis Range: from calibrationOffset - 100 to calibrationOffset
+        // dB Range to show: from calibrationOffset - 100 to calibrationOffset
         const minDisplayDB = Math.floor((calibrationOffset - 100) / 10) * 10;
         const maxDisplayDB = Math.ceil(calibrationOffset / 10) * 10;
 
         for (let displayDB = minDisplayDB; displayDB <= maxDisplayDB; displayDB += 10) {
             const internalDB = displayDB - calibrationOffset;
-            const y = (canvas.height - 24) - (internalDB + 100) * ((canvas.height - 24) / 100);
+            const y = canvas.height - (internalDB + 100) * (canvas.height / 100);
 
-            if (y < 0 || y > canvas.height - 24) continue;
+            if (y < 0 || y > canvas.height) continue;
 
             // Draw Grid Line
             ctx.beginPath();
-            ctx.setLineDash([4, 4]);
+            ctx.setLineDash([5, 5]);
             ctx.strokeStyle = gridColor;
-            ctx.moveTo(38, y);
+            ctx.moveTo(40, y);
             ctx.lineTo(canvas.width, y);
             ctx.stroke();
 
-            // Draw Label in brand Cyan / Turquoise
+            // Draw Label
             ctx.fillStyle = textColor;
-            ctx.fillText(`${displayDB}`, 34, y + 4);
+            ctx.fillText(`${displayDB}`, 35, y + 4);
         }
-
-        // 2. Draw Frequency X-Axis Bottom Strip & Frequency Labels
-        const freqAnchors = canvas.width < 500
-            ? [
-                { f: 20, label: '20' },
-                { f: 50, label: '50' },
-                { f: 100, label: '100' },
-                { f: 250, label: '250' },
-                { f: 500, label: '500' },
-                { f: 1000, label: '1k' },
-                { f: 2500, label: '2.5k' },
-                { f: 5000, label: '5k' },
-                { f: 10000, label: '10k' },
-                { f: 20000, label: '20k' }
-            ]
-            : [
-                { f: 20, label: '20' },
-                { f: 31.5, label: '31.5' },
-                { f: 50, label: '50' },
-                { f: 80, label: '80' },
-                { f: 125, label: '125' },
-                { f: 200, label: '200' },
-                { f: 315, label: '315' },
-                { f: 500, label: '500' },
-                { f: 800, label: '800' },
-                { f: 1250, label: '1.25k' },
-                { f: 2000, label: '2k' },
-                { f: 3150, label: '3.15k' },
-                { f: 5000, label: '5k' },
-                { f: 8000, label: '8k' },
-                { f: 12500, label: '12.5k' },
-                { f: 20000, label: '20k' }
-            ];
-
-        // Bottom background band for frequency markers
-        ctx.fillStyle = isLight ? 'rgba(235, 240, 245, 0.95)' : 'rgba(3, 5, 8, 0.95)';
-        ctx.fillRect(0, canvas.height - 24, canvas.width, 24);
-
-        ctx.beginPath();
-        ctx.setLineDash([]);
-        ctx.strokeStyle = isLight ? 'rgba(0, 139, 159, 0.3)' : 'rgba(0, 242, 254, 0.3)';
-        ctx.moveTo(0, canvas.height - 24);
-        ctx.lineTo(canvas.width, canvas.height - 24);
-        ctx.stroke();
-
-        ctx.textAlign = 'center';
-        ctx.font = canvas.width < 500 ? "9px 'JetBrains Mono', monospace" : "11px 'JetBrains Mono', monospace";
-        ctx.fillStyle = textColor;
-
-        const logMin = Math.log10(20);
-        const logMax = Math.log10(20000);
-
-        freqAnchors.forEach(anchor => {
-            const normX = (Math.log10(anchor.f) - logMin) / (logMax - logMin);
-            const x = 38 + normX * (canvas.width - 48);
-
-            // Vertical dashed grid line
-            ctx.beginPath();
-            ctx.setLineDash([3, 5]);
-            ctx.strokeStyle = gridColor;
-            ctx.moveTo(x, 0);
-            ctx.lineTo(x, canvas.height - 24);
-            ctx.stroke();
-
-            // Label text
-            ctx.fillText(anchor.label, x, canvas.height - 7);
-        });
-
         ctx.restore();
     }
 
+    function drawIdleState() {
+        if (!canvas) return;
+        syncRtaCanvasSize();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const isLight = document.documentElement.classList.contains('light');
+        ctx.fillStyle = isLight ? '#F0F2F5' : '#030508';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        drawGridAndLabels();
+    }
+    window.syncRtaIdleState = drawIdleState;
+
     function drawRTA() {
         const barWidth = canvas.width / ISO_FREQS.length;
-        const sampleRate = (audioCtx && audioCtx.sampleRate) ? audioCtx.sampleRate : 48000;
+        const sampleRate = audioCtx.sampleRate;
         const nyquist = sampleRate / 2;
 
         ISO_FREQS.forEach((centerFreq, i) => {
             const x = i * barWidth;
-            let db = -100;
-
-            if (isAnalyzing && dataArray && bufferLength) {
-                const ratio = Math.pow(2, 1/12);
-                const lowFreq = centerFreq / ratio;
-                const highFreq = centerFreq * ratio;
-                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
-                const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
-                
-                let sum = 0;
-                let count = 0;
-                for (let b = lowBin; b <= highBin; b++) {
-                    sum += dataArray[b];
-                    count++;
-                }
-                db = count > 0 ? sum / count : -100;
-                if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
-                if (calEnabled) db += getCalOffsetForFreq(centerFreq);
-
-                if (db > peakData[i]) peakData[i] = db;
+            const ratio = Math.pow(2, 1/12); // Half of 1/6 for band edges
+            const lowFreq = centerFreq / ratio;
+            const highFreq = centerFreq * ratio;
+            
+            const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
+            const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
+            
+            let sum = 0;
+            let count = 0;
+            for (let b = lowBin; b <= highBin; b++) {
+                sum += dataArray[b];
+                count++;
+            }
+            
+            let db = count > 0 ? sum / count : -100;
+            if (currentWeighting === 'a') db += (A_WEIGHTS[centerFreq] || 0);
+            
+            // Apply extra fine calibration correction to weighted RTA bands
+            if (calEnabled) {
+                db += getCalOffsetForFreq(centerFreq);
             }
 
-            // Draw snapshots
+            if (db > peakData[i]) peakData[i] = db;
+            
+            // --- Draw Multi-Snapshots (RTA) ---
             snapshots.forEach(snap => {
-                if (!snap.visible || !snap.rta || snap.rta[i] === undefined) return;
+                if (!snap.visible) return;
                 const snapDb = snap.rta[i];
                 if (snapDb > -100) {
                     const snapH = Math.max(0, (snapDb + 100) * (canvas.height / 100));
-                    ctx.fillStyle = snap.color + '22';
+                    // Draw faint background fill
+                    ctx.fillStyle = snap.color + '22'; // 13% opacity
                     ctx.fillRect(x + 1, canvas.height - snapH, barWidth - 2, snapH);
+                    
+                    // Snapshot line
                     ctx.beginPath();
                     ctx.strokeStyle = snap.color;
                     ctx.globalAlpha = 0.6;
@@ -598,7 +491,25 @@ function initProfessionalRTA() {
                 }
             });
 
-            if (isAnalyzing) {
+            if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
+                const w = barWidth - 2;
+                const hMic = Math.max(2, (db + 100) * (canvas.height / 100));
+
+                // 1. Draw Mic Input (Cyan) as filled bars
+                ctx.fillStyle = 'rgba(20, 167, 181, 0.8)'; // brand cyan with 80% opacity
+                ctx.fillRect(x + 1, canvas.height - hMic, w, hMic);
+                
+                ctx.strokeStyle = '#14A7B5';
+                ctx.lineWidth = 1.5;
+                ctx.strokeRect(x + 1, canvas.height - hMic, w, hMic);
+
+                if (peakHoldEnabled) {
+                    const isLight = document.documentElement.classList.contains('light');
+                    const ph = (peakData[i] + 100) * (canvas.height / 100);
+                    ctx.fillStyle = isLight ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.4)';
+                    ctx.fillRect(x + 1, canvas.height - ph - 2, w, 2);
+                }
+            } else {
                 const h = Math.max(2, (db + 100) * (canvas.height / 100));
                 ctx.fillStyle = getSPLColor(db);
                 ctx.fillRect(x + 1, canvas.height - h, barWidth - 2, h);
@@ -612,22 +523,21 @@ function initProfessionalRTA() {
             }
         });
 
-        // Draw Pink Noise curve if active
-        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode && rtaPinkNoiseSmoothedDataArray) {
+        // 2. Draw Pink Noise Output (Bold Pink Curve) overlaying on top of the RTA bars
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
             ctx.beginPath();
             ctx.strokeStyle = '#FF2E93';
             ctx.lineWidth = 2.5;
             ctx.shadowBlur = 6;
             ctx.shadowColor = 'rgba(255, 46, 147, 0.6)';
             
-            const pBufLen = rtaPinkNoiseSmoothedDataArray.length;
             ISO_FREQS.forEach((centerFreq, i) => {
                 const x = i * barWidth;
                 const ratio = Math.pow(2, 1/12);
                 const lowFreq = centerFreq / ratio;
                 const highFreq = centerFreq * ratio;
-                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * pBufLen));
-                const highBin = Math.min(pBufLen - 1, Math.floor(highFreq / nyquist * pBufLen));
+                const lowBin = Math.max(0, Math.floor(lowFreq / nyquist * bufferLength));
+                const highBin = Math.min(bufferLength - 1, Math.floor(highFreq / nyquist * bufferLength));
                 
                 let pinkSum = 0;
                 let count = 0;
@@ -642,26 +552,30 @@ function initProfessionalRTA() {
                 const centerX = x + barWidth / 2;
                 const centerY = canvas.height - hPink;
                 
-                if (i === 0) ctx.moveTo(centerX, centerY);
-                else ctx.lineTo(centerX, centerY);
+                if (i === 0) {
+                    ctx.moveTo(centerX, centerY);
+                } else {
+                    ctx.lineTo(centerX, centerY);
+                }
             });
             ctx.stroke();
-            ctx.shadowBlur = 0;
+            ctx.shadowBlur = 0; // Reset shadow glow
         }
     }
 
     function drawFFT() {
-        // Draw Multi-Snapshots
+        const sliceWidth = canvas.width / bufferLength;
+
+        // --- Draw Multi-Snapshots (Curve) ---
         snapshots.forEach(snap => {
-            if (!snap.visible || !snap.fft || !snap.fft.length) return;
+            if (!snap.visible) return;
             ctx.beginPath();
             ctx.strokeStyle = snap.color;
             ctx.lineWidth = 1.5;
             ctx.globalAlpha = 0.7;
             ctx.setLineDash([4, 4]);
-            const sLen = snap.fft.length;
-            for (let i = 0; i < sLen; i++) {
-                const x = (Math.log10(i + 1) / Math.log10(sLen)) * canvas.width;
+            for (let i = 0; i < bufferLength; i++) {
+                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
                 const db = snap.fft[i];
                 const y = canvas.height - (db + 100) * (canvas.height / 100);
                 if (i === 0) ctx.moveTo(x, y);
@@ -672,31 +586,28 @@ function initProfessionalRTA() {
             ctx.globalAlpha = 1.0;
         });
 
-        // Draw mic spectrum curve
-        if (isAnalyzing && dataArray && bufferLength) {
-            ctx.beginPath();
-            ctx.strokeStyle = '#14A7B5';
-            ctx.lineWidth = 1.5;
-            for (let i = 0; i < bufferLength; i++) {
-                let dbVal = dataArray[i];
-                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
-                const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
+        ctx.beginPath();
+        ctx.strokeStyle = '#14A7B5';
+        ctx.lineWidth = 1.5;
+        
+        for (let i = 0; i < bufferLength; i++) {
+            let dbVal = dataArray[i];
+            const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
+            const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
         }
+        ctx.stroke();
 
-        // Draw Pink Noise Output (Bold Pink) if active
-        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode && rtaPinkNoiseSmoothedDataArray) {
-            const pLen = rtaPinkNoiseSmoothedDataArray.length;
+        // 2. Draw Pink Noise Output (Bold Pink) if active
+        if (isRtaPinkNoiseActive && rtaPinkNoiseAnalyserNode) {
             ctx.beginPath();
             ctx.strokeStyle = '#FF2E93';
             ctx.lineWidth = 2.0;
             
-            for (let i = 0; i < pLen; i++) {
+            for (let i = 0; i < bufferLength; i++) {
                 let dbVal = rtaPinkNoiseSmoothedDataArray[i];
-                const x = (Math.log10(i + 1) / Math.log10(pLen)) * canvas.width;
+                const x = (Math.log10(i + 1) / Math.log10(bufferLength)) * canvas.width;
                 const y = Math.min(canvas.height, canvas.height - (dbVal + 100) * (canvas.height / 100));
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
@@ -708,8 +619,9 @@ function initProfessionalRTA() {
     function drawDominantOverlay() {
         if (!isAnalyzing || domFreqDisplay === '--- Hz') return;
         ctx.save();
+        // Use explicit font stack as canvas API doesn't support CSS variables
         ctx.font = "bold 54px 'Space Grotesk', sans-serif";
-        ctx.fillStyle = '#14A7B5';
+        ctx.fillStyle = '#14A7B5'; // Cyan/Turquoise
         ctx.textAlign = 'center';
         ctx.shadowBlur = 15;
         ctx.shadowColor = 'rgba(20, 167, 181, 0.7)';
@@ -721,7 +633,7 @@ function initProfessionalRTA() {
         const peakValEl = document.getElementById('rta-peak-val');
         const domFreqEl = document.getElementById('rta-dom-val');
         
-        const maxDB = (peakData && peakData.length) ? Math.max(...peakData) : -100;
+        const maxDB = Math.max(...peakData);
         if (peakValEl) {
             if (!isAnalyzing || maxDB <= -95) {
                 peakValEl.textContent = `-∞ dB`;
@@ -730,26 +642,20 @@ function initProfessionalRTA() {
             }
         }
         
-        if (!isAnalyzing || !dataArray || !bufferLength) {
-            domFreqDisplay = `--- Hz`;
-            if (domFreqEl) domFreqEl.textContent = domFreqDisplay;
-            return;
-        }
-
         let maxFFT = -120;
         let domIdx = 0;
-        for (let i = 2; i < bufferLength; i++) {
+        for (let i = 2; i < bufferLength; i++) { // Skip DC
             if (dataArray[i] > maxFFT) {
                 maxFFT = dataArray[i];
                 domIdx = i;
             }
         }
-        if (maxFFT <= -85) {
+        if (!isAnalyzing || maxFFT <= -85) {
             domFreqDisplay = `--- Hz`;
         } else {
-            const sampleRate = (audioCtx && audioCtx.sampleRate) ? audioCtx.sampleRate : 48000;
+            const sampleRate = audioCtx ? audioCtx.sampleRate : 48000;
             const fftSize = analyser ? analyser.fftSize : 2048;
-            const domFreq = Math.round(domIdx * sampleRate / fftSize);
+            const domFreq = Math.round(domIdx * (sampleRate / fftSize));
             domFreqDisplay = `${domFreq} Hz`;
         }
         if (domFreqEl) domFreqEl.textContent = domFreqDisplay;
@@ -1311,10 +1217,8 @@ function initProfessionalRTA() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         } else {
-            const w = wrapper.clientWidth || canvas.clientWidth || window.innerWidth;
-            const h = wrapper.clientHeight || canvas.clientHeight || 320;
-            canvas.width = Math.max(320, w);
-            canvas.height = Math.max(260, h);
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
         }
         
         // Resize spectrogram waterfall cache canvas in lockstep
@@ -2045,12 +1949,4 @@ function initProfessionalRTA() {
     window.renderSnapshotSlots = renderSnapshotSlots;
     window.syncProLockUI = syncProLockUI;
     window.grantAdRewardSuccess = grantAdRewardSuccess;
-    window.syncRtaIdleState = drawIdleState;
-
-    // Draw initial grid and frequency labels immediately
-    setTimeout(() => {
-        syncRtaCanvasSize();
-        updateFrequencyLabels();
-        drawIdleState();
-    }, 100);
 }
