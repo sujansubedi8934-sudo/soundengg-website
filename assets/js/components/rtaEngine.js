@@ -56,13 +56,53 @@ function initProfessionalRTA() {
     // A-Weighting Look-up Table for 1/6 octave (interpolated centers)
     const A_WEIGHTS = { 20:-50.5, 22.4:-48.0, 25:-44.7, 28:-41.6, 31.5:-39.4, 35.5:-37.0, 40:-34.6, 45:-32.4, 50:-30.2, 56:-28.2, 63:-26.2, 71:-24.1, 80:-22.5, 90:-20.8, 100:-19.1, 112:-17.5, 125:-16.1, 140:-14.7, 160:-13.4, 180:-12.2, 200:-10.9, 224:-9.6, 250:-8.6, 280:-7.5, 315:-6.6, 355:-5.7, 400:-4.8, 450:-4.0, 500:-3.2, 560:-2.5, 630:-1.9, 710:-1.3, 800:-0.8, 900:-0.4, 1000:0, 1120:0.3, 1250:0.6, 1400:0.8, 1600:1.0, 1800:1.1, 2000:1.2, 2240:1.3, 2500:1.3, 2800:1.3, 3150:1.2, 3550:1.1, 4000:1.0, 4500:0.8, 5000:0.5, 5600:0.2, 6300:-0.1, 7100:-0.5, 8000:-1.1, 9000:-1.7, 10000:-2.5, 11200:-3.3, 12500:-4.3, 14000:-5.4, 16000:-6.6, 18000:-7.9, 20000:-9.3 };
 
-    // Inject Labels (Simplified for 1/6 density)
-    if (labelsContainer) {
+    // Adaptive Dynamic Frequency Labels Generator
+    function updateFrequencyLabels() {
+        if (!labelsContainer) return;
+        const width = labelsContainer.clientWidth || window.innerWidth;
+        
+        let visibleIndices = new Set();
+        if (width < 500) {
+            // Mobile (under 500px): 10 Key Anchors evenly distributed from 20 Hz to 20 kHz
+            // Indices corresponding to: 20, 50, 100, 250, 500, 1k, 2.5k, 5k, 10k, 20k
+            [0, 8, 14, 22, 28, 34, 42, 48, 54, 60].forEach(idx => visibleIndices.add(idx));
+        } else if (width < 850) {
+            // Tablet / iPad Portrait (500px - 850px): 16 Major 1/3-octave anchors
+            for (let i = 0; i < ISO_FREQS.length; i += 4) {
+                visibleIndices.add(i);
+            }
+            visibleIndices.add(ISO_FREQS.length - 1);
+        } else {
+            // iPad Landscape / Desktop (850px+): Full 31-Band ISO Standard
+            for (let i = 0; i < ISO_FREQS.length; i += 2) {
+                visibleIndices.add(i);
+            }
+            visibleIndices.add(ISO_FREQS.length - 1);
+        }
+
         labelsContainer.innerHTML = ISO_FREQS.map((f, i) => {
-            const isMajor = i % 2 === 0; // Show label every 2 bands
-            return isMajor ? `<span class="freq-label">${f >= 1000 ? (f/1000)+'k' : f}</span>` : `<span class="freq-label" style="opacity:0.2">·</span>`;
+            const isVisible = visibleIndices.has(i);
+            let labelText = '';
+            if (f >= 1000) {
+                const kVal = f / 1000;
+                labelText = (f % 1000 === 0 ? kVal : (kVal >= 10 ? Math.round(kVal) : kVal.toFixed(1)).replace('.0', '')) + 'k';
+            } else {
+                labelText = f >= 100 ? Math.round(f) : f;
+            }
+
+            if (isVisible) {
+                return `<span class="freq-label active-anchor" data-idx="${i}" style="flex: 1; text-align: center; font-size: ${width < 500 ? '0.50rem' : '0.62rem'}; font-weight: bold; color: var(--text-main);">${labelText}</span>`;
+            } else {
+                return `<span class="freq-label dot-tick" data-idx="${i}" style="flex: 1; text-align: center; opacity: 0.2; font-size: 0.55rem; color: var(--text-muted);">·</span>`;
+            }
         }).join('');
     }
+
+    // Initialize labels and bind window resize event
+    updateFrequencyLabels();
+    window.addEventListener('resize', () => {
+        if (labelsContainer) updateFrequencyLabels();
+    });
 
     async function getDevices() {
         try {
