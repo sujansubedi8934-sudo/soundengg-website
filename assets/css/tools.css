@@ -430,6 +430,17 @@
     min-width: 0;
 }
 
+.freq-label.active-anchor {
+    color: #00f2fe !important;
+    font-weight: 700;
+    text-shadow: 0 0 6px rgba(0, 242, 254, 0.45);
+}
+
+.freq-label.dot-tick {
+    color: rgba(0, 242, 254, 0.3) !important;
+    font-size: 0.55rem;
+}
+
 .pulse-glow {
     animation: pulse 2s infinite;
 }

@@ -114,8 +114,29 @@ function initProfessionalRTA() {
         } catch (e) { console.error("Device enumeration failed", e); }
     }
 
-    let isAnalyzing = false;
-    
+    function drawIdleState() {
+        if (!canvas) return;
+        syncRtaCanvasSize();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw background
+        const isLight = document.documentElement.classList.contains('light');
+        ctx.fillStyle = isLight ? '#F0F2F5' : '#030508';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        drawGridAndLabels();
+        
+        // Draw idle baseline line
+        ctx.beginPath();
+        ctx.strokeStyle = isLight ? 'rgba(0, 139, 159, 0.25)' : 'rgba(0, 242, 254, 0.25)';
+        ctx.lineWidth = 1.5;
+        const baseY = canvas.height - 4;
+        ctx.moveTo(38, baseY);
+        ctx.lineTo(canvas.width, baseY);
+        ctx.stroke();
+    }
+    window.syncRtaIdleState = drawIdleState;
+
     window.startAnalyzer = async function startAnalyzer(deviceId) {
         if (isAnalyzing && audioCtx && audioCtx.state === 'running') return;
         deviceId = deviceId || safeStorage.getItem('soundengg-mic-id') || 'default';
@@ -124,82 +145,84 @@ function initProfessionalRTA() {
             cancelAnimationFrame(rafID);
             rafID = null;
         }
-        if (stream) {
-            try { stream.getTracks().forEach(t => t.stop()); } catch (e) {}
-            stream = null;
-        }
-        if (source) {
-            try { source.disconnect(); } catch (e) {}
-            source = null;
-        }
-        if (audioCtx) {
-            try { await audioCtx.close(); } catch (e) {}
-            audioCtx = null;
-        }
 
         try {
-            const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
-            if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
-                try {
-                    await audioPlugin.configureAudioSession();
-                } catch (e) {
-                    console.warn("AudioSessionPlugin call warning:", e);
-                }
-            }
-            let constraints = { 
-                audio: (deviceId && deviceId !== 'default') ? { deviceId: { exact: deviceId } } : true 
-            };
-            try {
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-            } catch (constraintErr) {
-                console.warn("Exact mic constraint failed, falling back to default audio input:", constraintErr);
-                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            }
-            
-            try {
+            // 1. Instantiate AudioContext immediately on user interaction thread (Safari/iOS requirement)
+            if (!audioCtx || audioCtx.state === 'closed') {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            } catch (e) {
-                console.error("Failed to create AudioContext in RTA:", e);
-                startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> AUDIO_ERROR';
-                isAnalyzing = false;
-                return;
             }
             if (audioCtx.state === 'suspended') {
+                try { await audioCtx.resume(); } catch (e) {}
+            }
+
+            // 2. Configure mobile session if available
+            try {
+                const audioPlugin = window.Capacitor?.Plugins?.AudioSessionPlugin;
+                if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+                    await audioPlugin.configureAudioSession();
+                }
+            } catch (pluginErr) {
+                console.warn("AudioSessionPlugin not active:", pluginErr);
+            }
+
+            // 3. Acquire mic stream
+            let streamSuccess = false;
+            if (deviceId && deviceId !== 'default') {
                 try {
-                    await audioCtx.resume();
-                } catch (e) {
-                    console.error("Failed to resume AudioContext in RTA:", e);
+                    stream = await navigator.mediaDevices.getUserMedia({ 
+                        audio: { deviceId: { exact: deviceId } } 
+                    });
+                    streamSuccess = true;
+                } catch (exactErr) {
+                    console.warn("Exact deviceId failed, falling back to default mic:", exactErr);
                 }
             }
 
+            if (!streamSuccess) {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    } 
+                });
+            }
+            
             analyser = audioCtx.createAnalyser();
             analyser.fftSize = 2048; 
-            analyser.smoothingTimeConstant = 0; // We'll do custom smoothing
+            analyser.smoothingTimeConstant = 0;
             
             source = audioCtx.createMediaStreamSource(stream);
             source.connect(analyser);
- 
+
             bufferLength = analyser.frequencyBinCount;
             dataArray = new Float32Array(bufferLength);
             timeData = new Float32Array(analyser.fftSize);
             smoothedDataArray = new Float32Array(bufferLength).fill(-100);
             
-            // Precompute calibration offsets matching the current bin count
             precomputeCalibrationOffsets();
             
             isInitialized = true;
             isAnalyzing = true;
-            startBtn.classList.remove('pulse-glow');
-            startBtn.classList.add('active', 'danger-btn');
-            startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
+            if (startBtn) {
+                startBtn.classList.remove('pulse-glow');
+                startBtn.classList.add('active', 'danger-btn');
+                startBtn.innerHTML = '<span class="material-symbols-outlined">stop</span> DEACTIVATE RTA';
+            }
             
+            syncRtaCanvasSize();
+            updateFrequencyLabels();
             getDevices();
             lastFrameTime = performance.now();
             rafID = requestAnimationFrame(draw);
         } catch (e) {
-            console.error("Mic access failed", e);
-            startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> ACCESS_DENIED';
+            console.error("Mic access failed:", e);
+            if (startBtn) {
+                startBtn.classList.remove('active', 'danger-btn');
+                startBtn.innerHTML = '<span class="material-symbols-outlined">error</span> ACCESS_DENIED';
+            }
             isAnalyzing = false;
+            drawIdleState();
         }
     };
 
@@ -226,11 +249,11 @@ function initProfessionalRTA() {
         }
         if (startBtn) {
             startBtn.classList.remove('active', 'danger-btn');
-            startBtn.innerHTML = '<span class="material-symbols-outlined">play_arrow</span> START MEASUREMENT';
+            startBtn.classList.add('pulse-glow');
+            startBtn.innerHTML = '<span class="material-symbols-outlined">mic</span> INITIALIZE_CORE';
         }
         
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        drawGridAndLabels();
+        drawIdleState();
     }
     window.stopAnalyzer = stopAnalyzer;
 
@@ -424,12 +447,12 @@ function initProfessionalRTA() {
 
     function drawGridAndLabels() {
         const isLight = document.documentElement.classList.contains('light');
-        const gridColor = isLight ? 'rgba(0, 0, 0, 0.1)' : 'rgba(255, 255, 255, 0.1)';
-        const textColor = isLight ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.5)';
+        const gridColor = isLight ? 'rgba(0, 139, 159, 0.18)' : 'rgba(0, 242, 254, 0.18)';
+        const textColor = isLight ? '#008B9F' : '#00f2fe';
 
         ctx.save();
         ctx.textAlign = 'right';
-        ctx.font = "12px 'Space Grotesk', sans-serif";
+        ctx.font = canvas.width < 500 ? "10px 'JetBrains Mono', monospace" : "12px 'JetBrains Mono', monospace";
         ctx.lineWidth = 0.5;
 
         // dB Range to show: from calibrationOffset - 100 to calibrationOffset
@@ -444,15 +467,15 @@ function initProfessionalRTA() {
 
             // Draw Grid Line
             ctx.beginPath();
-            ctx.setLineDash([5, 5]);
+            ctx.setLineDash([4, 4]);
             ctx.strokeStyle = gridColor;
-            ctx.moveTo(40, y);
+            ctx.moveTo(38, y);
             ctx.lineTo(canvas.width, y);
             ctx.stroke();
 
-            // Draw Label
+            // Draw Label in brand Cyan / Turquoise
             ctx.fillStyle = textColor;
-            ctx.fillText(`${displayDB}`, 35, y + 4);
+            ctx.fillText(`${displayDB}`, 34, y + 4);
         }
         ctx.restore();
     }
@@ -1969,4 +1992,12 @@ function initProfessionalRTA() {
     window.renderSnapshotSlots = renderSnapshotSlots;
     window.syncProLockUI = syncProLockUI;
     window.grantAdRewardSuccess = grantAdRewardSuccess;
+    window.syncRtaIdleState = drawIdleState;
+
+    // Draw initial grid and frequency labels immediately
+    setTimeout(() => {
+        syncRtaCanvasSize();
+        updateFrequencyLabels();
+        drawIdleState();
+    }, 100);
 }

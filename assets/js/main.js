@@ -644,10 +644,8 @@ function setupNavigation() {
 
             // Specific View Re-initialization
             if (targetView === rtaView) {
-                const canvas = document.getElementById('rta-canvas');
-                if (canvas) {
-                    canvas.width = canvas.parentElement.clientWidth;
-                    canvas.height = canvas.parentElement.clientHeight;
+                if (typeof window.syncRtaIdleState === 'function') {
+                    window.syncRtaIdleState();
                 }
             }
 
