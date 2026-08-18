@@ -3082,8 +3082,8 @@ function initAppVersionCheck() {
                         if (versionConfig.latestVersionName) {
                             latestStoreVersion = versionConfig.latestVersionName;
                         }
-                        // Only prompt user if forceUpdate is explicitly set to true in central config
-                        if (isForceUpdate && currentBuild > 0 && currentBuild < requiredBuild) {
+                        // Android & General: If installed build is older than available build, prompt update
+                        if (currentBuild > 0 && currentBuild < requiredBuild) {
                             hasNewVersion = true;
                         }
                     }
@@ -3091,8 +3091,8 @@ function initAppVersionCheck() {
                     console.warn('[VersionCheck] Central config fetch warning:', configErr);
                 }
 
-                // 2. On iOS, cross-verify with Apple's public iTunes Lookup API if forceUpdate is enabled
-                if (isIOS && isForceUpdate) {
+                // 2. On iOS: Always cross-verify directly with Apple's Live App Store API
+                if (isIOS) {
                     try {
                         const itunesRes = await fetch('https://itunes.apple.com/lookup?bundleId=com.soundengg.app&t=' + Date.now());
                         if (itunesRes.ok) {
@@ -3103,10 +3103,13 @@ function initAppVersionCheck() {
                                 if (itunesData.results[0].trackViewUrl) {
                                     downloadUrl = itunesData.results[0].trackViewUrl;
                                 }
-                                // Semantic version comparison
+                                // If Apple App Store version is higher than installed version, trigger update prompt
                                 if (appStoreVersion !== currentVersionName && compareSemVer(appStoreVersion, currentVersionName) > 0) {
                                     hasNewVersion = true;
                                     latestStoreVersion = appStoreVersion;
+                                } else {
+                                    // If Apple hasn't published the new version yet, suppress prompt on iOS
+                                    hasNewVersion = false;
                                 }
                             }
                         }
