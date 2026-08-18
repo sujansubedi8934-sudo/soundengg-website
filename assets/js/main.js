@@ -3082,7 +3082,8 @@ function initAppVersionCheck() {
                         if (versionConfig.latestVersionName) {
                             latestStoreVersion = versionConfig.latestVersionName;
                         }
-                        if (currentBuild > 0 && currentBuild < requiredBuild) {
+                        // Only prompt user if forceUpdate is explicitly set to true in central config
+                        if (isForceUpdate && currentBuild > 0 && currentBuild < requiredBuild) {
                             hasNewVersion = true;
                         }
                     }
@@ -3090,8 +3091,8 @@ function initAppVersionCheck() {
                     console.warn('[VersionCheck] Central config fetch warning:', configErr);
                 }
 
-                // 2. On iOS, cross-verify with Apple's public iTunes Lookup API
-                if (isIOS) {
+                // 2. On iOS, cross-verify with Apple's public iTunes Lookup API if forceUpdate is enabled
+                if (isIOS && isForceUpdate) {
                     try {
                         const itunesRes = await fetch('https://itunes.apple.com/lookup?bundleId=com.soundengg.app&t=' + Date.now());
                         if (itunesRes.ok) {
