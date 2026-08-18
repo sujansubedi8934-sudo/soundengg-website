@@ -67,19 +67,11 @@ function initProfessionalRTA() {
 
     // Inject Clean 10-Band Frequency Anchors (20 Hz - 20 kHz)
     if (labelsContainer) {
-        const TEN_BAND_INDICES = new Set([0, 8, 14, 22, 28, 34, 42, 48, 54, 60]);
         labelsContainer.innerHTML = ISO_FREQS.map((f, i) => {
-            const isAnchor = TEN_BAND_INDICES.has(i);
-            let labelText = '';
-            if (f >= 1000) {
-                const kVal = f / 1000;
-                labelText = (f % 1000 === 0 ? kVal : (kVal >= 10 ? Math.round(kVal) : kVal.toFixed(1)).replace('.0', '')) + 'k';
-            } else {
-                labelText = f >= 100 ? Math.round(f) : f;
-            }
-            return isAnchor 
-                ? `<span class="freq-label active-anchor" style="flex: 1; text-align: center; font-size: 0.58rem; font-weight: bold; color: #00f2fe; text-shadow: 0 0 6px rgba(0, 242, 254, 0.45); user-select: none;">${labelText}</span>` 
-                : `<span class="freq-label dot-tick" style="flex: 1; text-align: center; opacity: 0.25; font-size: 0.50rem; color: rgba(0, 242, 254, 0.4); user-select: none;">·</span>`;
+            const isMajor = (i % 6 === 0) || (i === ISO_FREQS.length - 1);
+            return isMajor 
+                ? `<span class="freq-label active-anchor">${f >= 1000 ? (f/1000)+'k' : f}</span>` 
+                : `<span class="freq-label dot-tick">·</span>`;
         }).join('');
     }
 
