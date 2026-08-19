@@ -52,6 +52,12 @@
 
   <!-- Blog Articles -->
   <url>
+    <loc>https://www.soundengg.com/blog/legendary-studio-microphones</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/adamson-cardioid-subs</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -88,7 +94,7 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/polar-patterns-proximity-effect</loc>
+    <loc>https://www.soundengg.com/blog/mic-transducer-types</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -136,12 +142,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/mic-gain-staging-phantom-power-rules</loc>
-    <lastmod>2026-06-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://www.soundengg.com/blog/touring-consoles</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -167,6 +167,12 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/hybrid-streaming-mix</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/kick-drum-mic-shootout</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -208,12 +214,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/mic-transducer-types</loc>
-    <lastmod>2026-06-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://www.soundengg.com/blog/mid-tier-consoles</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -250,6 +250,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/polar-patterns-proximity-effect</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/three-phase-power</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -257,6 +263,12 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/smaart-fundamentals</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/ribbon-mic-renaissance-impedance</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -286,12 +298,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/kick-drum-mic-shootout</loc>
-    <lastmod>2026-06-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://www.soundengg.com/blog/spectrum-mastery</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -310,12 +316,6 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/complete-drum-miking-guide</loc>
-    <lastmod>2026-06-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://www.soundengg.com/blog/complete-mic-guide</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -328,25 +328,19 @@
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/shure-sm58-sm57-domination</loc>
-    <lastmod>2026-06-14</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
     <loc>https://www.soundengg.com/blog/math-behind-magic</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/ribbon-mic-renaissance-impedance</loc>
+    <loc>https://www.soundengg.com/blog/complete-drum-miking-guide</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog/legendary-studio-microphones</loc>
+    <loc>https://www.soundengg.com/blog/mic-gain-staging-phantom-power-rules</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -395,6 +389,12 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/rta-explained</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/shure-sm58-sm57-domination</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
