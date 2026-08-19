@@ -458,11 +458,10 @@ function setupNavigation() {
 
     // --- Bottom Tab Bar Visibility & State Sync ---
     function updateBottomTabBarVisibility(targetView) {
-        const deepSubTools = ['module-view', 'tap-delay-view', 'sub-calc-view', 'impedance-view', 'siggen-view', 'ear-training-view', 'pinout-view'];
         const tabbar = document.getElementById('mobile-bottom-tabs');
         if (tabbar) {
-            const isDeep = deepSubTools.includes(targetView.id);
-            if (isDeep) {
+            // Keep bottom navigation bar visible across ALL tools and views (only hide when RTA is in Fullscreen mode)
+            if (window.isRtaFullscreenActive) {
                 tabbar.classList.add('hidden-tab-bar');
             } else {
                 tabbar.classList.remove('hidden-tab-bar');
