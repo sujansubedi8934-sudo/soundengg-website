@@ -526,36 +526,47 @@ function setupNavigation() {
         // Find the currently active view
         const currentView = ALL_VIEWS.find(v => v && v.style.display === 'block');
 
-        // Transition ad gate interceptor for free users (smart frequency & periodic Pro consent)
-        if (!bypassAd && typeof window.executeWithAdGate === 'function' && !window.isUserPro && !window.isPremiumActive()) {
-            const isToolView = ['rta-view', 'siggen-view', 'delay-view', 'subcalc-view', 'voltage-view', 'freq-view', 'attenuation-view', 'pinout-view', 'ear-training-view', 'impedance-view'].includes(targetView.id);
-            
-            if (isToolView && currentView !== targetView) {
-                if (!window.toolSwitchCount) window.toolSwitchCount = 0;
-                window.toolSwitchCount++;
-                
-                // 1st switch & every 5th switch: Ask for consent / Show Support SoundEngg & Pro Upgrade modal
-                // Other switches: Trigger smooth interstitial ad on every 2nd switch
-                const isConsentMilestone = (window.toolSwitchCount === 1 || window.toolSwitchCount % 5 === 0);
-                const isEverySecondSwitch = (window.toolSwitchCount % 2 === 0);
-                
-                if (isConsentMilestone) {
-                    console.log(`Tool switch #${window.toolSwitchCount} (Milestone). Presenting Pro Support Modal...`);
-                    window.pendingAdAction = () => {
-                        showView(targetView, navButton, skipHistory, isBackAction, true);
-                    };
-                    if (typeof window.triggerMobileLock === 'function') {
-                        window.triggerMobileLock();
-                    } else if (typeof window.lockApp === 'function') {
-                        window.lockApp();
+        // Transition ad gate interceptor for free users
+        if (!bypassAd && !window.isUserPro && !window.isPremiumActive()) {
+            const toolIds = ['rta-view', 'siggen-view', 'delay-view', 'subcalc-view', 'voltage-view', 'freq-view', 'attenuation-view', 'pinout-view', 'ear-training-view', 'impedance-view', 'tap-delay-view', 'module-view', 'sub-calc-view'];
+            const isTargetTool = targetView && toolIds.includes(targetView.id);
+            const isCurrentTool = currentView && toolIds.includes(currentView.id);
+            const isGoingToDashboard = (targetView === dashboardView);
+
+            const hasSeenFirstToolConsent = safeStorage.getItem('has_seen_first_tool_consent') === 'true';
+
+            // SCENARIO 1: First time launching any tool -> Show initial "Support SoundEngg" modal
+            if (isTargetTool && !hasSeenFirstToolConsent && currentView !== targetView) {
+                console.log('[AdGate] First tool usage detected. Presenting initial Support SoundEngg modal...');
+                window.pendingAdAction = () => {
+                    safeStorage.setItem('has_seen_first_tool_consent', 'true');
+                    safeStorage.setItem('tools_unlocked_until', Date.now() + 4.5 * 60 * 1000);
+                    showView(targetView, navButton, skipHistory, isBackAction, true);
+                };
+                if (typeof window.triggerMobileLock === 'function') {
+                    window.triggerMobileLock();
+                } else if (typeof window.lockApp === 'function') {
+                    window.lockApp();
+                }
+                return;
+            }
+
+            // SCENARIO 2: Returning to Dashboard from a tool -> Trigger direct Interstitial ad if 4.5m cooldown expired
+            if (isCurrentTool && isGoingToDashboard) {
+                const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
+                const now = Date.now();
+                const isCooldownExpired = !unlockedUntil || now >= parseInt(unlockedUntil, 10);
+
+                if (isCooldownExpired) {
+                    console.log('[AdGate] Returning to Dashboard after cooldown. Triggering native interstitial ad...');
+                    safeStorage.setItem('tools_unlocked_until', now + 4.5 * 60 * 1000); // Reset cooldown
+                    if (window.isNativeMobile() && typeof window.showNativeInterstitialAd === 'function') {
+                        window.showNativeInterstitialAd(
+                            () => showView(targetView, navButton, skipHistory, isBackAction, true),
+                            () => showView(targetView, navButton, skipHistory, isBackAction, true)
+                        );
+                        return;
                     }
-                    return;
-                } else if (isEverySecondSwitch) {
-                    console.log(`Tool switch #${window.toolSwitchCount}. Triggering direct Interstitial ad...`);
-                    window.executeWithAdGate(() => {
-                        showView(targetView, navButton, skipHistory, isBackAction, true);
-                    }, targetView.id);
-                    return;
                 }
             }
         }
