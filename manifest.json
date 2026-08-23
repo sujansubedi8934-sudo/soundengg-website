@@ -1,7 +1,7 @@
 {
-  "name": "SoundEngg Titan Console",
+  "name": "SoundEngg: RTA & Audio Utility",
   "short_name": "SoundEngg",
-  "description": "Professional toolkit for Live Sound and System Engineers.",
+  "description": "Live Sound Calculators & RTA - Professional toolkit for live sound and system engineers.",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#000000",
