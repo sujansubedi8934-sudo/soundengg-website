@@ -65,6 +65,21 @@
       "dest": "/contact.html"
     },
     {
+      "src": "^/download/windows/?$",
+      "dest": "https://github.com/sujansubedi8934-sudo/soundengg-website/releases/latest/download/SoundEngg-Setup.exe",
+      "status": 302
+    },
+    {
+      "src": "^/download/windows-portable/?$",
+      "dest": "https://github.com/sujansubedi8934-sudo/soundengg-website/releases/latest/download/SoundEngg-Portable.exe",
+      "status": 302
+    },
+    {
+      "src": "^/download/mac/?$",
+      "dest": "https://github.com/sujansubedi8934-sudo/soundengg-website/releases/latest/download/SoundEngg-macOS.dmg",
+      "status": 302
+    },
+    {
       "handle": "filesystem"
     },
     {
