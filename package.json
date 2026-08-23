@@ -1,6 +1,6 @@
 {
   "name": "soundengg-website",
-  "version": "1.0.0",
+  "version": "1.1.16",
   "description": "audio tools and blogs for soundengg",
   "main": "electron-main.js",
   "scripts": {
