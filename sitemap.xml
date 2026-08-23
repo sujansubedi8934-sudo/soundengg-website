@@ -58,6 +58,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/adamson-systems-line-array-mastery</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/adamson-cardioid-subs</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -70,7 +76,19 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/alcons-audio-pro-ribbon-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/acoustic-propagation</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/bose-professional-showmatch-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -82,13 +100,43 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/clair-brothers-truefit-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/amp-tech-deep-dive</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/coda-audio-planar-wave-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/dnb-audiotechnik-line-array-guide</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/dante-redundancy-pro</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/das-audio-cardioid-powered-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/dbtechnologies-vio-line-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -113,6 +161,18 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/ear-training-live-sound</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/eaw-adaptive-performance-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/electro-voice-dynacord-line-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -172,7 +232,25 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/jbl-pro-vtx-line-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/kick-drum-mic-shootout</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/kv2-audio-point-source-live-audio</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/l-acoustics-line-array-ecosystem</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -202,6 +280,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/martin-audio-wavefront-precision</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/dsp-masterclass</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -209,6 +293,12 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/cl5-guide</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/meyer-sound-active-line-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -232,6 +322,12 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://www.soundengg.com/blog/nexo-stm-geom-line-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://www.soundengg.com/blog/phase-polarity-comb-filtering</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
@@ -239,6 +335,12 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/noise-signals-sweeps</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/pk-sound-robotic-line-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -257,6 +359,12 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/three-phase-power</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/qsc-audio-qsys-line-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -377,6 +485,18 @@
   </url>
   <url>
     <loc>https://www.soundengg.com/blog/tool-voltage-conversion</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/rcf-tt-audio-gtx-line-arrays</loc>
+    <lastmod>2026-06-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/blog/tw-audio-hybrid-line-arrays</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
