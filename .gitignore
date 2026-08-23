@@ -1,6 +1,12 @@
 # Dependency & Distribution Folders
 node_modules/
 www/
+dist/
+releases/
+*.exe
+*.dmg
+*.asar
+*.blockmap
 
 # Editor & IDE settings
 .idea/

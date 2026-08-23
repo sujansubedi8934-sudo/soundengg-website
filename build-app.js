@@ -28,7 +28,8 @@ const filesToCopy = [
 
 // List of folders to copy recursively
 const foldersToCopy = [
-    'assets'
+    'assets',
+    'releases'
 ];
 
 function deleteFolderRecursive(directoryPath) {

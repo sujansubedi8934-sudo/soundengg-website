@@ -2,11 +2,75 @@
   "name": "soundengg-website",
   "version": "1.0.0",
   "description": "audio tools and blogs for soundengg",
-  "main": "service-worker.js",
+  "main": "electron-main.js",
   "scripts": {
+    "start": "electron .",
     "build": "node build-app.js",
+    "dist:win": "npm run build && electron-builder --win --x64",
+    "dist:portable": "npm run build && electron-builder --win portable --x64",
+    "dist:mac": "npm run build && electron-builder --mac dmg",
+    "dist:all": "npm run build && electron-builder -mw",
     "bump": "node dev-tools/bump-version.js",
     "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "build": {
+    "appId": "com.soundengg.desktop",
+    "productName": "SoundEngg Studio Console",
+    "copyright": "Copyright © 2026 SoundEngg",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "www/**/*",
+      "electron-main.js",
+      "electron-preload.js",
+      "assets/**/*"
+    ],
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64", "x64"]
+        }
+      ],
+      "icon": "assets/icon.png",
+      "category": "public.app-category.music"
+    },
+    "dmg": {
+      "title": "SoundEngg Studio Console",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "SoundEngg Console"
+    }
   },
   "repository": {
     "type": "git",
@@ -35,6 +99,8 @@
     "puppeteer": "^25.0.4"
   },
   "devDependencies": {
-    "@capacitor/cli": "^8.3.4"
+    "@capacitor/cli": "^8.3.4",
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3"
   }
 }
