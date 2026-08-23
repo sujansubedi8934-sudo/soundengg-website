@@ -65,6 +65,11 @@
       "dest": "/contact.html"
     },
     {
+      "src": "^/download/?$",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "dest": "/download.html"
+    },
+    {
       "src": "^/download/windows/?$",
       "dest": "https://github.com/sujansubedi8934-sudo/soundengg-website/releases/latest/download/SoundEngg-Setup.exe",
       "status": 302

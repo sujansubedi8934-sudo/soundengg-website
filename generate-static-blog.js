@@ -122,6 +122,7 @@ const getTemplate = (blog) => {
                 <a href="../about.html">About</a>
                 <a href="../blog.html" class="active">Blog</a>
                 <a href="../pro.html">Pro</a>
+                <a href="../download.html">Download</a>
                 <a href="../contact.html">Contact</a>
                 <a href="../app.html" class="btn btn-primary">Launch Console</a>
             </div>
@@ -145,6 +146,7 @@ const getTemplate = (blog) => {
                         <a href="../about.html" class="mobile-nav-item">ABOUT</a>
                         <a href="../blog.html" class="mobile-nav-item active">BLOG</a>
                         <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../download.html" class="mobile-nav-item">DOWNLOAD</a>
                         <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
                         <a href="../app.html" class="mobile-nav-item">LAUNCH</a>
                     </div>
