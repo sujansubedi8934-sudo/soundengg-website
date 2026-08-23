@@ -15,7 +15,7 @@
   },
   "build": {
     "appId": "com.soundengg.desktop",
-    "productName": "SoundEngg Studio Console",
+    "productName": "SoundEngg - RTA & Audio Utility",
     "copyright": "Copyright © 2026 SoundEngg",
     "directories": {
       "output": "dist"
@@ -37,7 +37,7 @@
       "category": "public.app-category.music"
     },
     "dmg": {
-      "title": "SoundEngg Studio Console",
+      "title": "SoundEngg: RTA & Audio Utility",
       "contents": [
         {
           "x": 130,

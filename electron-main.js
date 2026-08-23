@@ -2,6 +2,8 @@ const { app, BrowserWindow, shell, session, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+app.setName('SoundEngg: RTA & Audio Utility');
+
 let mainWindow = null;
 
 function createWindow() {
@@ -11,7 +13,7 @@ function createWindow() {
         minWidth: 1024,
         minHeight: 700,
         backgroundColor: '#090a0f',
-        title: 'SoundEngg Studio Console - Touring Audio Engineering Suite',
+        title: 'SoundEngg: RTA & Audio Utility - Live Sound Calculators & RTA',
         icon: path.join(__dirname, 'assets', 'icon.png'),
         webPreferences: {
             preload: path.join(__dirname, 'electron-preload.js'),

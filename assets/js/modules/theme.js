@@ -69,9 +69,8 @@ function applyAutoTheme() {
     } catch (e) {}
 
     if (!theme) {
-        // Fallback to time-of-day
-        const hour = new Date().getHours();
-        theme = (hour >= 6 && hour < 18) ? 'light' : 'dark';
+        // Pro Audio default: Dark console mode
+        theme = 'dark';
     }
 
     if (theme === 'light') {
