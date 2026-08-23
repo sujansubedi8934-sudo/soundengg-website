@@ -1339,16 +1339,14 @@ function initProfessionalRTA() {
             return;
         }
 
-        if (isNativeBannerActive) return;
+        if (window.isNativeBannerActive) return;
 
         try {
             const { AdMob } = window.Capacitor?.Plugins || {};
             if (!AdMob) return;
 
             const isAndroid = window.Capacitor.getPlatform() === 'android';
-            let adId = USE_TEST_BANNER_ADS ? 
-                (isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID) : 
-                (isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID);
+            const adId = isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID;
 
             const bottomTabs = document.getElementById('mobile-bottom-tabs');
             const isTabsVisible = bottomTabs && window.getComputedStyle(bottomTabs).display !== 'none' && !bottomTabs.classList.contains('hidden-tab-bar');
@@ -1357,45 +1355,22 @@ function initProfessionalRTA() {
             // Set margin so banner ad sits directly on top of the bottom navigation bar
             const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
 
-            console.log('Showing native bottom banner ad with unit ID:', adId, 'margin:', bannerMargin);
+            console.log('Showing native bottom banner ad with production unit ID:', adId, 'margin:', bannerMargin);
             
             await AdMob.showBanner({
                 adId: adId,
                 adSize: 'ADAPTIVE_BANNER',
                 position: 'BOTTOM_CENTER',
                 margin: bannerMargin,
-                isTesting: USE_TEST_BANNER_ADS
+                isTesting: false
             });
 
-            isNativeBannerActive = true;
+            window.isNativeBannerActive = true;
             document.body.classList.add('has-native-banner');
         } catch (err) {
-            console.error('Error showing native banner ad with production ID:', err);
-            // Fallback attempt: Try test banner ID if production unit returned No ad to show in debug build
-            try {
-                const { AdMob } = window.Capacitor?.Plugins || {};
-                const isAndroid = window.Capacitor.getPlatform() === 'android';
-                const testAdId = isAndroid ? ADMOB_ANDROID_BANNER_TEST_ID : ADMOB_IOS_BANNER_TEST_ID;
-                const bottomTabs = document.getElementById('mobile-bottom-tabs');
-                const isTabsVisible = bottomTabs && window.getComputedStyle(bottomTabs).display !== 'none' && !bottomTabs.classList.contains('hidden-tab-bar');
-                const isTablet = window.innerWidth >= 768;
-                const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
-
-                console.log('Attempting test banner ad fallback with unit ID:', testAdId, 'margin:', bannerMargin);
-                await AdMob.showBanner({
-                    adId: testAdId,
-                    adSize: 'ADAPTIVE_BANNER',
-                    position: 'BOTTOM_CENTER',
-                    margin: bannerMargin,
-                    isTesting: true
-                });
-                isNativeBannerActive = true;
-                document.body.classList.add('has-native-banner');
-            } catch (fallbackErr) {
-                console.error('Fallback test banner ad also failed:', fallbackErr);
-                isNativeBannerActive = false;
-                document.body.classList.remove('has-native-banner');
-            }
+            console.error('Error showing native banner ad:', err);
+            window.isNativeBannerActive = false;
+            document.body.classList.remove('has-native-banner');
         }
     };
 
@@ -1412,18 +1387,12 @@ function initProfessionalRTA() {
         });
 
         // Always clean up DOM banner padding and class states
-        isNativeBannerActive = false;
+        window.isNativeBannerActive = false;
         document.body.classList.remove('has-native-banner');
 
         if (!window.isNativeMobile()) return;
 
         if (!window.isAdMobInitialized) {
-            console.warn('hideNativeBannerAd called before AdMob initialization.');
-            return;
-        }
-
-        if (!navigator.onLine) {
-            console.log('Device is offline. Skipping native removeBanner to prevent crash.');
             return;
         }
 

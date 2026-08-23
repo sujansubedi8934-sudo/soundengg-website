@@ -287,8 +287,13 @@ function initAdManager() {
                 }).then(() => {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
-                    // window.preloadNativeRewardedAd(); // Disabled: using Interstitial ads instead of Rewarded video
                     window.preloadNativeInterstitialAd();
+
+                    // Immediately show native bottom banner on app start for free users
+                    if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                        console.log("Triggering native banner ad on startup...");
+                        window.showNativeBannerAd();
+                    }
 
                     // Register Banner Ad Event Listeners to guarantee clean layout bounds
                     try {
@@ -302,6 +307,17 @@ function initAdManager() {
                             console.warn("AdMob Banner Ad failed to load (No ad to show):", err);
                             window.isNativeBannerActive = false;
                             document.body.classList.remove('has-native-banner');
+
+                            // Automatic background retry after 45 seconds to pick up newly filled inventory
+                            if (!window.bannerRetryTimeout) {
+                                window.bannerRetryTimeout = setTimeout(() => {
+                                    window.bannerRetryTimeout = null;
+                                    if (!window.isNativeBannerActive && !window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                                        console.log("Retrying native banner ad after 45s cooldown...");
+                                        window.showNativeBannerAd();
+                                    }
+                                }, 45000);
+                            }
                         });
                     } catch (e) {
                         console.warn("Could not attach AdMob banner event listeners:", e);
