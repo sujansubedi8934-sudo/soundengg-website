@@ -8,10 +8,10 @@ let mainWindow = null;
 
 function createWindow() {
     mainWindow = new BrowserWindow({
-        width: 1366,
-        height: 868,
-        minWidth: 1024,
-        minHeight: 700,
+        width: 1200,
+        height: 800,
+        minWidth: 960,
+        minHeight: 640,
         backgroundColor: '#090a0f',
         title: 'SoundEngg: RTA & Audio Utility - Live Sound Calculators & RTA',
         icon: path.join(__dirname, 'assets', 'icon.png'),

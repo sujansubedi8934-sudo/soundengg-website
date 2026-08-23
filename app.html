@@ -43,13 +43,14 @@
         /* iOS App platform styles */
     </style>
     <script>
-        (function() {
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-            const isIOSApp = isIOS && (window.location.href.startsWith('file://') || window.location.href.includes('capacitor://') || window.location.host === 'localhost');
-            if (isIOSApp || (window.Capacitor && window.Capacitor.getPlatform() === 'ios')) {
-                document.documentElement.classList.add('is-ios-app');
+            const isDesktopElectron = (typeof window !== 'undefined' && window.electronAPI && window.electronAPI.isDesktop) || 
+                                      (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Electron'));
+            if (isDesktopElectron) {
+                document.documentElement.classList.add('is-desktop-console', 'dark');
+                document.documentElement.classList.remove('light');
                 document.addEventListener('DOMContentLoaded', () => {
-                    document.body.classList.add('is-ios-app');
+                    document.body.classList.add('is-desktop-console', 'dark');
+                    document.body.classList.remove('light');
                 });
             }
         })();

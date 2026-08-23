@@ -917,18 +917,23 @@
     }
 }
 
-/* Also apply to Native Capacitor Platform (if not matching max-width) */
+/* Also apply to Native Capacitor Platform and Desktop Console App */
 .native-mobile-platform .top-bar,
-.native-mobile-platform .desktop-only-dashboard {
+.native-mobile-platform .desktop-only-dashboard,
+.is-desktop-console .top-bar,
+.is-desktop-console .desktop-only-dashboard {
     display: none !important;
 }
-.native-mobile-platform .mobile-only-header {
+.native-mobile-platform .mobile-only-header,
+.is-desktop-console .mobile-only-header {
     display: flex !important;
 }
-.native-mobile-platform .mobile-only-dashboard {
+.native-mobile-platform .mobile-only-dashboard,
+.is-desktop-console .mobile-only-dashboard {
     display: block !important;
 }
-.native-mobile-platform #mobile-bottom-tabs {
+.native-mobile-platform #mobile-bottom-tabs,
+.is-desktop-console #mobile-bottom-tabs {
     display: flex !important;
 }
 
