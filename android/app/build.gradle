@@ -47,8 +47,12 @@ dependencies {
     implementation project(':capacitor-android')
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
-    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+
+    // Google AdMob Mediation Adapters
+    implementation 'com.google.android.gms:play-services-ads:23.3.0'
+    implementation 'com.google.ads.mediation:inmobi:10.8.0.0'
+    implementation 'com.google.ads.mediation:unity:4.12.5.0'
 }
 
 apply from: 'capacitor.build.gradle'
