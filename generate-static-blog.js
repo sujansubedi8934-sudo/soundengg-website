@@ -185,18 +185,11 @@ const getTemplate = (blog) => {
              <!-- Article Main Content -->
              ${blog.content}
              
-             <!-- Google AdSense Native Article Ad Unit -->
-             <div class="ad-placeholder adsbygoogle-container" style="margin-top: 3rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1.5rem; text-align: center;">
+             <!-- Sponsor Advertisement / Native Banner Ad Unit -->
+             <div class="ad-placeholder adsterra-container" style="margin-top: 3rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1rem 0.5rem; text-align: center; overflow: hidden;">
                  <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;">SPONSOR_ADVERTISEMENT</div>
-                 <ins class="adsbygoogle"
-                      style="display:block; text-align:center;"
-                      data-ad-layout="in-article"
-                      data-ad-format="fluid"
-                      data-ad-client="ca-pub-4117687060036448"
-                      data-ad-slot="1234567890"></ins>
-                 <script>
-                      (adsbygoogle = window.adsbygoogle || []).push({});
-                 </script>
+                 <script async="async" data-cfasync="false" src="https://pl30998961.profitableratecpmnetwork.com/26b7b70eb2dde1e417c5beef508656fe/invoke.js"></script>
+                 <div id="container-26b7b70eb2dde1e417c5beef508656fe"></div>
              </div>
              
              <!-- Mobile App Promotion Field Companion Banner -->
@@ -240,12 +233,6 @@ const getTemplate = (blog) => {
                          sujan@soundengg.com
                      </a>
                  </div>
-             </div>
-
-             <!-- Adsterra Native Banner -->
-             <div class="adsterra-native-banner" style="margin: 2.5rem 0; text-align: center; overflow: hidden; border-radius: 8px;">
-                 <script async="async" data-cfasync="false" src="https://pl30998961.profitableratecpmnetwork.com/26b7b70eb2dde1e417c5beef508656fe/invoke.js"></script>
-                 <div id="container-26b7b70eb2dde1e417c5beef508656fe"></div>
              </div>
 
              <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
