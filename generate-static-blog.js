@@ -242,7 +242,13 @@ const getTemplate = (blog) => {
                  </div>
              </div>
 
-             <div style="margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+             <!-- Adsterra Native Banner -->
+             <div class="adsterra-native-banner" style="margin: 2.5rem 0; text-align: center; overflow: hidden; border-radius: 8px;">
+                 <script async="async" data-cfasync="false" src="https://pl30998961.profitableratecpmnetwork.com/26b7b70eb2dde1e417c5beef508656fe/invoke.js"></script>
+                 <div id="container-26b7b70eb2dde1e417c5beef508656fe"></div>
+             </div>
+
+             <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
                   <p style="color: var(--text-muted); font-size: 0.9rem;">Share this article:</p>
                   <div style="display: flex; gap: 1rem; margin-top: 1rem;">
                       <a href="https://twitter.com/intent/tweet?text=${encodeURIComponent(blog.title)}&url=${encodeURIComponent('https://www.soundengg.com/blog/' + blog.id)}" target="_blank" class="btn btn-outline small-btn">Twitter</a>
