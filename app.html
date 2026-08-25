@@ -43,6 +43,7 @@
         /* iOS App platform styles */
     </style>
     <script>
+        (function() {
             const isDesktopElectron = (typeof window !== 'undefined' && window.electronAPI && window.electronAPI.isDesktop) || 
                                       (typeof navigator !== 'undefined' && navigator.userAgent && navigator.userAgent.includes('Electron'));
             if (isDesktopElectron) {

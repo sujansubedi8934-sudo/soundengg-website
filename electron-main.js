@@ -2,7 +2,25 @@ const { app, BrowserWindow, shell, session, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
+// Performance & Hardware Acceleration Optimization
+app.commandLine.appendSwitch('enable-gpu-rasterization');
+app.commandLine.appendSwitch('enable-zero-copy');
+app.commandLine.appendSwitch('disable-features', 'ScreenCaptureKitPickerScreen,ScreenCaptureKitStreamPickerSonoma,VideoCapture');
+
 app.setName('SoundEngg: RTA & Audio Utility');
+
+// Enforce single instance lock to prevent duplicate background instances
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+}
 
 let mainWindow = null;
 
@@ -15,20 +33,26 @@ function createWindow() {
         backgroundColor: '#090a0f',
         title: 'SoundEngg: RTA & Audio Utility - Live Sound Calculators & RTA',
         icon: path.join(__dirname, 'assets', 'icon.png'),
+        show: false, // Prevents white flash during startup
         webPreferences: {
             preload: path.join(__dirname, 'electron-preload.js'),
             nodeIntegration: false,
             contextIsolation: true,
-            webSecurity: true
+            webSecurity: true,
+            backgroundThrottling: false
         }
     });
 
-    // Auto-approve audio device permissions (Web Audio API / RTA mic access)
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.show();
+    });
+
+    // Auto-approve audio device permissions (Web Audio API / RTA mic access only)
     session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
-        if (permission === 'media') {
-            callback(true); // Always allow microphone / audio input for RTA analysis
+        if (permission === 'media' || permission === 'microphone') {
+            callback(true); // Allow microphone for RTA analysis
         } else {
-            callback(true);
+            callback(false); // Deny unnecessary background sensors/cameras
         }
     });
 
