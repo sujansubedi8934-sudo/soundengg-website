@@ -32,13 +32,22 @@ function createWindow() {
         }
     });
 
-    // Intercept external links and open in default web browser
+    // Intercept all external & blog links to open in the system default web browser (Safari/Chrome/Edge)
+    // This prevents overlapping floating windows and routes readers to soundengg.com where live ads generate revenue!
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('http://') || url.startsWith('https://')) {
             shell.openExternal(url);
-            return { action: 'deny' };
+        } else if (url.includes('/blog/') || url.includes('blog/')) {
+            const blogSlug = url.split(/blog\//).pop().replace('.html', '');
+            shell.openExternal(`https://www.soundengg.com/blog/${blogSlug}`);
+        } else if (url.startsWith('file://')) {
+            // If opening a local html file in new window, convert to web url or open in browser
+            const filename = path.basename(url);
+            if (filename.includes('.html') && filename !== 'app.html') {
+                shell.openExternal(`https://www.soundengg.com/${filename}`);
+            }
         }
-        return { action: 'allow' };
+        return { action: 'deny' }; // Always deny creating overlapping mini-windows inside Electron!
     });
 
     // Load compiled www/app.html or root app.html

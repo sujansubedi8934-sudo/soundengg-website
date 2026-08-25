@@ -61,8 +61,10 @@ function initBlog() {
                     if (e) e.stopPropagation();
                     if (window.Capacitor) {
                         openArticle(item.id);
+                    } else if (window.electronAPI && window.electronAPI.isDesktop) {
+                        window.open(`https://www.soundengg.com/blog/${item.id}`, '_blank');
                     } else {
-                        window.open(`blog/${item.id}.html`, '_blank');
+                        window.open(`blog/${item.id}`, '_blank');
                     }
                 };
                 if (readBtn) {
