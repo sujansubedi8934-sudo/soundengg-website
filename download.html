@@ -315,38 +315,32 @@
 
             <!-- Dynamic Download Buttons -->
             <div class="action-button-stack" id="action-buttons">
-                <!-- Injected via JavaScript based on OS -->
-                <a href="/download/mac" class="dl-main-btn dl-btn-cyan" id="btn-primary-action">
-                    <span class="material-symbols-outlined">download</span>
-                    <span>Download for Mac (.dmg)</span>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="dl-main-btn dl-btn-cyan" id="btn-primary-action">
+                    <span class="material-symbols-outlined">phone_iphone</span>
+                    <span>Download on the App Store</span>
                 </a>
-                <a href="app.html" class="dl-main-btn dl-btn-glass" id="btn-secondary-action">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="dl-main-btn dl-btn-glass" id="btn-secondary-action">
+                    <span class="material-symbols-outlined">android</span>
+                    <span>Get it on Google Play</span>
+                </a>
+                <a href="app.html" class="dl-main-btn dl-btn-glass" style="border-color: rgba(0, 255, 255, 0.4);">
                     <span class="material-symbols-outlined">open_in_browser</span>
-                    <span>Launch Web Console</span>
+                    <span>Launch Web Console (PWA)</span>
                 </a>
             </div>
 
             <!-- All Platforms Selector -->
             <div class="platform-grid-section">
-                <div class="platform-grid-label">Available Across All Platforms</div>
+                <div class="platform-grid-label">Available Across All Devices</div>
                 <div class="platform-chip-row">
-                    <a href="/download/mac" class="platform-chip" title="Download macOS DMG">
-                        <span class="material-symbols-outlined">laptop_mac</span> macOS (.dmg)
+                    <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="platform-chip" title="Apple App Store (iPhone, iPad, Mac)">
+                        <span class="material-symbols-outlined">phone_iphone</span> Apple App Store (iOS & Mac)
                     </a>
-                    <a href="/download/windows" class="platform-chip" title="Download Windows Installer">
-                        <span class="material-symbols-outlined">laptop_windows</span> Windows (.exe)
+                    <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="platform-chip" title="Google Play Store">
+                        <span class="material-symbols-outlined">android</span> Google Play Store
                     </a>
-                    <a href="/download/windows-portable" class="platform-chip" title="Download Portable USB Edition">
-                        <span class="material-symbols-outlined">usb</span> Portable
-                    </a>
-                    <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="platform-chip" title="Open Apple App Store">
-                        <span class="material-symbols-outlined">phone_iphone</span> iOS App
-                    </a>
-                    <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="platform-chip" title="Open Google Play Store">
-                        <span class="material-symbols-outlined">android</span> Android
-                    </a>
-                    <a href="app.html" class="platform-chip" title="Open Web App">
-                        <span class="material-symbols-outlined">language</span> Web
+                    <a href="app.html" class="platform-chip" title="Launch Web Console in Browser">
+                        <span class="material-symbols-outlined">language</span> Web Console PWA (Desktop & Laptop)
                     </a>
                 </div>
             </div>
@@ -359,7 +353,6 @@
             var ua = navigator.userAgent || '';
             var isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
             var isAndroid = /Android/.test(ua);
-            var isWindows = /Windows|Win32|Win64|WOW64/.test(ua) || (navigator.platform && navigator.platform.indexOf('Win') !== -1);
             var isMac = /Macintosh|MacIntel|MacPPC|Mac68K/.test(ua) && !isIOS;
 
             var detectionText = document.getElementById('detection-text');
@@ -367,70 +360,18 @@
 
             if (isIOS) {
                 detectionText.textContent = 'Apple iOS Detected';
-                actionButtons.innerHTML = `
-                    <a href="https://apps.apple.com/us/app/soundengg/id6783749210" class="dl-main-btn dl-btn-cyan">
-                        <span class="material-symbols-outlined">arrow_forward</span>
-                        <span>Download on the App Store</span>
-                    </a>
-                    <a href="app.html" class="dl-main-btn dl-btn-glass">
-                        <span class="material-symbols-outlined">open_in_browser</span>
-                        <span>Launch Web Version</span>
-                    </a>
-                `;
                 setTimeout(function() {
                     window.location.replace('https://apps.apple.com/us/app/soundengg/id6783749210');
                 }, 1200);
             } else if (isAndroid) {
                 detectionText.textContent = 'Android OS Detected';
-                actionButtons.innerHTML = `
-                    <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" class="dl-main-btn dl-btn-cyan">
-                        <span class="material-symbols-outlined">arrow_forward</span>
-                        <span>Get it on Google Play</span>
-                    </a>
-                    <a href="app.html" class="dl-main-btn dl-btn-glass">
-                        <span class="material-symbols-outlined">open_in_browser</span>
-                        <span>Launch Web Version</span>
-                    </a>
-                `;
                 setTimeout(function() {
                     window.location.replace('https://play.google.com/store/apps/details?id=com.soundengg.app');
                 }, 1200);
-            } else if (isWindows) {
-                detectionText.textContent = 'Windows Laptop Detected';
-                actionButtons.innerHTML = `
-                    <a href="/download/windows" class="dl-main-btn dl-btn-cyan">
-                        <span class="material-symbols-outlined">download</span>
-                        <span>Download Windows Installer (.exe)</span>
-                    </a>
-                    <a href="/download/windows-portable" class="dl-main-btn dl-btn-glass">
-                        <span class="material-symbols-outlined">usb</span>
-                        <span>Download Portable Edition (.exe)</span>
-                    </a>
-                `;
             } else if (isMac) {
-                detectionText.textContent = 'Apple Mac Detected';
-                actionButtons.innerHTML = `
-                    <a href="/download/mac" class="dl-main-btn dl-btn-cyan">
-                        <span class="material-symbols-outlined">download</span>
-                        <span>Download for Mac (.dmg)</span>
-                    </a>
-                    <a href="app.html" class="dl-main-btn dl-btn-glass">
-                        <span class="material-symbols-outlined">open_in_browser</span>
-                        <span>Launch Web Console</span>
-                    </a>
-                `;
+                detectionText.textContent = 'Apple Mac Detected (App Store & Web Available)';
             } else {
-                detectionText.textContent = 'Desktop Detected';
-                actionButtons.innerHTML = `
-                    <a href="/download/windows" class="dl-main-btn dl-btn-cyan">
-                        <span class="material-symbols-outlined">download</span>
-                        <span>Download Windows (.exe)</span>
-                    </a>
-                    <a href="/download/mac" class="dl-main-btn dl-btn-glass">
-                        <span class="material-symbols-outlined">download</span>
-                        <span>Download Mac (.dmg)</span>
-                    </a>
-                `;
+                detectionText.textContent = 'Desktop / Laptop Detected';
             }
         });
     </script>
