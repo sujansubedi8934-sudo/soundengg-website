@@ -161,5 +161,51 @@ window.parseDeviceString = parseDeviceString;
         
         console.log(`[Custom Alert] ${title}: ${message}`);
     };
+
+    window.showToastNotification = function(message, duration = 2500) {
+        const existingToast = document.getElementById('global-toast-notification');
+        if (existingToast) existingToast.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'global-toast-notification';
+        toast.style.cssText = `
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(11, 12, 16, 0.95);
+            border: 1px solid var(--primary, #00ffff);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-family: var(--font-mono, monospace);
+            font-size: 0.85rem;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            z-index: 999999;
+            pointer-events: none;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        `;
+        toast.innerHTML = `<span style="color: var(--primary, #00ffff);">✨</span> ${message}`;
+        document.body.appendChild(toast);
+
+        // Animate in
+        requestAnimationFrame(() => {
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateX(-50%) translateY(0)';
+        });
+
+        // Auto remove
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateX(-50%) translateY(10px)';
+            setTimeout(() => toast.remove(), 350);
+        }, duration);
+    };
 })();
 

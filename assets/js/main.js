@@ -540,7 +540,8 @@ function setupNavigation() {
                 console.log('[AdGate] First tool usage detected. Presenting initial Support SoundEngg modal...');
                 window.pendingAdAction = () => {
                     safeStorage.setItem('has_seen_first_tool_consent', 'true');
-                    safeStorage.setItem('tools_unlocked_until', Date.now() + 4.5 * 60 * 1000);
+                    safeStorage.setItem('tool_switch_count', '0');
+                    safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString()); // 2.5 min grace period
                     showView(targetView, navButton, skipHistory, isBackAction, true);
                 };
                 if (typeof window.triggerMobileLock === 'function') {
@@ -551,15 +552,17 @@ function setupNavigation() {
                 return;
             }
 
-            // SCENARIO 2: Returning to Dashboard from a tool -> Trigger direct Interstitial ad if 4.5m cooldown expired
+            // SCENARIO 2: Returning to Dashboard from a tool -> Trigger Interstitial ad on every 2 tool switches after 2.5m cooldown
             if (isCurrentTool && isGoingToDashboard) {
+                let toolSwitchCount = parseInt(safeStorage.getItem('tool_switch_count') || '0', 10) + 1;
                 const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
                 const now = Date.now();
                 const isCooldownExpired = !unlockedUntil || now >= parseInt(unlockedUntil, 10);
 
-                if (isCooldownExpired) {
-                    console.log('[AdGate] Returning to Dashboard after cooldown. Triggering native interstitial ad...');
-                    safeStorage.setItem('tools_unlocked_until', now + 4.5 * 60 * 1000); // Reset cooldown
+                if (toolSwitchCount >= 2 && isCooldownExpired) {
+                    console.log('[AdGate] 2 tool switches completed & cooldown expired. Triggering native interstitial ad...');
+                    safeStorage.setItem('tool_switch_count', '0');
+                    safeStorage.setItem('tools_unlocked_until', (now + 2.5 * 60 * 1000).toString()); // Reset 2.5m cooldown
                     if (window.isNativeMobile() && typeof window.showNativeInterstitialAd === 'function') {
                         window.showNativeInterstitialAd(
                             () => showView(targetView, navButton, skipHistory, isBackAction, true),
@@ -567,6 +570,8 @@ function setupNavigation() {
                         );
                         return;
                     }
+                } else {
+                    safeStorage.setItem('tool_switch_count', toolSwitchCount.toString());
                 }
             }
         }

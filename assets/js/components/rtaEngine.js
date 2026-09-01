@@ -1526,33 +1526,36 @@ function initProfessionalRTA() {
                     }, 350);
 
                     setTimeout(() => {
-                        let displayName = "SoundEngg Pro Features";
+                        let displayName = "Pro Features";
                         if (currentUnlockFeatureKey) {
                             if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
-                                displayName = "Selected Premium Guide";
+                                displayName = "Selected Guide";
                             } else if (currentUnlockFeatureKey === 'spectrogram') {
-                                displayName = "60FPS Spectrogram Waterfall";
+                                displayName = "Spectrogram Waterfall";
                             } else if (currentUnlockFeatureKey === 'snapshots') {
-                                displayName = "10 Multi-Overlay RTA Snapshots";
+                                displayName = "10 RTA Snapshots";
                             } else if (currentUnlockFeatureKey === 'mic_calibration') {
-                                displayName = "Custom Mic Calibration Loader";
+                                displayName = "Mic Calibration Loader";
                             } else if (currentUnlockFeatureKey === 'ear_training') {
-                                displayName = "1/6 ISO Octave Ear Training";
+                                displayName = "Ear Training Lab";
                             } else if (currentUnlockFeatureKey === 'ear_training_track') {
                                 displayName = "Reference Track";
                             }
                         }
-                        alert(`🎉 Awesome! You have successfully unlocked ${displayName} for the next 4 hours.`);
-                    }, 300);
+                        if (typeof window.showToastNotification === 'function') {
+                            window.showToastNotification(`✓ Unlocked ${displayName} for 4 hours`);
+                        }
+                    }, 200);
                 },
                 () => {
                     // Ad failed to show
                     if (!hasAdStartedOrFailed) {
                         clearTimeout(failSafeTimeout);
                         hasAdStartedOrFailed = true;
-                        console.warn('Native AdMob Interstitial failed. Falling back to browser simulation.');
+                        console.warn('Native AdMob Interstitial failed. Granting access gracefully...');
                         if (mobileLoader) mobileLoader.classList.remove('active');
-                        triggerBrowserAdPlayback();
+                        grantAdRewardSuccess(false);
+                        closeAdPlayback(false);
                     }
                 }
             );
@@ -1565,22 +1568,22 @@ function initProfessionalRTA() {
     function grantAdRewardSuccess(showNotification = true) {
         if (isAdRewardForPro) {
             const duration = 4 * 60 * 60 * 1000; // 4 Hours
-            let unlockedFeatureName = "SoundEngg Pro Features";
+            let unlockedFeatureName = "Pro Features";
             if (currentUnlockFeatureKey) {
                 if (currentUnlockFeatureKey === 'blog' && window.pendingArticleToOpen) {
                     safeStorage.setItem(`soundengg_temp_pro_until_blog_${window.pendingArticleToOpen}`, Date.now() + duration);
-                    unlockedFeatureName = "Selected Premium Guide";
+                    unlockedFeatureName = "Selected Guide";
                 } else {
                     const persistenceKey = currentUnlockFeatureKey === 'ear_training_track' ? 'ear_training' : currentUnlockFeatureKey;
                     safeStorage.setItem(`soundengg_temp_pro_until_${persistenceKey}`, Date.now() + duration);
                     if (currentUnlockFeatureKey === 'spectrogram') {
-                        unlockedFeatureName = "60FPS Spectrogram Waterfall";
+                        unlockedFeatureName = "Spectrogram Waterfall";
                     } else if (currentUnlockFeatureKey === 'snapshots') {
-                        unlockedFeatureName = "10 Multi-Overlay RTA Snapshots";
+                        unlockedFeatureName = "10 RTA Snapshots";
                     } else if (currentUnlockFeatureKey === 'mic_calibration') {
-                        unlockedFeatureName = "Custom Mic Calibration Loader";
+                        unlockedFeatureName = "Mic Calibration Loader";
                     } else if (currentUnlockFeatureKey === 'ear_training') {
-                        unlockedFeatureName = "1/6 ISO Octave Ear Training";
+                        unlockedFeatureName = "Ear Training Lab";
                     } else if (currentUnlockFeatureKey === 'ear_training_track') {
                         unlockedFeatureName = "Reference Track";
                     }
@@ -1622,8 +1625,8 @@ function initProfessionalRTA() {
                 window.pendingArticleToOpen = null;
             }
             
-            if (showNotification) {
-                alert(`🎉 Awesome! You have successfully unlocked ${unlockedFeatureName} for the next 4 hours.`);
+            if (showNotification && typeof window.showToastNotification === 'function') {
+                window.showToastNotification(`✓ Unlocked ${unlockedFeatureName} for 4 hours`);
             }
         } else {
             isAdRewardClaimed = true;
@@ -1635,6 +1638,8 @@ function initProfessionalRTA() {
     }
 
     function triggerBrowserAdPlayback(isOffline = false) {
+        if (window.isNativeMobile()) return; // Never show legacy web fallback modal on native iOS/Android
+
         if (typeof window.hideNativeBannerAd === 'function') {
             window.hideNativeBannerAd();
         }
