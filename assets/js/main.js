@@ -3149,9 +3149,20 @@ function initAppVersionCheck() {
                             downloadBtn.href = downloadUrl;
                             downloadBtn.onclick = (e) => {
                                 e.preventDefault();
-                                const BrowserPlugin = window.Capacitor?.Plugins?.Browser;
-                                if (BrowserPlugin && typeof BrowserPlugin.open === 'function') {
-                                    BrowserPlugin.open({ url: downloadUrl });
+                                if (isAndroid) {
+                                    // Directly open native Google Play Store App
+                                    try {
+                                        window.location.href = 'market://details?id=com.soundengg.app';
+                                    } catch (err) {
+                                        window.open('https://play.google.com/store/apps/details?id=com.soundengg.app', '_system');
+                                    }
+                                } else if (isIOS) {
+                                    // Directly open native Apple App Store App
+                                    try {
+                                        window.location.href = 'itms-apps://apps.apple.com/app/soundengg-rta-audio-utility/id6758652430';
+                                    } catch (err) {
+                                        window.open(downloadUrl, '_system');
+                                    }
                                 } else {
                                     window.open(downloadUrl, '_system');
                                 }
