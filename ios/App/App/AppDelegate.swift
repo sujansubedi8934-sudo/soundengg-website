@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func enforceAudioSessionCategory() {
         do {
             let session = AVAudioSession.sharedInstance()
-            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetooth, .allowBluetoothA2DP])
+            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker, .allowBluetoothA2DP, .allowBluetoothHFP])
             try session.setActive(true)
         } catch {
             print("Failed to set audio session category: \(error)")
