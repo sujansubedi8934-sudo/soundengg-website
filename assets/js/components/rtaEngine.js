@@ -1497,15 +1497,18 @@ function initProfessionalRTA() {
             }
 
             let hasAdStartedOrFailed = false;
-            const isMacDesktop = (typeof navigator !== 'undefined' && (navigator.platform === 'MacIntel' || navigator.userAgent.includes('Macintosh')));
-            const timeoutDuration = isMacDesktop ? 2500 : 7000;
+            const timeoutDuration = 1800; // Fast 1.8s timeout for superior UX
 
             const failSafeTimeout = setTimeout(() => {
                 if (!hasAdStartedOrFailed) {
-                    console.warn(`Native AdMob timed out after ${timeoutDuration}ms. Falling back to browser simulation.`);
+                    console.warn(`Native AdMob timed out after ${timeoutDuration}ms. Granting access gracefully...`);
                     hasAdStartedOrFailed = true;
                     if (mobileLoader) mobileLoader.classList.remove('active');
-                    triggerBrowserAdPlayback();
+                    grantAdRewardSuccess(false);
+                    closeAdPlayback(false);
+                    if (typeof window.showToastNotification === 'function') {
+                        window.showToastNotification('✓ Unlocked Pro feature');
+                    }
                 }
             }, timeoutDuration);
 
@@ -1734,6 +1737,8 @@ function initProfessionalRTA() {
     function closeAdPlayback(isAborted) {
         const modal = document.getElementById('ad-reward-modal');
         const alertBox = document.getElementById('ad-reward-alert');
+        const mobileLoader = document.getElementById('mobile-ad-loader');
+        if (mobileLoader) mobileLoader.classList.remove('active');
         
         if (adCountdownTimer) {
             clearInterval(adCountdownTimer);
