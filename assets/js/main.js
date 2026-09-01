@@ -526,8 +526,8 @@ function setupNavigation() {
         // Find the currently active view
         const currentView = ALL_VIEWS.find(v => v && v.style.display === 'block');
 
-        // Transition ad gate interceptor for free users
-        if (!bypassAd && !window.isUserPro && !window.isPremiumActive()) {
+        // Transition ad gate interceptor for free users (Native Mobile only)
+        if (!bypassAd && window.isNativeMobile() && !window.isUserPro && !window.isPremiumActive()) {
             const toolIds = ['rta-view', 'siggen-view', 'delay-view', 'subcalc-view', 'voltage-view', 'freq-view', 'attenuation-view', 'pinout-view', 'ear-training-view', 'impedance-view', 'tap-delay-view', 'module-view', 'sub-calc-view'];
             const isTargetTool = targetView && toolIds.includes(targetView.id);
             const isCurrentTool = currentView && toolIds.includes(currentView.id);

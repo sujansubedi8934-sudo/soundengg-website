@@ -353,6 +353,11 @@ function initAdManager() {
     }
 
     function lockApp() {
+        // Bypass completely on web browser
+        if (!window.isNativeMobile()) {
+            return;
+        }
+
         if (appContent) appContent.classList.add('app-blurred');
         if (sidebar) sidebar.classList.add('app-blurred');
         if (bottomBanner) {
@@ -360,17 +365,11 @@ function initAdManager() {
             bottomBanner.style.display = 'none';
         }
 
-        if (window.isNativeMobile()) {
-            console.log('Native Mobile detected. Triggering mobile lock modal flow...');
-            if (typeof window.hideNativeBannerAd === 'function') {
-                window.hideNativeBannerAd(); // Hide native bottom banner on locking screen
-            }
-            triggerMobileLock();
-            return;
+        console.log('Native Mobile detected. Triggering mobile lock modal flow...');
+        if (typeof window.hideNativeBannerAd === 'function') {
+            window.hideNativeBannerAd(); // Hide native bottom banner on locking screen
         }
-
-        // Standard Web Browser Flow
-        triggerBrowserLock();
+        triggerMobileLock();
     }
 
     window.lockApp = lockApp;
@@ -485,12 +484,7 @@ function initAdManager() {
 
     // Centralized Ad Gatekeeper (Interceptor) wrapper
     window.executeWithAdGate = function(onSuccessCallback, featureName = "PRO_FEATURE") {
-        if (IS_EXPO_MODE_ACTIVE) {
-            onSuccessCallback();
-            return;
-        }
-
-        if (window.isPremiumActive()) {
+        if (IS_EXPO_MODE_ACTIVE || !window.isNativeMobile() || window.isPremiumActive()) {
             onSuccessCallback();
             return;
         }
@@ -502,26 +496,19 @@ function initAdManager() {
             return;
         }
 
-        if (window.isNativeMobile()) {
-            console.log(`Access to ${featureName} is gated. Triggering direct mobile Interstitial ad...`);
-            window.showNativeInterstitialAd(
-                () => {
-                    console.log("Interstitial ad dismissed. Granting 4.5-minute cooldown...");
-                    safeStorage.setItem('tools_unlocked_until', Date.now() + 4.5 * 60 * 1000); 
-                    onSuccessCallback();
-                },
-                () => {
-                    console.warn("Failed to show Interstitial ad. Granting access gracefully...");
-                    safeStorage.setItem('tools_unlocked_until', Date.now() + 4.5 * 60 * 1000);
-                    onSuccessCallback();
-                }
-            );
-            return;
-        }
-
-        console.log(`Access to ${featureName} is gated. Opening central web ad-gate...`);
-        window.pendingAdAction = onSuccessCallback;
-        lockApp();
+        console.log(`Access to ${featureName} is gated on mobile. Triggering direct mobile Interstitial ad...`);
+        window.showNativeInterstitialAd(
+            () => {
+                console.log("Interstitial ad dismissed. Granting 2.5-minute cooldown...");
+                safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString()); 
+                onSuccessCallback();
+            },
+            () => {
+                console.warn("Failed to show Interstitial ad. Granting access gracefully...");
+                safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString());
+                onSuccessCallback();
+            }
+        );
     };
 
     function grantAccess(hours) {
