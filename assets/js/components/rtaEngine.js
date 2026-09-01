@@ -1306,6 +1306,9 @@ function initProfessionalRTA() {
 
     // (Native AdMob variables & helpers are defined globally above initProfessionalRTA)
 
+    let isBannerOperationInProgress = false;
+    let currentBannerMargin = null;
+
     // Helper to dynamically show native banner ads (Mitigating bottom viewport overlay)
     window.showNativeBannerAd = async function() {
         // Suppress ads immediately if user is a premium Pro subscriber
@@ -1339,21 +1342,32 @@ function initProfessionalRTA() {
             return;
         }
 
-        if (window.isNativeBannerActive) return;
+        const bottomTabs = document.getElementById('mobile-bottom-tabs');
+        const isTabsVisible = bottomTabs && window.getComputedStyle(bottomTabs).display !== 'none' && !bottomTabs.classList.contains('hidden-tab-bar');
+        const isTablet = window.innerWidth >= 768;
+        const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
+
+        // If banner is already actively displayed with the correct layout margin, avoid redundant native showBanner calls (prevents Android NullPointerException)
+        if (window.isNativeBannerActive && currentBannerMargin === bannerMargin) {
+            return;
+        }
+
+        if (isBannerOperationInProgress) {
+            console.log('Banner operation currently in progress. Skipping duplicate call.');
+            return;
+        }
+
+        isBannerOperationInProgress = true;
 
         try {
             const { AdMob } = window.Capacitor?.Plugins || {};
-            if (!AdMob) return;
+            if (!AdMob) {
+                isBannerOperationInProgress = false;
+                return;
+            }
 
             const isAndroid = window.Capacitor.getPlatform() === 'android';
             const adId = isAndroid ? ADMOB_ANDROID_BANNER_PROD_ID : ADMOB_IOS_BANNER_PROD_ID;
-
-            const bottomTabs = document.getElementById('mobile-bottom-tabs');
-            const isTabsVisible = bottomTabs && window.getComputedStyle(bottomTabs).display !== 'none' && !bottomTabs.classList.contains('hidden-tab-bar');
-            const isTablet = window.innerWidth >= 768;
-            
-            // Set margin so banner ad sits directly on top of the bottom navigation bar
-            const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
 
             console.log('Showing native bottom banner ad with production unit ID:', adId, 'margin:', bannerMargin);
             
@@ -1366,11 +1380,18 @@ function initProfessionalRTA() {
             });
 
             window.isNativeBannerActive = true;
+            currentBannerMargin = bannerMargin;
             document.body.classList.add('has-native-banner');
         } catch (err) {
             console.error('Error showing native banner ad:', err);
             window.isNativeBannerActive = false;
+            currentBannerMargin = null;
             document.body.classList.remove('has-native-banner');
+        } finally {
+            // Keep a 300ms cooldown before next banner operation
+            setTimeout(() => {
+                isBannerOperationInProgress = false;
+            }, 300);
         }
     };
 
@@ -1388,6 +1409,7 @@ function initProfessionalRTA() {
 
         // Always clean up DOM banner padding and class states
         window.isNativeBannerActive = false;
+        currentBannerMargin = null;
         document.body.classList.remove('has-native-banner');
 
         if (!window.isNativeMobile()) return;
@@ -1396,14 +1418,27 @@ function initProfessionalRTA() {
             return;
         }
 
+        if (isBannerOperationInProgress) {
+            return;
+        }
+
+        isBannerOperationInProgress = true;
+
         try {
             const { AdMob } = window.Capacitor?.Plugins || {};
-            if (!AdMob) return;
+            if (!AdMob) {
+                isBannerOperationInProgress = false;
+                return;
+            }
 
             console.log('Removing native bottom banner ad...');
             await AdMob.removeBanner();
         } catch (err) {
             console.error('Error hiding native banner ad:', err);
+        } finally {
+            setTimeout(() => {
+                isBannerOperationInProgress = false;
+            }, 300);
         }
     };
 
