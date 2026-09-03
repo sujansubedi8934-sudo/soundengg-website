@@ -4,18 +4,26 @@ This document stores verified, high-converting social media posts and promo asse
 
 ---
 
-## 1. Universal Short Post (Live Sound Communities) ⭐
+## 1. Universal Community Post (High Impact & Usability) ⭐
 
 ### Caption:
 ```text
-A handy, 100% offline pocket utility for live sound engineers: SoundEngg. 🎛️
+Hey guys! 👋 We are here with a super usable, must-have pocket companion built specifically for live sound engineers, system techs, and stage crews: SoundEngg 🎛️⚡
 
-Catch feedback frequencies with 60fps RTA + peak hold, calculate cardioid sub spacing & acoustic delay, test cables with offline XLR/Dante pinouts, and train your ears.
+Whether you're in an underground club or a festival stage with zero cellular reception, SoundEngg works 100% offline right on your phone or tablet:
 
-Free on iOS, Android & Web:
+🔥 Instant 60FPS RTA Spectrum Analyzer + Peak Hold — spot ringing feedback spikes in seconds during soundcheck without guessing.
+📐 Precision Acoustic Delay & Temp-Compensated Calculators — align PA towers and fills effortlessly.
+🔊 Cardioid & End-Fire Subwoofer Array Spacing — dial in clean forward punch and cancel stage bass bleed.
+🔌 Offline Pro Pinouts & Schematics — instant pinouts for XLR, SpeakON, DMX, Dante, and Cat6 when patching racks.
+👂 Daily Ear Training Lab — sharpen your ears to nail EQ cuts on the fly.
+
+Download it now and keep essential live sound tools right in your pocket:
 👉 https://soundengg.com/download
 
-#LiveSound #SoundEngineer #ProAudio #SoundEngineering #AudioEngineering #AudioEngineer #SoundEngg
+Free on iOS, Android & Web. Try it at your next gig! 🚀
+
+#LiveSound #SoundEngineer #AudioEngineer #ProAudio #FOH #MonitorEngineer #SoundCrew #AudioProduction #SoundEngineering #SoundEngg
 ```
 
 ### Attached Posters (in `assets/img/promo/`):
