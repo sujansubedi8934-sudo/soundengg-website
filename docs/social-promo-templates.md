@@ -27,9 +27,10 @@ Search "SoundEngg: RTA & Audio Utility" on the App Store & Google Play. Free on 
 ```
 
 ### Attached Posters (in `assets/img/promo/`):
-1. `assets/img/promo/poster-all-features.jpg` (Complete 3x2 Grid Feature Suite)
-2. `assets/img/promo/poster-rta-analyzer.jpg` (RTA Feedback 60FPS)
-3. `assets/img/promo/poster-ear-training.jpg` (Ear Training Lab)
+1. `assets/img/promo/poster-all-features-v2.jpg` ⭐ **(New Redesigned 4:5 Master Poster)**
+2. `assets/img/promo/poster-all-features.jpg` (Original v1 Classic Poster)
+3. `assets/img/promo/poster-rta-analyzer.jpg` (RTA Feedback 60FPS)
+4. `assets/img/promo/poster-ear-training.jpg` (Ear Training Lab)
 
 ---
 
