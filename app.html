@@ -2611,6 +2611,36 @@
         </div>
     </div>
 
+    <!-- 5-Star In-App Rate & Review Modal -->
+    <div id="in-app-rating-modal" class="modal-overlay hidden" style="z-index: 9999;">
+        <div class="modal-content auth-modal-box" style="max-width: 440px; width: 90%; text-align: center; border: 2px solid var(--primary, #00f0ff); box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); background: #0c0e14; padding: 2.2rem 1.8rem; border-radius: 12px; position: relative;">
+            <button id="btn-close-rating-modal" class="modal-close-btn" style="position: absolute; top: 14px; right: 14px; background: none; border: none; color: var(--text-dim); cursor: pointer; transition: color 0.2s;"><span class="material-symbols-outlined">close</span></button>
+            
+            <div style="margin-bottom: 1.2rem; display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 50%; background: rgba(0, 240, 255, 0.1); border: 2px solid var(--primary, #00f0ff); box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);">
+                <span class="material-symbols-outlined" style="font-size: 34px; color: var(--primary, #00f0ff);">reviews</span>
+            </div>
+            
+            <h2 style="font-family: var(--font-headline); font-size: 1.6rem; font-weight: bold; margin-bottom: 0.4rem; color: #fff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);">Enjoying SoundEngg?</h2>
+            <p style="font-size: 0.88rem; color: var(--text-dim); margin-bottom: 1.4rem; line-height: 1.45;">Tap 5 stars to support ongoing development on the store. Your feedback keeps SoundEngg fast and accurate!</p>
+            
+            <!-- 5 Golden Stars Display -->
+            <div id="rating-stars-row" style="display: flex; justify-content: center; gap: 8px; margin-bottom: 1.8rem; cursor: pointer;">
+                <span class="material-symbols-outlined" style="font-size: 34px; color: #FFB800; text-shadow: 0 0 12px rgba(255, 184, 0, 0.6); transition: transform 0.2s;">star</span>
+                <span class="material-symbols-outlined" style="font-size: 34px; color: #FFB800; text-shadow: 0 0 12px rgba(255, 184, 0, 0.6); transition: transform 0.2s;">star</span>
+                <span class="material-symbols-outlined" style="font-size: 34px; color: #FFB800; text-shadow: 0 0 12px rgba(255, 184, 0, 0.6); transition: transform 0.2s;">star</span>
+                <span class="material-symbols-outlined" style="font-size: 34px; color: #FFB800; text-shadow: 0 0 12px rgba(255, 184, 0, 0.6); transition: transform 0.2s;">star</span>
+                <span class="material-symbols-outlined" style="font-size: 34px; color: #FFB800; text-shadow: 0 0 12px rgba(255, 184, 0, 0.6); transition: transform 0.2s;">star</span>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button id="btn-submit-app-rating" class="rugged-btn" style="background: linear-gradient(135deg, var(--primary, #00f0ff), #0099cc); color: #000; border: none; padding: 12px; cursor: pointer; font-family: var(--font-headline); font-size: 0.95rem; font-weight: bold; border-radius: 6px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: transform 0.2s, box-shadow 0.2s;">
+                    <span class="material-symbols-outlined" style="font-size: 20px;">rate_review</span> RATE SOUNDENGG
+                </button>
+                <button id="btn-maybe-later-rating" class="rugged-btn-sm" style="background: rgba(255,255,255,0.04); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.08); padding: 10px; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; border-radius: 6px; transition: all 0.2s;">MAYBE LATER</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Pro Upgrade Influence Modal -->
     <div id="pro-upgrade-modal" class="modal-overlay hidden">
         <div class="modal-content auth-modal-box" style="max-width: 480px; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">

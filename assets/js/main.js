@@ -535,6 +535,12 @@ function setupNavigation() {
 
             const hasSeenFirstToolConsent = safeStorage.getItem('has_seen_first_tool_consent') === 'true';
 
+            if (isTargetTool && currentView !== targetView) {
+                if (typeof window.recordEngagementEvent === 'function') {
+                    window.recordEngagementEvent();
+                }
+            }
+
             // SCENARIO 1: First time launching any tool -> Show initial "Support SoundEngg" modal
             if (isTargetTool && !hasSeenFirstToolConsent && currentView !== targetView) {
                 console.log('[AdGate] First tool usage detected. Presenting initial Support SoundEngg modal...');

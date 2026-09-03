@@ -207,5 +207,98 @@ window.parseDeviceString = parseDeviceString;
             setTimeout(() => toast.remove(), 350);
         }, duration);
     };
+
+    // --- SMART ENGAGEMENT, 5-STAR RATING & PRO SHOWCASE ENGINE ---
+    function getEngagementData() {
+        const count = parseInt(window.safeStorage.getItem('soundengg_engagement_count') || '0', 10);
+        const hasRated = window.safeStorage.getItem('soundengg_has_rated') === 'true';
+        const lastRatingPrompt = parseInt(window.safeStorage.getItem('soundengg_last_rating_prompt') || '0', 10);
+        const lastProPrompt = parseInt(window.safeStorage.getItem('soundengg_last_pro_prompt') || '0', 10);
+        return { count, hasRated, lastRatingPrompt, lastProPrompt };
+    }
+
+    function recordEngagementEvent() {
+        let { count } = getEngagementData();
+        count += 1;
+        window.safeStorage.setItem('soundengg_engagement_count', count.toString());
+        console.log('[Engagement] Recorded active session event #' + count);
+        checkSmartEngagementTriggers(count);
+        return count;
+    }
+
+    function checkSmartEngagementTriggers(currentCount) {
+        const { hasRated, lastRatingPrompt, lastProPrompt } = getEngagementData();
+
+        // 1. Check 5-Star Rate & Review Prompt (Trigger on session 5, snooze for 10 sessions)
+        if (!hasRated && currentCount >= 5 && (lastRatingPrompt === 0 || (currentCount - lastRatingPrompt >= 10))) {
+            setTimeout(() => {
+                window.triggerInAppRatingModal();
+            }, 1200);
+            return;
+        }
+
+        // 2. Check Pro Upgrade Showcase (Trigger on session 8 for free users, snooze for 10 sessions)
+        if (!window.isPremiumActive() && currentCount >= 8 && (lastProPrompt === 0 || (currentCount - lastProPrompt >= 10))) {
+            setTimeout(() => {
+                const proModal = document.getElementById('pro-upgrade-modal');
+                if (proModal) {
+                    window.safeStorage.setItem('soundengg_last_pro_prompt', currentCount.toString());
+                    window.openModal(proModal);
+                }
+            }, 1200);
+        }
+    }
+
+    window.triggerInAppRatingModal = function() {
+        const modal = document.getElementById('in-app-rating-modal');
+        if (!modal) return;
+
+        const currentCount = parseInt(window.safeStorage.getItem('soundengg_engagement_count') || '5', 10);
+        window.safeStorage.setItem('soundengg_last_rating_prompt', currentCount.toString());
+        window.openModal(modal);
+
+        const btnRate = document.getElementById('btn-submit-app-rating');
+        const btnLater = document.getElementById('btn-maybe-later-rating');
+        const btnClose = document.getElementById('btn-close-rating-modal');
+        const starsRow = document.getElementById('rating-stars-row');
+
+        const handleRateAction = () => {
+            window.safeStorage.setItem('soundengg_has_rated', 'true');
+            window.closeModal(modal);
+            if (typeof window.showToastNotification === 'function') {
+                window.showToastNotification('Thank you for supporting SoundEngg! ❤️');
+            }
+
+            const isIOS = window.Capacitor?.getPlatform() === 'ios' || (typeof navigator !== 'undefined' && (navigator.platform === 'MacIntel' || /iPhone|iPad|iPod/.test(navigator.userAgent)));
+            const isAndroid = window.Capacitor?.getPlatform() === 'android' || (typeof navigator !== 'undefined' && /Android/.test(navigator.userAgent));
+
+            if (isIOS) {
+                // Direct to Apple App Store Write-Review Sheet
+                window.location.href = 'itms-apps://apps.apple.com/app/id6758652430?action=write-review';
+            } else if (isAndroid) {
+                // Direct to Google Play Store App
+                try {
+                    window.location.href = 'market://details?id=com.soundengg.app';
+                } catch (e) {
+                    window.open('https://play.google.com/store/apps/details?id=com.soundengg.app', '_system');
+                }
+            } else {
+                window.open('https://play.google.com/store/apps/details?id=com.soundengg.app', '_blank');
+            }
+        };
+
+        if (btnRate) btnRate.onclick = handleRateAction;
+        if (starsRow) starsRow.onclick = handleRateAction;
+
+        const handleLater = () => {
+            window.closeModal(modal);
+        };
+
+        if (btnLater) btnLater.onclick = handleLater;
+        if (btnClose) btnClose.onclick = handleLater;
+    };
+
+    window.recordEngagementEvent = recordEngagementEvent;
+    window.checkSmartEngagementTriggers = checkSmartEngagementTriggers;
 })();
 
