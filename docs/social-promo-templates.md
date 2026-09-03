@@ -8,9 +8,9 @@ This document stores verified, high-converting social media posts and promo asse
 
 ### Caption:
 ```text
-Hey guys! 👋 We are here with a super usable, must-have pocket companion built specifically for live sound engineers, system techs, and stage crews: SoundEngg 🎛️⚡
+Hey guys! 👋 We are here with a super usable, must-have pocket companion built specifically for live sound engineers, system techs, and stage crews: SoundEngg: RTA & Audio Utility 🎛️⚡
 
-Whether you're in an underground club or a festival stage with zero cellular reception, SoundEngg works 100% offline right on your phone or tablet:
+Whether you're in an underground venue or a festival stage with zero cellular reception, SoundEngg: RTA & Audio Utility works 100% offline right on your phone or tablet:
 
 🔥 Instant 60FPS RTA Spectrum Analyzer + Peak Hold — spot ringing feedback spikes in seconds during soundcheck without guessing.
 📐 Precision Acoustic Delay & Temp-Compensated Calculators — align PA towers and fills effortlessly.
@@ -21,9 +21,9 @@ Whether you're in an underground club or a festival stage with zero cellular rec
 Download it now and keep essential live sound tools right in your pocket:
 👉 https://soundengg.com/download
 
-Free on iOS, Android & Web. Try it at your next gig! 🚀
+Search "SoundEngg: RTA & Audio Utility" on the App Store & Google Play. Free on iOS, Android & Web. Try it at your next gig! 🚀
 
-#LiveSound #SoundEngineer #AudioEngineer #ProAudio #FOH #MonitorEngineer #SoundCrew #AudioProduction #SoundEngineering #SoundEngg
+#SoundEngg #LiveSound #SoundEngineer #AudioEngineer #ProAudio #FOH #MonitorEngineer #SoundCrew #AudioProduction #RTA
 ```
 
 ### Attached Posters (in `assets/img/promo/`):
