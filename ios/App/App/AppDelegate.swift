@@ -11,6 +11,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Instruct Google Mobile Ads SDK not to overwrite our app's AVAudioSession category!
         MobileAds.shared.audioVideoManager.isAudioSessionApplicationManaged = true
+        
+        // Configure test device identifiers so developer iPad gets 100% test ad fills during Xcode debugging
+        #if DEBUG
+        MobileAds.shared.requestConfiguration.testDeviceIdentifiers = ["5d91aadde6b31fe01dbb9879d3451fee"]
+        #endif
+
         enforceAudioSessionCategory()
         return true
     }
