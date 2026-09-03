@@ -1,21 +1,68 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# ========================================================
+# SoundEngg Android ProGuard & R8 Optimization Rules
+# ========================================================
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# Preserve line numbers and source files for Google Play crash symbolication
+-keepattributes SourceFile,LineNumberTable,*Annotation*,Signature,InnerClasses,EnclosingMethod
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
+# Javascript Interfaces & WebViews
+-keepattributes JavascriptInterface
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
+-keepclassmembers class fqcn.of.javascript.interface.for.webview {
+    public *;
+}
 
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
+# Capacitor Core & Native Plugins
+-keep class com.getcapacitor.** { *; }
+-keep interface com.getcapacitor.** { *; }
+-keep class com.getcapacitor.community.** { *; }
+-keep class io.ionic.libs.ionicon.** { *; }
+-keep class com.capawesome.** { *; }
+-keep class * extends com.getcapacitor.Plugin { *; }
+
+# Google Mobile Ads (AdMob) & Play Services
+-keep class com.google.android.gms.ads.** { *; }
+-keep interface com.google.android.gms.ads.** { *; }
+-keep class com.google.ads.mediation.** { *; }
+-keep class com.google.android.gms.common.** { *; }
+-keep class com.google.android.gms.dynamic.** { *; }
+
+# InMobi Mediation SDK
+-keep class com.inmobi.** { *; }
+-dontwarn com.inmobi.**
+-keep public class com.google.ads.mediation.inmobi.InMobiMediationAdapter { *; }
+-keep class com.iab.omid.** { *; }
+-dontwarn com.iab.omid.**
+
+# Unity Ads Mediation SDK
+-keep class com.unity3d.ads.** { *; }
+-keep class com.unity3d.services.** { *; }
+-dontwarn com.unity3d.ads.**
+-dontwarn com.unity3d.services.**
+-keep public class com.google.ads.mediation.unity.UnityMediationAdapter { *; }
+
+# RevenueCat Purchases SDK
+-keep class com.revenuecat.purchases.** { *; }
+-dontwarn com.revenuecat.purchases.**
+-keep class kotlin.Metadata { *; }
+
+# Razorpay Payment Gateway SDK
+-keep class com.razorpay.** { *; }
+-dontwarn com.razorpay.**
+-keep class com.google.android.gms.auth.api.phone.** { *; }
+-dontwarn com.google.android.gms.auth.api.phone.**
+
+# AndroidX Core & Splash Screen
+-keep class androidx.core.splashscreen.** { *; }
+-keep class androidx.appcompat.** { *; }
+-dontwarn androidx.**
+
+# Third-party HTTP & Platform Dependencies
+-dontwarn org.conscrypt.**
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn com.amazon.**
+-dontwarn com.amazon.device.iap.**
+
