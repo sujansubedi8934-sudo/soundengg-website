@@ -11,7 +11,7 @@
   @font-face {
     font-family: 'Space Grotesk';
     src: url('../assets/fonts/SpaceGrotesk-Regular.woff2') format('woff2');
-    font-weight: 400;
+    font-weight: 500;
   }
   @font-face {
     font-family: 'JetBrains Mono';
@@ -23,12 +23,14 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     width: 1080px;
     height: 1350px;
-    background: #06080d;
+    background: #000000;
     font-family: 'Space Grotesk', -apple-system, sans-serif;
     color: #ffffff;
     display: flex;
@@ -36,492 +38,318 @@
     justify-content: space-between;
     position: relative;
     overflow: hidden;
-    padding: 46px 48px;
+    padding: 48px 56px 42px 56px;
   }
 
-  /* Vibrant dark audio console background */
-  .bg-effects {
+  /* Authentic high-contrast diagonal carbon-fiber pattern */
+  .carbon-bg {
     position: absolute;
     inset: 0;
-    background-image: 
-      radial-gradient(circle at 50% 10%, rgba(0, 240, 255, 0.15) 0%, transparent 50%),
-      radial-gradient(circle at 10% 90%, rgba(138, 43, 226, 0.12) 0%, transparent 45%),
-      radial-gradient(circle at 90% 90%, rgba(0, 240, 255, 0.1) 0%, transparent 45%),
-      linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-    background-size: 100% 100%, 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    background: 
+      radial-gradient(circle at 50% 50%, rgba(18, 28, 38, 0.4) 0%, rgba(2, 4, 7, 0.95) 100%),
+      repeating-linear-gradient(45deg, #090e14 0, #090e14 4px, #131b24 4px, #131b24 8px, #05070a 8px, #05070a 12px);
     z-index: 0;
-    pointer-events: none;
   }
 
-  /* TOP HEADER - BOLD & EYE-CATCHING */
+  /* Brushed metallic horizontal beam across center */
+  .metal-beam {
+    position: absolute;
+    top: 50.8%;
+    left: 0;
+    width: 100%;
+    height: 175px;
+    transform: translateY(-50%);
+    background: linear-gradient(180deg, 
+      #182028 0%, 
+      #35424f 12%, 
+      #5c6e80 48%, 
+      #708398 50%, 
+      #4b5b6c 52%, 
+      #27333f 88%, 
+      #10161c 100%);
+    box-shadow: 
+      0 -8px 25px rgba(0, 0, 0, 0.9),
+      0 8px 30px rgba(0, 0, 0, 0.95),
+      inset 0 1.5px 1px rgba(255, 255, 255, 0.45),
+      inset 0 -1.5px 1px rgba(0, 0, 0, 0.9);
+    border-top: 1px solid #708398;
+    border-bottom: 1px solid #141b22;
+    z-index: 1;
+    opacity: 0.88;
+  }
+
+  /* TOP HEADER */
   .header {
     position: relative;
-    z-index: 1;
+    z-index: 2;
+    text-align: center;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: space-between;
-    background: rgba(13, 17, 26, 0.85);
-    border: 1px solid rgba(0, 240, 255, 0.3);
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.15);
-    border-radius: 24px;
-    padding: 22px 30px;
-    backdrop-filter: blur(16px);
+    gap: 14px;
   }
 
-  .header-left {
-    display: flex;
+  .top-pill {
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    background: rgba(0, 240, 255, 0.12);
+    border: 2px solid #00f0ff;
+    box-shadow: 0 0 22px rgba(0, 240, 255, 0.45);
+    border-radius: 50px;
+    padding: 8px 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 2.2px;
+    color: #00f0ff;
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.8);
+    text-transform: uppercase;
+  }
+
+  .main-headline {
+    font-size: 58px;
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #ffffff;
+    text-align: center;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.95);
+  }
+
+  /* CENTER 3-COLUMN GRID */
+  .center-stage {
+    position: relative;
+    z-index: 2;
+    display: grid;
+    grid-template-columns: 285px 370px 285px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 8px 0;
+  }
+
+  .box-column {
+    display: flex;
+    flex-direction: column;
     gap: 22px;
   }
 
-  .header-icon-wrap {
-    position: relative;
-    width: 110px;
-    height: 110px;
-    flex-shrink: 0;
-  }
-
-  .header-icon-glow {
-    position: absolute;
-    inset: -8px;
-    background: radial-gradient(circle, rgba(0, 240, 255, 0.6) 0%, transparent 70%);
-    filter: blur(10px);
-    border-radius: 30px;
-  }
-
-  .header-icon-img {
-    width: 110px;
-    height: 110px;
-    border-radius: 24px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 240, 255, 0.4);
-    position: relative;
-    z-index: 2;
-  }
-
-  .header-text {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .header-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    color: #00f0ff;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-
-  .header-tag-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: #00f0ff;
-    box-shadow: 0 0 10px #00f0ff;
-  }
-
-  .header-title {
-    font-size: 40px;
-    font-weight: 700;
-    line-height: 1.1;
-    color: #ffffff;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  .header-title span {
-    color: #00f0ff;
-    text-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
-  }
-
-  .header-sub {
-    font-size: 16px;
-    font-weight: 700;
-    color: #94a3b8;
-    letter-spacing: 1px;
-  }
-
-  .offline-badge {
-    background: linear-gradient(135deg, rgba(0, 240, 255, 0.18), rgba(0, 153, 204, 0.25));
+  /* 6 CYAN-BORDERED FEATURE BOXES (CRYSTAL CLEAR, BIGGER, CRISP TYPOGRAPHY) */
+  .feature-box {
+    background: rgba(5, 9, 14, 0.94);
     border: 2px solid #00f0ff;
-    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-    padding: 12px 20px;
     border-radius: 14px;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-  }
-
-  .offline-top {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #00f0ff;
-  }
-
-  .offline-bold {
-    font-size: 20px;
-    font-weight: 700;
-    color: #ffffff;
-    letter-spacing: 0.5px;
-  }
-
-  /* SUB-HEADLINE CALLOUT */
-  .callout-bar {
-    position: relative;
-    z-index: 1;
-    text-align: center;
-    margin: 12px 0 6px 0;
-  }
-
-  .callout-title {
-    font-size: 26px;
-    font-weight: 700;
-    color: #e2e8f0;
-    letter-spacing: 0.5px;
-  }
-
-  .callout-title span {
-    color: #f59e0b;
-    text-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
-  }
-
-  /* 2x3 FEATURE GRID - LARGE, READABLE ON PHONES */
-  .features-grid {
-    position: relative;
-    z-index: 1;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 8px;
-  }
-
-  .feature-card {
-    background: rgba(14, 19, 30, 0.92);
-    border: 1.5px solid rgba(255, 255, 255, 0.12);
-    border-radius: 18px;
-    padding: 22px 24px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    backdrop-filter: blur(12px);
-  }
-
-  .border-cyan { border-left: 6px solid #00f0ff; }
-  .border-amber { border-left: 6px solid #f59e0b; }
-  .border-purple { border-left: 6px solid #c084fc; }
-  .border-pink { border-left: 6px solid #f43f5e; }
-  .border-blue { border-left: 6px solid #38bdf8; }
-  .border-green { border-left: 6px solid #10b981; }
-
-  .card-top {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
-  .card-icon-box {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    box-shadow: 
+      0 0 18px rgba(0, 240, 255, 0.35),
+      0 8px 25px rgba(0, 0, 0, 0.85),
+      inset 0 0 14px rgba(0, 240, 255, 0.08);
+    height: 146px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-shrink: 0;
+    text-align: center;
+    padding: 12px 18px;
+    backdrop-filter: blur(12px);
   }
 
-  .icon-bg-cyan { background: rgba(0, 240, 255, 0.15); color: #00f0ff; }
-  .icon-bg-amber { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
-  .icon-bg-purple { background: rgba(192, 132, 252, 0.15); color: #c084fc; }
-  .icon-bg-pink { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
-  .icon-bg-blue { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
-  .icon-bg-green { background: rgba(16, 185, 129, 0.15); color: #10b981; }
-
-  .card-title {
-    font-size: 22px;
+  .box-text {
+    font-size: 25px;
     font-weight: 700;
+    line-height: 1.22;
     color: #ffffff;
-    line-height: 1.2;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.4px;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.95);
   }
 
-  .card-desc {
-    font-size: 15px;
-    font-weight: 400;
-    line-height: 1.45;
-    color: #94a3b8;
-  }
-
-  .card-desc strong {
-    color: #f1f5f9;
-    font-weight: 700;
-  }
-
-  /* FOOTER SECTION - BOLD CALL TO ACTION */
-  .footer {
-    position: relative;
-    z-index: 1;
+  /* CENTER 3D APP ICON (SHARP, RADIANT GLOW) */
+  .center-icon-container {
     display: flex;
-    flex-direction: column;
-    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    position: relative;
   }
 
-  .footer-main-bar {
-    background: rgba(13, 17, 26, 0.95);
-    border: 1.5px solid rgba(0, 240, 255, 0.35);
-    border-radius: 22px;
-    padding: 18px 30px;
+  .icon-glow-ring {
+    position: absolute;
+    width: 390px;
+    height: 390px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0, 240, 255, 0.5) 0%, rgba(0, 240, 255, 0.12) 45%, transparent 70%);
+    filter: blur(28px);
+    z-index: 0;
+  }
+
+  .app-icon-img {
+    width: 340px;
+    height: 340px;
+    border-radius: 68px;
+    position: relative;
+    z-index: 2;
+    border: 3px solid rgba(0, 240, 255, 0.6);
+    box-shadow: 
+      0 0 45px rgba(0, 240, 255, 0.55),
+      0 22px 55px rgba(0, 0, 0, 0.98);
+  }
+
+  /* BOTTOM FOOTER PLATFORM */
+  .footer-platform {
+    position: relative;
+    z-index: 2;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.7), 0 0 25px rgba(0, 240, 255, 0.15);
+    background: linear-gradient(180deg, 
+      #2b3846 0%, 
+      #3f4f60 15%, 
+      #202933 60%, 
+      #11161c 100%);
+    border-top: 1.5px solid rgba(255, 255, 255, 0.35);
+    border-bottom: 1px solid #06090d;
+    border-radius: 18px;
+    padding: 16px 28px;
+    box-shadow: 
+      0 -4px 20px rgba(0, 0, 0, 0.7),
+      0 12px 35px rgba(0, 0, 0, 0.9),
+      inset 0 1px 1px rgba(255, 255, 255, 0.3);
   }
 
-  .badges-group {
+  /* Official Store Badges */
+  .store-badge {
+    height: 50px;
     display: flex;
     align-items: center;
-    gap: 16px;
-  }
-
-  .store-pill {
-    height: 52px;
     background: #000000;
-    border: 1.5px solid rgba(255, 255, 255, 0.3);
-    border-radius: 12px;
-    padding: 0 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    border-radius: 10px;
+    padding: 0 18px;
+    gap: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
   }
 
-  .store-pill svg {
-    width: 26px;
-    height: 26px;
+  .store-badge svg {
+    width: 24px;
+    height: 24px;
     fill: #ffffff;
   }
 
-  .store-meta {
+  .store-text-box {
     display: flex;
     flex-direction: column;
-    line-height: 1.15;
+    line-height: 1.1;
   }
 
-  .store-meta-sub {
+  .store-sub {
     font-size: 10px;
     color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
-  .store-meta-main {
-    font-size: 17px;
+  .store-name {
+    font-size: 16px;
     font-weight: 700;
     color: #ffffff;
   }
 
-  .cta-button {
-    background: linear-gradient(135deg, #00f0ff 0%, #0099cc 100%);
-    color: #030712;
-    padding: 16px 34px;
+  /* Glowing Cyan Download Capsule Button */
+  .download-capsule {
+    background: linear-gradient(180deg, #4ef4ff 0%, #00d2eb 50%, #0099cc 100%);
+    color: #030a12;
     border-radius: 50px;
-    font-size: 18px;
+    padding: 15px 36px;
+    font-size: 19px;
     font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
-  }
-
-  .sub-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 10px;
-  }
-
-  .web-url {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    color: #64748b;
-  }
-
-  .web-url strong {
-    color: #00f0ff;
-    font-weight: 700;
-  }
-
-  .sub-tagline-footer {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    font-weight: 700;
-    color: #f59e0b;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 
+      0 0 30px rgba(0, 240, 255, 0.8),
+      inset 0 2.5px 2px rgba(255, 255, 255, 0.9),
+      inset 0 -2px 2px rgba(0, 0, 0, 0.3);
+    border: 1px solid #c2fcff;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
   }
 </style>
 </head>
 <body>
-  <div class="bg-effects"></div>
+  <div class="carbon-bg"></div>
+  <div class="metal-beam"></div>
 
-  <!-- BOLD EYE-CATCHING HEADER WITH APP ICON -->
+  <!-- HEADER -->
   <header class="header">
-    <div class="header-left">
-      <div class="header-icon-wrap">
-        <div class="header-icon-glow"></div>
-        <img src="../assets/img/app-icon.png" alt="SoundEngg App Icon" class="header-icon-img">
-      </div>
-      <div class="header-text">
-        <div class="header-tag">
-          <span class="header-tag-dot"></span>
-          The Ultimate Live Audio Companion
-        </div>
-        <h1 class="header-title">SoundEngg: <span>RTA & Utility</span></h1>
-        <div class="header-sub">Built for FOH Mixers, System Techs & Stage Crews</div>
-      </div>
+    <div class="top-pill">
+      [ SOUNDENGG: RTA & AUDIO UTILITY ]
     </div>
-    <div class="offline-badge">
-      <span class="offline-top">ZERO LAG</span>
-      <span class="offline-bold">100% OFFLINE</span>
-    </div>
+    <h1 class="main-headline">
+      YOUR COMPLETE LIVE<br>SOUND FIELD COMPANION
+    </h1>
   </header>
 
-  <!-- HIGHLIGHT CALLOUT -->
-  <div class="callout-bar">
-    <h2 class="callout-title">6 Essential Field Tools <span>Right in Your Pocket</span></h2>
-  </div>
-
-  <!-- 2x3 HIGH READABILITY FEATURE GRID -->
-  <main class="features-grid">
-    <!-- Card 1: RTA -->
-    <div class="feature-card border-cyan">
-      <div class="card-top">
-        <div class="card-icon-box icon-bg-cyan">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <path d="M18 20V10M12 20V4M6 20v-6"></path>
-          </svg>
-        </div>
-        <div class="card-title">60FPS Real-Time RTA</div>
+  <!-- CENTER STAGE (IDENTICAL TO ORIGINAL GEOMETRY) -->
+  <main class="center-stage">
+    <!-- Left Column (3 Boxes) -->
+    <div class="box-column">
+      <div class="feature-box">
+        <div class="box-text">60FPS RTA<br>Spectrum<br>Analyzer</div>
       </div>
-      <p class="card-desc"><strong>1/3 Octave FFT + Peak Hold</strong>. Spot ringing feedback spikes in seconds during soundcheck without guessing.</p>
+      <div class="feature-box">
+        <div class="box-text">Acoustic<br>Delay<br>Alignment</div>
+      </div>
+      <div class="feature-box">
+        <div class="box-text">XLR & Dante<br>Audio<br>Pinouts</div>
+      </div>
     </div>
 
-    <!-- Card 2: Subwoofer Arrays -->
-    <div class="feature-card border-pink">
-      <div class="card-top">
-        <div class="card-icon-box icon-bg-pink">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <rect x="4" y="2" width="16" height="20" rx="2"></rect>
-            <circle cx="12" cy="14" r="4"></circle>
-            <line x1="12" y1="6" x2="12.01" y2="6"></line>
-          </svg>
-        </div>
-        <div class="card-title">Cardioid Sub Arrays</div>
-      </div>
-      <p class="card-desc"><strong>Inverted & End-Fire Physics</strong>. Calculate physical box spacing and delay milliseconds to kill stage bass mud.</p>
+    <!-- Center Icon -->
+    <div class="center-icon-container">
+      <div class="icon-glow-ring"></div>
+      <img src="../assets/img/app-icon.png" alt="SoundEngg App Icon" class="app-icon-img">
     </div>
 
-    <!-- Card 3: Acoustic Delay -->
-    <div class="feature-card border-amber">
-      <div class="card-top">
-        <div class="card-icon-box icon-bg-amber">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <circle cx="12" cy="12" r="10"></circle>
-            <polyline points="12 6 12 12 16 14"></polyline>
-          </svg>
-        </div>
-        <div class="card-title">Acoustic Delay Calc</div>
+    <!-- Right Column (3 Boxes) -->
+    <div class="box-column">
+      <div class="feature-box">
+        <div class="box-text">Subwoofer<br>Array<br>Spacing<br>Calculator</div>
       </div>
-      <p class="card-desc"><strong>Temp & Humidity Compensated</strong>. Time-align front fills, delay towers, and outfills with microsecond precision.</p>
-    </div>
-
-    <!-- Card 4: Ear Training -->
-    <div class="feature-card border-blue">
-      <div class="card-top">
-        <div class="card-icon-box icon-bg-blue">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <path d="M6 9a6 6 0 1 1 12 0c0 4.5-3.5 6-3.5 9h-5C9.5 15 6 13.5 6 9z"></path>
-          </svg>
-        </div>
-        <div class="card-title">Ear Training Lab</div>
+      <div class="feature-box">
+        <div class="box-text">Ear<br>Training<br>Lab</div>
       </div>
-      <p class="card-desc"><strong>Boost/Cut Frequency Practice</strong>. Train your ears daily to identify harsh 3.15kHz and boxy 400Hz frequencies by ear.</p>
-    </div>
-
-    <!-- Card 5: Audio Pinouts -->
-    <div class="feature-card border-purple">
-      <div class="card-top">
-        <div class="card-icon-box icon-bg-purple">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16M4 20h.01"></path>
-          </svg>
-        </div>
-        <div class="card-title">XLR, Dante & Speakon</div>
+      <div class="feature-box">
+        <div class="box-text">Precision<br>Signal<br>Generator</div>
       </div>
-      <p class="card-desc"><strong>100% Offline Cable Diagnostics</strong>. Instant pinouts for XLR 3/5-pin, SpeakON, DMX, RJ45 Cat6, and patchbays.</p>
-    </div>
-
-    <!-- Card 6: Signal Generator -->
-    <div class="feature-card border-green">
-      <div class="card-top">
-        <div class="card-icon-box icon-bg-green">
-          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-            <path d="M2 12h5l3-7 4 14 3-7h5"></path>
-          </svg>
-        </div>
-        <div class="card-title">Precision Signal Gen</div>
-      </div>
-      <p class="card-desc"><strong>Calibrated Pink & Sine Waves</strong>. Generate clean sweeps, white noise, and test tones for line checks and PA tuning.</p>
     </div>
   </main>
 
-  <!-- LARGE HIGH-IMPACT FOOTER -->
-  <footer class="footer">
-    <div class="footer-main-bar">
-      <div class="badges-group">
-        <!-- App Store Badge -->
-        <div class="store-pill">
-          <svg viewBox="0 0 384 512">
-            <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
-          </svg>
-          <div class="store-meta">
-            <span class="store-meta-sub">Download on the</span>
-            <span class="store-meta-main">App Store</span>
-          </div>
-        </div>
-
-        <!-- Google Play Badge -->
-        <div class="store-pill">
-          <svg viewBox="0 0 512 512">
-            <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
-          </svg>
-          <div class="store-meta">
-            <span class="store-meta-sub">Get it on</span>
-            <span class="store-meta-main">Google Play</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- High-visibility CTA Button -->
-      <div class="cta-button">
-        <span>⚡</span> DOWNLOAD FREE NOW
+  <!-- BOTTOM FOOTER PLATFORM -->
+  <footer class="footer-platform">
+    <!-- Apple App Store Badge -->
+    <div class="store-badge">
+      <svg viewBox="0 0 384 512">
+        <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z"/>
+      </svg>
+      <div class="store-text-box">
+        <span class="store-sub">Download on the</span>
+        <span class="store-name">App Store</span>
       </div>
     </div>
 
-    <div class="sub-footer">
-      <div class="web-url">Direct link: <strong>soundengg.com/download</strong></div>
-      <div class="sub-tagline-footer">iOS • Android • Web PWA</div>
+    <!-- Glowing Cyan Download Capsule -->
+    <div class="download-capsule">
+      Download SoundEngg • 100% Offline
+    </div>
+
+    <!-- Google Play Badge -->
+    <div class="store-badge">
+      <svg viewBox="0 0 512 512">
+        <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58.9-34.1-65.7 64.5 65.7 64.5 60.1-34.1c18-14.3 18-46.5-1.2-60.8zM104.6 499l280.8-161.2-60.1-60.1L104.6 499z"/>
+      </svg>
+      <div class="store-text-box">
+        <span class="store-sub">Get it on</span>
+        <span class="store-name">Google Play</span>
+      </div>
     </div>
   </footer>
 </body>
