@@ -332,6 +332,10 @@ function initAdManager() {
                                 console.log("Requesting App Tracking Transparency authorization...");
                                 const requestResult = await AdMob.requestTrackingAuthorization();
                                 console.log("App Tracking Transparency request result:", requestResult.status);
+                                // Reload banner ad immediately after ATT decision to maximize iOS fill rate
+                                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
+                                    window.showNativeBannerAd();
+                                }
                             }
                         } catch (e) {
                             console.error("Failed to request App Tracking Transparency authorization:", e);
