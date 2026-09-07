@@ -17,7 +17,8 @@ releases/
 *.sln
 *.sw?
 
-# Miscellaneous
+# Miscellaneous & Confidential Project Notes
+project_context.md
 *.class
 *.lock
 *.log
@@ -27,6 +28,7 @@ releases/
 .history
 *.aab
 *.apk
+
 
 
 
