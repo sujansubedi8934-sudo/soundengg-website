@@ -476,21 +476,24 @@
                     <!-- ACOUSTIC AUTO PING CONTAINER -->
                     <div id="delay-auto-container" style="display: none; flex-direction: column; gap: 1rem;">
                         <!-- Pro Audio Guidance Banner -->
-                        <div style="background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 0.85rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                        <div style="background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 0.85rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.45;">
                             <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-weight: bold; margin-bottom: 4px; font-family: var(--font-mono); font-size: 0.75rem;">
                                 <span class="material-symbols-outlined" style="font-size: 16px;">info</span>
                                 FIELD MEASUREMENT PROTOCOL
                             </div>
-                            1. Unmute both <strong>Main PA</strong> and <strong>Front Fill / Delay Tower</strong>.<br>
-                            2. Play the <strong>Alignment Click</strong> (below) or a sharp snare rimshot.<br>
-                            3. Stand at the fill speaker with phone mic facing the speakers and tap <strong>Listen</strong>.
+                            1. Unmute both <strong>Main PA</strong> and <strong>Front Fill (or Delay Tower)</strong>.<br>
+                            2. Play the <strong>1.0 kHz Alignment Pulse</strong> (below) or a sharp snare rimshot.<br>
+                            3. <strong>Positioning:</strong> Stand in the acoustic overlap zone (Row 1–2, approx. 1.5–2.5m from the fill) holding your phone at ear level.
                         </div>
 
                         <!-- Mini Oscilloscope Canvas Display -->
                         <div style="background: #02060a; border: 1px solid var(--outline); border-radius: 8px; padding: 8px; position: relative; overflow: hidden;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">
-                                <span>Acoustic Transient Capture</span>
-                                <span id="auto-ping-status" style="color: var(--primary); font-weight: bold;">STANDBY</span>
+                                <span>Acoustic Transient Capture (Decibel Domain)</span>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span id="auto-ping-level-badge" style="font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--outline); color: var(--primary); font-weight: bold;">LEVEL: STANDBY</span>
+                                    <span id="auto-ping-status" style="color: var(--primary); font-weight: bold;">STANDBY</span>
+                                </div>
                             </div>
                             <canvas id="delay-oscilloscope" width="600" height="130" style="width: 100%; height: 130px; display: block; background: #010408; border-radius: 4px;"></canvas>
                         </div>

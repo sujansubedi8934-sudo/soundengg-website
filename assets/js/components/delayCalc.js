@@ -298,12 +298,41 @@ function initDelayCalc() {
         }
     }
 
-    // Process buffer: High-pass filter, energy derivative, double-peak detection
+    // Process buffer: Level Guard, High-pass filter, Decibel envelope, Prominence detection
     function processTransientBuffer(samples, sampleRate) {
         if (autoPingStatus) autoPingStatus.textContent = 'ANALYZING DELAY...';
 
+        // 0. Level Guard (Preamp Clipping & Low Signal Detection)
+        let peakRawVal = 0;
+        for (let i = 0; i < samples.length; i++) {
+            const absVal = Math.abs(samples[i]);
+            if (absVal > peakRawVal) peakRawVal = absVal;
+        }
+
+        const levelBadge = document.getElementById('auto-ping-level-badge');
+        let isClipped = false;
+        if (levelBadge) {
+            if (peakRawVal >= 0.94) {
+                isClipped = true;
+                levelBadge.textContent = 'MIC CLIPPED ⚠️';
+                levelBadge.style.background = 'rgba(255, 50, 50, 0.2)';
+                levelBadge.style.color = '#ff4444';
+                levelBadge.style.borderColor = '#ff4444';
+            } else if (peakRawVal < 0.025) {
+                levelBadge.textContent = 'LEVEL LOW 🟡';
+                levelBadge.style.background = 'rgba(255, 200, 0, 0.15)';
+                levelBadge.style.color = '#ffcc00';
+                levelBadge.style.borderColor = '#ffcc00';
+            } else {
+                const dbfs = 20 * Math.log10(peakRawVal);
+                levelBadge.textContent = `LEVEL: ${dbfs.toFixed(0)} dBFS 🟢`;
+                levelBadge.style.background = 'rgba(0, 255, 120, 0.15)';
+                levelBadge.style.color = '#00ff78';
+                levelBadge.style.borderColor = '#00ff78';
+            }
+        }
+
         // 1. Digital 2nd-order High-Pass Filter at 650 Hz (fc)
-        // Optimized for 1.0 kHz alignment beeps while cutting HVAC rumble, footsteps & handling thumps (< 500 Hz)
         const fc = 650;
         const omega = 2 * Math.PI * fc / sampleRate;
         const alpha = Math.sin(omega) / (2 * 0.7071);
@@ -325,7 +354,7 @@ function initDelayCalc() {
             y2 = y1; y1 = y0;
         }
 
-        // 2. Short-time RMS Energy Envelope (1.5ms sliding window for razor-sharp onset attack)
+        // 2. Short-time RMS Energy Envelope (1.5ms sliding window)
         const windowSize = Math.max(8, Math.round(0.0015 * sampleRate));
         const envelope = new Float32Array(filtered.length);
         let runSum = 0;
@@ -342,17 +371,28 @@ function initDelayCalc() {
             if (envelope[i] > maxEnergy) maxEnergy = envelope[i];
         }
 
-        if (maxEnergy < 0.0001) {
+        if (maxEnergy < 0.00008) {
             if (autoPingStatus) autoPingStatus.textContent = 'NO PULSE DETECTED (INCREASE VOLUME)';
             drawCaptureWaveform(filtered, null, null, sampleRate);
             return;
         }
 
-        // 3. Peak 1 (Direct Fill) - First steep transient onset crossing 20% of max energy
-        const p1Threshold = maxEnergy * 0.18;
+        // 3. Logarithmic Decibel Domain (dB) Envelope (0dB to -55dB)
+        // Enables detecting distant Main PA arrivals even if 20dB quieter due to inverse square law!
+        const envDb = new Float32Array(envelope.length);
+        for (let i = 0; i < envelope.length; i++) {
+            const norm = envelope[i] / (maxEnergy + 1e-12);
+            envDb[i] = Math.max(-55, 10 * Math.log10(norm + 1e-6));
+        }
+
+        // 4. Peak 1 (Direct Fill) - First steep onset rising > -22 dBFS relative
+        const p1OnsetDb = -22;
         let peak1Idx = -1;
-        for (let i = windowSize * 2; i < envelope.length - 200; i++) {
-            if (envelope[i] > p1Threshold && envelope[i] >= envelope[i - 1] && envelope[i] >= envelope[i + 1]) {
+        const attackSlopeSamples = Math.round(0.0015 * sampleRate);
+
+        for (let i = attackSlopeSamples + 10; i < envDb.length - 200; i++) {
+            const slope = envDb[i] - envDb[i - attackSlopeSamples];
+            if (envDb[i] > p1OnsetDb && slope >= 5.0 && envDb[i] >= envDb[i - 1] && envDb[i] >= envDb[i + 1]) {
                 peak1Idx = i;
                 break;
             }
@@ -364,24 +404,25 @@ function initDelayCalc() {
             return;
         }
 
-        // 4. Peak 2 (Main PA) - Adaptive exponential decay threshold
-        // Accounts for distance attenuation (Inverse Square Law) where Main PA is 10-15dB quieter than nearby Fill
+        // 5. Peak 2 (Main PA) - Decibel Domain Topological Prominence Search
+        // Compensates for Inverse Square Law volume loss from distant cluster
         const lockoutSamples = Math.round(0.0035 * sampleRate); // 3.5ms minimum physical separation (~1.2m)
         const maxSearchSamples = Math.round(0.150 * sampleRate); // Up to 150ms delay window (~51m)
         let peak2Idx = -1;
         let bestProminence = 0;
 
         const startSearch = peak1Idx + lockoutSamples;
-        const endSearch = Math.min(envelope.length - 50, peak1Idx + maxSearchSamples);
-        const decayTauSamples = Math.round(0.012 * sampleRate); // 12ms decay time constant
+        const endSearch = Math.min(envDb.length - 50, peak1Idx + maxSearchSamples);
+        const decayTauSamples = Math.round(0.015 * sampleRate); // 15ms room decay constant
 
         for (let i = startSearch; i < endSearch; i++) {
-            // Decaying envelope baseline threshold
-            const decayFactor = Math.exp(-(i - peak1Idx) / decayTauSamples);
-            const dynamicNoiseFloor = Math.max(maxEnergy * 0.04, maxEnergy * 0.5 * decayFactor);
+            // Decaying room acoustic tail in dB
+            const elapsed = (i - peak1Idx) / decayTauSamples;
+            const decayThresholdDb = Math.max(-48, -12 - (elapsed * 3.5)); // Drops from -12dB towards -48dB
 
-            if (envelope[i] > dynamicNoiseFloor && envelope[i] >= envelope[i - 1] && envelope[i] >= envelope[i + 1]) {
-                const prominence = envelope[i] - dynamicNoiseFloor;
+            const slope = envDb[i] - envDb[i - attackSlopeSamples];
+            if (envDb[i] > decayThresholdDb && slope >= 2.5 && envDb[i] >= envDb[i - 1] && envDb[i] >= envDb[i + 1]) {
+                const prominence = envDb[i] - decayThresholdDb;
                 if (prominence > bestProminence) {
                     bestProminence = prominence;
                     peak2Idx = i;
@@ -390,18 +431,24 @@ function initDelayCalc() {
         }
 
         if (peak2Idx === -1) {
-            if (autoPingStatus) autoPingStatus.textContent = '1 ARRIVAL DETECTED (UNMUTE 2ND SPEAKER)';
+            if (isClipped) {
+                if (autoPingStatus) autoPingStatus.textContent = 'MIC CLIPPED: STEP BACK 1.5M';
+            } else {
+                if (autoPingStatus) autoPingStatus.textContent = '1 ARRIVAL DETECTED (UNMUTE 2ND SPEAKER)';
+            }
             measuredRawDelayMs = 0;
             updateAutoPingDisplay();
             drawCaptureWaveform(filtered, peak1Idx, null, sampleRate);
             return;
         }
 
-        // 5. Calculate Result with Sub-Sample Precision
+        // 6. Calculate Result with Sub-Millisecond Accuracy
         const deltaSamples = peak2Idx - peak1Idx;
         measuredRawDelayMs = (deltaSamples / sampleRate) * 1000;
         
-        if (autoPingStatus) autoPingStatus.textContent = 'ALIGNMENT DELTA LOCKED';
+        if (autoPingStatus) {
+            autoPingStatus.textContent = (isClipped) ? 'DELTA LOCKED (WARNING: CLIPPING)' : 'ALIGNMENT DELTA LOCKED';
+        }
         updateAutoPingDisplay();
         drawCaptureWaveform(filtered, peak1Idx, peak2Idx, sampleRate);
 
@@ -452,9 +499,10 @@ function initDelayCalc() {
             ctx.stroke();
         }
 
-        // Waveform
+        // Waveform with Square-Root Dynamic Compression
+        // Allows smaller arrivals (15-20dB down) to be clearly visible alongside giant primary peaks
         const windowStart = (p1 !== null) ? Math.max(0, p1 - Math.round(0.005 * sampleRate)) : 0;
-        const windowLength = Math.min(samples.length - windowStart, Math.round(0.100 * sampleRate)); // 100ms window
+        const windowLength = Math.min(samples.length - windowStart, Math.round(0.120 * sampleRate)); // 120ms window
         const step = windowLength / w;
 
         ctx.strokeStyle = '#00f0ff';
@@ -462,8 +510,10 @@ function initDelayCalc() {
         ctx.beginPath();
         for (let x = 0; x < w; x++) {
             const idx = Math.floor(windowStart + x * step);
-            const val = samples[idx] || 0;
-            const y = (h / 2) - (val * (h / 2) * 2.5);
+            const rawVal = samples[idx] || 0;
+            // Square-root compression: y = sign(x) * sqrt(|x|)
+            const compressed = Math.sign(rawVal) * Math.sqrt(Math.abs(rawVal));
+            const y = (h / 2) - (compressed * (h / 2) * 1.6);
             if (x === 0) ctx.moveTo(x, y);
             else ctx.lineTo(x, y);
         }
