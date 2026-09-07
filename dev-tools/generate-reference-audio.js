@@ -53,19 +53,25 @@ function generateAlignmentClickWav() {
   const durationSec = 15;
   const totalSamples = sampleRate * durationSec;
   const samples = new Float32Array(totalSamples);
-  const pulseFreq = 3500;
-  const pulseDurationMs = 2.0;
+  const pulseFreq = 1000; // 1.0 kHz - optimal loudness, punch, and transducer efficiency
+  const pulseDurationMs = 8.0; // 8 milliseconds (8 full cycles of 1kHz)
   const pulseSamples = Math.round((pulseDurationMs / 1000) * sampleRate);
-  const peakAmplitude = 0.707;
+  const peakAmplitude = 0.891; // -1 dBFS peak
 
   for (let sec = 0; sec < durationSec; sec++) {
     const startSample = Math.round((sec + 0.5) * sampleRate);
     for (let i = 0; i < pulseSamples; i++) {
       const idx = startSample + i;
       if (idx < totalSamples) {
-        const window = 0.5 * (1 - Math.cos((2 * Math.PI * i) / (pulseSamples - 1)));
+        let env = 1.0;
+        const attackSamples = Math.round(pulseSamples * 0.25);
+        if (i < attackSamples) {
+          env = 0.5 * (1 - Math.cos((Math.PI * i) / attackSamples));
+        } else {
+          env = 0.5 * (1 + Math.cos((Math.PI * (i - attackSamples)) / (pulseSamples - attackSamples)));
+        }
         const sine = Math.sin((2 * Math.PI * pulseFreq * i) / sampleRate);
-        samples[idx] = peakAmplitude * window * sine;
+        samples[idx] = peakAmplitude * env * sine;
       }
     }
   }

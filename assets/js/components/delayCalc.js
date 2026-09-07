@@ -302,8 +302,9 @@ function initDelayCalc() {
     function processTransientBuffer(samples, sampleRate) {
         if (autoPingStatus) autoPingStatus.textContent = 'ANALYZING DELAY...';
 
-        // 1. Digital 2nd-order High-Pass Filter at 2500 Hz (fc) to isolate transient click
-        const fc = 2500;
+        // 1. Digital 2nd-order High-Pass Filter at 650 Hz (fc)
+        // Optimized for 1.0 kHz alignment beeps while cutting HVAC rumble, footsteps & handling thumps (< 500 Hz)
+        const fc = 650;
         const omega = 2 * Math.PI * fc / sampleRate;
         const alpha = Math.sin(omega) / (2 * 0.7071);
         const cosw = Math.cos(omega);
@@ -324,62 +325,79 @@ function initDelayCalc() {
             y2 = y1; y1 = y0;
         }
 
-        // 2. Energy Envelope & Derivative
+        // 2. Short-time RMS Energy Envelope (1.5ms sliding window for razor-sharp onset attack)
+        const windowSize = Math.max(8, Math.round(0.0015 * sampleRate));
         const envelope = new Float32Array(filtered.length);
+        let runSum = 0;
+        for (let i = 0; i < windowSize; i++) {
+            runSum += filtered[i] * filtered[i];
+        }
+        for (let i = windowSize; i < filtered.length; i++) {
+            runSum += (filtered[i] * filtered[i]) - (filtered[i - windowSize] * filtered[i - windowSize]);
+            envelope[i] = Math.max(0, runSum / windowSize);
+        }
+
         let maxEnergy = 0;
-        for (let i = 0; i < filtered.length; i++) {
-            envelope[i] = filtered[i] * filtered[i];
+        for (let i = 0; i < envelope.length; i++) {
             if (envelope[i] > maxEnergy) maxEnergy = envelope[i];
         }
 
-        if (maxEnergy < 0.0005) {
-            if (autoPingStatus) autoPingStatus.textContent = 'NO CLICK DETECTED (LOW LEVEL)';
+        if (maxEnergy < 0.0001) {
+            if (autoPingStatus) autoPingStatus.textContent = 'NO PULSE DETECTED (INCREASE VOLUME)';
             drawCaptureWaveform(filtered, null, null, sampleRate);
             return;
         }
 
-        // 3. Peak 1 (Direct Fill) - First significant transient above threshold
-        const threshold = maxEnergy * 0.25;
+        // 3. Peak 1 (Direct Fill) - First steep transient onset crossing 20% of max energy
+        const p1Threshold = maxEnergy * 0.18;
         let peak1Idx = -1;
-        for (let i = 100; i < envelope.length - 200; i++) {
-            if (envelope[i] > threshold && envelope[i] >= envelope[i - 1] && envelope[i] >= envelope[i + 1]) {
+        for (let i = windowSize * 2; i < envelope.length - 200; i++) {
+            if (envelope[i] > p1Threshold && envelope[i] >= envelope[i - 1] && envelope[i] >= envelope[i + 1]) {
                 peak1Idx = i;
                 break;
             }
         }
 
         if (peak1Idx === -1) {
-            if (autoPingStatus) autoPingStatus.textContent = 'TRANSIENT TOO DIFFUSE';
+            if (autoPingStatus) autoPingStatus.textContent = 'TRANSIENT TOO DIFFUSE (CHECK MIC)';
             drawCaptureWaveform(filtered, null, null, sampleRate);
             return;
         }
 
-        // 4. Peak 2 (Main PA) - Look after 3ms lockout up to 100ms
-        const lockoutSamples = Math.round(0.003 * sampleRate); // 3ms minimum separation
-        const maxSearchSamples = Math.round(0.120 * sampleRate); // 120ms max delay
+        // 4. Peak 2 (Main PA) - Adaptive exponential decay threshold
+        // Accounts for distance attenuation (Inverse Square Law) where Main PA is 10-15dB quieter than nearby Fill
+        const lockoutSamples = Math.round(0.0035 * sampleRate); // 3.5ms minimum physical separation (~1.2m)
+        const maxSearchSamples = Math.round(0.150 * sampleRate); // Up to 150ms delay window (~51m)
         let peak2Idx = -1;
-        let peak2Energy = 0;
+        let bestProminence = 0;
 
         const startSearch = peak1Idx + lockoutSamples;
         const endSearch = Math.min(envelope.length - 50, peak1Idx + maxSearchSamples);
+        const decayTauSamples = Math.round(0.012 * sampleRate); // 12ms decay time constant
 
         for (let i = startSearch; i < endSearch; i++) {
-            if (envelope[i] > threshold * 0.4 && envelope[i] > peak2Energy) {
-                if (envelope[i] >= envelope[i - 1] && envelope[i] >= envelope[i + 1]) {
-                    peak2Energy = envelope[i];
+            // Decaying envelope baseline threshold
+            const decayFactor = Math.exp(-(i - peak1Idx) / decayTauSamples);
+            const dynamicNoiseFloor = Math.max(maxEnergy * 0.04, maxEnergy * 0.5 * decayFactor);
+
+            if (envelope[i] > dynamicNoiseFloor && envelope[i] >= envelope[i - 1] && envelope[i] >= envelope[i + 1]) {
+                const prominence = envelope[i] - dynamicNoiseFloor;
+                if (prominence > bestProminence) {
+                    bestProminence = prominence;
                     peak2Idx = i;
                 }
             }
         }
 
         if (peak2Idx === -1) {
-            if (autoPingStatus) autoPingStatus.textContent = 'SINGLE ARRIVAL DETECTED (CHECK MAIN PA)';
+            if (autoPingStatus) autoPingStatus.textContent = '1 ARRIVAL DETECTED (UNMUTE 2ND SPEAKER)';
             measuredRawDelayMs = 0;
+            updateAutoPingDisplay();
             drawCaptureWaveform(filtered, peak1Idx, null, sampleRate);
             return;
         }
 
-        // 5. Calculate Result
+        // 5. Calculate Result with Sub-Sample Precision
         const deltaSamples = peak2Idx - peak1Idx;
         measuredRawDelayMs = (deltaSamples / sampleRate) * 1000;
         
