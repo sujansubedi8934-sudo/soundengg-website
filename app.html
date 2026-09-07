@@ -411,54 +411,164 @@
                         <span class="status-badge active" style="font-size: 0.65rem; padding: 2px 8px;">SYSTEM_CALIBRATED</span>
                     </div>
 
-                    <div class="calc-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
-                        <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
-                            <label for="delay-dist-mod" id="label-dist-mod" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Distance (m)</label>
-                            <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; width: 100%; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important;">
-                                <input type="number" id="delay-dist-mod" class="vfd-glow vfd-input" value="1.0" step="0.1" min="0" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;">
-                            </div>
-                        </div>
-                        <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
-                            <label for="delay-temp-mod" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Temperature</label>
-                            <div class="input-with-select" style="display: flex; gap: 6px; width: 100%;">
-                                <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; flex: 1; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important; min-width: 0;">
-                                    <input type="number" id="delay-temp-mod" class="vfd-glow vfd-input" value="22.4" step="0.1" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;">
-                                </div>
-                                <select id="delay-temp-unit-mod" class="rugged-select" style="height: 38px; padding: 0 8px; border-radius: 6px; font-family: var(--font-mono); font-weight: bold; font-size: 0.75rem; border: 1px solid var(--outline); outline: none; cursor: pointer; transition: border-color 0.2s ease;">
-                                    <option value="C">°C</option>
-                                    <option value="F">°F</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Delay Output Display Screen -->
-                    <div class="vfd-screen" style="border-radius: 10px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; position: relative; overflow: hidden;">
-                        <div style="display: flex; flex-direction: column; gap: 2px;">
-                            <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">DELAY OFFSET</span>
-                            <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--primary); opacity: 0.6; letter-spacing: 0.5px;">ACOUSTIC LATENCY CALC</span>
-                        </div>
-                        <div class="delay-val vfd-glow" id="delay-output-mod" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); line-height: 1; display: flex; align-items: baseline;">
-                            2.91<span class="delay-unit" style="font-size: 0.95rem; margin-left: 4px; opacity: 0.7; font-weight: normal;">ms</span>
-                        </div>
-                    </div>
-
-                    <!-- Propagation progress meter -->
-                    <div style="margin-top: 0.5rem;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                            <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Propagation Progress (0 - 50ms)</span>
-                            <span id="delay-progress-percent" style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--primary); font-weight: bold;">0.0%</span>
-                        </div>
-                        <div class="meter-track" style="height: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; padding: 1px; box-sizing: border-box; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-                            <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #00ffcc 100%); border-radius: 999px; box-shadow: 0 0 8px var(--primary); transition: width 0.1s ease;"></div>
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                        <button id="btn-share-delay" class="rugged-btn pulse-glow" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 0.7rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--outline); background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s; height: 34px; color: var(--text-heading);">
-                            <span class="material-symbols-outlined" style="font-size: 14px;">share</span> SHARE CONFIG
+                    <!-- MODE SELECTOR TABS -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid var(--outline);">
+                        <button id="tab-delay-manual" class="rugged-btn active" style="font-size: 0.72rem; padding: 6px 10px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(0, 240, 255, 0.15); color: var(--primary); border: 1px solid var(--primary); font-family: var(--font-mono); font-weight: bold; cursor: pointer; border-radius: 6px; transition: all 0.2s;">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">straighten</span> MANUAL (DISTANCE)
+                        </button>
+                        <button id="tab-delay-auto" class="rugged-btn" style="font-size: 0.72rem; padding: 6px 10px; display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: var(--text-muted); border: 1px solid transparent; font-family: var(--font-mono); font-weight: bold; cursor: pointer; border-radius: 6px; transition: all 0.2s;">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">mic</span> ACOUSTIC AUTO PING
                         </button>
                     </div>
+
+                    <!-- MANUAL MODE CONTAINER -->
+                    <div id="delay-manual-container" style="display: flex; flex-direction: column; gap: 1rem;">
+                        <div class="calc-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+                            <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                <label for="delay-dist-mod" id="label-dist-mod" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Distance (m)</label>
+                                <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; width: 100%; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important;">
+                                    <input type="number" id="delay-dist-mod" class="vfd-glow vfd-input" value="1.0" step="0.1" min="0" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;">
+                                </div>
+                            </div>
+                            <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                <label for="delay-temp-mod" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Temperature</label>
+                                <div class="input-with-select" style="display: flex; gap: 6px; width: 100%;">
+                                    <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; flex: 1; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important; min-width: 0;">
+                                        <input type="number" id="delay-temp-mod" class="vfd-glow vfd-input" value="22.4" step="0.1" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;">
+                                    </div>
+                                    <select id="delay-temp-unit-mod" class="rugged-select" style="height: 38px; padding: 0 8px; border-radius: 6px; font-family: var(--font-mono); font-weight: bold; font-size: 0.75rem; border: 1px solid var(--outline); outline: none; cursor: pointer; transition: border-color 0.2s ease;">
+                                        <option value="C">°C</option>
+                                        <option value="F">°F</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Delay Output Display Screen -->
+                        <div class="vfd-screen" style="border-radius: 10px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; position: relative; overflow: hidden;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">DELAY OFFSET</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--primary); opacity: 0.6; letter-spacing: 0.5px;">ACOUSTIC LATENCY CALC</span>
+                            </div>
+                            <div class="delay-val vfd-glow" id="delay-output-mod" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); line-height: 1; display: flex; align-items: baseline;">
+                                2.91<span class="delay-unit" style="font-size: 0.95rem; margin-left: 4px; opacity: 0.7; font-weight: normal;">ms</span>
+                            </div>
+                        </div>
+
+                        <!-- Propagation progress meter -->
+                        <div style="margin-top: 0.5rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Propagation Progress (0 - 50ms)</span>
+                                <span id="delay-progress-percent" style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--primary); font-weight: bold;">0.0%</span>
+                            </div>
+                            <div class="meter-track" style="height: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; padding: 1px; box-sizing: border-box; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                                <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #00ffcc 100%); border-radius: 999px; box-shadow: 0 0 8px var(--primary); transition: width 0.1s ease;"></div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
+                            <button id="btn-share-delay" class="rugged-btn pulse-glow" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 0.7rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--outline); background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s; height: 34px; color: var(--text-heading);">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">share</span> SHARE CONFIG
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ACOUSTIC AUTO PING CONTAINER -->
+                    <div id="delay-auto-container" style="display: none; flex-direction: column; gap: 1rem;">
+                        <!-- Pro Audio Guidance Banner -->
+                        <div style="background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 0.85rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
+                            <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-weight: bold; margin-bottom: 4px; font-family: var(--font-mono); font-size: 0.75rem;">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">info</span>
+                                FIELD MEASUREMENT PROTOCOL
+                            </div>
+                            1. Unmute both <strong>Main PA</strong> and <strong>Front Fill / Delay Tower</strong>.<br>
+                            2. Play the <strong>Alignment Click</strong> (below) or a sharp snare rimshot.<br>
+                            3. Stand at the fill speaker with phone mic facing the speakers and tap <strong>Listen</strong>.
+                        </div>
+
+                        <!-- Mini Oscilloscope Canvas Display -->
+                        <div style="background: #02060a; border: 1px solid var(--outline); border-radius: 8px; padding: 8px; position: relative; overflow: hidden;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">
+                                <span>Acoustic Transient Capture</span>
+                                <span id="auto-ping-status" style="color: var(--primary); font-weight: bold;">STANDBY</span>
+                            </div>
+                            <canvas id="delay-oscilloscope" width="600" height="130" style="width: 100%; height: 130px; display: block; background: #010408; border-radius: 4px;"></canvas>
+                        </div>
+
+                        <!-- Auto Listen Action Button -->
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button id="btn-start-auto-ping" class="rugged-btn pulse-glow" style="flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-weight: bold; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                                <span class="material-symbols-outlined" id="icon-auto-ping" style="font-size: 18px;">hearing</span>
+                                <span id="btn-auto-ping-text">LISTEN FOR TRANSIENT DELTA</span>
+                            </button>
+                        </div>
+
+                        <!-- Measured Result Screen -->
+                        <div id="auto-ping-result-screen" class="vfd-screen" style="border-radius: 10px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
+                            <div style="display: flex; flex-direction: column; gap: 2px;">
+                                <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">DETECTED DELAY OFFSET</span>
+                                <span id="auto-ping-dist-readout" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--primary); opacity: 0.8; letter-spacing: 0.5px;">Equiv. Distance: -- m</span>
+                            </div>
+                            <div class="delay-val vfd-glow" id="auto-ping-delay-output" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); line-height: 1; display: flex; align-items: baseline;">
+                                --<span class="delay-unit" style="font-size: 0.95rem; margin-left: 4px; opacity: 0.7; font-weight: normal;">ms</span>
+                            </div>
+                        </div>
+
+                        <!-- Haas Precedence Selector -->
+                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--outline); border-radius: 8px; padding: 0.75rem;">
+                            <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; margin-bottom: 6px; display: flex; justify-content: space-between;">
+                                <span>Haas Precedence Offset</span>
+                                <span style="color: var(--primary); font-size: 0.6rem;">FOH Recommended</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                                <button class="rugged-btn btn-haas-opt active" data-haas="0" style="font-size: 0.68rem; padding: 6px; font-family: var(--font-mono); font-weight: bold; background: rgba(0, 240, 255, 0.15); color: var(--primary); border: 1px solid var(--primary); border-radius: 4px; cursor: pointer;">
+                                    0ms (Exact)
+                                </button>
+                                <button class="rugged-btn btn-haas-opt" data-haas="2" style="font-size: 0.68rem; padding: 6px; font-family: var(--font-mono); font-weight: bold; background: transparent; color: var(--text-muted); border: 1px solid var(--outline); border-radius: 4px; cursor: pointer;">
+                                    +2ms (Vocal Focus)
+                                </button>
+                                <button class="rugged-btn btn-haas-opt" data-haas="5" style="font-size: 0.68rem; padding: 6px; font-family: var(--font-mono); font-weight: bold; background: transparent; color: var(--text-muted); border: 1px solid var(--outline); border-radius: 4px; cursor: pointer;">
+                                    +5ms (Deep Stage)
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Apply to Delay Setting -->
+                        <button id="btn-apply-auto-delay" class="rugged-btn" disabled style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(0, 255, 204, 0.1); border: 1px solid #00ffcc; color: #00ffcc; font-family: var(--font-mono); font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; opacity: 0.5;">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">sync_alt</span>
+                            APPLY MEASURED OFFSET TO CONSOLE DELAY
+                        </button>
+                    </div>
+                </div>
+
+                <!-- FOH REFERENCE AUDIO PULSE CARD -->
+                <div class="siggen-widget" style="margin-bottom: 1.5rem; border-left: 3px solid var(--primary); background: rgba(0, 240, 255, 0.02); display: flex; flex-direction: column; gap: 0.75rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.2rem;">graphic_eq</span>
+                            <div>
+                                <span style="font-family: var(--font-mono); font-weight: bold; color: var(--text-heading); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">FOH Acoustic Alignment Click</span>
+                                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">15s Loop • 48 kHz 24-bit PCM • 2ms Transient @ 1.0s interval</span>
+                            </div>
+                        </div>
+                        <span class="status-badge active" style="font-size: 0.6rem; padding: 2px 6px;">BROADCAST_WAV</span>
+                    </div>
+
+                    <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
+                        Play this calibrated transient click through your console (Main PA & Fills) to allow the app to detect wavefront arrival time.
+                    </p>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.25rem;">
+                        <button id="btn-play-alignment-click" class="rugged-btn pulse-glow" style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                            <span class="material-symbols-outlined" id="icon-play-alignment" style="font-size: 16px;">play_arrow</span>
+                            <span id="text-play-alignment">LOOP FROM PHONE</span>
+                        </button>
+                        <a id="btn-download-alignment-click" href="assets/audio/soundengg-delay-alignment-click-48k.wav" download="soundengg-delay-alignment-click-48k.wav" class="rugged-btn" style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--outline); color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; text-decoration: none; box-sizing: border-box; transition: all 0.2s;">
+                            <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
+                            DOWNLOAD .WAV (2.1MB)
+                        </a>
+                    </div>
+                </div>
                 </div>
 
                 <!-- Theory: Delay Calculator Engineering Insight -->

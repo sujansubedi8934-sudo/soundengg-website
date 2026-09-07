@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v11.0';
+const CACHE_NAME = 'soundengg-cache-v12.0';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -12,6 +12,7 @@ const URLS_TO_CACHE = [
     '/manifest.json',
     '/assets/css/styles.css',
     '/assets/js/main.js',
+    '/assets/audio/soundengg-delay-alignment-click-48k.wav',
     // Core Modules
     '/assets/js/modules/utils.js',
     '/assets/js/modules/theme.js',
