@@ -63,4 +63,10 @@ describe('Pro Feature Ad Gate and Cooldown Rules', () => {
         assert.equal(actionExecuted, false);
         assert.equal(modalTriggered, true);
     });
+
+    test('safetyTimer in adManager.js uses 2000ms timeout for offline resilience', () => {
+        const fileContent = fs.readFileSync('assets/js/utils/adManager.js', 'utf8');
+        assert.equal(fileContent.includes('}, 2000);'), true, 'adManager.js must use 2000ms safety timer');
+        assert.equal(fileContent.includes('}, 15000);'), false, 'adManager.js must not retain 15000ms safety timer');
+    });
 });

@@ -579,7 +579,7 @@ function initAdManager() {
                 safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString());
                 onSuccessCallback();
             }
-        }, 15000);
+        }, 2000);
 
         window.showNativeInterstitialAd(
             () => {
