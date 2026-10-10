@@ -382,7 +382,7 @@
             </div>
             <h1 class="challenge-title">The "Golden Ears" Frequency Challenge</h1>
             <p class="challenge-subtitle">
-                Stage feedback happens in fractions of a second. Can you identify ISO frequency resonances by ear? Complete the 10-round challenge and earn your certified sound engineer badge.
+                Stage feedback happens in fractions of a second. Can you identify ISO frequency resonances by ear? Complete the 10-round challenge and generate your frequency benchmark scorecard.
             </p>
         </section>
 
@@ -424,7 +424,7 @@
             <div id="game-over-state" class="scorecard-wrap">
                 <div>
                     <h2 style="font-size: 1.8rem; color: var(--text-heading); margin-bottom: 0.2rem;">Challenge Completed!</h2>
-                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">Here is your certified live sound engineer badge:</p>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">Here is your frequency recognition benchmark scorecard:</p>
                 </div>
 
                 <canvas id="challenge-cert-canvas" width="1080" height="1080"></canvas>
@@ -705,22 +705,7 @@
                     ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length).toFixed(1) 
                     : '2.0';
 
-                let tierTitle = 'AUDIO APPRENTICE';
-                let tierSub = 'Level 1 Listener • Keep Training';
-                let tierColor = '#38bdf8';
-                if (pct >= 90) {
-                    tierTitle = 'GOLDEN EAR FOH VETERAN';
-                    tierSub = 'Tier 1 Master • Certified Soundcheck Ear';
-                    tierColor = '#ffd700';
-                } else if (pct >= 75) {
-                    tierTitle = 'LEAD SYSTEM TECHNICIAN';
-                    tierSub = 'Pro Level • Feedback Notch Ready';
-                    tierColor = '#00ffcc';
-                } else if (pct >= 60) {
-                    tierTitle = 'STAGE MONITOR ENGINEER';
-                    tierSub = 'Field Ready • Accurate ISO Detection';
-                    tierColor = '#a855f7';
-                }
+                const accentColor = pct >= 90 ? '#ffd700' : '#00ffcc';
 
                 // 1. Background
                 const bg = ctx.createLinearGradient(0, 0, 1080, 1080);
@@ -731,15 +716,15 @@
                 ctx.fillRect(0, 0, 1080, 1080);
 
                 // Subtle Grid
-                ctx.strokeStyle = 'rgba(255, 215, 0, 0.05)';
+                ctx.strokeStyle = 'rgba(0, 255, 204, 0.04)';
                 ctx.lineWidth = 1;
                 for (let i = 60; i < 1080; i += 60) {
                     ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 1080); ctx.stroke();
                     ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1080, i); ctx.stroke();
                 }
 
-                // Double Border with Golden Accents
-                ctx.strokeStyle = tierColor;
+                // Double Border with Pro Accents
+                ctx.strokeStyle = accentColor;
                 ctx.lineWidth = 3;
                 ctx.strokeRect(50, 50, 980, 980);
 
@@ -748,7 +733,7 @@
                 ctx.strokeRect(58, 58, 964, 964);
 
                 // Corner decorative brackets
-                ctx.strokeStyle = tierColor;
+                ctx.strokeStyle = accentColor;
                 ctx.lineWidth = 4;
                 const bLen = 35;
                 ctx.beginPath(); ctx.moveTo(46, 46 + bLen); ctx.lineTo(46, 46); ctx.lineTo(46 + bLen, 46); ctx.stroke();
@@ -780,7 +765,7 @@
                 ctx.fillText('10-ROUND TEST', 900, 116);
                 ctx.textAlign = 'left';
 
-                // Engineer Name & Title
+                // Engineer Name & Date
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 44px "SF Pro Display", sans-serif';
                 ctx.fillText(name.toUpperCase(), 90, 240);
@@ -790,47 +775,42 @@
                 ctx.fillText(`VERIFIED BENCHMARK  •  DATE: ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}`, 90, 280);
 
                 // Hero Score Box
-                const heroGrad = ctx.createLinearGradient(90, 320, 990, 680);
+                const heroGrad = ctx.createLinearGradient(90, 320, 990, 670);
                 heroGrad.addColorStop(0, 'rgba(15, 23, 42, 0.95)');
                 heroGrad.addColorStop(1, 'rgba(8, 12, 22, 0.98)');
                 ctx.fillStyle = heroGrad;
-                ctx.strokeStyle = tierColor;
+                ctx.strokeStyle = accentColor;
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.roundRect(90, 320, 900, 350, 16);
                 ctx.fill();
                 ctx.stroke();
 
-                // Tier Tag
-                ctx.fillStyle = tierColor;
+                // Benchmark Header Label inside Hero
+                ctx.fillStyle = accentColor;
                 ctx.font = 'bold 18px "SF Mono", monospace';
-                ctx.letterSpacing = '2px';
-                ctx.fillText('ASSIGNED CERTIFICATION TIER', 130, 375);
-
-                // Tier Title (Large)
-                ctx.shadowColor = tierColor;
-                ctx.shadowBlur = 20;
-                ctx.fillStyle = tierColor;
-                ctx.font = 'bold 50px "SF Pro Display", sans-serif';
-                ctx.fillText(tierTitle, 130, 440);
-                ctx.shadowBlur = 0;
-
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '22px "SF Pro Display", sans-serif';
-                ctx.fillText(tierSub, 130, 480);
+                ctx.fillText('FREQUENCY RECOGNITION SCORE', 130, 385);
 
                 // Big Score Metric inside Hero
+                ctx.shadowColor = accentColor;
+                ctx.shadowBlur = 24;
                 ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 88px "SF Mono", monospace';
-                ctx.fillText(`${pct}%`, 130, 600);
+                ctx.font = 'bold 124px "SF Mono", monospace';
+                ctx.fillText(`${pct}%`, 130, 520);
+                ctx.shadowBlur = 0;
 
-                ctx.font = '24px "SF Pro Display", sans-serif';
-                ctx.fillStyle = '#64748b';
-                ctx.fillText(`(${score} / ${totalRounds} Correct)`, 340, 580);
+                // Score Breakdown & Range Subtitle
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = 'bold 28px "SF Pro Display", sans-serif';
+                ctx.fillText(`${score} / ${totalRounds} ISO Frequency Bands Identified`, 130, 585);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '19px "SF Mono", monospace';
+                ctx.fillText('125 Hz – 12.5 kHz Blind Sine Burst Recognition  •  Avg Speed: ' + avgSpeed + 's', 130, 628);
 
                 // Metrics Grid (3 Boxes Below)
                 const gridData = [
-                    { title: 'ACCURACY', val: `${pct}%`, sub: `${score} of ${totalRounds} bands`, color: tierColor },
+                    { title: 'ACCURACY', val: `${pct}%`, sub: `${score} of ${totalRounds} bands`, color: accentColor },
                     { title: 'MAX STREAK', val: `${maxStreak} BANDS`, sub: 'Consecutive hits', color: '#ff5500' },
                     { title: 'AVG REACTION', val: `${avgSpeed}s`, sub: 'Listening speed', color: '#38bdf8' }
                 ];
@@ -867,30 +847,30 @@
                 ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.moveTo(90, 960);
-                ctx.lineTo(990, 960);
+                ctx.moveTo(90, 935);
+                ctx.lineTo(990, 935);
                 ctx.stroke();
 
                 ctx.fillStyle = '#ffffff';
                 ctx.font = 'bold 18px "SF Pro Display", -apple-system, sans-serif';
-                ctx.fillText('SoundEngg Ear Training Lab & Acoustic Workstation', 90, 995);
+                ctx.fillText('SoundEngg Ear Training Lab & Acoustic Workstation', 90, 972);
 
-                ctx.fillStyle = '#64748b';
+                ctx.fillStyle = '#94a3b8';
                 ctx.font = '14px "SF Mono", monospace';
-                ctx.fillText('Test your frequency ears at www.soundengg.com/challenge.html', 90, 1020);
+                ctx.fillText('Take the challenge at www.soundengg.com/challenge', 90, 998);
 
                 ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
                 ctx.strokeStyle = '#ffd700';
                 ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.roundRect(830, 975, 160, 40, 8);
+                ctx.roundRect(830, 956, 160, 40, 8);
                 ctx.fill();
                 ctx.stroke();
 
                 ctx.fillStyle = '#ffd700';
                 ctx.font = 'bold 14px "SF Mono", monospace';
                 ctx.textAlign = 'center';
-                ctx.fillText('GOLDEN EARS', 910, 1000);
+                ctx.fillText('GOLDEN EARS', 910, 981);
                 ctx.textAlign = 'left';
             }
 
