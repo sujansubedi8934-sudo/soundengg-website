@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v18.2';
+const CACHE_NAME = 'soundengg-cache-v18.3';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [

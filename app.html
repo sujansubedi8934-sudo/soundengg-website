@@ -3933,13 +3933,13 @@
     <script src="assets/js/components/pinouts.js"></script>
     <script src="assets/js/components/blogEngine.js"></script>
 
-    <script src="assets/js/main.js?v=3.7.5"></script>
-    <script src="assets/js/modules/checkoutAndPlatform.js?v=3.7.5"></script>
+    <script src="assets/js/main.js?v=3.7.6"></script>
+    <script src="assets/js/modules/checkoutAndPlatform.js?v=3.7.6"></script>
     
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
     <script>
         // Force unregister and cache clear on version mismatch to bypass stale service worker caches
-        const CURRENT_VERSION = '3.7.5';
+        const CURRENT_VERSION = '3.7.6';
         if (window.safeStorage.getItem('soundengg-app-version') !== CURRENT_VERSION) {
             window.safeStorage.setItem('soundengg-app-version', CURRENT_VERSION);
             if ('serviceWorker' in navigator) {
