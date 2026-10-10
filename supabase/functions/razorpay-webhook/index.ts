@@ -105,17 +105,26 @@ serve(async (req) => {
       }
 
       const planId = subscription.plan_id;
-      let tier = "monthly";
-      if (planId === Deno.env.get("RAZORPAY_PLAN_YEARLY") || planId === Deno.env.get("RAZORPAY_PLAN_YEARLY_USD")) {
+      let tier = subscription.notes?.plan || "monthly";
+      if (
+        planId === Deno.env.get("RAZORPAY_PLAN_YEARLY") ||
+        planId === Deno.env.get("RAZORPAY_PLAN_YEARLY_USD") ||
+        planId === "plan_TmBrHvi23613As" ||
+        planId === "plan_SsjusefppDE8Lb" ||
+        planId === "plan_SrVYZ1bzog4OUK"
+      ) {
         tier = "yearly";
       }
 
-      if (event === "subscription.charged") {
-        // Expiry timestamp
-        const expiryUnix = subscription.current_end;
-        const expiresAt = expiryUnix ? new Date(expiryUnix * 1000).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+      if (event === "subscription.authenticated") {
+        // User authorized mandate for 7-Day Free Trial (start_at is 7 days in the future)
+        const startUnix = subscription.start_at;
+        const trialEndIso = startUnix
+          ? new Date(startUnix * 1000).toISOString()
+          : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+        const nowIso = new Date().toISOString();
 
-        console.log(`[Webhook] Processing subscription.charged for user: ${profileId}, tier: ${tier}, expiresAt: ${expiresAt}`);
+        console.log(`[Webhook] Processing subscription.authenticated (7-Day Trial) for user: ${profileId}, tier: ${tier}, trialEndsAt: ${trialEndIso}`);
 
         const { error } = await supabaseAdmin
           .from("profiles")
@@ -124,6 +133,36 @@ serve(async (req) => {
             subscription_tier: tier,
             subscription_provider: "razorpay",
             subscription_id: subscriptionId,
+            subscription_status: "trialing",
+            trial_started_at: nowIso,
+            trial_expires_at: trialEndIso,
+            trial_ends_at: trialEndIso,
+            has_used_trial: true,
+            subscription_expires_at: trialEndIso,
+            updated_at: nowIso
+          })
+          .eq("id", profileId);
+
+        if (error) throw error;
+
+      } else if (event === "subscription.charged" || event === "subscription.activated") {
+        // Expiry timestamp
+        const expiryUnix = subscription.current_end;
+        const fallbackDays = tier === "yearly" ? 365 : 30;
+        const expiresAt = expiryUnix
+          ? new Date(expiryUnix * 1000).toISOString()
+          : new Date(Date.now() + fallbackDays * 24 * 60 * 60 * 1000).toISOString();
+
+        console.log(`[Webhook] Processing ${event} for user: ${profileId}, tier: ${tier}, expiresAt: ${expiresAt}`);
+
+        const { error } = await supabaseAdmin
+          .from("profiles")
+          .update({
+            is_pro: true,
+            subscription_tier: tier,
+            subscription_provider: "razorpay",
+            subscription_id: subscriptionId,
+            subscription_status: "active",
             subscription_expires_at: expiresAt,
             updated_at: new Date().toISOString()
           })
@@ -132,13 +171,14 @@ serve(async (req) => {
         if (error) throw error;
 
       } else if (event === "subscription.halted" || event === "subscription.completed") {
-        console.log(`[Webhook] Processing ${event} (Immediate cancellation) for user: ${profileId}`);
+        console.log(`[Webhook] Processing ${event} (Immediate expiration) for user: ${profileId}`);
 
         const { error } = await supabaseAdmin
           .from("profiles")
           .update({
             is_pro: false,
-            subscription_tier: null,
+            subscription_tier: "free",
+            subscription_status: "expired",
             subscription_expires_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
@@ -147,25 +187,56 @@ serve(async (req) => {
         if (error) throw error;
 
       } else if (event === "subscription.cancelled") {
-        // Razorpay cancelation can occur immediately or at the end of the paid cycle.
-        const expiryUnix = subscription.current_end;
+        // Razorpay cancellation can occur during the 7-day trial (where current_end is null and start_at holds trial end) or during a paid cycle
+        const expiryUnix = subscription.current_end || subscription.start_at;
         const expiresAt = expiryUnix ? new Date(expiryUnix * 1000).toISOString() : new Date().toISOString();
         
-        console.log(`[Webhook] Processing subscription.cancelled for user: ${profileId}. Keeping active until current cycle ends: ${expiresAt}`);
+        console.log(`[Webhook] Processing subscription.cancelled for user: ${profileId}. Keeping active until period ends: ${expiresAt}`);
 
-        // Keep is_pro true until the cycle naturally expires
+        // Keep is_pro true until the trial or paid cycle naturally expires
         const isStillActive = new Date(expiresAt) > new Date();
 
         const { error } = await supabaseAdmin
           .from("profiles")
           .update({
             is_pro: isStillActive,
-            subscription_tier: isStillActive ? tier : null,
+            subscription_tier: isStillActive ? tier : "free",
             subscription_provider: isStillActive ? "razorpay_cancelled" : "razorpay",
+            subscription_status: isStillActive ? "canceled" : "expired",
             subscription_expires_at: expiresAt,
             updated_at: new Date().toISOString()
           })
           .eq("id", profileId);
+
+        if (error) throw error;
+      }
+    } else if (event === "order.paid" || event === "payment.captured") {
+      // One-time Lifetime or International Order webhook backup
+      const paymentEntity = eventPayload.payment?.entity;
+      const orderEntity = eventPayload.order?.entity;
+      const notes = orderEntity?.notes || paymentEntity?.notes || {};
+      const userId = notes.user_id;
+      const plan = notes.plan;
+
+      if (userId && plan) {
+        const expiresAt = plan === "lifetime"
+          ? null
+          : new Date(Date.now() + (plan === "monthly" ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
+
+        console.log(`[Webhook] Processing ${event} for user: ${userId}, plan: ${plan}`);
+
+        const { error } = await supabaseAdmin
+          .from("profiles")
+          .update({
+            is_pro: true,
+            subscription_tier: plan,
+            subscription_provider: "razorpay",
+            subscription_id: paymentEntity?.id || orderEntity?.id || null,
+            subscription_status: "active",
+            subscription_expires_at: expiresAt,
+            updated_at: new Date().toISOString()
+          })
+          .eq("id", userId);
 
         if (error) throw error;
       }

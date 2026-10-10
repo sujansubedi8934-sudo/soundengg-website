@@ -7,7 +7,7 @@
     height: 100%;
     background-color: rgba(0, 0, 0, 0.85);
     backdrop-filter: blur(8px);
-    z-index: 2000; /* Senior Priority: Higher than everything else */
+    z-index: 10050 !important; /* Senior Priority: Higher than fullscreen canvas (9999) & drawer (10020) */
     display: flex;
     justify-content: center;
     align-items: center; /* Clean optical vertical center */
@@ -568,21 +568,63 @@ html.light .auth-modal {
 }
 
 /* Fullscreen Canvas Wrapper styles */
+body.has-fullscreen-canvas,
+html.has-fullscreen-canvas {
+    overflow: hidden !important;
+}
+
+body.has-fullscreen-canvas .mobile-only-header,
+body.has-fullscreen-canvas #mobile-safe-header,
+body.has-fullscreen-canvas #mobile-bottom-tabs,
+body.has-fullscreen-canvas .top-bar,
+body.has-fullscreen-canvas .module-header {
+    display: none !important;
+}
+
 .canvas-wrapper.fullscreen-canvas {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
     height: 100vh !important;
+    height: 100dvh !important;
     z-index: 9999 !important;
     background: #050508 !important;
     border: none !important;
+    border-radius: 0 !important;
+    --rta-safe-top: max(env(safe-area-inset-top, 0px), 28px);
+    --rta-safe-bottom: max(env(safe-area-inset-bottom, 0px), 22px);
+    --rta-safe-left: env(safe-area-inset-left, 0px);
+    --rta-safe-right: env(safe-area-inset-right, 0px);
+    padding-top: var(--rta-safe-top) !important;
+    padding-bottom: var(--rta-safe-bottom) !important;
+    padding-left: var(--rta-safe-left) !important;
+    padding-right: var(--rta-safe-right) !important;
+    box-sizing: border-box !important;
+}
+
+html.light .canvas-wrapper.fullscreen-canvas {
+    background: #F0F2F5 !important;
+}
+
+.canvas-wrapper.fullscreen-canvas #rta-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
 }
 
 .canvas-wrapper.fullscreen-canvas #btn-rta-close-fullscreen {
     display: flex !important;
-    top: calc(20px + env(safe-area-inset-top, 0px)) !important;
-    left: calc(20px + env(safe-area-inset-left, 0px)) !important;
+    top: calc(10px + var(--rta-safe-top)) !important;
+    left: calc(16px + var(--rta-safe-left)) !important;
+}
+
+html.light .canvas-wrapper.fullscreen-canvas #btn-rta-close-fullscreen {
+    background: rgba(255, 59, 48, 0.12) !important;
+    border-color: #ff3b30 !important;
+    color: #ff3b30 !important;
 }
 
 .canvas-wrapper.fullscreen-canvas #btn-rta-close-fullscreen:hover,
@@ -592,11 +634,9 @@ html.light .auth-modal {
     transform: scale(1.08);
 }
 
+/* In fullscreen mode, hide the top-right expand button so it does not collide with the live SPL watermark */
 .canvas-wrapper.fullscreen-canvas #btn-rta-fullscreen {
-    top: calc(20px + env(safe-area-inset-top, 0px)) !important;
-    right: calc(20px + env(safe-area-inset-right, 0px)) !important;
-    background: rgba(5, 5, 8, 0.9) !important;
-    border-color: var(--primary) !important;
+    display: none !important;
 }
 
 /* Mobile Ad Loading Overlay */
@@ -613,7 +653,7 @@ html.light .auth-modal {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    z-index: 10001; /* Higher than ad-modal and fullscreen canvas */
+    z-index: 10070 !important; /* Higher than drawer (10020), hud, and fullscreen canvas */
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -706,7 +746,7 @@ html.light .auth-modal {
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10000;
+    z-index: 10060 !important;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -959,6 +999,10 @@ html.light .auth-modal {
     animation: modal-enter 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+.auth-modal-box > * {
+    flex-shrink: 0;
+}
+
 html.light .auth-modal-box {
     background: var(--surface);
     border-color: var(--outline-light);
@@ -1090,11 +1134,16 @@ html.light .smart-banner-logo {
     display: flex;
     align-items: center;
     gap: 10px;
-    z-index: 9999;
+    z-index: 10090 !important;
     box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     opacity: 0;
     pointer-events: none;
+    color: var(--text-main);
+}
+
+#soundengg-toast-text {
+    color: var(--text-main);
 }
 
 .toast-container.show {
@@ -1104,8 +1153,14 @@ html.light .smart-banner-logo {
 }
 
 html.light .toast-container {
-    background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.98);
+    border-color: var(--primary);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    color: #0b111e;
+}
+
+html.light #soundengg-toast-text {
+    color: #0b111e;
 }
 
 /* Accessible Dialog details */
@@ -1138,5 +1193,64 @@ dialog#app-rating-dialog::backdrop {
     justify-content: flex-end;
     gap: 0.75rem;
     margin-top: 1.5rem;
+}
+
+/* ========================================================
+   Support SoundEngg Pro Bottom Sheet & Modal System
+   ======================================================== */
+.pro-support-sheet {
+    width: 92%;
+    max-width: 480px;
+    background: #090c13;
+    border: 1.5px solid rgba(0, 240, 255, 0.25);
+    border-radius: 16px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.8), 0 0 35px rgba(0, 240, 255, 0.15);
+    padding: 1.25rem 1.4rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    position: relative;
+    overflow: hidden;
+    animation: supportSheetSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes supportSheetSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(24px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 640px) {
+    #pro-upgrade-modal.modal-overlay {
+        align-items: flex-end;
+        padding: 0;
+    }
+    .pro-support-sheet {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        border-bottom: none;
+        border-left: none;
+        border-right: none;
+        padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+    }
+}
+
+/* Pulse animation on button during acoustic pulse firing */
+.pulse-active {
+    animation: pulsePingGlow 0.4s ease-in-out infinite alternate !important;
+}
+
+@keyframes pulsePingGlow {
+    from {
+        box-shadow: 0 0 5px #FFB800;
+        transform: scale(0.98);
+    }
+    to {
+        box-shadow: 0 0 20px #FFB800, 0 0 30px #FF9800;
+        transform: scale(1.03);
+    }
 }
 

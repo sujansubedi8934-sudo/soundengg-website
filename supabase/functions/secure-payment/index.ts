@@ -108,7 +108,7 @@ serve(async (req) => {
         // Domestic India Recurring Subscriptions via Razorpay Subscriptions (₹199/mo or ₹999/yr with 7-Day Free Trial)
         const planId = plan === "monthly"
           ? (Deno.env.get("RAZORPAY_PLAN_MONTHLY") || "plan_SsjtsdD4GW4rR7") // SoundEngg Pro Monthly Pass (₹199/mo)
-          : (Deno.env.get("RAZORPAY_PLAN_YEARLY") || "plan_SsjusefppDE8Lb");  // SoundEngg Pro Yearly Pass (₹999/yr)
+          : (Deno.env.get("RAZORPAY_PLAN_YEARLY") || "plan_TmBrHvi23613As");  // SoundEngg Pro Yearly Pass (₹999/yr)
 
         const totalCount = plan === "monthly" ? 120 : 10;
         const trialStartAt = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60); // 7-Day Free Trial before first billing
@@ -198,17 +198,37 @@ serve(async (req) => {
 
       if (!user) throw new Error("Unauthorized Access");
 
-      const expiresAt = (plan === 'lifetime') ? null : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
+      const isTrialSubscription = Boolean(subscription_id && (plan === 'monthly' || plan === 'yearly'));
+      const nowIso = new Date().toISOString();
+      const trialEndIso = isTrialSubscription
+        ? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        : null;
+      const expiresAt = (plan === 'lifetime')
+        ? null
+        : isTrialSubscription
+          ? trialEndIso
+          : new Date(Date.now() + (plan === 'monthly' ? 30 : 365) * 24 * 60 * 60 * 1000).toISOString();
+
+      const updateData: Record<string, any> = {
+        is_pro: true,
+        subscription_tier: plan,
+        subscription_provider: 'razorpay',
+        subscription_id: subscription_id || payment_id,
+        subscription_expires_at: expiresAt,
+        subscription_status: isTrialSubscription ? 'trialing' : 'active',
+        updated_at: nowIso
+      };
+
+      if (isTrialSubscription) {
+        updateData.trial_started_at = nowIso;
+        updateData.trial_expires_at = trialEndIso;
+        updateData.trial_ends_at = trialEndIso;
+        updateData.has_used_trial = true;
+      }
+
       const { error } = await supabaseAdmin
         .from('profiles')
-        .update({ 
-          is_pro: true, 
-          subscription_tier: plan,
-          subscription_provider: 'razorpay',
-          subscription_id: subscription_id || payment_id,
-          subscription_expires_at: expiresAt,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', user.id);
 
       if (error) throw error;
@@ -234,7 +254,7 @@ serve(async (req) => {
 
       const { data: profile, error: profileErr } = await supabaseAdmin
         .from("profiles")
-        .select("subscription_id, subscription_provider, is_pro, subscription_tier")
+        .select("subscription_id, subscription_provider, is_pro, subscription_tier, trial_ends_at, subscription_expires_at")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -270,6 +290,7 @@ serve(async (req) => {
             .update({ 
               is_pro: false,
               subscription_tier: null,
+              subscription_status: "canceled",
               subscription_expires_at: new Date().toISOString(),
               updated_at: new Date().toISOString()
             })
@@ -281,8 +302,9 @@ serve(async (req) => {
         throw new Error(responseData.error ? responseData.error.description : "Failed to cancel subscription in Razorpay");
       }
 
-      const currentEnd = responseData.current_end;
-      const expiresAt = currentEnd ? new Date(currentEnd * 1000).toISOString() : new Date().toISOString();
+      const currentEnd = responseData.current_end || responseData.start_at;
+      const fallbackEnd = profile.trial_ends_at || profile.subscription_expires_at || new Date().toISOString();
+      const expiresAt = currentEnd ? new Date(currentEnd * 1000).toISOString() : fallbackEnd;
       const isStillActive = new Date(expiresAt) > new Date();
 
       await supabaseAdmin
@@ -291,6 +313,7 @@ serve(async (req) => {
           is_pro: isStillActive,
           subscription_tier: isStillActive ? profile.subscription_tier : null,
           subscription_provider: isStillActive ? "razorpay_cancelled" : "razorpay",
+          subscription_status: "canceled",
           subscription_expires_at: expiresAt,
           updated_at: new Date().toISOString()
         })

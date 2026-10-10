@@ -4,7 +4,7 @@
  */
 
 const REVENUECAT_IOS_API_KEY = "appl_colKSceOQdHfEjWTEocAwJkBjGj";
-const REVENUECAT_ANDROID_API_KEY = "test_jJwYMCBMjObenYRxyfglVMzOakP";
+const REVENUECAT_ANDROID_API_KEY = "goog_qcuCqfXZAYSQStRlwlEpuUrXFOw";
 const ENTITLEMENT_ID = "SoundEngg Pro"; // Match your entitlement ID set up in RevenueCat Dashboard
 
 window.billingManager = {
@@ -60,6 +60,26 @@ window.billingManager = {
             const customerInfo = await this.purchases.getCustomerInfo();
             this.updateUserEntitlements(customerInfo);
 
+            // Sync App Store storefront currency with regional pricing UI if no manual override is set
+            try {
+                if (!localStorage.getItem('soundengg-country-override')) {
+                    const prodRes = await this.purchases.getProducts({ productIdentifiers: ['com.soundengg.app.yearly'] });
+                    const firstProd = prodRes && prodRes.products && prodRes.products[0];
+                    if (firstProd && firstProd.currencyCode) {
+                        const isINRStorefront = firstProd.currencyCode.toUpperCase() === 'INR';
+                        if (window.isIndiaUser !== isINRStorefront) {
+                            console.log(`[Billing] Syncing regional pricing UI to App Store storefront currency (${firstProd.currencyCode})`);
+                            window.isIndiaUser = isINRStorefront;
+                            if (typeof window.initPricingPage === 'function') {
+                                window.initPricingPage(true);
+                            }
+                        }
+                    }
+                }
+            } catch (storefrontErr) {
+                console.warn("[Billing] Could not query storefront currency:", storefrontErr);
+            }
+
         } catch (err) {
             console.error("[Billing] Failed to initialize RevenueCat:", err);
         }
@@ -95,7 +115,9 @@ window.billingManager = {
             return;
         }
 
-        const isProEntitled = customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined;
+        const hasLifetimeProduct = Array.isArray(customerInfo.allPurchasedProductIdentifiers) &&
+            customerInfo.allPurchasedProductIdentifiers.includes('com.soundengg.app.lifetime');
+        const isProEntitled = customerInfo.entitlements.active[ENTITLEMENT_ID] !== undefined || hasLifetimeProduct;
 
         console.log(`[Billing] Entitlement check complete. Pro active: ${isProEntitled}`);
         
@@ -107,10 +129,11 @@ window.billingManager = {
 
         if (isProEntitled) {
             activeEntitled = customerInfo.entitlements.active[ENTITLEMENT_ID];
+            const prodId = (activeEntitled && activeEntitled.productIdentifier) ? activeEntitled.productIdentifier : (hasLifetimeProduct ? 'com.soundengg.app.lifetime' : '');
             // Match transaction product identifiers to determine monthly/yearly/lifetime tier
-            if (activeEntitled.productIdentifier.includes("lifetime")) {
+            if (prodId.includes("lifetime") || hasLifetimeProduct) {
                 window.userSubscriptionTier = "lifetime";
-            } else if (activeEntitled.productIdentifier.includes("yearly")) {
+            } else if (prodId.includes("yearly")) {
                 window.userSubscriptionTier = "yearly";
             } else {
                 window.userSubscriptionTier = "pro";
@@ -138,22 +161,38 @@ window.billingManager = {
                         .eq('id', user.id)
                         .single();
 
+                    const nativePlatform = (window.Capacitor && typeof window.Capacitor.getPlatform === 'function')
+                        ? window.Capacitor.getPlatform()
+                        : 'ios';
+                    const nativeProvider = nativePlatform === 'android' ? 'google_play' : 'apple_iap';
+
                     if (isProEntitled) {
+                        const syncedProdId = (activeEntitled && activeEntitled.productIdentifier) ? activeEntitled.productIdentifier : 'com.soundengg.app.lifetime';
+                        const syncedExpDate = (activeEntitled && activeEntitled.expirationDate) ? activeEntitled.expirationDate : null;
+                        const periodType = (activeEntitled && activeEntitled.periodType) ? String(activeEntitled.periodType).toUpperCase() : 'NORMAL';
+                        const isTrialPeriod = (periodType === 'TRIAL' || periodType === 'INTRO');
+                        const updatePayload = {
+                            is_pro: true,
+                            subscription_tier: targetTier,
+                            subscription_provider: nativeProvider,
+                            subscription_id: syncedProdId,
+                            subscription_status: isTrialPeriod ? 'trialing' : 'active',
+                            subscription_expires_at: syncedExpDate
+                        };
+                        if (isTrialPeriod && syncedExpDate) {
+                            updatePayload.trial_expires_at = syncedExpDate;
+                            updatePayload.trial_ends_at = syncedExpDate;
+                            updatePayload.has_used_trial = true;
+                        }
                         // If user is Pro in RevenueCat, always update Supabase
                         console.log(`[Billing] Syncing Pro status to Supabase for ${user.email}...`);
                         await window.supabaseClient
                             .from('profiles')
-                            .update({
-                                is_pro: true,
-                                subscription_tier: targetTier,
-                                subscription_provider: 'apple_iap',
-                                subscription_id: activeEntitled.productIdentifier,
-                                subscription_expires_at: activeEntitled.expirationDate || null
-                            })
+                            .update(updatePayload)
                             .eq('id', user.id);
-                    } else if (profile && profile.subscription_provider === 'apple_iap' && profile.is_pro) {
-                        // If they are no longer Pro on Apple, but the database still says Apple Pro, downgrade them
-                        console.log(`[Billing] Downgrading expired Apple subscription in Supabase...`);
+                    } else if (profile && (profile.subscription_provider === 'apple_iap' || profile.subscription_provider === 'google_play') && profile.is_pro) {
+                        // If they are no longer Pro on Apple/Google Play, but the database still says native Pro, downgrade them
+                        console.log(`[Billing] Downgrading expired ${nativeProvider} subscription in Supabase...`);
                         await window.supabaseClient
                             .from('profiles')
                             .update({
@@ -161,6 +200,7 @@ window.billingManager = {
                                 subscription_tier: 'free',
                                 subscription_provider: null,
                                 subscription_id: null,
+                                subscription_status: 'expired',
                                 subscription_expires_at: null
                             })
                             .eq('id', user.id);
@@ -178,16 +218,11 @@ window.billingManager = {
      */
     purchasePackage: async function(productIdentifier) {
         if (!this.isInitialized) {
-            const isAndroid = window.Capacitor && window.Capacitor.getPlatform() === 'android';
-            if (isAndroid) {
-                alert("In-App Purchases are currently available on iOS. You can access Pro features on our website at soundengg.com or unlock features instantly with short ads!");
-            } else {
-                alert("Billing system is currently initializing. Please try again in a moment.");
-            }
+            alert("Billing system is currently initializing. Please try again in a moment.");
             return { success: false, error: "Not initialized" };
         }
 
-        // Map abstract plan names ('monthly', 'yearly', 'lifetime') to real App Store Connect / Play Store IDs
+        // Map abstract plan names ('monthly', 'yearly', 'lifetime') to real App Store Connect / Play Console IDs
         const idMap = {
             'monthly': 'com.soundengg.app.monthly',
             'yearly': 'com.soundengg.app.yearly',
@@ -196,6 +231,33 @@ window.billingManager = {
         const resolvedProductId = idMap[productIdentifier.toLowerCase()] || productIdentifier;
 
         console.log(`[Billing] Requesting purchase of: ${productIdentifier} (mapped: ${resolvedProductId})...`);
+
+        // Check if this Apple ID / Google Play account already owns this specific product (e.g. Non-Consumable Lifetime)
+        const matchesResolvedProduct = (id) => {
+            if (!id) return false;
+            const norm = String(id).toLowerCase();
+            const target = resolvedProductId.toLowerCase();
+            return norm === target || norm.startsWith(target + ':');
+        };
+
+        let wasAlreadyOwned = false;
+        try {
+            const preInfo = await this.purchases.getCustomerInfo();
+            if (preInfo && Array.isArray(preInfo.allPurchasedProductIdentifiers)) {
+                wasAlreadyOwned = preInfo.allPurchasedProductIdentifiers.some(matchesResolvedProduct);
+            }
+        } catch (preErr) {
+            console.warn("[Billing] Pre-purchase customerInfo check failed:", preErr);
+        }
+
+        const verifyTargetOwned = (info) => {
+            if (!info) return false;
+            const inPurchasedList = Array.isArray(info.allPurchasedProductIdentifiers) &&
+                info.allPurchasedProductIdentifiers.some(matchesResolvedProduct);
+            const activeEnt = info.entitlements && info.entitlements.active && info.entitlements.active[ENTITLEMENT_ID];
+            const isEntitledForTarget = activeEnt && matchesResolvedProduct(activeEnt.productIdentifier);
+            return Boolean(inPurchasedList || isEntitledForTarget);
+        };
 
         // 1. Try to purchase using Offerings (RevenueCat standard flow)
         try {
@@ -207,7 +269,10 @@ window.billingManager = {
                     const target = productIdentifier.toLowerCase();
                     const resolvedTarget = resolvedProductId.toLowerCase();
                     
-                    return type === target || id === target || 
+                    return type === target || id === target || matchesResolvedProduct(id) ||
+                           (target === 'yearly' && (type === 'annual' || type === '$rc_annual')) ||
+                           (target === 'monthly' && (type === 'monthly' || type === '$rc_monthly')) ||
+                           (target === 'lifetime' && (type === 'lifetime' || type === '$rc_lifetime')) ||
                            type === resolvedTarget || id === resolvedTarget ||
                            type === ('$' + target) || type === target.replace('$', '') ||
                            type === ('$' + resolvedTarget) || type === resolvedTarget.replace('$', '');
@@ -216,8 +281,8 @@ window.billingManager = {
                 if (pkgToBuy) {
                     console.log(`[Billing] Found matching package in offerings. Launching package checkout...`);
                     const { customerInfo } = await this.purchases.purchasePackage({ aPackage: pkgToBuy });
-                    this.updateUserEntitlements(customerInfo);
-                    return { success: window.isUserPro, customerInfo };
+                    await this.updateUserEntitlements(customerInfo);
+                    return { success: verifyTargetOwned(customerInfo), alreadyOwned: wasAlreadyOwned, customerInfo };
                 }
             }
         } catch (offeringErr) {
@@ -234,8 +299,8 @@ window.billingManager = {
                 const productToBuy = products[0];
                 console.log(`[Billing] Found direct product: ${productToBuy.identifier}. Launching store product checkout...`);
                 const { customerInfo } = await this.purchases.purchaseStoreProduct({ product: productToBuy });
-                this.updateUserEntitlements(customerInfo);
-                return { success: window.isUserPro, customerInfo };
+                await this.updateUserEntitlements(customerInfo);
+                return { success: verifyTargetOwned(customerInfo), alreadyOwned: wasAlreadyOwned, customerInfo };
             }
             
             // 3. Throw clean exception if product is not found in local StoreKit database

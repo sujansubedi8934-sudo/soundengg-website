@@ -811,53 +811,61 @@ function showCheckoutConfirmModal(user, plan) {
     const existing = document.getElementById('checkout-confirm-modal');
     if (existing) existing.remove();
 
+    const nativePlatform = (window.isNativeMobile && window.isNativeMobile() && window.Capacitor && typeof window.Capacitor.getPlatform === 'function')
+        ? window.Capacitor.getPlatform()
+        : null;
+    const isIOSNative = nativePlatform === 'ios';
+    const isAndroidNative = nativePlatform === 'android';
+    const isNativeMobileApp = isIOSNative || isAndroidNative;
     const isTrialEligible = (plan === 'monthly' || plan === 'yearly');
-    let planTitle = "Lifetime Pro Access";
+    let planTitle = "Founder's Lifetime";
     let planCost = "₹1,999";
     let dueToday = window.isIndiaUser ? "₹0.00 (7-Day Free Trial)" : "$0.00 (7-Day Free Trial)";
 
     if (window.isIndiaUser) {
         if (plan === 'monthly') {
-            planTitle = "Monthly Pass (7-Day Free Trial)";
+            planTitle = "Monthly Pro Pass";
             planCost = "₹199 / month";
         } else if (plan === 'yearly') {
-            planTitle = "Yearly Pass (7-Day Free Trial)";
+            planTitle = "Yearly Pro Pass";
             planCost = "₹999 / year";
         } else {
-            planTitle = "Founder's Lifetime Access";
+            planTitle = "Founder's Lifetime";
             planCost = "₹1,999 (One-Time)";
         }
     } else {
         if (plan === 'monthly') {
-            planTitle = "Monthly Pass (7-Day Free Trial)";
+            planTitle = "Monthly Pro Pass";
             planCost = "$4.99 / month";
         } else if (plan === 'yearly') {
-            planTitle = "Yearly Pass (7-Day Free Trial)";
+            planTitle = "Yearly Pro Pass";
             planCost = "$29.99 / year";
         } else {
-            planTitle = "Founder's Lifetime Access";
+            planTitle = "Founder's Lifetime";
             planCost = "$69.00 (One-Time)";
         }
     }
 
-    const gatewayName = "Razorpay";
+    const gatewayLabel = isIOSNative
+        ? "Secured by Apple App Store"
+        : (isAndroidNative ? "Secured by Google Play" : "Secured by Razorpay Payment Gateway");
 
     const modal = document.createElement('div');
     modal.id = 'checkout-confirm-modal';
     modal.className = 'modal-overlay';
-    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,8,0.92); display: flex; align-items: center; justify-content: center; z-index: 10000; font-family: var(--font-mono), monospace; color: #fff;';
+    modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,5,8,0.92); display: flex; align-items: center; justify-content: center; z-index: 10000; font-family: var(--font-mono), monospace; color: #fff; padding: 12px; box-sizing: border-box;';
 
     const emailDisplay = user ? user.email : "Guest User (Device Local)";
     const guestNoticeHtml = !user ? `
-        <p style="font-size: 0.72rem; color: #ffaa00; margin-top: 1rem; line-height: 1.3; text-align: left; font-family: var(--font-mono); border: 1px dashed rgba(255, 170, 0, 0.3); padding: 8px; border-radius: 4px;">
-            ⚠️ <strong>Optional Registration:</strong> You can purchase as a guest. To access your purchase on other devices later, you can register an account in the profile menu at any time.
+        <p style="font-size: 0.7rem; color: #ffaa00; margin: 0.75rem 0 0 0; line-height: 1.3; text-align: left; font-family: var(--font-mono); border: 1px dashed rgba(255, 170, 0, 0.3); padding: 7px 8px; border-radius: 4px;">
+            ⚠️ <strong>Optional Registration:</strong> You can purchase as a guest. To access your purchase on other devices later, register an account in the profile menu anytime.
         </p>
     ` : "";
 
     const trialRowHtml = isTrialEligible ? `
-        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
-            <span style="font-size: 0.8rem; color: var(--text-dim);">DUE TODAY</span>
-            <span style="font-size: 0.85rem; color: #00ffcc; font-weight: bold;">${dueToday}</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+            <span style="font-size: 0.74rem; color: var(--text-dim); white-space: nowrap; flex-shrink: 0;">DUE TODAY</span>
+            <span style="font-size: 0.8rem; color: #00ffcc; font-weight: bold; text-align: right;">${dueToday}</span>
         </div>
     ` : "";
 
@@ -866,38 +874,38 @@ function showCheckoutConfirmModal(user, plan) {
     const actionBtnIcon = isTrialEligible ? "bolt" : "lock";
 
     modal.innerHTML = `
-        <div class="modal-content auth-modal-box" style="max-width: 440px; width: 90%; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">
-            <button id="btn-close-checkout-confirm" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px;"><span class="material-symbols-outlined">close</span></button>
+        <div class="modal-content auth-modal-box" style="display: block !important; gap: 0 !important; max-width: 420px; width: 94%; max-height: 88vh; overflow-y: auto; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); background: #0b0c10; padding: 1.5rem 1.25rem !important; border-radius: 12px; position: relative; box-sizing: border-box;">
+            <button id="btn-close-checkout-confirm" style="position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px; padding: 4px; line-height: 1;"><span class="material-symbols-outlined">close</span></button>
             
-            <div style="margin-bottom: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(20, 167, 181, 0.1); border: 2px dashed var(--primary);">
-                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--primary);">shopping_cart</span>
+            <div style="margin: 0 auto 0.85rem; display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: rgba(20, 167, 181, 0.1); border: 2px dashed var(--primary);">
+                <span class="material-symbols-outlined" style="font-size: 26px; color: var(--primary);">shopping_cart</span>
             </div>
             
-            <h2 style="font-family: var(--font-headline); font-size: 1.6rem; font-weight: bold; margin-bottom: 0.5rem; color: #fff; text-shadow: 0 0 10px rgba(20, 167, 181, 0.4);">Secure Checkout</h2>
-            <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.5rem; line-height: 1.4;">Unlock full acoustic precision. Review your purchase order details below:</p>
+            <h2 style="font-family: var(--font-headline); font-size: 1.4rem; font-weight: bold; margin: 0 0 0.35rem 0; color: #fff; text-shadow: 0 0 10px rgba(20, 167, 181, 0.4);">Secure Checkout</h2>
+            <p style="font-size: 0.78rem; color: var(--text-dim); margin: 0 0 1rem 0; line-height: 1.35;">Unlock full acoustic precision. Review your purchase order details below:</p>
             
-            <div style="text-align: left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 6px; padding: 1.2rem; margin-bottom: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-dim);">UPGRADE PLAN</span>
-                    <span style="font-size: 0.85rem; color: #fff; font-weight: bold; text-transform: uppercase;">${planTitle}</span>
+            <div style="text-align: left; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 0.9rem 1rem; margin-bottom: 1.1rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+                    <span style="font-size: 0.74rem; color: var(--text-dim); white-space: nowrap; flex-shrink: 0;">UPGRADE PLAN</span>
+                    <span style="font-size: 0.82rem; color: #fff; font-weight: bold; text-transform: uppercase; text-align: right;">${planTitle}</span>
                 </div>
                 ${trialRowHtml}
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-dim);">${priceLabelText}</span>
-                    <span style="font-size: 0.85rem; color: var(--primary); font-weight: bold;">${planCost}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 0.65rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem;">
+                    <span style="font-size: 0.74rem; color: var(--text-dim); white-space: nowrap; flex-shrink: 0;">${priceLabelText}</span>
+                    <span style="font-size: 0.82rem; color: var(--primary); font-weight: bold; text-align: right;">${planCost}</span>
                 </div>
-                <div style="display: flex; justify-content: space-between; padding-top: 0.25rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-dim);">ACCOUNT</span>
-                    <span style="font-size: 0.85rem; color: #fff; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; max-width: 200px;">${emailDisplay}</span>
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-top: 0.1rem;">
+                    <span style="font-size: 0.74rem; color: var(--text-dim); white-space: nowrap; flex-shrink: 0;">ACCOUNT</span>
+                    <span style="font-size: 0.8rem; color: #fff; text-align: right; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; min-width: 0; flex: 1;">${emailDisplay}</span>
                 </div>
                 ${guestNoticeHtml}
             </div>
             
-            <button id="btn-proceed-to-payment" style="width: 100%; border: none; padding: 14px; font-weight: bold; font-family: var(--font-mono); font-size: 0.95rem; cursor: pointer; border-radius: 4px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
-                <span class="material-symbols-outlined">${actionBtnIcon}</span> ${actionBtnLabel}
+            <button id="btn-proceed-to-payment" style="width: 100%; border: none; padding: 13px 14px; font-weight: bold; font-family: var(--font-mono); font-size: 0.88rem; cursor: pointer; border-radius: 6px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.45rem; transition: all 0.2s ease; box-sizing: border-box;">
+                <span class="material-symbols-outlined" style="font-size: 18px;">${actionBtnIcon}</span> <span>${actionBtnLabel}</span>
             </button>
-            <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 4px;">
-                <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">shield</span> Secured by ${gatewayName} Payment Gateway
+            <div style="font-size: 0.72rem; color: var(--text-dim); margin-top: 0.65rem; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">shield</span> ${gatewayLabel}
             </div>
         </div>
     `;
@@ -916,13 +924,15 @@ function showCheckoutConfirmModal(user, plan) {
         proceedBtn.disabled = true;
         proceedBtn.innerHTML = `<span class="material-symbols-outlined" style="animation: spin 1s infinite linear;">sync</span> LAUNCHING SECURE GATEWAY...`;
         
-        // Native mobile route: iOS uses RevenueCat App Store IAP, Android uses Razorpay/LemonSqueezy
-        const isIOSNative = window.isNativeMobile && window.isNativeMobile() && window.Capacitor && window.Capacitor.getPlatform() === 'ios';
-        if (isIOSNative) {
+        // Native mobile route: iOS uses Apple App Store IAP, Android uses Google Play Billing (both via RevenueCat)
+        if (isNativeMobileApp) {
             modal.remove();
             if (window.billingManager && typeof window.billingManager.purchasePackage === 'function') {
                 const res = await window.billingManager.purchasePackage(plan);
-                if (res.success) {
+                if (res.success && res.alreadyOwned) {
+                    const storeName = isAndroidNative ? "Google Play account" : "Apple ID";
+                    alert(`Your ${storeName} already owns this pass! Your Pro access has been restored and synced automatically.`);
+                } else if (res.success) {
                     alert("Thank you! Your Pro Upgrade was successful.");
                 } else if (res.error && res.error !== "Cancelled" && !res.error.includes("user cancelled")) {
                     alert("Transaction failed: " + res.error);
@@ -933,7 +943,7 @@ function showCheckoutConfirmModal(user, plan) {
             return;
         }
 
-        // Route to Razorpay for all web/Android checkouts (handles both INR and USD internationally)
+        // Route to Razorpay exclusively for Web checkouts (handles both INR and USD internationally)
         if (typeof Razorpay === 'undefined') {
             console.log("Loading Razorpay SDK dynamically...");
             const script = document.createElement('script');
