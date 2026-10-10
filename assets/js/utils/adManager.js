@@ -15,7 +15,7 @@ const ADMOB_IOS_REWARDED_TEST_ID = 'ca-app-pub-3940256099942544/1712485313';
 const ADMOB_ANDROID_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/8882338662';
 const ADMOB_IOS_INTERSTITIAL_ID = 'ca-app-pub-4117687060036448/6642471524';
 
-const USE_TEST_INTERSTITIAL_ADS = false; // Toggle to false to use your production AdMob unit!
+const USE_TEST_INTERSTITIAL_ADS = false; // Live production mode enabled for App Store and Google Play!
 const ADMOB_ANDROID_INTERSTITIAL_TEST_ID = 'ca-app-pub-3940256099942544/1033173712';
 const ADMOB_IOS_INTERSTITIAL_TEST_ID = 'ca-app-pub-3940256099942544/4411468910';
 
@@ -62,7 +62,7 @@ window.preloadNativeRewardedAd = async function preloadNativeRewardedAd() {
             adId = isAndroid ? ADMOB_ANDROID_REWARDED_ID : ADMOB_IOS_REWARDED_ID;
         }
         console.log('Preloading native rewarded ad with unit ID:', adId);
-        await AdMob.prepareRewardVideoAd({ adId: adId });
+        await AdMob.prepareRewardVideoAd({ adId: adId, isTesting: false });
         nativeRewardedAdLoaded = true;
     } catch (err) {
         console.error('Error preloading native rewarded video ad:', err);
@@ -118,18 +118,27 @@ window.showNativeRewardedAd = async function showNativeRewardedAd(onRewardCallba
             console.log('Native AdMob rewarded ad dismissed.');
             cleanup();
             window.preloadNativeRewardedAd();
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             if (onCloseCallback) onCloseCallback();
         });
 
         failLoadListener = await AdMob.addListener('onRewardedVideoAdFailedToLoad', (err) => {
             console.warn('Native AdMob failed to load:', err);
             cleanup();
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             if (onFailureCallback) onFailureCallback();
         });
 
         failShowListener = await AdMob.addListener('onRewardedVideoAdFailedToShow', (err) => {
             console.warn('Native AdMob failed to show:', err);
             cleanup();
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             if (onFailureCallback) onFailureCallback();
         });
 
@@ -141,6 +150,9 @@ window.showNativeRewardedAd = async function showNativeRewardedAd(onRewardCallba
     } catch (err) {
         console.error('Failed to show native AdMob rewarded ad:', err);
         cleanup();
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
         if (onFailureCallback) onFailureCallback();
     }
 };
@@ -168,7 +180,7 @@ window.preloadNativeInterstitialAd = async function preloadNativeInterstitialAd(
             adId = isAndroid ? ADMOB_ANDROID_INTERSTITIAL_ID : ADMOB_IOS_INTERSTITIAL_ID;
         }
         console.log('Preloading native interstitial ad with unit ID:', adId);
-        await AdMob.prepareInterstitial({ adId: adId });
+        await AdMob.prepareInterstitial({ adId: adId, isTesting: USE_TEST_INTERSTITIAL_ADS });
         nativeInterstitialAdLoaded = true;
     } catch (err) {
         console.error('Error preloading native interstitial ad:', err);
@@ -186,7 +198,7 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         try {
             const { AdMob } = window.Capacitor?.Plugins || {};
             if (AdMob) {
-                await AdMob.initialize({ requestTrackingAuthorization: false });
+                await AdMob.initialize({ requestTrackingAuthorization: false, testingDevices: [] });
                 window.isAdMobInitialized = true;
             } else {
                 if (onFailureCallback) onFailureCallback();
@@ -204,7 +216,7 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         return;
     }
 
-    let closeListener, failListener;
+    let closeListener, failListener, showListener;
     let isFinalized = false;
 
     const cleanup = () => {
@@ -212,6 +224,7 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         isFinalized = true;
         if (closeListener && typeof closeListener.remove === 'function') closeListener.remove();
         if (failListener && typeof failListener.remove === 'function') failListener.remove();
+        if (showListener && typeof showListener.remove === 'function') showListener.remove();
     };
 
     try {
@@ -221,17 +234,35 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
             return;
         }
 
+        // Hide any active in-app HTML loaders/overlays before native presentation to avoid trapping touches
+        const mobileLoader = document.getElementById('mobile-ad-loader');
+        if (mobileLoader) mobileLoader.classList.remove('active');
+        const lockModal = document.getElementById('ad-lock-modal');
+        if (lockModal) lockModal.classList.add('hidden');
+
         closeListener = await AdMob.addListener('interstitialAdDismissed', () => {
             console.log('Native AdMob interstitial dismissed.');
             cleanup();
             window.preloadNativeInterstitialAd();
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             if (onDismissedCallback) onDismissedCallback();
         });
 
         failListener = await AdMob.addListener('interstitialAdFailedToShow', (err) => {
             console.warn('Native AdMob interstitial failed to show:', err);
             cleanup();
+            document.body.classList.remove('modal-open');
+            document.body.style.overflow = '';
+            document.documentElement.style.overflow = '';
             if (onFailureCallback) onFailureCallback();
+        });
+
+        showListener = await AdMob.addListener('interstitialAdShowed', () => {
+            console.log('Native AdMob interstitial successfully showed on screen.');
+            const ml = document.getElementById('mobile-ad-loader');
+            if (ml) ml.classList.remove('active');
         });
 
         if (!nativeInterstitialAdLoaded) {
@@ -243,14 +274,34 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
             } catch (timeoutErr) {
                 console.warn('Ad preload timed out or failed, falling back gracefully:', timeoutErr);
                 cleanup();
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.documentElement.style.overflow = '';
                 if (onFailureCallback) onFailureCallback();
                 return;
             }
         }
+
+        // Temporarily pause active audio/tones and switch to standard .playback mode so AdMob video player has full AV focus
+        try {
+            if (typeof window.stopAlignmentLoop === 'function') window.stopAlignmentLoop();
+            if (typeof window.stopSignalGenerator === 'function') window.stopSignalGenerator();
+            if (typeof window.stopEarTrainingAudio === 'function') window.stopEarTrainingAudio();
+            const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
+            if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+                await audioPlugin.configureAudioSession({ category: 'playback', mode: 'default' });
+            }
+        } catch (e) {
+            console.warn('Pre-ad audio cleanup note:', e);
+        }
+
         await AdMob.showInterstitial();
     } catch (err) {
         console.error('Failed to show native AdMob interstitial:', err);
         cleanup();
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
         if (onFailureCallback) onFailureCallback();
     }
 };
@@ -277,27 +328,44 @@ function initAdManager() {
 
     if (!modal) return;
 
+    if (!window.isNativeMobile()) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+        const rewardModal = document.getElementById('ad-reward-modal');
+        if (rewardModal) {
+            rewardModal.style.display = 'none';
+            rewardModal.classList.remove('active');
+        }
+        const mobileLoader = document.getElementById('mobile-ad-loader');
+        if (mobileLoader) {
+            mobileLoader.style.display = 'none';
+            mobileLoader.classList.remove('active');
+        }
+    }
+
     if (window.isNativeMobile()) {
         console.log("Initializing native AdMob system inside Ad Manager...");
         try {
             const { AdMob } = window.Capacitor?.Plugins || {};
             if (AdMob) {
                 AdMob.initialize({
-                    requestTrackingAuthorization: false
-                }).then(() => {
+                    requestTrackingAuthorization: false,
+                    testingDevices: []
+                }).then(async () => {
                     console.log("AdMob successfully initialized!");
                     window.isAdMobInitialized = true;
                     window.preloadNativeInterstitialAd();
 
-                    // Immediately show native bottom banner on app start for free users
-                    if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
-                        console.log("Triggering native banner ad on startup...");
-                        window.showNativeBannerAd();
-                    }
-
                     // Register Banner Ad Event Listeners to guarantee clean layout bounds
                     try {
                         AdMob.addListener('bannerAdLoaded', () => {
+                            if (window.isPremiumActive() || window.isRtaFullscreenActive || (typeof window.isRtaViewOrFullscreenActive === 'function' && window.isRtaViewOrFullscreenActive())) {
+                                console.log("AdMob Banner Ad loaded while RTA/Pro active — hiding immediately.");
+                                if (typeof window.hideNativeBannerAd === 'function') {
+                                    window.hideNativeBannerAd();
+                                }
+                                return;
+                            }
                             console.log("AdMob Banner Ad loaded successfully.");
                             window.isNativeBannerActive = true;
                             document.body.classList.add('has-native-banner');
@@ -312,7 +380,8 @@ function initAdManager() {
                             if (!window.bannerRetryTimeout) {
                                 window.bannerRetryTimeout = setTimeout(() => {
                                     window.bannerRetryTimeout = null;
-                                    if (!window.isNativeBannerActive && !window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
+                                    const inRta = window.isRtaFullscreenActive || (typeof window.isRtaViewOrFullscreenActive === 'function' && window.isRtaViewOrFullscreenActive());
+                                    if (!window.isNativeBannerActive && !window.isPremiumActive() && !inRta && typeof window.showNativeBannerAd === 'function') {
                                         console.log("Retrying native banner ad after 45s cooldown...");
                                         window.showNativeBannerAd();
                                     }
@@ -323,24 +392,30 @@ function initAdManager() {
                         console.warn("Could not attach AdMob banner event listeners:", e);
                     }
 
-                    // App Tracking Transparency Delay Trigger (Guideline 2.1 Bypass)
-                    setTimeout(async () => {
+                    // iOS App Tracking Transparency: request ATT FIRST before triggering initial ad request
+                    // to eliminate duplicate requests and maximize iOS eCPM & fill rate.
+                    if (window.Capacitor?.getPlatform() === 'ios') {
                         try {
                             const trackingStatus = await AdMob.trackingAuthorizationStatus();
-                            console.log("App Tracking Transparency status:", trackingStatus.status);
-                            if (trackingStatus.status === 'notDetermined') {
+                            console.log("App Tracking Transparency initial status:", trackingStatus?.status);
+                            if (trackingStatus?.status === 'notDetermined') {
                                 console.log("Requesting App Tracking Transparency authorization...");
                                 const requestResult = await AdMob.requestTrackingAuthorization();
-                                console.log("App Tracking Transparency request result:", requestResult.status);
-                                // Reload banner ad immediately after ATT decision to maximize iOS fill rate
-                                if (!window.isPremiumActive() && typeof window.showNativeBannerAd === 'function') {
-                                    window.showNativeBannerAd();
-                                }
+                                console.log("App Tracking Transparency request result:", requestResult?.status);
                             }
                         } catch (e) {
-                            console.error("Failed to request App Tracking Transparency authorization:", e);
+                            console.warn("App Tracking Transparency authorization error:", e);
                         }
-                    }, 2000);
+                    }
+
+                    // Trigger the native bottom banner cleanly after initialization & ATT checks
+                    const inRtaNow = window.isRtaFullscreenActive || (typeof window.isRtaViewOrFullscreenActive === 'function' && window.isRtaViewOrFullscreenActive());
+                    if (!window.isPremiumActive() && !inRtaNow && typeof window.showNativeBannerAd === 'function') {
+                        console.log("Triggering native banner ad after AdMob initialization & ATT check...");
+                        window.showNativeBannerAd();
+                    } else if (inRtaNow && typeof window.hideNativeBannerAd === 'function') {
+                        window.hideNativeBannerAd();
+                    }
                 }).catch(err => {
                     console.error("AdMob initialization failed:", err);
                     window.isAdMobInitialized = false;
@@ -380,6 +455,9 @@ function initAdManager() {
     window.triggerMobileLock = triggerMobileLock;
     
     function triggerMobileLock() {
+        if (!window.isNativeMobile()) {
+            return;
+        }
         modal.classList.remove('hidden');
 
         if (navigator.onLine) {
@@ -407,28 +485,12 @@ function initAdManager() {
     }
 
     function triggerBrowserLock() {
-        modal.classList.remove('hidden');
-
-        if (navigator.onLine) {
-            stateOnline.classList.remove('hidden');
-            stateOffline.classList.add('hidden');
-            
-            // Restore display for standard desktop browser flow (which uses Google AdSense)
-            const videoAdContainer = modal.querySelector('.video-ad-container');
-            if (videoAdContainer) {
-                videoAdContainer.style.display = 'block';
-            }
-            
-            // Dynamically request AdSense render if available
-            try {
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            } catch (e) {}
-
-            startAdCountdown();
-        } else {
-            stateOnline.classList.add('hidden');
-            stateOffline.classList.remove('hidden');
+        // Disabled on web app: no ad popups
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
         }
+        return;
     }
 
     function unlockApp() {
@@ -455,7 +517,8 @@ function initAdManager() {
                     bottomBanner.classList.add('hidden');
                     bottomBanner.style.display = 'none';
                 }
-                if (!window.isPremiumActive()) {
+                const inRta = window.isRtaFullscreenActive || (typeof window.isRtaViewOrFullscreenActive === 'function' && window.isRtaViewOrFullscreenActive());
+                if (!window.isPremiumActive() && !inRta) {
                     if (typeof window.showNativeBannerAd === 'function') {
                         window.showNativeBannerAd(); // Show native bottom banner ad
                     }
@@ -472,7 +535,14 @@ function initAdManager() {
             }
         }
         
-        modal.classList.add('hidden');
+        if (typeof window.closeModal === 'function') {
+            window.closeModal(modal);
+        } else {
+            modal.classList.add('hidden');
+        }
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
 
         // Trigger any pending action that requested access
         if (typeof window.pendingAdAction === 'function') {
@@ -501,13 +571,29 @@ function initAdManager() {
         }
 
         console.log(`Access to ${featureName} is gated on mobile. Triggering direct mobile Interstitial ad...`);
+        let adGateDone = false;
+        const safetyTimer = setTimeout(() => {
+            if (!adGateDone) {
+                adGateDone = true;
+                console.warn(`Interstitial safety timer reached for ${featureName}. Unlocking tool gracefully.`);
+                safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString());
+                onSuccessCallback();
+            }
+        }, 15000);
+
         window.showNativeInterstitialAd(
             () => {
+                if (adGateDone) return;
+                adGateDone = true;
+                clearTimeout(safetyTimer);
                 console.log("Interstitial ad dismissed. Granting 2.5-minute cooldown...");
                 safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString()); 
                 onSuccessCallback();
             },
             () => {
+                if (adGateDone) return;
+                adGateDone = true;
+                clearTimeout(safetyTimer);
                 console.warn("Failed to show Interstitial ad. Granting access gracefully...");
                 safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString());
                 onSuccessCallback();
@@ -593,7 +679,7 @@ function initAdManager() {
         }
         const keyId = window.RAZORPAY_KEY_ID || RAZORPAY_PRODUCTION_KEY_ID;
         
-        let amount = 349900; // Default INR Lifetime
+        let amount = 199900; // Default INR Lifetime
         let currency = "INR";
         let planDescription = "Lifetime SoundEngg Pro Access";
 
@@ -601,25 +687,25 @@ function initAdManager() {
             currency = "INR";
             if (plan === 'monthly') {
                 amount = 19900;
-                planDescription = "Monthly SoundEngg Pro Subscription";
+                planDescription = "Monthly SoundEngg Pro Subscription (₹199/mo)";
             } else if (plan === 'yearly') {
-                amount = 199900;
-                planDescription = "Yearly SoundEngg Pro Subscription";
+                amount = 99900;
+                planDescription = "Yearly SoundEngg Pro Subscription (₹999/yr)";
             } else {
-                amount = 349900;
-                planDescription = "Lifetime SoundEngg Pro Access";
+                amount = 199900;
+                planDescription = "Lifetime SoundEngg Pro Access (₹1,999)";
             }
         } else {
             currency = "USD";
             if (plan === 'monthly') {
-                amount = 199;
-                planDescription = "Monthly SoundEngg Pro Subscription";
+                amount = 499;
+                planDescription = "Monthly SoundEngg Pro Subscription ($4.99/mo)";
             } else if (plan === 'yearly') {
-                amount = 1999;
-                planDescription = "Yearly SoundEngg Pro Subscription";
+                amount = 2999;
+                planDescription = "Yearly SoundEngg Pro Subscription ($29.99/yr)";
             } else {
-                amount = 3499;
-                planDescription = "Lifetime SoundEngg Pro Access";
+                amount = 6900;
+                planDescription = "Lifetime SoundEngg Pro Access ($69.00)";
             }
         }
 
@@ -718,7 +804,13 @@ function initAdManager() {
                         await syncSubscriptionStatus(session);
                         
                         const proUpgradeModal = document.getElementById('pro-upgrade-modal');
-                        if (proUpgradeModal) proUpgradeModal.classList.add('hidden');
+                        if (proUpgradeModal) {
+                            if (typeof window.closeModal === 'function') window.closeModal(proUpgradeModal);
+                            else proUpgradeModal.classList.add('hidden');
+                        }
+                        document.body.classList.remove('modal-open');
+                        document.body.style.overflow = '';
+                        document.documentElement.style.overflow = '';
                         
                         if (window.updatePremiumUI) {
                             window.updatePremiumUI();
@@ -795,3 +887,42 @@ function initAdManager() {
     // Run initial startup check to show lock overlay if cooldown is expired
     checkAdStatus();
 }
+
+// --- Global Lifecycle Scroll & Modal Recovery Guard ---
+// Ensures that returning from native AdActivities (interstitial/rewarded) or multitasking
+// never leaves document.body in a locked scrolling state.
+function restoreAppScrollState() {
+    const visibleModals = document.querySelectorAll('.modal-overlay:not(.hidden):not([style*="display: none"]), .mobile-ad-loader.active, .ad-modal.active');
+    if (visibleModals.length === 0) {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+    }
+}
+window.restoreAppScrollState = restoreAppScrollState;
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        setTimeout(restoreAppScrollState, 80);
+        setTimeout(restoreAppScrollState, 350);
+    }
+});
+
+window.addEventListener('focus', () => {
+    setTimeout(restoreAppScrollState, 80);
+    setTimeout(restoreAppScrollState, 350);
+});
+
+if (window.Capacitor?.Plugins?.App) {
+    try {
+        window.Capacitor.Plugins.App.addListener('appStateChange', (state) => {
+            if (state && state.isActive) {
+                setTimeout(restoreAppScrollState, 80);
+                setTimeout(restoreAppScrollState, 350);
+            }
+        });
+    } catch (e) {
+        console.warn("Capacitor App listener registration:", e);
+    }
+}
+
