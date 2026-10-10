@@ -17,17 +17,24 @@
             canvas.height = 1080;
             const ctx = canvas.getContext('2d');
 
+            const dec = data.precision === 2 ? 2 : 1;
             const zoneName = data.zoneName || 'Main PA ↔ Delay Tower 1';
             const venueName = data.venueName || 'FOH Live Sound Check';
-            const totalDelayMs = parseFloat(data.totalDelayMs || 0).toFixed(1);
-            const flightTimeMs = parseFloat(data.flightTimeMs || 0).toFixed(1);
+            const totalDelayMs = (data.totalDelayMs !== undefined && data.totalDelayMs !== null && String(data.totalDelayMs).includes('.'))
+                ? String(data.totalDelayMs)
+                : parseFloat(data.totalDelayMs || 0).toFixed(dec);
+            const flightTimeMs = (data.flightTimeMs !== undefined && data.flightTimeMs !== null && String(data.flightTimeMs).includes('.'))
+                ? String(data.flightTimeMs)
+                : parseFloat(data.flightTimeMs || 0).toFixed(dec);
             const haasMs = parseFloat(data.haasMs || 0).toFixed(1);
-            const distance = parseFloat(data.distance || 0).toFixed(1);
+            const distance = (data.distance !== undefined && data.distance !== null && String(data.distance).includes('.'))
+                ? String(data.distance)
+                : parseFloat(data.distance || 0).toFixed(dec);
             const unit = data.unit || 'm';
-            const equivDist = data.equivDist || (unit === 'm' ? (parseFloat(distance) * 3.28084).toFixed(1) + ' ft' : (parseFloat(distance) / 3.28084).toFixed(1) + ' m');
-            const temp = data.temp || '20';
+            const equivDist = data.equivDist || (unit === 'm' ? (parseFloat(distance) * 3.28084).toFixed(dec) + ' ft' : (parseFloat(distance) / 3.28084).toFixed(dec) + ' m');
+            const temp = data.temp || '22.0';
             const tempUnit = data.tempUnit || '°C';
-            const speed = data.speed || '343.4';
+            const speed = data.speed || '344.5';
             const dateStr = data.dateStr || new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
             // 1. Background Gradient
@@ -85,26 +92,31 @@
             ctx.fillStyle = '#94a3b8';
             ctx.font = '500 16px "SF Mono", Monaco, Consolas, monospace';
             ctx.letterSpacing = '2px';
-            ctx.fillText('// ACOUSTIC ALIGNMENT SPEC SHEET', 90, 142);
+            ctx.fillText(data.mode === 'autoping' ? '// ACOUSTIC AUTO-PING ETC SPEC SHEET' : '// ACOUSTIC ALIGNMENT SPEC SHEET', 90, 142);
 
             // Verified Badge (Top Right)
+            const badgeLabel = (data.burstStatus && data.burstStatus.includes('LOCKED'))
+                ? data.burstStatus.toUpperCase()
+                : 'ISO 9613-1 CAL';
+            const badgeW = Math.max(200, badgeLabel.length * 11 + 36);
+            const badgeX = 990 - badgeW;
             ctx.fillStyle = 'rgba(0, 255, 204, 0.12)';
             ctx.strokeStyle = '#00ffcc';
             ctx.lineWidth = 1.5;
             ctx.beginPath();
-            ctx.roundRect(790, 85, 200, 52, 26);
+            ctx.roundRect(badgeX, 85, badgeW, 52, 26);
             ctx.fill();
             ctx.stroke();
 
             ctx.fillStyle = '#00ffcc';
             ctx.font = 'bold 15px "SF Mono", monospace';
             ctx.textAlign = 'center';
-            ctx.fillText('ISO 9613-1 CAL', 890, 117);
+            ctx.fillText(badgeLabel, badgeX + badgeW / 2, 117);
             ctx.textAlign = 'left';
 
             // 5. Zone & Venue Metadata Header
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 36px "SF Pro Display", -apple-system, sans-serif';
+            ctx.font = 'bold 34px "SF Pro Display", -apple-system, sans-serif';
             ctx.fillText(zoneName.toUpperCase(), 90, 220);
 
             ctx.fillStyle = '#94a3b8';
@@ -112,9 +124,9 @@
             ctx.fillText(`VENUE: ${venueName.toUpperCase()}  |  DATE: ${dateStr.toUpperCase()}`, 90, 255);
 
             // 6. Center Hero Box: Oscilloscope Waveform & Big Number
-            const heroGrad = ctx.createLinearGradient(90, 290, 990, 630);
-            heroGrad.addColorStop(0, 'rgba(15, 23, 42, 0.9)');
-            heroGrad.addColorStop(1, 'rgba(8, 12, 22, 0.95)');
+            const heroGrad = ctx.createLinearGradient(90, 290, 990, 650);
+            heroGrad.addColorStop(0, 'rgba(15, 23, 42, 0.92)');
+            heroGrad.addColorStop(1, 'rgba(8, 12, 22, 0.96)');
             ctx.fillStyle = heroGrad;
             ctx.strokeStyle = 'rgba(0, 255, 204, 0.25)';
             ctx.lineWidth = 1.5;
@@ -123,90 +135,222 @@
             ctx.fill();
             ctx.stroke();
 
-            // Stylized Impulse Response Waveform Background inside Hero
-            ctx.save();
-            ctx.beginPath();
-            ctx.roundRect(90, 290, 900, 360, 16);
-            ctx.clip();
-
-            // Draw center zero line
-            const waveCenterY = 560;
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(110, waveCenterY);
-            ctx.lineTo(970, waveCenterY);
-            ctx.stroke();
-
-            // Main Arrival pulse (at x = 240)
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(130, waveCenterY);
-            ctx.lineTo(210, waveCenterY);
-            ctx.lineTo(230, waveCenterY - 45);
-            ctx.lineTo(240, waveCenterY + 60);
-            ctx.lineTo(250, waveCenterY - 20);
-            ctx.lineTo(270, waveCenterY);
-            ctx.lineTo(550, waveCenterY);
-            ctx.stroke();
-
-            // Delay speaker Arrival pulse (at x = 620)
-            ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(550, waveCenterY);
-            ctx.lineTo(600, waveCenterY);
-            ctx.lineTo(615, waveCenterY - 80);
-            ctx.lineTo(630, waveCenterY + 70);
-            ctx.lineTo(645, waveCenterY - 30);
-            ctx.lineTo(665, waveCenterY);
-            ctx.lineTo(950, waveCenterY);
-            ctx.stroke();
-
-            // Delta T indicator between peaks
-            ctx.strokeStyle = '#38bdf8';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(240, waveCenterY - 55);
-            ctx.lineTo(240, waveCenterY - 100);
-            ctx.lineTo(630, waveCenterY - 100);
-            ctx.lineTo(630, waveCenterY - 85);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            ctx.fillStyle = '#38bdf8';
-            ctx.font = 'bold 15px "SF Mono", monospace';
-            ctx.textAlign = 'center';
-            ctx.fillText(`Δt = ${totalDelayMs} ms`, (240 + 630) / 2, waveCenterY - 110);
-            ctx.textAlign = 'left';
-            ctx.restore();
-
             // Hero Main Text Label
             ctx.fillStyle = '#00ffcc';
             ctx.font = 'bold 16px "SF Mono", monospace';
             ctx.letterSpacing = '2px';
-            ctx.fillText('TARGET DELAY TIME SETTING', 130, 345);
+            ctx.fillText('TARGET DELAY TIME SETTING', 130, 338);
 
             // Glowing Main Delay Number
             ctx.shadowColor = 'rgba(0, 255, 204, 0.6)';
             ctx.shadowBlur = 25;
             ctx.fillStyle = '#00ffcc';
-            ctx.font = 'bold 96px "SF Mono", monospace';
+            ctx.font = 'bold 88px "SF Mono", monospace';
             const numWidth = ctx.measureText(`${totalDelayMs}`).width;
-            ctx.fillText(`${totalDelayMs}`, 130, 445);
+            ctx.fillText(`${totalDelayMs}`, 130, 428);
             ctx.shadowBlur = 0; // reset shadow
 
             // "ms" unit text
-            ctx.font = '36px "SF Pro Display", sans-serif';
+            ctx.font = '34px "SF Pro Display", sans-serif';
             ctx.fillStyle = '#64748b';
-            ctx.fillText('ms', 150 + numWidth, 420);
+            ctx.fillText('ms', 148 + numWidth, 408);
 
             // Secondary Sub-text in Hero Box
             ctx.fillStyle = '#cbd5e1';
-            ctx.font = '18px "SF Pro Display", -apple-system, sans-serif';
-            ctx.fillText(`Acoustic Transit: ${flightTimeMs} ms  •  Haas Precedence: +${haasMs} ms`, 130, 490);
+            ctx.font = '17px "SF Pro Display", -apple-system, sans-serif';
+            ctx.fillText(`Acoustic Transit: ${flightTimeMs} ms  •  Haas Precedence: +${haasMs} ms`, 130, 466);
+
+            // Draw either the real captured ETC waveform (Auto-Ping) or stylized dual-pulse graphic (Manual)
+            ctx.save();
+            ctx.beginPath();
+            ctx.roundRect(90, 290, 900, 360, 16);
+            ctx.clip();
+
+            const plotLeft = 125;
+            const plotRight = 955;
+            const plotW = plotRight - plotLeft;
+            const plotTop = 485;
+            const plotBottom = 622;
+            const plotH = plotBottom - plotTop;
+
+            if (data.etcCurve && data.etcCurve.length > 0 && data.p1 !== null && data.p1 !== undefined) {
+                const etc = data.etcCurve;
+                const p1 = data.p1;
+                const p2 = data.p2;
+                const sr = data.sampleRate || 48000;
+                const p1Idx = Math.max(0, p1);
+                const maxPeakIdx = (p2 !== null && p2 !== undefined && p2 > p1Idx) ? p2 : Math.min(etc.length - 1, p1Idx + Math.round(0.08 * sr));
+                const leadSamples = Math.round(0.006 * sr);
+                const winStart = Math.max(0, p1Idx - leadSamples);
+                const arrivalSpan = Math.max(1, maxPeakIdx - p1Idx);
+                const targetSpan = Math.max(Math.round(0.025 * sr), Math.round(arrivalSpan * 1.35));
+                const winLen = Math.max(1, Math.min(etc.length - winStart, targetSpan));
+                const step = winLen / plotW;
+
+                let localMax = 0;
+                for (let x = 0; x < plotW; x++) {
+                    const idx = Math.floor(winStart + x * step);
+                    const val = etc[idx] || 0;
+                    if (val > localMax) localMax = val;
+                }
+                const normScale = localMax > 0 ? 1.0 / localMax : 1.0;
+
+                // Subtle oscilloscope grid
+                ctx.strokeStyle = 'rgba(0, 240, 255, 0.06)';
+                ctx.lineWidth = 1;
+                for (let gx = plotLeft; gx <= plotRight; gx += 83) {
+                    ctx.beginPath(); ctx.moveTo(gx, plotTop); ctx.lineTo(gx, plotBottom); ctx.stroke();
+                }
+
+                // Translucent Cyan Fill under real ETC curve
+                ctx.beginPath();
+                ctx.moveTo(plotLeft, plotBottom);
+                for (let x = 0; x < plotW; x++) {
+                    const idx = Math.floor(winStart + x * step);
+                    const val = (etc[idx] || 0) * normScale;
+                    const comp = Math.sqrt(Math.max(0, Math.min(1.0, val)));
+                    const y = plotBottom - (comp * (plotH - 18));
+                    ctx.lineTo(plotLeft + x, y);
+                }
+                ctx.lineTo(plotRight, plotBottom);
+                ctx.closePath();
+                const etcGrad = ctx.createLinearGradient(0, plotTop, 0, plotBottom);
+                etcGrad.addColorStop(0, 'rgba(0, 240, 255, 0.42)');
+                etcGrad.addColorStop(0.7, 'rgba(0, 240, 255, 0.14)');
+                etcGrad.addColorStop(1, 'rgba(0, 240, 255, 0.02)');
+                ctx.fillStyle = etcGrad;
+                ctx.fill();
+
+                // Cyan ETC Contour
+                ctx.beginPath();
+                for (let x = 0; x < plotW; x++) {
+                    const idx = Math.floor(winStart + x * step);
+                    const val = (etc[idx] || 0) * normScale;
+                    const comp = Math.sqrt(Math.max(0, Math.min(1.0, val)));
+                    const y = plotBottom - (comp * (plotH - 18));
+                    if (x === 0) ctx.moveTo(plotLeft + x, y);
+                    else ctx.lineTo(plotLeft + x, y);
+                }
+                ctx.strokeStyle = '#00f0ff';
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+
+                // Baseline
+                ctx.strokeStyle = 'rgba(0, 240, 255, 0.3)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(plotLeft, plotBottom);
+                ctx.lineTo(plotRight, plotBottom);
+                ctx.stroke();
+
+                // Peak 1 Marker (Green - Target)
+                const x1 = plotLeft + ((p1 - winStart) / step);
+                if (x1 >= plotLeft && x1 <= plotRight) {
+                    ctx.strokeStyle = '#00ff78';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath(); ctx.moveTo(x1, plotTop); ctx.lineTo(x1, plotBottom); ctx.stroke();
+                    ctx.setLineDash([]);
+
+                    const tShort = (data.targetShortName || 'TARGET').toUpperCase();
+                    const flag1 = `TARGET: ${tShort} (t1)`;
+                    ctx.font = 'bold 12px "SF Mono", monospace';
+                    const f1W = ctx.measureText(flag1).width + 16;
+                    const f1X = Math.max(plotLeft, Math.min(plotRight - f1W, x1 + 6));
+                    ctx.fillStyle = 'rgba(0, 255, 120, 0.18)';
+                    ctx.fillRect(f1X, plotTop + 2, f1W, 22);
+                    ctx.strokeStyle = '#00ff78';
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(f1X, plotTop + 2, f1W, 22);
+                    ctx.fillStyle = '#00ff78';
+                    ctx.fillText(flag1, f1X + 8, plotTop + 17);
+                }
+
+                // Peak 2 Marker (Orange - Ref Main PA)
+                if (p2 !== null && p2 !== undefined && p2 > p1) {
+                    const x2 = plotLeft + ((p2 - winStart) / step);
+                    if (x2 >= plotLeft && x2 <= plotRight) {
+                        ctx.strokeStyle = '#ff9900';
+                        ctx.lineWidth = 2;
+                        ctx.setLineDash([4, 4]);
+                        ctx.beginPath(); ctx.moveTo(x2, plotTop); ctx.lineTo(x2, plotBottom); ctx.stroke();
+                        ctx.setLineDash([]);
+
+                        const flag2 = `REF: MAIN PA (+${flightTimeMs}ms)`;
+                        ctx.font = 'bold 12px "SF Mono", monospace';
+                        const f2W = ctx.measureText(flag2).width + 16;
+                        const f2X = Math.max(plotLeft, Math.min(plotRight - f2W, x2 + 6));
+                        ctx.fillStyle = 'rgba(255, 153, 0, 0.2)';
+                        ctx.fillRect(f2X, plotTop + 28, f2W, 22);
+                        ctx.strokeStyle = '#ff9900';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(f2X, plotTop + 28, f2W, 22);
+                        ctx.fillStyle = '#ff9900';
+                        ctx.fillText(flag2, f2X + 8, plotTop + 43);
+
+                        // Bottom Δt label
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = 'bold 13px "SF Mono", monospace';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(`Δt = ${totalDelayMs} ms (${distance} ${unit})`, (x1 + x2) / 2, plotBottom + 18);
+                        ctx.textAlign = 'left';
+                    }
+                }
+            } else {
+                // Stylized Impulse Response Waveform Background inside Hero (Manual Mode)
+                const waveCenterY = 565;
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(110, waveCenterY);
+                ctx.lineTo(970, waveCenterY);
+                ctx.stroke();
+
+                // Main Arrival pulse (at x = 240)
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(130, waveCenterY);
+                ctx.lineTo(210, waveCenterY);
+                ctx.lineTo(230, waveCenterY - 45);
+                ctx.lineTo(240, waveCenterY + 60);
+                ctx.lineTo(250, waveCenterY - 20);
+                ctx.lineTo(270, waveCenterY);
+                ctx.lineTo(550, waveCenterY);
+                ctx.stroke();
+
+                // Delay speaker Arrival pulse (at x = 620)
+                ctx.strokeStyle = '#00ffcc';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(550, waveCenterY);
+                ctx.lineTo(600, waveCenterY);
+                ctx.lineTo(615, waveCenterY - 80);
+                ctx.lineTo(630, waveCenterY + 70);
+                ctx.lineTo(645, waveCenterY - 30);
+                ctx.lineTo(665, waveCenterY);
+                ctx.lineTo(950, waveCenterY);
+                ctx.stroke();
+
+                // Delta T indicator between peaks
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([4, 4]);
+                ctx.beginPath();
+                ctx.moveTo(240, waveCenterY - 55);
+                ctx.lineTo(240, waveCenterY - 95);
+                ctx.lineTo(630, waveCenterY - 95);
+                ctx.lineTo(630, waveCenterY - 85);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = '#38bdf8';
+                ctx.font = 'bold 15px "SF Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Δt = ${totalDelayMs} ms (${distance} ${unit})`, (240 + 630) / 2, waveCenterY - 104);
+                ctx.textAlign = 'left';
+            }
+            ctx.restore();
 
             // 7. Quad Metrics Grid (4 Cards Below Hero)
             const cards = [
@@ -330,11 +474,11 @@
                             <div class="se-modal-controls">
                                 <div class="se-control-group">
                                     <label class="se-control-label" for="se-zone-input">Speaker / Zone Label</label>
-                                    <input type="text" id="se-zone-input" class="se-control-input" value="Main PA ↔ Delay Tower 1" maxlength="35" />
+                                    <input type="text" id="se-zone-input" class="se-control-input" value="Main PA ↔ Delay Tower 1" maxlength="38" />
                                 </div>
                                 <div class="se-control-group">
                                     <label class="se-control-label" for="se-venue-input">Venue / Stage Name</label>
-                                    <input type="text" id="se-venue-input" class="se-control-input" value="Festival Main Stage FOH" maxlength="35" />
+                                    <input type="text" id="se-venue-input" class="se-control-input" value="Festival Main Stage FOH" maxlength="38" />
                                 </div>
                                 <div class="se-btn-stack">
                                     <button type="button" id="se-btn-download-card" class="se-btn se-btn-primary">
@@ -368,6 +512,14 @@
 
             const currentData = { ...initialData };
 
+            // Populate input fields from initialData so actual measured Zone & Venue are displayed!
+            if (initialData && initialData.zoneName) {
+                zoneInput.value = initialData.zoneName;
+            }
+            if (initialData && initialData.venueName) {
+                venueInput.value = initialData.venueName;
+            }
+
             const render = () => {
                 currentData.zoneName = zoneInput.value || 'Main PA ↔ Delay Tower 1';
                 currentData.venueName = venueInput.value || 'FOH Live Sound Check';
@@ -388,39 +540,113 @@
             closeBtn.onclick = closeModal;
             backdrop.onclick = closeModal;
 
-            // 1. Download High-Res PNG
-            btnDownload.onclick = () => {
-                const link = document.createElement('a');
-                link.download = `soundengg-delay-${(zoneInput.value || 'alignment').toLowerCase().replace(/[^a-z0-9]/g, '-')}.png`;
-                link.href = previewCanvas.toDataURL('image/png');
-                link.click();
+            const getFileName = () => {
+                const slug = (zoneInput.value || 'alignment').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+                return `soundengg-delay-${slug || 'alignment'}.png`;
             };
 
-            // 2. Copy Image to Clipboard
+            const exportViaNativePlugin = async (mode = 'download') => {
+                const nativeExporter = window.Capacitor?.Plugins?.NativeAudioExport || window.Capacitor?.Plugins?.AudioSessionPlugin;
+                if (!nativeExporter) return false;
+                try {
+                    const dataUrl = previewCanvas.toDataURL('image/png');
+                    const base64Data = dataUrl.split(',')[1];
+                    const fileName = getFileName();
+                    const shareText = `Acoustic delay aligned to ${currentData.totalDelayMs} ms (${currentData.distance} ${currentData.unit} @ ${currentData.temp}${currentData.tempUnit}). Calibrated with SoundEngg.`;
+
+                    if (mode === 'download' && typeof nativeExporter.saveWavToDownloads === 'function') {
+                        await nativeExporter.saveWavToDownloads({
+                            base64Data,
+                            fileName,
+                            mimeType: 'image/png'
+                        });
+                        return true;
+                    } else if (typeof nativeExporter.shareWavFile === 'function') {
+                        await nativeExporter.shareWavFile({
+                            base64Data,
+                            fileName,
+                            mimeType: 'image/png',
+                            title: 'SoundEngg FOH Alignment Spec',
+                            text: shareText
+                        });
+                        return true;
+                    }
+                } catch (err) {
+                    console.warn('Native PNG export fallback:', err);
+                }
+                return false;
+            };
+
+            // 1. Download High-Res PNG (Native iOS/Android + Web)
+            btnDownload.onclick = async () => {
+                const origHtml = btnDownload.innerHTML;
+                if (window.isNativeMobile && window.isNativeMobile()) {
+                    btnDownload.innerHTML = '<span class="material-symbols-outlined">hourglass_top</span> Exporting PNG...';
+                    const handled = await exportViaNativePlugin('download');
+                    if (handled) {
+                        btnDownload.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Ready to Save / Share!';
+                        setTimeout(() => { btnDownload.innerHTML = origHtml; }, 2500);
+                        return;
+                    }
+                }
+                const link = document.createElement('a');
+                link.download = getFileName();
+                link.href = previewCanvas.toDataURL('image/png');
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                btnDownload.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Downloaded PNG!';
+                setTimeout(() => { btnDownload.innerHTML = origHtml; }, 2200);
+            };
+
+            // 2. Copy Image to Clipboard (with Native Mobile fallback)
             btnCopy.onclick = async () => {
+                const origHtml = btnCopy.innerHTML;
                 try {
                     previewCanvas.toBlob(async (blob) => {
                         if (!blob) return;
                         if (navigator.clipboard && window.ClipboardItem) {
-                            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                            btnCopy.innerHTML = '<span class="material-symbols-outlined">check</span> Copied to Clipboard!';
-                            setTimeout(() => {
-                                btnCopy.innerHTML = '<span class="material-symbols-outlined">content_copy</span> Copy Image';
-                            }, 2500);
-                        } else {
-                            alert('Clipboard image copy not supported in this browser. Please use Download PNG.');
+                            try {
+                                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+                                btnCopy.innerHTML = '<span class="material-symbols-outlined">check</span> Copied to Clipboard!';
+                                setTimeout(() => { btnCopy.innerHTML = origHtml; }, 2500);
+                                return;
+                            } catch (clipErr) {
+                                console.warn('ClipboardItem write restricted in WebView, falling back:', clipErr);
+                            }
                         }
-                    });
+                        // Fallback on native mobile WebViews where image clipboard is restricted: copy text spec + open native sheet
+                        const specSummary = `SoundEngg FOH Alignment Spec — ${currentData.zoneName}: ${currentData.totalDelayMs} ms (${currentData.distance} ${currentData.unit} @ ${currentData.temp}${currentData.tempUnit}, c=${currentData.speed} m/s)`;
+                        if (navigator.clipboard && navigator.clipboard.writeText) {
+                            try { await navigator.clipboard.writeText(specSummary); } catch (e) {}
+                        }
+                        if (window.isNativeMobile && window.isNativeMobile()) {
+                            await exportViaNativePlugin('share');
+                        }
+                        btnCopy.innerHTML = '<span class="material-symbols-outlined">check</span> Spec Copied!';
+                        setTimeout(() => { btnCopy.innerHTML = origHtml; }, 2500);
+                    }, 'image/png');
                 } catch (e) {
-                    alert('Clipboard write failed. Please use Download PNG.');
+                    if (window.isNativeMobile && window.isNativeMobile()) {
+                        await exportViaNativePlugin('share');
+                    }
                 }
             };
 
-            // 3. Web Share API
+            // 3. Native Share (Mobile / Instagram / AirDrop / WhatsApp)
             btnShare.onclick = async () => {
+                const origHtml = btnShare.innerHTML;
+                if (window.isNativeMobile && window.isNativeMobile()) {
+                    const handled = await exportViaNativePlugin('share');
+                    if (handled) {
+                        btnShare.innerHTML = '<span class="material-symbols-outlined">check</span> Share Sheet Opened';
+                        setTimeout(() => { btnShare.innerHTML = origHtml; }, 2200);
+                        return;
+                    }
+                }
                 if (navigator.share && previewCanvas.toBlob) {
                     previewCanvas.toBlob(async (blob) => {
-                        const file = new File([blob], 'soundengg-alignment-card.png', { type: 'image/png' });
+                        const file = new File([blob], getFileName(), { type: 'image/png' });
                         try {
                             await navigator.share({
                                 title: 'SoundEngg Delay Alignment Spec',
@@ -430,7 +656,7 @@
                         } catch (err) {
                             console.log('Share canceled or dismissed');
                         }
-                    });
+                    }, 'image/png');
                 } else {
                     btnDownload.click();
                 }

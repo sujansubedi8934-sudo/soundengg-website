@@ -432,56 +432,19 @@ function initAdManager() {
     }
 
     function lockApp() {
-        // Bypass completely on web browser
-        if (!window.isNativeMobile()) {
-            return;
-        }
-
-        if (appContent) appContent.classList.add('app-blurred');
-        if (sidebar) sidebar.classList.add('app-blurred');
-        if (bottomBanner) {
-            bottomBanner.classList.add('hidden');
-            bottomBanner.style.display = 'none';
-        }
-
-        console.log('Native Mobile detected. Triggering mobile lock modal flow...');
-        if (typeof window.hideNativeBannerAd === 'function') {
-            window.hideNativeBannerAd(); // Hide native bottom banner on locking screen
-        }
-        triggerMobileLock();
+        // Legacy #ad-lock-modal disabled (Option A): tools open directly and Pro features use #pro-upgrade-modal
+        unlockApp();
     }
 
     window.lockApp = lockApp;
     window.triggerMobileLock = triggerMobileLock;
     
     function triggerMobileLock() {
-        if (!window.isNativeMobile()) {
-            return;
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
         }
-        modal.classList.remove('hidden');
-
-        if (navigator.onLine) {
-            stateOnline.classList.remove('hidden');
-            stateOffline.classList.add('hidden');
-            
-            // Hide the video ad container (sponsor reward ad design) completely on native mobile when online
-            const videoAdContainer = modal.querySelector('.video-ad-container');
-            if (videoAdContainer) {
-                videoAdContainer.style.display = 'none';
-            }
-
-            // Eagerly preload interstitial ad in background so it displays instantly when tapped
-            if (!nativeInterstitialAdLoaded && typeof window.preloadNativeInterstitialAd === 'function') {
-                window.preloadNativeInterstitialAd();
-            }
-
-            // Enable the button by default on native mobile to watch ad
-            btnCloseAd.disabled = false;
-            btnCloseAd.innerHTML = '<span class="material-symbols-outlined" style="vertical-align: middle; margin-right: 4px;">play_circle</span> Watch Ad to Unlock';
-        } else {
-            stateOnline.classList.add('hidden');
-            stateOffline.classList.remove('hidden');
-        }
+        unlockApp();
     }
 
     function triggerBrowserLock() {

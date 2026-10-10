@@ -385,25 +385,10 @@ function setupNavigation() {
                 }
             }
 
-            // SCENARIO 1: First time launching any tool -> Show initial "Support SoundEngg" modal (Native mobile only)
+            // SCENARIO 1: First time launching any tool -> Open immediately without blocking popup (Option A)
             if (isTargetTool && !hasSeenFirstToolConsent && currentView !== targetView) {
-                if (window.isNativeMobile && window.isNativeMobile()) {
-                    console.log('[AdGate] First tool usage detected on mobile. Presenting initial Support SoundEngg modal...');
-                    window.pendingAdAction = () => {
-                        safeStorage.setItem('has_seen_first_tool_consent', 'true');
-                        safeStorage.setItem('tool_switch_count', '0');
-                        safeStorage.setItem('tools_unlocked_until', (Date.now() + 2.5 * 60 * 1000).toString()); // 2.5 min grace period
-                        showView(targetView, navButton, skipHistory, isBackAction, true);
-                    };
-                    if (typeof window.triggerMobileLock === 'function') {
-                        window.triggerMobileLock();
-                    } else if (typeof window.lockApp === 'function') {
-                        window.lockApp();
-                    }
-                    return;
-                } else {
-                    safeStorage.setItem('has_seen_first_tool_consent', 'true');
-                }
+                safeStorage.setItem('has_seen_first_tool_consent', 'true');
+                safeStorage.setItem('tool_switch_count', '0');
             }
 
             // SCENARIO 2: Returning to Dashboard from a tool -> Trigger Interstitial ad on every 2 tool switches after 2.5m cooldown

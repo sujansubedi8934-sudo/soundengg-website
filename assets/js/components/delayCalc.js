@@ -1857,7 +1857,7 @@ function initDelayCalc() {
             e.preventDefault();
             const t = tempInput.value;
             const u = tempUnitSelect.value;
-            const isMetric = window.globalUnitSystem === 'metric';
+            const isMetric = window.globalUnitSystem !== 'imperial';
             let effD = parseFloat(distInput.value) || 0;
             let zoneTitle = 'Delay Alignment Spec';
 
@@ -1867,24 +1867,26 @@ function initDelayCalc() {
                 effD = Math.max(0, parseFloat(m) - parseFloat(del));
                 zoneTitle = `Ref ${m}${isMetric ? 'm' : 'ft'} − Target ${del}${isMetric ? 'm' : 'ft'}`;
             } else {
-                zoneTitle = `Single Delay (${distInput.value}${isMetric ? 'm' : 'ft'})`;
+                zoneTitle = `Main PA ↔ Delay (${distInput.value}${isMetric ? 'm' : 'ft'})`;
             }
 
             const tempC = (u === 'F') ? (parseFloat(t) - 32) * 5/9 : parseFloat(t);
             const speed = isMetric ? window.AudioCalcs.calcSpeedOfSound(tempC) : window.AudioCalcs.calcSpeedOfSoundF(parseFloat(t));
-            const rawMs = (effD / speed) * 1000;
-            const totalMs = rawMs + selectedManualHaasMs;
+            const rawMs = effD > 0 ? (effD / speed) * 1000 : 0;
+            const totalMs = rawMs + (rawMs > 0 ? selectedManualHaasMs : 0);
 
             const cardData = {
+                mode: 'manual',
+                precision: 2,
                 zoneName: zoneTitle,
-                venueName: 'Live FOH Alignment Spec',
-                totalDelayMs: totalMs.toFixed(1),
-                flightTimeMs: rawMs.toFixed(1),
+                venueName: 'Festival Main Stage FOH',
+                totalDelayMs: totalMs.toFixed(2),
+                flightTimeMs: rawMs.toFixed(2),
                 haasMs: selectedManualHaasMs.toFixed(1),
-                distance: effD.toFixed(1),
+                distance: effD.toFixed(2),
                 unit: isMetric ? 'm' : 'ft',
-                equivDist: isMetric ? (effD * 3.28084).toFixed(1) + ' ft' : (effD / 3.28084).toFixed(1) + ' m',
-                temp: t,
+                equivDist: isMetric ? (effD * 3.28084).toFixed(2) + ' ft' : (effD / 3.28084).toFixed(2) + ' m',
+                temp: parseFloat(t || 22).toFixed(1),
                 tempUnit: `°${u}`,
                 speed: (isMetric ? speed : speed / 3.28084).toFixed(1)
             };
@@ -1900,27 +1902,66 @@ function initDelayCalc() {
     if (btnAutoPingShareCard) {
         btnAutoPingShareCard.addEventListener('click', (e) => {
             e.preventDefault();
-            const zoneSelect = document.getElementById('delay-zone-select');
-            const customInput = document.getElementById('delay-zone-custom-input');
-            const zoneName = (zoneSelect && zoneSelect.value === 'Custom' && customInput?.value) ? customInput.value : (zoneSelect ? zoneSelect.value : 'Acoustic Auto-Ping');
-            
-            const isMetric = window.globalUnitSystem === 'metric';
-            const measuredDelay = (typeof lastAutoPingResultMs !== 'undefined' && lastAutoPingResultMs !== null) ? lastAutoPingResultMs : 0;
-            const effSpeed = (typeof measuredSpeedOfSound !== 'undefined' && measuredSpeedOfSound) ? measuredSpeedOfSound : 343.4;
-            const equivDistMeters = (measuredDelay / 1000) * effSpeed;
+            const zoneName = typeof getSelectedZoneName === 'function'
+                ? getSelectedZoneName()
+                : ((document.getElementById('delay-zone-select')?.value === 'Custom' && document.getElementById('delay-zone-custom-input')?.value)
+                    ? document.getElementById('delay-zone-custom-input').value
+                    : (document.getElementById('delay-zone-select')?.value || 'Front Fill'));
+
+            const isMetric = window.globalUnitSystem !== 'imperial';
+            const stats = typeof getSpatialAverageData === 'function' ? getSpatialAverageData() : null;
+            const useSpatialAvg = stats && stats.enabledCount >= 2;
+            let rawDelayMs = useSpatialAvg
+                ? stats.avgMs
+                : (typeof measuredRawDelayMs === 'number' && measuredRawDelayMs > 0 ? measuredRawDelayMs : 0);
+
+            // Fallback: parse directly from DOM readout if variable was reset
+            if (rawDelayMs <= 0 && autoPingDelayOutput) {
+                const parsedDom = parseFloat(autoPingDelayOutput.textContent);
+                if (!isNaN(parsedDom) && parsedDom > 0) {
+                    rawDelayMs = Math.max(0, parsedDom - (typeof selectedHaasMs === 'number' ? selectedHaasMs : 0));
+                }
+            }
+
+            const haasOffset = typeof selectedHaasMs === 'number' ? selectedHaasMs : 0;
+            const totalDelay = rawDelayMs > 0 ? (rawDelayMs + haasOffset) : 0;
+
+            const gUnit = window.globalTempUnit || (tempUnitSelect ? tempUnitSelect.value : 'C');
+            const gTempC = typeof window.globalTempC === 'number'
+                ? window.globalTempC
+                : (tempInput ? ((gUnit === 'F') ? (parseFloat(tempInput.value) - 32) * 5 / 9 : parseFloat(tempInput.value)) : 22.0);
+            const displayTemp = gUnit === 'F' ? ((gTempC * 9 / 5) + 32).toFixed(1) : gTempC.toFixed(1);
+
+            const effSpeed = (typeof measuredSpeedOfSound === 'number' && measuredSpeedOfSound > 0)
+                ? measuredSpeedOfSound
+                : window.AudioCalcs.calcSpeedOfSound(gTempC);
+            const equivDistMeters = (totalDelay / 1000) * effSpeed;
+            const equivDistFeet = equivDistMeters * 3.28084;
+
+            const burstStatusText = autoPingStatus ? autoPingStatus.textContent.trim() : '';
 
             const cardData = {
-                zoneName: `AUTO-PING: ${zoneName.toUpperCase()}`,
-                venueName: 'SoundEngg 1-Mic Auto-Ping',
-                totalDelayMs: measuredDelay > 0 ? measuredDelay.toFixed(1) : '0.0',
-                flightTimeMs: measuredDelay > 0 ? measuredDelay.toFixed(1) : '0.0',
-                haasMs: '0.0',
-                distance: isMetric ? equivDistMeters.toFixed(1) : (equivDistMeters * 3.28084).toFixed(1),
+                mode: 'autoping',
+                precision: 2,
+                zoneName: `Main PA ↔ ${zoneName}`,
+                targetShortName: zoneName,
+                venueName: 'Festival Main Stage FOH',
+                totalDelayMs: totalDelay.toFixed(2),
+                flightTimeMs: rawDelayMs.toFixed(2),
+                haasMs: haasOffset.toFixed(1),
+                distance: isMetric ? equivDistMeters.toFixed(2) : equivDistFeet.toFixed(2),
                 unit: isMetric ? 'm' : 'ft',
-                equivDist: isMetric ? (equivDistMeters * 3.28084).toFixed(1) + ' ft' : equivDistMeters.toFixed(1) + ' m',
-                temp: (typeof currentGlobalTempC !== 'undefined' ? currentGlobalTempC : 20).toFixed(0),
-                tempUnit: '°C',
-                speed: effSpeed.toFixed(1)
+                equivDist: isMetric ? equivDistFeet.toFixed(2) + ' ft' : equivDistMeters.toFixed(2) + ' m',
+                temp: displayTemp,
+                tempUnit: `°${gUnit}`,
+                speed: effSpeed.toFixed(1),
+                burstStatus: burstStatusText,
+                etcCurve: lastDrawnEtc || null,
+                p1: lastDrawnP1,
+                p2: lastDrawnP2,
+                sampleRate: lastDrawnSampleRate || 48000,
+                windowStart: lastDrawnWindowStart || 0,
+                step: lastDrawnStep || 1
             };
 
             if (window.SoundEnggShareCard) {
