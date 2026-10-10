@@ -1,4 +1,4 @@
-const CACHE_NAME = 'soundengg-cache-v12.0';
+const CACHE_NAME = 'soundengg-cache-v18.1';
 
 // Critical assets to cache on install for full offline startup
 const URLS_TO_CACHE = [
@@ -15,6 +15,8 @@ const URLS_TO_CACHE = [
     '/assets/audio/soundengg-delay-alignment-click-48k.wav',
     // Core Modules
     '/assets/js/modules/utils.js',
+    '/assets/js/modules/venueEnvModal.js',
+    '/assets/js/modules/checkoutAndPlatform.js',
     '/assets/js/modules/theme.js',
     '/assets/js/modules/premium.js',
     '/assets/js/modules/billing.js',
@@ -22,10 +24,16 @@ const URLS_TO_CACHE = [
     '/assets/js/utils/audioCalcs.js',
     '/assets/js/utils/adManager.js',
     // Audio Tools Components
+    '/assets/js/components/transferFunctionEngine.js',
+    '/assets/js/components/rta/rtaDspMath.js',
+    '/assets/js/components/rta/rtaDataExport.js',
+    '/assets/js/components/rta/rtaAdController.js',
     '/assets/js/components/rtaEngine.js',
-    '/assets/js/components/tunerEngine.js',
+    '/assets/js/components/impedanceCalculator.js',
     '/assets/js/components/signalGenerator.js',
     '/assets/js/components/subCalc.js',
+    '/assets/js/components/delay/delaySignalSynth.js',
+    '/assets/js/components/delay/delayAcousticDsp.js',
     '/assets/js/components/delayCalc.js',
     '/assets/js/components/earTraining.js',
     '/assets/js/components/tapTempo.js',

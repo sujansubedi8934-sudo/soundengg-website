@@ -39,6 +39,14 @@
       "dest": "/assets/img/$1"
     },
     {
+      "src": "^/assets/audio/(.*)$",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable",
+        "Content-Disposition": "attachment; filename=\"$1\""
+      },
+      "dest": "/assets/audio/$1"
+    },
+    {
       "src": "/app",
       "headers": { "cache-control": "public, max-age=0, must-revalidate" },
       "dest": "/app.html"
@@ -77,6 +85,11 @@
       "src": "^/download/?$",
       "headers": { "cache-control": "public, max-age=0, must-revalidate" },
       "dest": "/download.html"
+    },
+    {
+      "src": "^/tools/([^/]+)/?$",
+      "headers": { "cache-control": "public, max-age=0, must-revalidate" },
+      "dest": "/tools/$1.html"
     },
     {
       "handle": "filesystem"

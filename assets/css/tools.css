@@ -401,7 +401,8 @@
     flex-direction: column;
 }
 
-.freq-labels {
+.freq-labels,
+.frequency-labels {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -410,12 +411,61 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 4px;
+    padding: 0;
     background: rgba(2, 2, 4, 0.92);
     border-top: 1px solid rgba(20, 167, 181, 0.25);
     z-index: 10;
     box-sizing: border-box;
     overflow: hidden;
+    transition: width 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.canvas-wrapper.fullscreen-canvas .freq-labels,
+.canvas-wrapper.fullscreen-canvas .frequency-labels,
+.canvas-wrapper.fullscreen-canvas #rta-labels,
+.canvas-wrapper.fullscreen-canvas #rta-frequency-labels {
+    bottom: var(--rta-safe-bottom, max(env(safe-area-inset-bottom, 0px), 22px)) !important;
+    left: var(--rta-safe-left, env(safe-area-inset-left, 0px)) !important;
+    width: calc(100% - var(--rta-safe-left, 0px) - var(--rta-safe-right, 0px)) !important;
+}
+
+.canvas-wrapper.layout-spl-history .freq-labels,
+.canvas-wrapper.layout-spl-history .frequency-labels,
+.canvas-wrapper.layout-dual-view .freq-labels,
+.canvas-wrapper.layout-dual-view .frequency-labels,
+.canvas-wrapper.layout-spl-history #rta-labels,
+.canvas-wrapper.layout-spl-history #rta-frequency-labels,
+.canvas-wrapper.layout-dual-view #rta-labels,
+.canvas-wrapper.layout-dual-view #rta-frequency-labels {
+    width: 64% !important;
+    padding: 0 !important;
+    border-right: 1.5px solid rgba(20, 167, 181, 0.25) !important;
+}
+
+.canvas-wrapper.fullscreen-canvas.layout-spl-history .freq-labels,
+.canvas-wrapper.fullscreen-canvas.layout-spl-history .frequency-labels,
+.canvas-wrapper.fullscreen-canvas.layout-dual-view .freq-labels,
+.canvas-wrapper.fullscreen-canvas.layout-dual-view .frequency-labels,
+.canvas-wrapper.fullscreen-canvas.layout-spl-history #rta-labels,
+.canvas-wrapper.fullscreen-canvas.layout-spl-history #rta-frequency-labels,
+.canvas-wrapper.fullscreen-canvas.layout-dual-view #rta-labels,
+.canvas-wrapper.fullscreen-canvas.layout-dual-view #rta-frequency-labels {
+    width: calc((100% - var(--rta-safe-left, 0px) - var(--rta-safe-right, 0px)) * 0.64) !important;
+}
+
+html.light .canvas-wrapper.layout-spl-history .freq-labels,
+html.light .canvas-wrapper.layout-spl-history .frequency-labels,
+html.light .canvas-wrapper.layout-dual-view .freq-labels,
+html.light .canvas-wrapper.layout-dual-view .frequency-labels,
+html.light .canvas-wrapper.layout-spl-history #rta-labels,
+html.light .canvas-wrapper.layout-spl-history #rta-frequency-labels,
+html.light .canvas-wrapper.layout-dual-view #rta-labels,
+html.light .canvas-wrapper.layout-dual-view #rta-frequency-labels {
+    border-right: 1.5px solid rgba(0, 0, 0, 0.15) !important;
+}
+
+html.light .analyzer-main {
+    background: #F0F2F5 !important;
 }
 
 .freq-label {
@@ -430,15 +480,35 @@
     min-width: 0;
 }
 
+html.light .freq-labels,
+html.light .frequency-labels {
+    background: rgba(235, 240, 245, 0.98) !important;
+    border-top: 1px solid rgba(0, 139, 159, 0.25) !important;
+}
+
+html.light .freq-label {
+    color: #475569 !important;
+}
+
 .freq-label.active-anchor {
     color: #00f2fe !important;
     font-weight: 700;
     text-shadow: 0 0 6px rgba(0, 242, 254, 0.45);
 }
 
+html.light .freq-label.active-anchor {
+    color: #007A8C !important;
+    font-weight: 700;
+    text-shadow: none !important;
+}
+
 .freq-label.dot-tick {
     color: rgba(0, 242, 254, 0.3) !important;
     font-size: 0.55rem;
+}
+
+html.light .freq-label.dot-tick {
+    color: rgba(0, 139, 159, 0.4) !important;
 }
 
 .pulse-glow {
@@ -848,6 +918,8 @@ html.light .vfd-input-wrap:focus-within {
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .train-source-btn.active, .train-boost-btn.active {

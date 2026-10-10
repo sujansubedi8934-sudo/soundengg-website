@@ -1,8 +1,29 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
     <title>SoundEngg: RTA & Audio Utility | Download Windows, Mac, iOS & Android</title>
     <meta name="description" content="Download SoundEngg: RTA & Audio Utility. The professional offline audio engineering console featuring 60fps RTA, phase alignment, acoustic delay calculators, and pinout references.">
     <link rel="canonical" href="https://www.soundengg.com/download.html">
@@ -35,6 +56,14 @@
             background-attachment: fixed;
         }
 
+        html.light body.download-page {
+            background-color: var(--background);
+            color: var(--text-main);
+            background-image: 
+                radial-gradient(circle at 50% 15%, rgba(20, 167, 181, 0.08) 0%, transparent 65%),
+                radial-gradient(circle at 85% 80%, rgba(14, 165, 233, 0.05) 0%, transparent 50%);
+        }
+
         .download-wrapper {
             flex: 1;
             display: flex;
@@ -45,7 +74,7 @@
         }
 
         .download-modal-card {
-            background: rgba(13, 17, 24, 0.82);
+            background: rgba(13, 17, 24, 0.88);
             border: 1px solid rgba(0, 242, 254, 0.28);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
@@ -60,6 +89,14 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
+        }
+
+        html.light .download-modal-card {
+            background: #FFFFFF;
+            border: 1px solid var(--outline);
+            box-shadow: 
+                0 20px 50px rgba(0, 0, 0, 0.07),
+                0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .download-modal-card::before {
@@ -89,6 +126,11 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             object-fit: cover;
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        html.light .app-official-icon {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+            border: 1px solid var(--outline);
         }
 
         .app-official-icon:hover {
@@ -125,6 +167,11 @@
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
         }
 
+        html.light .brand-title {
+            color: var(--text-heading);
+            text-shadow: none;
+        }
+
         .brand-subtitle {
             font-size: 0.95rem;
             font-weight: 600;
@@ -134,20 +181,28 @@
             text-transform: uppercase;
         }
 
+        html.light .brand-subtitle {
+            color: var(--primary);
+        }
+
         .brand-desc {
-            font-size: 0.88rem;
-            color: #94a3b8;
+            font-size: 0.9rem;
+            color: #CBD5E1;
             margin: 0 0 24px 0;
             line-height: 1.5;
             font-weight: 400;
+        }
+
+        html.light .brand-desc {
+            color: var(--text-muted);
         }
 
         .detection-pill {
             display: inline-flex;
             align-items: center;
             gap: 7px;
-            background: rgba(0, 242, 254, 0.08);
-            border: 1px solid rgba(0, 242, 254, 0.25);
+            background: rgba(0, 242, 254, 0.1);
+            border: 1px solid rgba(0, 242, 254, 0.3);
             color: #38bdf8;
             font-size: 0.78rem;
             font-weight: 700;
@@ -156,6 +211,12 @@
             margin-bottom: 24px;
             text-transform: uppercase;
             letter-spacing: 0.75px;
+        }
+
+        html.light .detection-pill {
+            background: rgba(20, 167, 181, 0.08);
+            border: 1px solid rgba(20, 167, 181, 0.3);
+            color: #0284c7;
         }
 
         .detection-pill .pulse-dot {
@@ -208,31 +269,51 @@
         }
 
         .dl-btn-glass {
-            background: rgba(255, 255, 255, 0.04);
-            color: #e2e8f0;
-            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.18);
             backdrop-filter: blur(8px);
         }
 
+        html.light .dl-btn-glass {
+            background: #F8FAFC;
+            color: #0F172A;
+            border: 1.5px solid var(--outline);
+        }
+
         .dl-btn-glass:hover {
-            background: rgba(0, 242, 254, 0.08);
-            border-color: rgba(0, 242, 254, 0.4);
+            background: rgba(0, 242, 254, 0.12);
+            border-color: rgba(0, 242, 254, 0.5);
             color: #00f2fe;
             transform: translateY(-2px);
         }
 
+        html.light .dl-btn-glass:hover {
+            background: #F1F5F9;
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
         .platform-grid-section {
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            border-top: 1px solid rgba(255, 255, 255, 0.12);
             padding-top: 20px;
+        }
+
+        html.light .platform-grid-section {
+            border-top: 1px solid var(--outline);
         }
 
         .platform-grid-label {
             font-size: 0.74rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: #64748b;
+            color: #94A3B8;
             margin-bottom: 12px;
             font-weight: 700;
+        }
+
+        html.light .platform-grid-label {
+            color: var(--text-muted);
         }
 
         .platform-chip-row {
@@ -246,9 +327,9 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #94a3b8;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #CBD5E1;
             padding: 6px 12px;
             border-radius: 8px;
             font-size: 0.8rem;
@@ -257,16 +338,32 @@
             font-weight: 500;
         }
 
+        html.light .platform-chip {
+            background: #F1F5F9;
+            color: #334155;
+            border: 1px solid var(--outline);
+        }
+
         .platform-chip:hover {
-            background: rgba(0, 242, 254, 0.1);
-            border-color: rgba(0, 242, 254, 0.35);
+            background: rgba(0, 242, 254, 0.12);
+            border-color: rgba(0, 242, 254, 0.4);
             color: #ffffff;
             transform: translateY(-1px);
+        }
+
+        html.light .platform-chip:hover {
+            background: #E2E8F0;
+            color: #0F172A;
+            border-color: var(--primary);
         }
 
         .platform-chip span.material-symbols-outlined {
             font-size: 16px;
             color: #00f2fe;
+        }
+
+        html.light .platform-chip span.material-symbols-outlined {
+            color: var(--primary);
         }
     </style>
 </head>
@@ -286,6 +383,16 @@
                 <a href="pro.html">Pro</a>
                 <a href="contact.html">Contact</a>
                 <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -375,7 +482,12 @@
             }
         });
     </script>
-    <!-- Adsterra Social Bar Ad Network -->
-    <script src="https://pl30998896.profitableratecpmnetwork.com/23/7e/18/237e18fffe2a57217a7bef22595f2c5f.js"></script>
+    <script src="assets/js/modules/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.applyAutoTheme === 'function') window.applyAutoTheme();
+            if (typeof window.setupThemeToggle === 'function') window.setupThemeToggle();
+        });
+    </script>
 </body>
 </html>

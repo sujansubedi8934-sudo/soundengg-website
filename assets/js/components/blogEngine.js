@@ -11,7 +11,10 @@ function initBlog() {
     let searchQuery = '';
 
     // Render all articles (Live and Placeholders)
-    function renderBlogList() {
+    function renderBlogList(categoryOverride) {
+        if (typeof categoryOverride === 'string' && categoryOverride.length > 0) {
+            currentCategory = categoryOverride;
+        }
         blogIndex.innerHTML = '';
 
         // Combine real articles and placeholders
@@ -76,6 +79,34 @@ function initBlog() {
             blogIndex.appendChild(card);
         });
     }
+    window.renderBlogList = renderBlogList;
+
+    function closeBlogArticleIfOpen() {
+        const blogViewEl = document.getElementById('blog-view');
+        const isBlogViewActive = blogViewEl && (blogViewEl.style.display === 'block' || window.getComputedStyle(blogViewEl).display === 'block');
+        if (isBlogViewActive && blogReader && blogReader.style.display !== 'none' && window.getComputedStyle(blogReader).display !== 'none') {
+            blogReader.style.display = 'none';
+            const searchContainer = document.querySelector('#blog-view .global-search-container');
+            if (searchContainer) searchContainer.style.display = 'block';
+            blogIndex.style.display = 'grid';
+            window.scrollTo(0, 0);
+            return true;
+        }
+        return false;
+    }
+    window.closeBlogArticleIfOpen = closeBlogArticleIfOpen;
+
+    function resetBlogToIndex() {
+        blogReader.style.display = 'none';
+        const searchContainer = document.querySelector('#blog-view .global-search-container');
+        if (searchContainer) searchContainer.style.display = 'block';
+        blogIndex.style.display = 'grid';
+        catBtns.forEach(b => b.classList.remove('active'));
+        const allBtn = document.querySelector('#blog-view .cat-btn[data-cat="all"]');
+        if (allBtn) allBtn.classList.add('active');
+        renderBlogList('all');
+    }
+    window.resetBlogToIndex = resetBlogToIndex;
 
     function openArticle(id) {
         const article = blogArticles.find(a => a.id === id);
@@ -102,21 +133,45 @@ function initBlog() {
                     }
 
                     if (viewKey) {
+                        const normalizedKey = viewKey.toLowerCase().trim().replace(/[-_]/g, '');
                         const viewMap = {
+                            // RTA Analyzer
                             'rta': document.getElementById('rta-view'),
+                            'rtaanalyzer': document.getElementById('rta-view'),
+                            // Delay Finder
                             'delay': document.getElementById('module-view'),
+                            'delayfinder': document.getElementById('module-view'),
+                            // Audio Pinouts
                             'pinout': document.getElementById('pinout-view'),
-                            'tuner': document.getElementById('tuner-view'),
+                            'pinouts': document.getElementById('pinout-view'),
+                            'audiopinouts': document.getElementById('pinout-view'),
+                            // Speaker Impedance
+                            'impedance': document.getElementById('impedance-view'),
+                            'speakerimpedance': document.getElementById('impedance-view'),
+                            // Subwoofer Array
                             'subcalc': document.getElementById('sub-calc-view'),
+                            'subwoofer': document.getElementById('sub-calc-view'),
+                            'subwooferarray': document.getElementById('sub-calc-view'),
+                            // Signal Generator
                             'siggen': document.getElementById('siggen-view'),
-                            'ear-training': document.getElementById('ear-training-view'),
+                            'signalgen': document.getElementById('siggen-view'),
+                            'signalgenerator': document.getElementById('siggen-view'),
+                            // Ear Training Lab
+                            'eartraining': document.getElementById('ear-training-view'),
+                            'ear': document.getElementById('ear-training-view'),
+                            // Tap Tempo Delay
+                            'tapdelay': document.getElementById('tap-delay-view'),
+                            'taptempo': document.getElementById('tap-delay-view'),
+                            'tap': document.getElementById('tap-delay-view'),
+                            // System views
                             'author': document.getElementById('author-view'),
                             'blog': document.getElementById('blog-view'),
                             'menu': document.getElementById('menu-view'),
-                            'settings': document.getElementById('settings-view')
+                            'settings': document.getElementById('settings-view'),
+                            'dashboard': document.getElementById('dashboard-view')
                         };
 
-                        const target = viewMap[viewKey];
+                        const target = viewMap[normalizedKey] || viewMap[viewKey.toLowerCase().trim()];
                         if (target && typeof window.showView === 'function') {
                             window.showView(target);
                         }
@@ -158,13 +213,7 @@ function initBlog() {
 
     if (backBtn) {
         backBtn.addEventListener('click', () => {
-            blogReader.style.display = 'none';
-            
-            // Show search container again when returning to index
-            const searchContainer = document.querySelector('#blog-view .global-search-container');
-            if (searchContainer) searchContainer.style.display = 'block';
-
-            blogIndex.style.display = 'grid';
+            closeBlogArticleIfOpen();
         });
     }
 

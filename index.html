@@ -1,7 +1,27 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
     <script>
+        // Synchronous Time-Based Theme initialization (Day: 06:00-17:59 -> Light, Night: 18:00-05:59 -> Dark)
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+
         // Redirect native mobile users instantly to app.html and replace history to avoid back loops
         if (typeof window !== 'undefined' && window.Capacitor !== undefined) {
             window.location.replace('app.html');
@@ -9,6 +29,7 @@
     </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
     <title>SoundEngg: RTA Audio Analyzer & Utilities</title>
     <meta name="description" content="SoundEngg is a professional audio engineering console featuring a precise Real-Time Analyzer (RTA), acoustic delay calculators, and connector pinout references.">
     <meta name="keywords" content="RTA, Real-Time Analyzer, audio engineering, sound engineer tools, delay calculator, subwoofer array calculator, ear training, pro audio pinouts, sound system tuning">
@@ -94,6 +115,7 @@
             </a>
             <div class="nav-links">
                 <a href="index.html">Home</a>
+                <a href="challenge.html" style="color: var(--primary); font-weight: 600;">Challenge</a>
                 <a href="about.html">About</a>
                 <a href="blog.html">Blog</a>
                 <a href="pro.html">Pro</a>
@@ -101,20 +123,31 @@
                 <a href="contact.html">Contact</a>
                 <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
-            <!-- Mobile View Navigation Select Dropdown -->
-            <div class="mobile-nav-dropdown-container">
-                <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
-                    <span class="landing-nav-active-label">MENU</span>
-                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
-                </button>
-                <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                    <a href="index.html" class="mobile-nav-item">HOME</a>
-                    <a href="about.html" class="mobile-nav-item">ABOUT</a>
-                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
-                    <a href="pro.html" class="mobile-nav-item">PRO</a>
-                    <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
-                    <a href="contact.html" class="mobile-nav-item">CONTACT</a>
-                    <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <!-- Mobile View Navigation Select Dropdown -->
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="index.html" class="mobile-nav-item">HOME</a>
+                        <a href="challenge.html" class="mobile-nav-item" style="color: var(--primary); font-weight: 600;">CHALLENGE</a>
+                        <a href="about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+                    </div>
                 </div>
             </div>
             <script>
@@ -168,7 +201,7 @@
     <section class="hero-section">
         <div class="hero-content">
             <h1 class="hero-title">Professional <span class="brand-teal-text">sound tools</span>, anywhere.</h1>
-            <p class="hero-subtitle">Empower your audio workflow on the go with SoundEngg. Precision, mobility, and real-time analysis at your fingertips. Built for live sound crews, fully functional offline.</p>
+            <p class="hero-subtitle">SoundEngg is the offline acoustic workstation for FOH & system engineers. Features 1-Mic Acoustic Auto-Ping delay alignment for delay towers and fills, 1/24-octave RTA, cardioid sub calculations, and 100% offline field tools. Includes 7-day free trial on iOS and Android.</p>
             <div class="hero-actions store-button-grid">
                 <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
                     <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
@@ -188,7 +221,7 @@
             </div>
         </div>
         <div class="hero-visual">
-            <!-- Option 2: Floating Glassmorphic QR Card above Phone Mockup -->
+            <!-- Floating Glassmorphic QR Card above Phone Mockup -->
             <div class="qr-floating-card brushed-metal rugged-bevel desktop-only-qr">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&color=00ffff&bgcolor=0c0e17&qzone=1&data=https%3A%2F%2Fsoundengg.com%2Fdownload" alt="Scan to download" class="qr-code">
                 <div class="qr-text">
@@ -200,7 +233,7 @@
             <div class="vfd-glass-panel phone-mockup">
                 <div class="vfd-panel-header">
                     <span class="status-dot green"></span>
-                    <span class="panel-title">LIVE ANALYZER // ACTIVE</span>
+                    <span class="panel-title">ACOUSTIC AUTO-PING // OSCILLOSCOPE ACTIVE</span>
                 </div>
                 <div class="phone-screen">
                     <canvas id="hero-oscilloscope-canvas"></canvas>
@@ -214,50 +247,75 @@
         <div class="container">
             <div class="section-header">
                 <h2>Everything you need for the perfect gig.</h2>
-                <p>Designed by engineers, for engineers. SoundEngg consolidates your messy spreadsheets into one lightning-fast interface.</p>
+                <p>Designed by engineers, for engineers. SoundEngg consolidates complex acoustic calculations into a fast, 100% offline workstation.</p>
             </div>
             
             <div class="feature-grid">
-                <!-- Feature 1 -->
+                <!-- Feature 1: Flagship Auto-Ping -->
+                <div class="feature-card card-delay">
+                    <div class="feature-icon"><span class="material-symbols-outlined">radar</span></div>
+                    <h3>Acoustic Auto-Ping Delay Finder</h3>
+                    <p>Time-align full-range Delay Towers, Front-Fills, Under-Balcony, and Outfills in seconds. Uses built-in phone mic deconvolution and calibrated FOH pulse without bulky audio interfaces.</p>
+                    <a href="tools/delay-finder.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
+                </div>
+
+                <!-- Feature 2: RTA -->
                 <div class="feature-card card-rta">
                     <div class="feature-icon"><span class="material-symbols-outlined">equalizer</span></div>
-                    <h3>RTA Spectrum Analyzer</h3>
-                    <p>Professional-grade Real-Time Analysis with high-resolution visual feedback for precision system tuning and feedback frequency hunting.</p>
+                    <h3>1/24-Octave Lab-Grade RTA</h3>
+                    <p>Real-Time Spectrum Analyzer from 1/1 to 1/24 octave resolution, 16,384-pt FFT, 7 scientific windows, feedback frequency detection with 31-band EQ callouts, and 4 reference memory traces.</p>
+                    <a href="tools/rta-analyzer.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
                 </div>
-                
-                <!-- Feature 2 -->
-                <div class="feature-card card-delay">
-                    <div class="feature-icon"><span class="material-symbols-outlined">speed</span></div>
-                    <h3>Delay & Time Alignment</h3>
-                    <p>Align mains to subs or delay towers with temperature-compensated precision calculations. Perfect system phase alignment.</p>
+
+                <!-- Feature 3: Ear Training -->
+                <div class="feature-card card-ear">
+                    <div class="feature-icon"><span class="material-symbols-outlined">hearing</span></div>
+                    <h3>1/3 & 1/6 Octave Ear Training Lab</h3>
+                    <p>Train your ears on 1/1, 1/3, and surgical 1/6 octave ISO frequency bands with Pink Noise, sweeps, or your own uploaded reference audio tracks. Master feedback identification and console EQ cuts.</p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;">
+                        <a href="tools/ear-training.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
+                        <a href="challenge.html" class="feature-explore-link" style="color: var(--primary); font-weight: 700;">★ Take Golden Ears Challenge &rarr;</a>
+                    </div>
                 </div>
-                
-                <!-- Feature 3 -->
-                <div class="feature-card card-subs">
-                    <div class="feature-icon"><span class="material-symbols-outlined">speaker</span></div>
-                    <h3>Subwoofer Array Designer</h3>
-                    <p>Mathematically perfect Cardioid and Broadside configurations. Includes presets for d&b CSA, Gradient, and L-Acoustics arrays.</p>
-                </div>
-                
-                <!-- Feature 4 -->
-                <div class="feature-card card-pinout">
-                    <div class="feature-icon"><span class="material-symbols-outlined">settings_input_component</span></div>
-                    <h3>Audio Pinout Reference</h3>
-                    <p>Quick wiring reference sheets and terminal guides for standard professional connectors including XLR, Speakon, RJ45, and TRS.</p>
-                </div>
-                
-                <!-- Feature 5 -->
+
+                <!-- Feature 4: Signal Gen -->
                 <div class="feature-card card-siggen">
                     <div class="feature-icon"><span class="material-symbols-outlined">graphic_eq</span></div>
-                    <h3>Signal Generator</h3>
-                    <p>Built-in oscillator providing Sine waves, Pink Noise, and White Noise to instantly test PA systems and verify signal flow.</p>
+                    <h3>Calibrated Signal Generator</h3>
+                    <p>Sine, Square, Triangle, calibrated Pink & White Noise, 20 Hz – 20 kHz logarithmic sweeps, speaker polarity phase pops, and FOH 1.0 kHz alignment pulse.</p>
+                    <a href="tools/signal-generator.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
                 </div>
-                
-                <!-- Feature 6 -->
-                <div class="feature-card card-offline">
-                    <div class="feature-icon"><span class="material-symbols-outlined">wifi_off</span></div>
-                    <h3>100% Offline Mode</h3>
-                    <p>Access your calculations, references, and diagnostics in venues with zero internet connectivity. Fully operational offline.</p>
+
+                <!-- Feature 5: Cable Pinouts -->
+                <div class="feature-card card-pinout">
+                    <div class="feature-icon"><span class="material-symbols-outlined">settings_input_component</span></div>
+                    <h3>Audio Pinouts & Continuity</h3>
+                    <p>Interactive wiring diagrams and multimeter diagnostic guides for XLR, Speakon NL2/4/8, RJ45 Dante/AES50, AES72 Quad Cat5, DB25 Tascam/Yamaha, and TRS.</p>
+                    <a href="tools/audio-pinouts.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
+                </div>
+
+                <!-- Feature 6: Impedance -->
+                <div class="feature-card card-impedance">
+                    <div class="feature-icon"><span class="material-symbols-outlined">electric_bolt</span></div>
+                    <h3>Speaker Impedance & Cable Loss</h3>
+                    <p>Series, Parallel, and Series-Parallel load calculations with dynamic wiring schematics, AWG/mm² cable insertion loss, and amplifier headroom safety margins.</p>
+                    <a href="tools/speaker-impedance.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
+                </div>
+
+                <!-- Feature 7: Tap Tempo -->
+                <div class="feature-card card-tempo">
+                    <div class="feature-icon"><span class="material-symbols-outlined">touch_app</span></div>
+                    <h3>Live BPM Tap Tempo</h3>
+                    <p>Instant BPM to millisecond delay time calculator. Computes standard, dotted, and triplet rhythmic subdivisions for reverb pre-delay and FX synchronization.</p>
+                    <a href="tools/tap-tempo.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
+                </div>
+
+                <!-- Feature 8: Sub Array (De-emphasized / End of grid) -->
+                <div class="feature-card card-subs">
+                    <div class="feature-icon"><span class="material-symbols-outlined">speaker</span></div>
+                    <h3>Subwoofer Array Calculator</h3>
+                    <p>Physical spacing dimensions and electronic delay calculations for Cardioid Gradient, CSA, End-Fire (2, 3, 4 subs), and Broadside subwoofer arrays.</p>
+                    <a href="tools/subwoofer-array.html" class="feature-explore-link">Explore Tool &amp; Guide &rarr;</a>
                 </div>
             </div>
         </div>
@@ -309,11 +367,11 @@
                     <p>Our mission is to provide free, high-fidelity engineering knowledge and tools that empower the next generation of sound engineers to master the physics of sound.</p>
                     <div class="about-stats">
                         <div class="stat-item">
-                            <span class="stat-number">15+</span>
-                            <span class="stat-label">Precision Tools</span>
+                            <span class="stat-number">8</span>
+                            <span class="stat-label">Core Field Tools</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-number">25+</span>
+                            <span class="stat-number">101</span>
                             <span class="stat-label">Engineering Articles</span>
                         </div>
                         <div class="stat-item">
@@ -414,18 +472,23 @@
                 </div>
             </div>
             <div class="footer-col">
-                <h4>QUICK_TOOLS</h4>
+                <h4>FIELD_TOOLS</h4>
                 <ul>
-                    <li><a href="app.html">Titan Console</a></li>
-                    <li><a href="app.html?view=rta">RTA Analyser</a></li>
-                    <li><a href="app.html?view=subcalc">Subwoofer Arrays</a></li>
-                    <li><a href="app.html?view=delay">Delay Calc</a></li>
+                    <li><a href="tools/delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="tools/rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="tools/ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="tools/signal-generator.html">Signal Generator</a></li>
+                    <li><a href="tools/audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="tools/speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tools/tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="tools/subwoofer-array.html">Subwoofer Array Calc</a></li>
                 </ul>
             </div>
             <div class="footer-col">
                 <h4>KNOWLEDGE</h4>
                 <ul>
                     <li><a href="index.html">Home</a></li>
+                    <li><a href="challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
                     <li><a href="blog.html">Engineering Blog</a></li>
                     <li><a href="about.html">About Us</a></li>
                     <li><a href="contact.html">Contact Us</a></li>
@@ -665,49 +728,95 @@
               }
               
               // Center axes
-              ctx.strokeStyle = 'rgba(20, 167, 181, 0.15)';
+              ctx.strokeStyle = 'rgba(20, 167, 181, 0.2)';
               ctx.beginPath();
               ctx.moveTo(0, h / 2);
               ctx.lineTo(w, h / 2);
               ctx.stroke();
-              ctx.beginPath();
-              ctx.moveTo(w / 2, 0);
-              ctx.lineTo(w / 2, h);
-              ctx.stroke();
+
+              // Dynamic Dual-Arrival Wavefront Simulation (Acoustic Auto-Ping)
+              offset += 0.035;
               
-              // 2. Draw multiple waves
-              offset += 0.04;
-              
-              // Base sine wave
-              ctx.strokeStyle = '#14A7B5';
-              ctx.shadowColor = '#14A7B5';
-              ctx.shadowBlur = 6;
-              ctx.lineWidth = 2;
+              const p1X = w * 0.26;
+              const p2X = w * 0.64;
+              const pulseCycle = (Math.sin(offset * 1.5) + 1) * 0.5; // breathing pulse amplitude
+
+              // Waveform Envelope
+              ctx.strokeStyle = '#00F0FF';
+              ctx.shadowColor = '#00F0FF';
+              ctx.shadowBlur = 8;
+              ctx.lineWidth = 2.2;
               ctx.beginPath();
+
               for (let x = 0; x < w; x++) {
-                  const angle = (x / w) * Math.PI * 4 + offset;
-                  const y = h / 2 + Math.sin(angle) * 30 * Math.sin(offset * 0.2 + x / w);
+                  // Background acoustic floor noise
+                  let yOffset = Math.sin(x * 0.12 + offset * 3) * 3 + (Math.sin(x * 0.35 - offset * 2) * 1.5);
+
+                  // Peak 1: Primary Main PA Arrival
+                  const dist1 = Math.abs(x - p1X);
+                  if (dist1 < 36) {
+                      const env1 = Math.exp(-dist1 * 0.12);
+                      const osc1 = Math.sin(dist1 * 0.95);
+                      yOffset += env1 * osc1 * 54 * (0.8 + 0.2 * pulseCycle);
+                  }
+
+                  // Peak 2: Secondary Fill Arrival (t2)
+                  const dist2 = Math.abs(x - p2X);
+                  if (dist2 < 42) {
+                      const env2 = Math.exp(-dist2 * 0.10);
+                      const osc2 = Math.sin(dist2 * 0.90);
+                      yOffset += env2 * osc2 * 42 * (0.8 + 0.2 * pulseCycle);
+                  }
+
+                  const y = h / 2 - yOffset;
                   if (x === 0) ctx.moveTo(x, y);
                   else ctx.lineTo(x, y);
               }
               ctx.stroke();
-              
-              // Sub-harmonic wave
-              ctx.strokeStyle = '#00ffcc';
-              ctx.shadowColor = '#00ffcc';
-              ctx.shadowBlur = 4;
-              ctx.lineWidth = 1.2;
-              ctx.beginPath();
-              for (let x = 0; x < w; x++) {
-                  const angle = (x / w) * Math.PI * 8 - offset * 1.5;
-                  const y = h / 2 + Math.cos(angle) * 15 * Math.sin(offset * 0.5 - x / w);
-                  if (x === 0) ctx.moveTo(x, y);
-                  else ctx.lineTo(x, y);
-              }
-              ctx.stroke();
-              
-              // Reset shadow
+
+              // Delta Reticle & Time Marker between Peak 1 & Peak 2
               ctx.shadowBlur = 0;
+              ctx.strokeStyle = 'rgba(0, 255, 204, 0.4)';
+              ctx.setLineDash([4, 4]);
+              ctx.lineWidth = 1;
+
+              // Peak 1 marker line
+              ctx.beginPath();
+              ctx.moveTo(p1X, h * 0.15);
+              ctx.lineTo(p1X, h * 0.85);
+              ctx.stroke();
+
+              // Peak 2 marker line
+              ctx.beginPath();
+              ctx.moveTo(p2X, h * 0.15);
+              ctx.lineTo(p2X, h * 0.85);
+              ctx.stroke();
+              ctx.setLineDash([]);
+
+              // Horizontal Delta Arrow
+              ctx.strokeStyle = '#00FFCC';
+              ctx.fillStyle = '#00FFCC';
+              ctx.lineWidth = 1.2;
+              const reticleY = h * 0.22;
+              ctx.beginPath();
+              ctx.moveTo(p1X + 4, reticleY);
+              ctx.lineTo(p2X - 4, reticleY);
+              ctx.stroke();
+
+              // Readout telemetry banner
+              ctx.font = '600 10px "Space Grotesk", monospace';
+              ctx.textAlign = 'center';
+              ctx.fillText('MAIN PA (t1)', p1X, h * 0.92);
+              ctx.fillText('DELAY FILL (t2)', p2X, h * 0.92);
+              
+              ctx.font = '700 11px "Space Grotesk", monospace';
+              ctx.fillText('Δt: 24.65 ms (8.45 m)', (p1X + p2X) / 2, reticleY - 6);
+
+              // Level Guard indicator badge
+              ctx.textAlign = 'left';
+              ctx.font = '700 9px "Space Grotesk", monospace';
+              ctx.fillStyle = 'rgba(0, 255, 204, 0.9)';
+              ctx.fillText('LEVEL GUARD: NOMINAL • 1.0 kHz FOH PULSE', 12, h - 10);
               
               requestAnimationFrame(draw);
           }
@@ -715,7 +824,16 @@
           draw();
       }
     </script>
-    <!-- Adsterra Social Bar Ad Network -->
-    <script src="https://pl30998896.profitableratecpmnetwork.com/23/7e/18/237e18fffe2a57217a7bef22595f2c5f.js"></script>
+    <script src="assets/js/modules/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.applyAutoTheme === 'function') {
+                window.applyAutoTheme();
+            }
+            if (typeof window.setupThemeToggle === 'function') {
+                window.setupThemeToggle();
+            }
+        });
+    </script>
 </body>
 </html>

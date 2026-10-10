@@ -1,6 +1,26 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>Terms of Service | SoundEngg</title>
@@ -8,11 +28,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
-        /* Force dark theme background globally to prevent cache issues */
         html, body {
-            background: #0A0A0A !important;
-            background-color: #0A0A0A !important;
-            color: #FFFFFF !important;
+            background-color: var(--background);
+            color: var(--text-main);
         }
         
         main {
@@ -21,9 +39,8 @@
             margin: 0 auto;
         }
         
-        /* Solid bold headers, no transparency or blur */
         .page-title {
-            color: #FFFFFF !important;
+            color: var(--text-heading);
             font-size: 2.8rem;
             font-weight: 800;
             letter-spacing: -1px;
@@ -34,7 +51,7 @@
         .version-tag {
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            color: var(--primary) !important;
+            color: var(--primary);
             letter-spacing: 1px;
             margin-bottom: 2rem;
             text-transform: uppercase;
@@ -52,9 +69,8 @@
             margin-bottom: 3.5rem;
         }
         
-        /* Solid visible subheadings */
         h2 {
-            color: #FFFFFF !important;
+            color: var(--text-heading);
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 1.2rem;
@@ -73,16 +89,15 @@
             border-radius: 50%;
         }
         
-        /* Crisp high-contrast paragraph and bullet text */
         p {
-            color: #E2E8F0 !important; /* Premium light slate for solid readability */
+            color: var(--text-main);
             font-size: 1.05rem;
             line-height: 1.75;
             margin-bottom: 1.2rem;
         }
         
         strong {
-            color: #FFFFFF !important;
+            color: var(--text-heading);
             font-weight: 700;
         }
         
@@ -96,7 +111,7 @@
             position: relative;
             padding-left: 1.5rem;
             margin-bottom: 1rem;
-            color: #E2E8F0 !important;
+            color: var(--text-main);
             font-size: 1.05rem;
             line-height: 1.6;
         }
@@ -110,50 +125,64 @@
         }
         
         main a {
-            color: var(--primary) !important;
+            color: var(--primary);
             text-decoration: none;
             border-bottom: none;
             transition: color 0.2s;
         }
         
         main a:hover {
-            color: #FFFFFF !important;
+            color: var(--primary);
+            text-decoration: underline;
         }
         
-        /* Beautiful solid dark box details */
         .card {
-            background: #121212 !important; /* Solid dark grey */
-            border: 1px solid #00264D !important; /* Deep navy border matching main.css */
+            background: var(--surface);
+            border: 1px solid var(--outline);
             padding: 2.5rem;
             border-radius: 16px;
             margin: 2.5rem 0;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+        
+        html.dark .card {
+            background: #121212;
+            border: 1px solid #00264D;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
         
         /* Critical Warning Theme */
         .warning-card {
-            background: rgba(239, 68, 68, 0.08) !important;
-            border: 1px solid #EF4444 !important;
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid #EF4444;
             padding: 2.5rem;
             border-radius: 16px;
             margin: 2.5rem 0;
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.1);
+            box-shadow: 0 4px 20px rgba(239, 68, 68, 0.1);
         }
         
         .warning-card h2::before {
-            background: #EF4444 !important;
+            background: #EF4444;
         }
         
-        .warning-card p, .warning-card li {
-            color: #FCA5A5 !important; /* Light-red high-contrast */
+        html.light .warning-card p, html.light .warning-card li {
+            color: #991B1B !important;
         }
         
-        .warning-card strong {
+        html.dark .warning-card p, html.dark .warning-card li {
+            color: #FCA5A5 !important;
+        }
+        
+        html.light .warning-card strong {
+            color: #7F1D1D !important;
+        }
+        
+        html.dark .warning-card strong {
             color: #FEE2E2 !important;
         }
         
         .warning-card li::before {
-            color: #EF4444 !important;
+            color: #EF4444;
         }
         .social-links a.instagram-link:hover {
             background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%) !important;
@@ -190,20 +219,30 @@
                 <a href="contact.html">Contact</a>
                 <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
-            <!-- Mobile View Navigation Select Dropdown -->
-            <div class="mobile-nav-dropdown-container">
-                <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
-                    <span class="landing-nav-active-label">MENU</span>
-                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
-                </button>
-                <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                    <a href="index.html" class="mobile-nav-item">HOME</a>
-                    <a href="about.html" class="mobile-nav-item">ABOUT</a>
-                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
-                    <a href="pro.html" class="mobile-nav-item">PRO</a>
-                    <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
-                    <a href="contact.html" class="mobile-nav-item">CONTACT</a>
-                    <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <!-- Mobile View Navigation Select Dropdown -->
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="index.html" class="mobile-nav-item">HOME</a>
+                        <a href="about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+                    </div>
                 </div>
             </div>
             <script>
@@ -365,7 +404,12 @@
             </div>
         </div>
     </footer>
-    <!-- Adsterra Social Bar Ad Network -->
-    <script src="https://pl30998896.profitableratecpmnetwork.com/23/7e/18/237e18fffe2a57217a7bef22595f2c5f.js"></script>
+    <script src="assets/js/modules/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.applyAutoTheme === 'function') window.applyAutoTheme();
+            if (typeof window.setupThemeToggle === 'function') window.setupThemeToggle();
+        });
+    </script>
 </body>
 </html>

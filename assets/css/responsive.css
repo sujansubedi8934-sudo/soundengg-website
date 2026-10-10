@@ -95,12 +95,18 @@
         min-height: 44px;
     }
 
-    /* RTA Canvas */
-    #rta-canvas {
-        height: 300px !important;
+    /* Tactical RTA Workstation on Mobile */
+    .rta-layout {
+        padding: 0 0.25rem 1rem 0.25rem !important;
+        gap: 0.5rem !important;
     }
-    .canvas-wrapper {
-        height: 300px !important;
+    .canvas-wrapper:not(.fullscreen-canvas) {
+        height: calc(100vh - 175px) !important;
+        min-height: 400px !important;
+        max-height: 640px !important;
+    }
+    .canvas-wrapper:not(.fullscreen-canvas) #rta-canvas {
+        height: 100% !important;
     }
 
     /* Stacking Layouts */
@@ -635,12 +641,56 @@
 /* Mobile viewports (< 768px) */
 @media (max-width: 768px) {
     /* Hide desktop nav and show hardware select-dropdown */
-    .top-nav {
+    .top-nav, .nav-links {
         display: none !important;
     }
     .mobile-nav-dropdown-container {
         display: block !important;
         z-index: 1000 !important; /* Stack way above logo scale to guarantee clickability */
+    }
+
+    /* Landing Hero Section Mobile Responsiveness */
+    .hero-section {
+        grid-template-columns: 1fr !important;
+        padding: 3rem 1.25rem !important;
+        gap: 2.5rem !important;
+        text-align: center;
+        min-height: auto !important;
+    }
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .hero-title {
+        font-size: 2.2rem !important;
+        line-height: 1.15 !important;
+        word-break: break-word;
+    }
+    .hero-subtitle {
+        font-size: 0.95rem !important;
+        margin: 0 auto 1.5rem auto !important;
+        max-width: 100% !important;
+        line-height: 1.5 !important;
+    }
+    .store-button-grid {
+        justify-content: center !important;
+        width: 100%;
+    }
+    .hero-visual {
+        width: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        margin-top: 1rem;
+    }
+    .phone-mockup {
+        max-width: 320px !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
+    .desktop-only-qr {
+        display: none !important;
     }
     
     /* Compact branding and top-bar layout */
@@ -753,8 +803,8 @@
     }
 }
 
-/* Tablet viewports (768px to 1024px) */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* Tablet viewports (768px to 1180px) & Dual-Pane Workstation Architecture */
+@media (min-width: 768px) and (max-width: 1180px) {
     .dashboard-grid {
         grid-template-columns: repeat(2, 1fr) !important;
         gap: 1.5rem !important;
@@ -762,6 +812,151 @@
 
     .main-content {
         padding: 1.5rem !important;
+    }
+
+    /* 1. Floating Centered Bottom Tab Bar Dock on Tablets */
+    #mobile-bottom-tabs {
+        max-width: 600px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        border-radius: 16px 16px 0 0 !important;
+        border-left: 1.5px solid var(--bottom-tab-border) !important;
+        border-right: 1.5px solid var(--bottom-tab-border) !important;
+        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    /* 2. RTA Workstation Split View & Layout */
+    .rta-layout {
+        max-width: 100% !important;
+        padding: 0 0.5rem 3rem 0.5rem !important;
+    }
+    .canvas-wrapper:not(.fullscreen-canvas) {
+        min-height: 480px !important;
+        height: 52vh !important;
+    }
+    .rta-fs-drawer {
+        width: 380px !important;
+        max-width: 44vw !important;
+    }
+    .rta-fs-drawer-backdrop {
+        background: rgba(0, 0, 0, 0.25) !important;
+        backdrop-filter: blur(2px) !important;
+        -webkit-backdrop-filter: blur(2px) !important;
+    }
+
+    /* 3. Delay Calculator Dual-Pane */
+    #module-view #delay-manual-container:not([style*="display: none"]),
+    #module-view #delay-manual-container[style*="display: flex"] {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.5rem !important;
+        align-items: start !important;
+    }
+    #module-view #delay-auto-container:not([style*="display: none"]),
+    #module-view #delay-auto-container[style*="display: flex"] {
+        display: grid !important;
+        grid-template-columns: 1.1fr 1fr !important;
+        gap: 1.5rem !important;
+        align-items: start !important;
+    }
+
+    /* 4. Subwoofer Array Calculator Dual-Pane (Setup on left, Arrays on right) */
+    .sub-calc-layout {
+        max-width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 360px 1fr !important;
+        gap: 1.5rem !important;
+        align-items: start !important;
+    }
+    .sub-calc-layout > div:nth-child(1) {
+        grid-column: 1 / 2 !important;
+        grid-row: 1 / 2 !important;
+    }
+    .sub-calc-layout > div:nth-child(2) {
+        grid-column: 1 / 2 !important;
+        grid-row: 2 / 3 !important;
+    }
+    .sub-calc-layout > div:nth-child(3) {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 / 3 !important;
+    }
+    .sub-calc-layout .subcalc-wave-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.6rem !important;
+    }
+    .sub-calc-layout .wave-block {
+        padding: 0.75rem 0.5rem !important;
+    }
+    .sub-calc-layout .wave-val {
+        font-size: 1.35rem !important;
+    }
+
+    /* 5. Ear Training Dual-Pane (Controls on left, 31-Band Selector on right) */
+    .ear-training-layout {
+        display: grid !important;
+        grid-template-columns: 360px 1fr !important;
+        gap: 1.5rem !important;
+        align-items: start !important;
+        max-width: 100% !important;
+    }
+    #ear-train-config-card {
+        grid-column: 1 / 2 !important;
+        grid-row: 1 / 2 !important;
+    }
+    .ab-console-widget {
+        grid-column: 1 / 2 !important;
+        grid-row: 2 / 3 !important;
+    }
+    .stats-console-widget {
+        grid-column: 1 / 2 !important;
+        grid-row: 3 / 4 !important;
+    }
+    .freq-selector-widget {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 / 4 !important;
+    }
+
+    /* 6. Speaker Impedance & Load Calculator Dual-Pane */
+    #impedance-view .calculator-layout {
+        max-width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 380px 1fr !important;
+        gap: 1.5rem !important;
+        align-items: start !important;
+    }
+    #impedance-view .calculator-layout > div:nth-child(1) {
+        grid-column: 1 / 2 !important;
+        grid-row: 1 / 2 !important;
+    }
+    #impedance-view .calculator-layout > div:nth-child(2) {
+        grid-column: 1 / 2 !important;
+        grid-row: 2 / 3 !important;
+    }
+    #impedance-view .calculator-layout > div:nth-child(3) {
+        grid-column: 1 / 2 !important;
+        grid-row: 3 / 4 !important;
+    }
+    #impedance-view .calculator-layout > div:nth-child(4) {
+        grid-column: 2 / 3 !important;
+        grid-row: 1 / 4 !important;
+        position: sticky !important;
+        top: calc(4.5rem + env(safe-area-inset-top, 0px)) !important;
+    }
+
+    /* 7. Tap Delay Dual-Pane Preservation */
+    .tap-delay-grid {
+        grid-template-columns: 340px 1fr !important;
+        gap: 1.5rem !important;
+        max-width: 100% !important;
+    }
+
+    /* 8. Menu / Account Settings Dual-Pane */
+    .menu-layout {
+        max-width: 100% !important;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1.5rem !important;
+        align-items: start !important;
     }
 }
 
@@ -945,10 +1140,10 @@
     width: 100%;
     height: calc(3.5rem + env(safe-area-inset-top, 0px));
     padding: env(safe-area-inset-top, 0px) 1rem 0 1rem;
-    background: rgba(10, 10, 15, 0.85);
+    background: var(--bottom-tab-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1.5px solid var(--outline);
+    border-bottom: 1.5px solid var(--bottom-tab-border);
     z-index: 1500;
     display: flex;
     align-items: center;
@@ -1011,16 +1206,16 @@
     width: 100%;
     height: calc(4.5rem + env(safe-area-inset-bottom, 0px));
     padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: rgba(10, 10, 15, 0.92);
+    background: var(--bottom-tab-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-top: 1.5px solid var(--outline);
+    border-top: 1.5px solid var(--bottom-tab-border);
     z-index: 1500;
     display: flex;
     justify-content: space-around;
     align-items: center;
     box-sizing: border-box;
-    box-shadow: 0 -5px 20px rgba(0,0,0,0.6);
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.25);
 }
 
 #mobile-bottom-tabs.hidden-tab-bar {
@@ -1032,7 +1227,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: var(--text-muted);
+    color: var(--bottom-tab-color);
     text-decoration: none;
     flex: 1 1 0;
     width: 20%;
@@ -1051,7 +1246,7 @@
 
 .tab-item:hover,
 .tab-item.active {
-    color: var(--primary);
+    color: var(--bottom-tab-active-color);
 }
 
 /* Center Rectangular/Pill Button for RTA */
@@ -1155,65 +1350,235 @@
 
 .mobile-section-title {
     font-family: var(--font-mono);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 700;
     color: var(--text-muted);
-    letter-spacing: 2px;
+    letter-spacing: 1.8px;
     text-transform: uppercase;
-    margin: 1.5rem 0 0.75rem 0;
+    margin: 0.35rem 0 0.6rem 0;
+}
+
+/* Live Venue Environment Telemetry Strip */
+.dash-env-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.08) 0%, rgba(16, 24, 38, 0.85) 100%);
+    border: 1px solid rgba(0, 240, 255, 0.28);
+    border-radius: 10px;
+    padding: 0.6rem 0.85rem;
+    margin-bottom: 0.85rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    transition: all 0.2s ease;
+}
+
+.dash-env-strip:hover,
+.dash-env-strip:active {
+    border-color: var(--primary);
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.14) 0%, rgba(16, 24, 38, 0.95) 100%);
+    box-shadow: 0 4px 18px rgba(0, 240, 255, 0.18);
+}
+
+.dash-env-strip-left {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--text-main);
+    flex-wrap: wrap;
+}
+
+.dash-env-icon {
+    font-size: 1rem;
+    color: var(--primary);
+}
+
+.dash-env-val {
+    font-weight: 700;
+    color: var(--text-heading);
+}
+
+.dash-env-val-accent {
+    font-weight: 700;
+    color: #00FF9D;
+}
+
+.dash-env-dot {
+    color: var(--text-muted);
+    opacity: 0.55;
+}
+
+.dash-env-strip-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: var(--primary);
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    padding: 4px 8px;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+html.light .dash-env-strip {
+    background: linear-gradient(135deg, rgba(0, 170, 190, 0.08) 0%, rgba(255, 255, 255, 0.95) 100%);
+    border-color: rgba(0, 170, 190, 0.35);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+html.light .dash-env-val-accent {
+    color: #059669;
 }
 
 /* Quick Tools Grid */
 .mobile-quick-tools-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
+    gap: 0.65rem;
+}
+
+@media (min-width: 768px) {
+    .mobile-quick-tools-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.9rem;
+    }
 }
 
 .mobile-tool-card {
-    background: var(--surface-highest);
+    background: linear-gradient(165deg, rgba(24, 31, 46, 0.92) 0%, rgba(15, 20, 30, 0.96) 100%);
     border: 1.5px solid var(--outline);
     border-radius: 12px;
-    padding: 1rem;
+    padding: 0.72rem 0.8rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    gap: 0.5rem;
+    align-items: stretch;
+    justify-content: space-between;
+    text-align: left;
+    gap: 0.45rem;
     cursor: pointer;
-    min-height: 95px;
+    min-height: 92px;
     box-sizing: border-box;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transition: transform 0.16s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+html.light .mobile-tool-card {
+    background: var(--surface-highest);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.mobile-tool-card:active {
+    transform: scale(0.98);
+}
+
+.tool-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 0.4rem;
 }
 
 .mobile-tool-card .tool-card-icon {
-    font-size: 1.8rem;
+    font-size: 1.45rem;
     transition: transform 0.2s ease;
+}
+
+.tool-card-badge {
+    font-family: var(--font-mono);
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+html.light .tool-card-badge {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+.tool-card-bottom {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
 }
 
 .mobile-tool-card .tool-card-name {
     font-family: var(--font-sans);
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: var(--text-main);
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--text-heading);
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tool-card-desc {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    color: var(--text-muted);
+    line-height: 1.22;
 }
 
 /* Color Accent cards */
 .tool-rta .tool-card-icon { color: #00f2fe; }
-.tool-rta { border-color: rgba(0, 242, 254, 0.3); }
-.tool-rta:active { background: rgba(0, 242, 254, 0.05); }
+.tool-rta .tool-card-badge { color: #00f2fe; border-color: rgba(0, 242, 254, 0.3); background: rgba(0, 242, 254, 0.08); }
+.tool-rta { border-color: rgba(0, 242, 254, 0.32); }
+.tool-rta:active { background: rgba(0, 242, 254, 0.08); }
 
 .tool-delay .tool-card-icon { color: #f59e0b; }
-.tool-delay { border-color: rgba(245, 158, 11, 0.3); }
-.tool-delay:active { background: rgba(245, 158, 11, 0.05); }
+.tool-delay .tool-card-badge { color: #f59e0b; border-color: rgba(245, 158, 11, 0.3); background: rgba(245, 158, 11, 0.08); }
+.tool-delay { border-color: rgba(245, 158, 11, 0.32); }
+.tool-delay:active { background: rgba(245, 158, 11, 0.08); }
 
 .tool-subcalc .tool-card-icon { color: #a855f7; }
-.tool-subcalc { border-color: rgba(168, 85, 247, 0.3); }
-.tool-subcalc:active { background: rgba(168, 85, 247, 0.05); }
+.tool-subcalc .tool-card-badge { color: #c084fc; border-color: rgba(168, 85, 247, 0.3); background: rgba(168, 85, 247, 0.08); }
+.tool-subcalc { border-color: rgba(168, 85, 247, 0.32); }
+.tool-subcalc:active { background: rgba(168, 85, 247, 0.08); }
 
-.tool-tuner .tool-card-icon { color: #10b981; }
-.tool-tuner { border-color: rgba(16, 185, 129, 0.3); }
-.tool-tuner:active { background: rgba(16, 185, 129, 0.05); }
+.tool-tuner .tool-card-icon,
+.tool-impedance .tool-card-icon { color: #10b981; }
+.tool-tuner .tool-card-badge,
+.tool-impedance .tool-card-badge { color: #34d399; border-color: rgba(16, 185, 129, 0.3); background: rgba(16, 185, 129, 0.08); }
+.tool-tuner,
+.tool-impedance { border-color: rgba(16, 185, 129, 0.32); }
+.tool-tuner:active,
+.tool-impedance:active { background: rgba(16, 185, 129, 0.08); }
+
+.tool-ear-training .tool-card-icon { color: #ec4899; }
+.tool-ear-training .tool-card-badge { color: #f472b6; border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.08); }
+.tool-ear-training { border-color: rgba(236, 72, 153, 0.32); }
+.tool-ear-training:active { background: rgba(236, 72, 153, 0.08); }
+
+.tool-siggen .tool-card-icon { color: #f43f5e; }
+.tool-siggen .tool-card-badge { color: #fb7185; border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.08); }
+.tool-siggen { border-color: rgba(244, 63, 94, 0.32); }
+.tool-siggen:active { background: rgba(244, 63, 94, 0.08); }
+
+.tool-pinout .tool-card-icon { color: #6366f1; }
+.tool-pinout .tool-card-badge { color: #818cf8; border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.08); }
+.tool-pinout { border-color: rgba(99, 102, 241, 0.32); }
+.tool-pinout:active { background: rgba(99, 102, 241, 0.08); }
+
+.tool-tapdelay .tool-card-icon { color: #84cc16; }
+.tool-tapdelay .tool-card-badge { color: #a3e635; border-color: rgba(132, 204, 22, 0.3); background: rgba(132, 204, 22, 0.08); }
+.tool-tapdelay { border-color: rgba(132, 204, 22, 0.32); }
+.tool-tapdelay:active { background: rgba(132, 204, 22, 0.08); }
 
 /* Stats Row */
 .mobile-stats-row {
@@ -1337,6 +1702,8 @@
         overflow-y: auto;
         animation: slide-up-sheet 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
     }
+}
+
 /* Also apply to Native Capacitor Platform (clean centered dialog floating above bottom banner) */
 @media (max-width: 768px) {
     .native-mobile-platform .modal-overlay {
@@ -1530,11 +1897,15 @@ body:not(.landing-page) footer {
 
     /* Preferences Menu View Styling */
     #menu-view {
-        padding: 1.25rem 1rem;
+        padding: 1.25rem 1rem calc(6rem + env(safe-area-inset-bottom, 0px)) 1rem;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
+    }
+
+    .has-native-banner #menu-view {
+        padding-bottom: calc(10rem + env(safe-area-inset-bottom, 0px)) !important;
     }
 
     .menu-section-card {
@@ -1565,7 +1936,7 @@ body:not(.landing-page) footer {
         justify-content: space-between;
         align-items: center;
         padding: 0.4rem 0;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid var(--outline-light);
     }
     
     .menu-item-row:last-child {
@@ -1588,20 +1959,24 @@ body:not(.landing-page) footer {
     
     /* Additional tool card accent styling */
     .tool-ear-training .tool-card-icon { color: #ec4899; }
-    .tool-ear-training { border-color: rgba(236, 72, 153, 0.3); }
-    .tool-ear-training:active { background: rgba(236, 72, 153, 0.05); }
+    .tool-ear-training .tool-card-badge { color: #f472b6; border-color: rgba(236, 72, 153, 0.3); background: rgba(236, 72, 153, 0.08); }
+    .tool-ear-training { border-color: rgba(236, 72, 153, 0.32); }
+    .tool-ear-training:active { background: rgba(236, 72, 153, 0.08); }
 
     .tool-siggen .tool-card-icon { color: #f43f5e; }
-    .tool-siggen { border-color: rgba(244, 63, 94, 0.3); }
-    .tool-siggen:active { background: rgba(244, 63, 94, 0.05); }
+    .tool-siggen .tool-card-badge { color: #fb7185; border-color: rgba(244, 63, 94, 0.3); background: rgba(244, 63, 94, 0.08); }
+    .tool-siggen { border-color: rgba(244, 63, 94, 0.32); }
+    .tool-siggen:active { background: rgba(244, 63, 94, 0.08); }
 
     .tool-pinout .tool-card-icon { color: #6366f1; }
-    .tool-pinout { border-color: rgba(99, 102, 241, 0.3); }
-    .tool-pinout:active { background: rgba(99, 102, 241, 0.05); }
+    .tool-pinout .tool-card-badge { color: #818cf8; border-color: rgba(99, 102, 241, 0.3); background: rgba(99, 102, 241, 0.08); }
+    .tool-pinout { border-color: rgba(99, 102, 241, 0.32); }
+    .tool-pinout:active { background: rgba(99, 102, 241, 0.08); }
 
     .tool-tapdelay .tool-card-icon { color: #84cc16; }
-    .tool-tapdelay { border-color: rgba(132, 204, 22, 0.3); }
-    .tool-tapdelay:active { background: rgba(132, 204, 22, 0.05); }
+    .tool-tapdelay .tool-card-badge { color: #a3e635; border-color: rgba(132, 204, 22, 0.3); background: rgba(132, 204, 22, 0.08); }
+    .tool-tapdelay { border-color: rgba(132, 204, 22, 0.32); }
+    .tool-tapdelay:active { background: rgba(132, 204, 22, 0.08); }
     
     /* Safe Mobile Header Logo and Badge layout overrides */
     .mobile-logo-container {
@@ -1616,7 +1991,6 @@ body:not(.landing-page) footer {
         width: auto;
         display: block;
     }
-}
 
 .native-mobile-platform footer,
 .native-mobile-platform .footer {
@@ -1821,6 +2195,56 @@ html.light .tap-delay-display-screen {
 .tap-tempo-reset-button:active {
     background: rgba(255, 85, 85, 0.18);
     border-color: #ff5555;
+}
+
+/* Manual Set Row inside Tap Delay */
+.tap-delay-manual-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 0.25rem;
+}
+
+.tap-delay-manual-label {
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.tap-delay-manual-input {
+    width: 82px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(20, 167, 181, 0.35);
+    background: rgba(0, 0, 0, 0.35);
+    color: var(--text-heading);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tap-delay-manual-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(0, 242, 254, 0.25);
+}
+
+html.light .tap-delay-manual-input {
+    background: #ffffff;
+    border: 1.5px solid var(--outline);
+    color: var(--text-heading);
+}
+
+html.light .tap-delay-manual-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(0, 139, 159, 0.2);
 }
 
 /* 3. Subdivision Cards Design */
@@ -2083,8 +2507,16 @@ html.light .ab-channel-btn.active {
     line-height: 1;
 }
 
+html.light .ab-channel-btn .ab-title {
+    color: var(--text-heading) !important;
+}
+
 .ab-channel-btn.active .ab-title {
     color: var(--primary);
+}
+
+html.light .ab-channel-btn.active .ab-title {
+    color: var(--primary) !important;
 }
 
 .ab-channel-btn .ab-subtitle {
@@ -2312,8 +2744,8 @@ html.light .rugged-btn-sm:hover {
 /* RTA Segmented Control */
 .segmented-control {
     display: flex;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--outline);
+    background: var(--seg-bg);
+    border: 1px solid var(--seg-border);
     border-radius: 8px;
     padding: 2px;
     width: 100%;
@@ -2328,7 +2760,7 @@ html.light .rugged-btn-sm:hover {
     font-size: 0.72rem;
     border-radius: 6px;
     font-family: var(--font-mono);
-    color: var(--text-muted);
+    color: var(--seg-btn-color);
     cursor: pointer;
     transition: all 0.2s ease;
     min-height: 36px;
@@ -2340,26 +2772,26 @@ html.light .rugged-btn-sm:hover {
 
 .segmented-control .train-source-btn.active,
 .segmented-control .c-tab.active {
-    background: var(--surface-highest) !important;
-    color: var(--text-main) !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+    background: var(--seg-active-bg) !important;
+    color: var(--seg-active-color) !important;
+    box-shadow: var(--seg-active-shadow) !important;
 }
 
 html.light .segmented-control {
-    background: rgba(0, 0, 0, 0.05);
-    border: 1.5px solid var(--outline-light);
+    background: var(--seg-bg);
+    border: 1px solid var(--seg-border);
 }
 
 html.light .segmented-control .train-source-btn,
 html.light .segmented-control .c-tab {
-    color: var(--text-muted);
+    color: var(--seg-btn-color);
 }
 
 html.light .segmented-control .train-source-btn.active,
 html.light .segmented-control .c-tab.active {
-    background: var(--surface) !important;
-    color: var(--text-main) !important;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08) !important;
+    background: var(--seg-active-bg) !important;
+    color: var(--seg-active-color) !important;
+    box-shadow: var(--seg-active-shadow) !important;
 }
 
 /* Tuner In-Tune Glowing Effect */
@@ -2513,6 +2945,47 @@ text.interactive-svg-pin.highlight-pin {
 
 .soldering-spec-panel:hover {
     border-color: var(--primary) !important;
+}
+
+/* Front Mating vs Rear Solder-Cup Perspective Mirroring */
+.btn-perspective {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--outline);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.btn-perspective:hover {
+    border-color: var(--primary);
+    color: var(--text-main);
+}
+
+.btn-perspective.on {
+    background: rgba(0, 210, 255, 0.15);
+    color: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 8px rgba(0, 210, 255, 0.18);
+}
+
+.pin-svg-wrap svg {
+    transition: transform 0.22s ease;
+}
+
+.pin-svg-wrap.perspective-solder svg {
+    transform: scaleX(-1);
+}
+
+.pin-svg-wrap.perspective-solder svg text {
+    transform: scaleX(-1);
+    transform-box: fill-box;
+    transform-origin: center;
 }
 
 /* Light Theme overrides for search results dropdown */

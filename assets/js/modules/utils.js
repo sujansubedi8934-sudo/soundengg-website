@@ -60,7 +60,15 @@ function closeModal(modal) {
     modal.style.display = '';
     modal.style.visibility = '';
     modal.style.opacity = '';
-    document.body.classList.remove('modal-open');
+    
+    // Check if any other modal or overlay is still visibly open
+    const remainingModals = document.querySelectorAll('.modal-overlay:not(.hidden):not([style*="display: none"]), .mobile-ad-loader.active, .ad-modal.active');
+    if (remainingModals.length === 0) {
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.documentElement.style.overflow = '';
+    }
+
     if (!window.isPremiumActive() && !window.isRtaFullscreenActive && typeof window.showNativeBannerAd === 'function') {
         window.showNativeBannerAd();
     }
@@ -70,10 +78,10 @@ function getDeviceMetadata() {
     const ua = navigator.userAgent;
     let os = 'Unknown OS';
     if (ua.indexOf('Win') !== -1) os = 'Windows';
+    else if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1 || ((navigator.platform === 'MacIntel' || ua.indexOf('Mac') !== -1) && navigator.maxTouchPoints > 1)) os = 'iOS';
     else if (ua.indexOf('Mac') !== -1) os = 'macOS';
     else if (ua.indexOf('X11') !== -1) os = 'Linux';
     else if (ua.indexOf('Linux') !== -1) os = 'Linux';
-    else if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) os = 'iOS';
     else if (ua.indexOf('Android') !== -1) os = 'Android';
 
     let browser = 'Unknown Browser';
@@ -249,53 +257,98 @@ window.parseDeviceString = parseDeviceString;
         }
     }
 
-    window.triggerInAppRatingModal = function() {
+    window.triggerInAppRatingModal = function(forceModal = false) {
         const modal = document.getElementById('in-app-rating-modal');
-        if (!modal) return;
-
         const currentCount = parseInt(window.safeStorage.getItem('soundengg_engagement_count') || '5', 10);
         window.safeStorage.setItem('soundengg_last_rating_prompt', currentCount.toString());
-        window.openModal(modal);
 
-        const btnRate = document.getElementById('btn-submit-app-rating');
-        const btnLater = document.getElementById('btn-maybe-later-rating');
-        const btnClose = document.getElementById('btn-close-rating-modal');
-        const starsRow = document.getElementById('rating-stars-row');
+        const isNative = !!(window.Capacitor?.isNativePlatform && window.Capacitor.isNativePlatform());
+        const audioPlugin = window.Capacitor?.registerPlugin ? window.Capacitor.registerPlugin('AudioSessionPlugin') : window.Capacitor?.Plugins?.AudioSessionPlugin;
 
-        const handleRateAction = () => {
-            window.safeStorage.setItem('soundengg_has_rated', 'true');
-            window.closeModal(modal);
-            if (typeof window.showToastNotification === 'function') {
-                window.showToastNotification('Thank you for supporting SoundEngg! ❤️');
-            }
+        const openDirectStoreLink = () => {
+            const isIOS = (window.Capacitor?.getPlatform && window.Capacitor.getPlatform() === 'ios') ||
+                          window.Capacitor?.platform === 'ios' ||
+                          /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+                          ((navigator.platform === 'MacIntel' || /Macintosh/.test(navigator.userAgent)) && navigator.maxTouchPoints > 1);
+            const isAndroid = (window.Capacitor?.getPlatform && window.Capacitor.getPlatform() === 'android') ||
+                              window.Capacitor?.platform === 'android' ||
+                              /Android/.test(navigator.userAgent);
 
-            const isIOS = window.Capacitor?.getPlatform() === 'ios' || (typeof navigator !== 'undefined' && (navigator.platform === 'MacIntel' || /iPhone|iPad|iPod/.test(navigator.userAgent)));
-            const isAndroid = window.Capacitor?.getPlatform() === 'android' || (typeof navigator !== 'undefined' && /Android/.test(navigator.userAgent));
+            const appleReviewUrl = 'https://apps.apple.com/app/id6783749210?action=write-review';
+            const googlePlayUrl = 'https://play.google.com/store/apps/details?id=com.soundengg.app';
 
             if (isIOS) {
                 // Direct to Apple App Store Write-Review Sheet
-                window.location.href = 'itms-apps://apps.apple.com/app/id6758652430?action=write-review';
+                if (window.Capacitor?.isNativePlatform && window.Capacitor.isNativePlatform()) {
+                    window.open(appleReviewUrl, '_system');
+                } else {
+                    window.open(appleReviewUrl, '_blank');
+                }
             } else if (isAndroid) {
                 // Direct to Google Play Store App
                 try {
                     window.location.href = 'market://details?id=com.soundengg.app';
                 } catch (e) {
-                    window.open('https://play.google.com/store/apps/details?id=com.soundengg.app', '_system');
+                    window.open(googlePlayUrl, '_system');
                 }
             } else {
-                window.open('https://play.google.com/store/apps/details?id=com.soundengg.app', '_blank');
+                window.open(appleReviewUrl, '_blank');
             }
         };
 
-        if (btnRate) btnRate.onclick = handleRateAction;
-        if (starsRow) starsRow.onclick = handleRateAction;
+        const showCustomModal = () => {
+            if (!modal) return;
+            window.openModal(modal);
 
-        const handleLater = () => {
-            window.closeModal(modal);
+            const btnRate = document.getElementById('btn-submit-app-rating');
+            const btnLater = document.getElementById('btn-maybe-later-rating');
+            const btnClose = document.getElementById('btn-close-rating-modal');
+            const starsRow = document.getElementById('rating-stars-row');
+
+            const handleRateAction = () => {
+                window.safeStorage.setItem('soundengg_has_rated', 'true');
+                window.closeModal(modal);
+                if (typeof window.showToastNotification === 'function') {
+                    window.showToastNotification('Thank you for supporting SoundEngg! ❤️');
+                }
+
+                if (isNative && audioPlugin && typeof audioPlugin.requestAppReview === 'function') {
+                    audioPlugin.requestAppReview().catch(() => {
+                        openDirectStoreLink();
+                    });
+                } else {
+                    openDirectStoreLink();
+                }
+            };
+
+            if (btnRate) btnRate.onclick = handleRateAction;
+            if (starsRow) starsRow.onclick = handleRateAction;
+
+            const handleLater = () => {
+                window.closeModal(modal);
+            };
+
+            if (btnLater) btnLater.onclick = handleLater;
+            if (btnClose) btnClose.onclick = handleLater;
         };
 
-        if (btnLater) btnLater.onclick = handleLater;
-        if (btnClose) btnClose.onclick = handleLater;
+        // If running natively on iOS or Android, launch native 1-tap review sheet directly
+        if (!forceModal && isNative && audioPlugin && typeof audioPlugin.requestAppReview === 'function') {
+            console.log('[Engagement] Requesting native 1-tap in-app review...');
+            audioPlugin.requestAppReview()
+                .then(() => {
+                    console.log('[Engagement] Native in-app review presented successfully');
+                    window.safeStorage.setItem('soundengg_has_rated', 'true');
+                })
+                .catch(err => {
+                    console.warn('[Engagement] Native review not available or quota reached, falling back to modal:', err);
+                    showCustomModal();
+                });
+            return;
+        }
+
+        // Web, Desktop, or forced modal fallback
+        showCustomModal();
     };
 
     window.recordEngagementEvent = recordEngagementEvent;

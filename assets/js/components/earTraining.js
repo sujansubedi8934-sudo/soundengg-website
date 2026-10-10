@@ -241,7 +241,13 @@ function initEarTraining() {
         updateStats();
     }
 
+    let nextChallengeTimeout = null;
+
     function stopAudio() {
+        if (nextChallengeTimeout) {
+            clearTimeout(nextChallengeTimeout);
+            nextChallengeTimeout = null;
+        }
         stopSeekTracker();
         if (sourceNode) {
             try {
@@ -297,6 +303,7 @@ function initEarTraining() {
         options.forEach(freq => {
             const btn = document.createElement('button');
             btn.className = 'train-option-btn';
+            btn.dataset.freq = String(freq);
             btn.textContent = freq >= 1000 ? (freq/1000).toFixed(2).replace(/\.00$/, '') + 'k' : freq;
             btn.addEventListener('click', () => handleAnswer(freq, btn));
             optionsContainer.appendChild(btn);
@@ -356,15 +363,24 @@ function initEarTraining() {
         } else {
             if (!freqCorrect) btn.classList.add('error');
             allBtns.forEach(b => {
-                const fText = currentTargetFreq >= 1000 ? (currentTargetFreq/1000).toFixed(2).replace(/\.00$/, '') + 'k' : currentTargetFreq.toString();
-                if (b.textContent === fText) b.classList.add('correct');
+                if (Math.abs(parseFloat(b.dataset.freq) - currentTargetFreq) < 0.1) {
+                    b.classList.add('correct');
+                }
             });
         }
 
         updateStats();
         saveTrainingScore();
         
-        setTimeout(() => {
+        if (nextChallengeTimeout) clearTimeout(nextChallengeTimeout);
+        nextChallengeTimeout = setTimeout(() => {
+            nextChallengeTimeout = null;
+            if (!isTraining) return;
+            const view = document.getElementById('ear-training-view');
+            if (view && view.style.display === 'none') {
+                stopAudio();
+                return;
+            }
             if (questionsTotal >= 10) {
                 stopAudio();
                 sessionRound++;
@@ -580,7 +596,8 @@ function initEarTraining() {
             btn.classList.add('active');
             currentBoost = parseInt(btn.getAttribute('data-boost'));
             if (isTraining && currentChannel === 'B' && filterNode) {
-                filterNode.gain.setTargetAtTime(currentBoost, audioCtx.currentTime, 0.05);
+                const targetGain = (currentMode === 'eqmatch' && currentTargetDirection === 'cut') ? -currentBoost : currentBoost;
+                filterNode.gain.setTargetAtTime(targetGain, audioCtx.currentTime, 0.05);
             }
         });
     });

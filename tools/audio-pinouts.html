@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
+    <title>Professional Audio Cable Pinouts & Wiring Guide | SoundEngg</title>
+    <meta name="description" content="Complete wiring pinout directory for XLR 3/5-pin, Speakon NL2/NL4/NL8, RJ45 Dante and AES50 (T-568B), DB25 TASCAM, and 1/4 inch TRS balanced cables."/>
+    <meta name="keywords" content="audio cable pinout, XLR wiring diagram, Speakon NL4 pinout, RJ45 Dante wiring, AES50 pinout, DB25 TASCAM pinout, balanced TRS wiring, Speakon NL8"/>
+    <link rel="canonical" href="https://www.soundengg.com/tools/audio-pinouts"/>
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://www.soundengg.com/tools/audio-pinouts"/>
+    <meta property="og:title" content="Professional Audio Cable Pinouts & Wiring Guide | SoundEngg"/>
+    <meta property="og:description" content="Master audio wiring: interactive schematics for XLR, Speakon, Dante RJ45, DB25, and TRS. Essential backstage reference."/>
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png"/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://www.soundengg.com/tools/audio-pinouts"/>
+    <meta property="twitter:title" content="Professional Audio Cable Pinouts & Wiring Guide | SoundEngg"/>
+    <meta property="twitter:description" content="Complete wiring pinout directory for XLR 3/5-pin, Speakon NL2/NL4/NL8, RJ45 Dante/AES50, DB25, and TRS."/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6.1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SoundEngg Audio Pinouts & Continuity Reference",
+      "applicationCategory": "ReferenceApplication",
+      "operatingSystem": "iOS, Android, macOS, Windows, Web",
+      "description": "Interactive wiring schematic reference for live sound and broadcast audio connectors including XLR, Speakon, etherCON, DB25, and TRS.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Sujan Subedi",
+        "url": "https://www.soundengg.com/about.html"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How is a Speakon NL4 4-pole speaker cable wired for bi-amp systems?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "For 2-way bi-amplified loudspeaker systems, Speakon NL4 connectors are wired as: 1+ = Low Frequency Positive (LF+), 1- = Low Frequency Negative (LF-), 2+ = High Frequency Positive (HF+), 2- = High Frequency Negative (HF-). For single full-range passive cabinets, 1+ and 1- are utilized."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why do digital stage snakes (AES50 and Dante) require shielded etherCON cables?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Digital stage racks require shielded Cat5e/Cat6 with metal etherCON shells grounded at both ends to safely drain electrostatic discharge (ESD). Without continuous shell-to-shell shielding, static electricity can disrupt bit clocks, triggering sudden digital packet drops or audio mutes."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How do I test a balanced audio cable for polarity and shorts with a multimeter?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Set your multimeter to continuity mode. Probe Pin 1 to 1 (ground shield), Pin 2 to 2 (hot), and Pin 3 to 3 (cold) to verify continuity. Then probe between adjacent pins (1-to-2, 2-to-3) to ensure zero continuity, confirming the cable has no internal short circuits."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+
+    <style>
+        .tool-page-hero { padding: 130px 0 50px 0; text-align: center; }
+        .tool-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: rgba(0, 255, 204, 0.1); border: 1px solid var(--primary);
+            border-radius: 20px; color: var(--primary); font-family: var(--font-mono);
+            font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem;
+        }
+        .tool-title { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 800; color: var(--text-heading); line-height: 1.15; margin-bottom: 1.2rem; }
+        .tool-subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 2.5rem auto; line-height: 1.6; }
+        .tool-actions { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+        .calc-container {
+            max-width: 900px; margin: 0 auto 4rem auto; background: var(--surface);
+            border: 1px solid var(--outline); border-radius: 16px; padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .calc-field { display: flex; flex-direction: column; gap: 0.5rem; }
+        .calc-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+        .calc-select {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--outline); border-radius: 8px;
+            padding: 12px 14px; color: var(--text-heading); font-family: var(--font-mono);
+            font-size: 1.1rem; outline: none; transition: border-color 0.2s ease;
+        }
+        html.light .calc-select { background: #ffffff; border: 1px solid #c8d4df; color: #0f172a; }
+        .calc-select:focus { border-color: var(--primary); }
+        .pinout-table {
+            width: 100%; border-collapse: collapse; margin-top: 1rem; font-family: var(--font-mono); font-size: 0.95rem;
+        }
+        .pinout-table th, .pinout-table td {
+            padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--outline);
+        }
+        .pinout-table th {
+            color: var(--primary); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
+            background: rgba(0, 255, 204, 0.05);
+        }
+        .pinout-table td { color: var(--text-heading); }
+        .info-card { background: var(--surface); border: 1px solid var(--outline); border-radius: 14px; padding: 2rem; margin-bottom: 2rem; }
+        .info-card h3 { color: var(--text-heading); font-size: 1.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .context-callout {
+            background: rgba(0, 255, 204, 0.05); border-left: 3px solid var(--primary); padding: 1.1rem 1.4rem;
+            margin: 1.25rem 0; border-radius: 0 10px 10px 0;
+        }
+        html.light .context-callout { background: #f0fdf4; border-left-color: #0d9488; }
+        .faq-item { border-bottom: 1px solid var(--outline); padding: 1.25rem 0; }
+        .faq-question { font-size: 1.15rem; font-weight: 600; color: var(--text-heading); margin-bottom: 0.5rem; }
+        .faq-answer { color: var(--text-main); line-height: 1.7; }
+        .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border: 1px solid var(--primary); border-radius: 16px; padding: 3rem 2rem; text-align: center; margin: 4rem 0;
+        }
+        .app-badge-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .app-store-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
+            background: #000000; color: #ffffff; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; border: 1px solid #333333; transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .app-store-btn:hover { transform: translateY(-2px); border-color: var(--primary); color: #ffffff; }
+    </style>
+</head>
+<body class="landing-page">
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo-link">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo"/>
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo"/>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../challenge.html" style="color: var(--primary); font-weight: 600;">Challenge</a>
+                <a href="../index.html#features">Tools</a>
+                <a href="../pro.html">Pro</a>
+                <a href="../blog.html">Blog</a>
+                <a href="../about.html">About</a>
+                <a href="../download.html">Download</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../app.html?view=pinouts" class="btn btn-primary">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="../index.html" class="mobile-nav-item">HOME</a>
+                        <a href="../challenge.html" class="mobile-nav-item" style="color: var(--primary); font-weight: 600;">CHALLENGE</a>
+                        <a href="../index.html#features" class="mobile-nav-item">TOOLS</a>
+                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="../about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="../download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="../app.html?view=pinouts" class="mobile-nav-item">LAUNCH CONSOLE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="tool-page-hero">
+            <div class="tool-badge">
+                <span class="material-symbols-outlined" style="font-size: 16px;">cable</span>
+                BACKSTAGE CABLING REFERENCE
+            </div>
+            <h1 class="tool-title">Professional Audio Cable Pinouts & Wiring Guide</h1>
+            <p class="tool-subtitle">
+                Instant interactive wiring diagrams for XLR 3-pin, XLR 5-pin, Speakon NL2/NL4/NL8, RJ45 Dante & AES50 (T-568B), DB25 TASCAM balanced analog, and 1/4" TRS cables.
+            </p>
+            <div class="hero-actions store-button-grid" style="justify-content: center; margin-top: 1.5rem;">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=pinouts" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">Launch Pinouts in Console</a>
+            </div>
+        </section>
+
+        <!-- Interactive Pinout Selector Widget -->
+        <section class="calc-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;">
+                <h3 style="color: var(--text-heading); font-size: 1.3rem; margin: 0;">Interactive Connector Wiring Directory</h3>
+                <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--primary);">AES14 / T-568B / TASCAM</span>
+            </div>
+
+            <div class="calc-field" style="margin-bottom: 1.5rem;">
+                <label class="calc-label" for="pin-conn">Select Audio Connector Type</label>
+                <select id="pin-conn" class="calc-select">
+                    <option value="xlr3" selected>XLR 3-Pin Balanced Audio (Standard Microphone / Line)</option>
+                    <option value="speakon4">Neutrik Speakon NL4 (2-Way Bi-Amp Loudspeaker)</option>
+                    <option value="speakon8">Neutrik Speakon NL8 (4-Way Touring Array / Sub Array)</option>
+                    <option value="rj45">RJ45 Dante / AES50 Ethernet (T-568B Shielded etherCON)</option>
+                    <option value="db25">DB25 TASCAM Balanced Analog (8-Channel Audio Snake)</option>
+                    <option value="trs">1/4" TRS Balanced / Stereo Headphone Jack</option>
+                    <option value="xlr5">XLR 5-Pin DMX512 (Digital Lighting & Stage Control)</option>
+                </select>
+            </div>
+
+            <div id="pinout-display">
+                <table class="pinout-table">
+                    <thead>
+                        <tr>
+                            <th>Terminal / Pin</th>
+                            <th>Signal Designation</th>
+                            <th>Standard Wire Color</th>
+                            <th>Acoustic Role</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pinout-body">
+                        <!-- Injected dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Practical Live CMRR Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">engineering</span> Why Balanced Audio & CMRR Matter on Live Stages</h3>
+            <p>
+                On concert stages and festival grounds, audio cables routinely run hundreds of feet alongside high-amperage power distros, lighting dimmers, and LED video walls. Unbalanced cables running through these electromagnetic fields pick up severe 60 Hz hum, SCR dimmer buzz, and RF hash.
+            </p>
+            <div class="context-callout">
+                <strong style="color: var(--primary); font-family: var(--font-mono); font-size: 0.85rem; display: block; margin-bottom: 0.3rem; text-transform: uppercase;">How Common Mode Rejection Works</strong>
+                <p style="margin: 0; color: var(--text-main); font-size: 0.95rem;">
+                    A balanced audio line carries two copies of the audio signal—one in normal polarity (Hot) and one reversed (Cold). Any outside interference radiates into both conductors equally. When the signal enters the console preamp, the cold line is flipped and combined with the hot line. The unwanted interference picked up along the run cancels itself out completely, leaving clean, pristine audio.
+                </p>
+            </div>
+            <p>
+                This noise-canceling performance is known as <strong>Common Mode Rejection (CMR)</strong>. Maintaining proper pinout integrity—specifically ensuring ground shields are continuous and pins 2 and 3 are not reversed—is essential to preserving this noise rejection across every channel on your snake.
+            </p>
+        </section>
+
+        <!-- App Features -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">phone_iphone</span> Why Keep SoundEngg in Your Pocket Backstage?</h3>
+            <p>
+                When you are troubleshooting a dead stage box channel behind an arena amp rack or soldering a damaged multicore at 2 AM with zero cellular reception, web pages fail to load. The native <strong>SoundEngg App</strong> is built for the reality of touring:
+            </p>
+            <ul style="color: var(--text-main); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li><strong>100% Offline Access:</strong> Complete color-coded pinout schematics stored permanently on your device for XLR 3/5, Speakon NL4/NL8, RJ45 etherCON, DB25 TASCAM, and 1/4" TRS.</li>
+                <li><strong>Multimeter Continuity Guides:</strong> Step-by-step resistance thresholds to diagnose cable shorts, open ground shields, and pin 2/3 phase inversion.</li>
+                <li><strong>High-Contrast Backstage Dark Mode:</strong> Read terminal numbers and color codes clearly even in pitch-black stage wings with torchlight.</li>
+            </ul>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">help</span> Frequently Asked Questions</h3>
+            <div class="faq-item">
+                <div class="faq-question">How is a Speakon NL4 cable wired for bi-amp line arrays vs. passive cabinets?</div>
+                <div class="faq-answer">
+                    For 2-way bi-amplified loudspeaker systems, Pins 1+/1- carry the Low-Frequency driver and Pins 2+/2- carry the High-Frequency driver. For single full-range passive cabinets, only Pins 1+/1- are used. Verifying pinouts prevents accidentally routing high-power sub/low energy into fragile high-frequency compression driver diaphragms.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Why do digital stage snakes (AES50 & Dante) require shielded etherCON cables?</div>
+                <div class="faq-answer">
+                    Digital stage racks require shielded Cat5e/Cat6 with metal etherCON shells grounded at both ends to safely drain electrostatic discharge (ESD). Without continuous shell-to-shell shielding, static electricity can disrupt bit clocks, triggering sudden digital packet drops or audio mutes.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How do I test a balanced audio cable for polarity and shorts with a multimeter?</div>
+                <div class="faq-answer">
+                    Set your multimeter to continuity mode. Probe Pin 1 to 1 (ground shield), Pin 2 to 2 (hot), and Pin 3 to 3 (cold) to verify continuity. Then probe between adjacent pins (1-to-2, 2-to-3) to ensure zero continuity, confirming the cable has no internal short circuits.
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Banner -->
+        <section class="app-cta-banner">
+            <h2 style="color: var(--text-heading); font-size: 2rem; margin-bottom: 0.75rem;">Carry the Complete Backstage Wiring Guide</h2>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+                Download SoundEngg for instant offline cable pinouts, continuity troubleshooting, and stage audio references.
+            </p>
+            <div class="app-badge-group">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=pinouts" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">
+                    Open Web Console
+                </a>
+            </div>
+        </section>
+    </main>
+
+        <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo dark-logo">
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="footer-logo light-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>FIELD_TOOLS</h4>
+                <ul>
+                    <li><a href="delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="signal-generator.html">Signal Generator</a></li>
+                    <li><a href="audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="subwoofer-array.html">Subwoofer Array Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
+                    <li><a href="../blog.html">Engineering Blog</a></li>
+                    <li><a href="../about.html">About Us</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="../privacy.html">Privacy Policy</a></li>
+                    <li><a href="../terms.html">Terms of Service</a></li>
+                    <li><a href="../download.html">Download Apps</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/modules/theme.js"></script>
+    <script>
+        const pinoutDatabase = {
+            "xlr3": [
+                { term: "Pin 1", sig: "Chassis / Cable Ground Shield", col: "Bare Braided Copper / Foil Drain", role: "RFI/EMI electrostatic drain to earth" },
+                { term: "Pin 2", sig: "Hot (+ Polarity / Non-Inverting)", col: "Red / White Conductor", role: "Normal audio polarity signal" },
+                { term: "Pin 3", sig: "Cold (- Polarity / Inverting)", col: "Black / Blue Conductor", role: "180° inverted audio polarity for CMRR cancellation" }
+            ],
+            "speakon4": [
+                { term: "1+", sig: "Low Frequency Positive (LF+)", col: "Red / White (+)", role: "Woofer positive drive terminal" },
+                { term: "1-", sig: "Low Frequency Negative (LF-)", col: "Black / Black (-)", role: "Woofer negative return terminal" },
+                { term: "2+", sig: "High Frequency Positive (HF+)", col: "Green / Blue (+)", role: "Compression driver positive terminal" },
+                { term: "2-", sig: "High Frequency Negative (HF-)", col: "White / Yellow (-)", role: "Compression driver negative return terminal" }
+            ],
+            "speakon8": [
+                { term: "1+ / 1-", sig: "Subwoofer / Sub Low (Sub+ / Sub-)", col: "Pair 1 (Red / Black)", role: "Ultra-low bass driver channels" },
+                { term: "2+ / 2-", sig: "Low Frequency (LF+ / LF-)", col: "Pair 2 (White / Black)", role: "12\" or 15\" mid-bass array elements" },
+                { term: "3+ / 3-", sig: "Mid Frequency (MF+ / MF-)", col: "Pair 3 (Green / Black)", role: "Cone mid-range section" },
+                { term: "4+ / 4-", sig: "High Frequency (HF+ / HF-)", col: "Pair 4 (Blue / Black)", role: "High-frequency planar/compression wave drivers" }
+            ],
+            "rj45": [
+                { term: "Pin 1 & 2", sig: "TX+ / TX- (Pair 2)", col: "White-Orange / Orange", role: "High-speed digital packet transmission" },
+                { term: "Pin 3 & 6", sig: "RX+ / RX- (Pair 3)", col: "White-Green / Green", role: "High-speed digital packet reception" },
+                { term: "Pin 4 & 5", sig: "Bidirectional Data (Pair 1)", col: "Blue / White-Blue", role: "Gigabit Dante media clock sync / PTP master" },
+                { term: "Pin 7 & 8", sig: "Bidirectional Data (Pair 4)", col: "White-Brown / Brown", role: "Gigabit transport / Power over Ethernet" },
+                { term: "Shield Shell", sig: "Chassis ESD Drain", col: "etherCON Metal Collar", role: "Electrostatic discharge prevention for AES50" }
+            ],
+            "db25": [
+                { term: "Ch 1 (24, 12, 25)", sig: "Hot: 24, Cold: 12, Ground: 25", col: "Pair 1", role: "Channel 1 Balanced Analog Line" },
+                { term: "Ch 2 (10, 23, 11)", sig: "Hot: 10, Cold: 23, Ground: 11", col: "Pair 2", role: "Channel 2 Balanced Analog Line" },
+                { term: "Ch 3 (21, 9, 22)",  sig: "Hot: 21, Cold: 9, Ground: 22",  col: "Pair 3", role: "Channel 3 Balanced Analog Line" },
+                { term: "Ch 4 (7, 20, 8)",   sig: "Hot: 7, Cold: 20, Ground: 8",   col: "Pair 4", role: "Channel 4 Balanced Analog Line" },
+                { term: "Ch 5 (18, 6, 19)",  sig: "Hot: 18, Cold: 6, Ground: 19",  col: "Pair 5", role: "Channel 5 Balanced Analog Line" },
+                { term: "Ch 6 (4, 17, 5)",   sig: "Hot: 4, Cold: 17, Ground: 5",   col: "Pair 6", role: "Channel 6 Balanced Analog Line" },
+                { term: "Ch 7 (15, 3, 16)",  sig: "Hot: 15, Cold: 3, Ground: 16",  col: "Pair 7", role: "Channel 7 Balanced Analog Line" },
+                { term: "Ch 8 (1, 14, 2)",   sig: "Hot: 1, Cold: 14, Ground: 2",   col: "Pair 8", role: "Channel 8 Balanced Analog Line" }
+            ],
+            "trs": [
+                { term: "Tip (T)", sig: "Hot (+ Polarity / Left Channel)", col: "Red / White Conductor", role: "Balanced positive or stereo left channel" },
+                { term: "Ring (R)", sig: "Cold (- Polarity / Right Channel)", col: "Black / Blue Conductor", role: "Balanced negative or stereo right channel" },
+                { term: "Sleeve (S)", sig: "Ground Shield (Chassis Return)", col: "Outer Braided Shield", role: "Common ground reference and electrostatic drain" }
+            ],
+            "xlr5": [
+                { term: "Pin 1", sig: "Common Ground Reference", col: "Shield Conductor", role: "DMX signal ground drain" },
+                { term: "Pin 2", sig: "Data 1- (Primary Inverting)", col: "Black / Blue Conductor", role: "Primary RS-485 DMX differential data" },
+                { term: "Pin 3", sig: "Data 1+ (Primary Non-Inverting)", col: "White / Red Conductor", role: "Primary RS-485 DMX differential data" },
+                { term: "Pin 4", sig: "Data 2- (Secondary Link - Optional)", col: "Green Conductor", role: "RDM feedback or auxiliary data channel" },
+                { term: "Pin 5", sig: "Data 2+ (Secondary Link - Optional)", col: "Yellow Conductor", role: "RDM feedback or auxiliary data channel" }
+            ]
+        };
+
+        function renderPinout() {
+            const conn = document.getElementById('pin-conn').value;
+            const data = pinoutDatabase[conn] || pinoutDatabase["xlr3"];
+            const tbody = document.getElementById('pinout-body');
+
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td style="font-weight: 700; color: var(--primary);">${item.term}</td>
+                    <td>${item.sig}</td>
+                    <td style="color: var(--text-muted);">${item.col}</td>
+                    <td>${item.role}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('pin-conn').addEventListener('change', renderPinout);
+
+        // Mobile Nav Dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+            const menu = document.querySelector('.landing-nav-dropdown-menu');
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = menu.style.display === 'flex';
+                    menu.style.display = isVisible ? 'none' : 'flex';
+                    toggleBtn.classList.toggle('active', !isVisible);
+                });
+                document.addEventListener('click', (e) => {
+                    if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                        menu.style.display = 'none';
+                        toggleBtn.classList.remove('active');
+                    }
+                });
+            }
+            renderPinout();
+        });
+    </script>
+</body>
+</html>

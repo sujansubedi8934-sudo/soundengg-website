@@ -1,8 +1,49 @@
+# SoundEngg Robots & AI Crawler Directives
+# https://www.soundengg.com/robots.txt
+
 User-agent: *
 Allow: /
-Sitemap: https://www.soundengg.com/sitemap.xml
 
-# Prevent indexing of temporary or administrative folders
-Disallow: /assets/js/
-Disallow: /assets/css/
+# Allow full CSS/JS/Asset rendering for responsive and mobile indexation
+Allow: /assets/css/
+Allow: /assets/js/
 Allow: /assets/img/
+
+# AI Search & Retrieval Crawlers (Explicitly Allowed for Generative Engine Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Sitemaps and Machine-Readable LLM Context
+Sitemap: https://www.soundengg.com/sitemap.xml
+# llms.txt standard for AI systems: https://www.soundengg.com/llms.txt
+# llms-full.txt extended reference: https://www.soundengg.com/llms-full.txt

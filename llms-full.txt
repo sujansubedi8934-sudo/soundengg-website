@@ -1,0 +1,175 @@
+# SoundEngg Full Technical Reference & Architecture Documentation
+
+> Comprehensive technical specification, acoustic formulas, tool documentation, and knowledge base index for SoundEngg — the professional offline acoustic workstation for live sound reinforcement and system engineering.
+
+---
+
+## 1. Executive Overview
+
+- **Application Name:** SoundEngg (SoundEngg: RTA & Audio Utility)
+- **Domain:** https://www.soundengg.com
+- **Web App Console:** https://www.soundengg.com/app.html
+- **Founder & Lead Systems Tech:** Sujan Subedi (Live Sound Mixing & System Tuning Engineer; Alumnus of A.R. Rahman's KM Music Conservatory, Chennai)
+- **Primary Use Cases:** Live concert sound reinforcement, FOH mixing calibration, delay tower time alignment, subwoofer array optimization, multi-zone venue tuning, RF coordination, audio pinout inspection.
+- **Architectural Philosophy:** 100% offline-first. All DSP algorithms, FFT transformations, and acoustic formulas execute client-side via native Web Audio API and JavaScript without requiring active internet connectivity inside concrete venue basements, arena backstages, or remote outdoor festival grounds.
+
+---
+
+## 2. Core Engineering Tools & Physical Formulas
+
+### 2.1 Acoustic Auto-Ping Delay Finder
+- **URL:** https://www.soundengg.com/app.html?view=delay
+- **Function:** One-microphone acoustic time-alignment system for synchronizing primary PA line arrays with delay towers, front-fills, under-balcony fills, and outfills.
+- **Physics & Math:**
+  - Speed of sound compensated for ambient venue temperature:
+    $$c \approx 331.3 + (0.606 \times T^\circ\text{C}) \text{ [m/s]}$$
+  - Propagation delay calculation:
+    $$\Delta t = \frac{\Delta d}{c} \times 1000 \text{ [ms]}$$
+  - Synthesized impulse / acoustic ping emitted from sound system; single measurement microphone captures direct sound arrival.
+  - Cross-correlation analysis detects initial wavefront arrival time with sub-millisecond precision, calculating exact required electronic DSP delay setting.
+
+### 2.2 1/24-Octave Lab-Grade Real-Time Analyzer (RTA)
+- **URL:** https://www.soundengg.com/app.html?view=rta
+- **Function:** Real-time acoustic frequency spectrum visualizer and diagnostic analyzer.
+- **Technical Specifications:**
+  - Fast Fourier Transform (FFT) sizes: 1024, 2048, 4096, 8192, 16384 samples.
+  - Scientific windowing functions:
+    - **Hann (Hanning):** General acoustic analysis, low spectral leakage.
+    - **Hamming:** Narrow main lobe for isolating distinct spectral peaks.
+    - **Blackman-Harris (4-term):** High side-lobe suppression (>92 dB) for measuring wide dynamic ranges.
+    - **Flat-Top:** Exact amplitude level precision for sound level calibration.
+    - **Rectangular:** Uniform weighting for transient and impulse response analysis.
+  - Frequency Fractional Octave Grouping: 1/1 octave (10 ISO bands), 1/3 octave (31 ISO bands), 1/6 octave (61 bands), 1/12 octave, 1/24 octave (240+ bands).
+  - Multi-Trace Capture: Up to 4 real-time trace memories (Live, Reference A, Reference B, Difference).
+  - Telemetry Export: High-resolution PNG spectrum snapshots and raw CSV amplitude-frequency datasets.
+
+### 2.3 Ear Training Laboratory
+- **URL:** https://www.soundengg.com/app.html?view=eartraining
+- **Function:** Critical listening training for sound technicians to rapidly identify frequency anomalies and feedback nodes during live events.
+- **Technical Specifications:**
+  - Modes: 1/1 Octave, 1/3 Octave ISO 266 standard center frequencies, and advanced 1/6 Octave micro-bands.
+  - Audio Sources: Synthesized pink noise or custom user audio track upload via Web Audio API.
+  - Boost/Cut Parameters: $\pm 3\text{ dB}, \pm 6\text{ dB}, \pm 9\text{ dB}, \pm 12\text{ dB}$ with adjustable parametric filter Q factor.
+
+### 2.4 Calibrated Signal Generator
+- **URL:** https://www.soundengg.com/app.html?view=signalgen
+- **Function:** Precision reference audio generator for system gain structure verification, transducer continuity, and room mode excitation.
+- **Signals Generated:**
+  - Pure Sine Waves: Variable from $20\text{ Hz}$ to $20,000\text{ Hz}$ with harmonic distortion $<0.01\%$.
+  - Pink Noise: Filtered $1/f$ spectral slope (-3 dB/octave) for balanced acoustic energy per fractional octave.
+  - White Noise: Flat power spectral density (equal energy per Hertz).
+  - Logarithmic Frequency Sweep: Continuous linear-phase sweep from $20\text{ Hz}$ to $20\text{ kHz}$.
+  - Polarity Verification Pulse: Asymmetric directional waveform for verifying speaker cone push/pull polarity.
+  - 1.0 kHz FOH Calibration Tone: Constant 0 dBu / -18 dBFS reference pulse.
+
+### 2.5 Audio Pinouts & Wire Continuity Reference
+- **URL:** https://www.soundengg.com/app.html?view=pinouts
+- **Function:** Instant interactive schematics and wire color codes for professional audio, lighting, and stage network connectors.
+- **Connectors Covered:**
+  - **XLR 3-Pin Balanced Audio:** Pin 1 = Shield/Ground, Pin 2 = Hot (+), Pin 3 = Cold (-).
+  - **XLR 5-Pin DMX512:** Pin 1 = Shield, Pin 2 = Data 1 (-), Pin 3 = Data 1 (+), Pin 4 = Data 2 (-), Pin 5 = Data 2 (+).
+  - **Speakon NL2 / NL4 / NL8:** Speaker drive assignments (NL4: 1+/1- Sub/Low, 2+/2- Mid/High).
+  - **RJ45 EtherCON:** T568A and T568B pinouts for Dante, Ravenna, AES50, and AVB digital stage snakes.
+  - **DB25 TASCAM Standard:** 8-channel balanced audio multipin pinout.
+  - **AES72 (Category Snake):** 4 balanced audio channels over standard Cat5e/6 shielded twisted-pair cable.
+  - **TRS 1/4" & 3.5mm:** Tip = Hot (+), Ring = Cold (-), Sleeve = Ground/Shield.
+
+### 2.6 Speaker Impedance & Cable Loss Calculator
+- **URL:** https://www.soundengg.com/app.html?view=impedance
+- **Function:** Loudspeaker load analysis and transmission line loss calculation.
+- **Formulas:**
+  - Series Impedance: $Z_{\text{total}} = Z_1 + Z_2 + \dots + Z_n$
+  - Parallel Impedance: $\frac{1}{Z_{\text{total}}} = \frac{1}{Z_1} + \frac{1}{Z_2} + \dots + \frac{1}{Z_n}$
+  - Cable Resistance: $R_{\text{cable}} = 2 \times \frac{\rho \times L}{A}$ (copper resistivity $\rho \approx 1.68 \times 10^{-8} \ \Omega\cdot\text{m}$)
+  - Effective Damping Factor: $DF_{\text{eff}} = \frac{Z_{\text{load}}}{\frac{Z_{\text{load}}}{DF_{\text{amp}}} + R_{\text{cable}}}$
+  - Transmission dB Loss: $\text{Loss (dB)} = 20 \log_{10}\left(\frac{Z_{\text{load}}}{Z_{\text{load}} + R_{\text{cable}}}\right)$
+
+### 2.7 Live BPM Tap Tempo Delay Sync
+- **URL:** https://www.soundengg.com/app.html?view=taptempo
+- **Function:** Tempo calculation and delay subdivision sync for hardware and software time-based FX units.
+- **Subdivisions Computed:** Quarter note ($60,000 / \text{BPM}$ ms), Eighth note, Dotted eighth ($1.5 \times \text{eighth}$), Sixteenth note, Triplets, and LFO modulation Hz rate ($\text{BPM} / 60$).
+
+### 2.8 Subwoofer Array Calculator
+- **URL:** https://www.soundengg.com/app.html?view=subcalc
+- **Function:** Geometric layout and delay offsets for broadside and end-fire subwoofer configurations.
+- **Acoustic Constraints:**
+  - Maximum broadside center-to-center spacing: $d \le \frac{\lambda_{\text{crossover}}}{2} = \frac{c}{2 \times f_{\text{upper}}}$ to avoid lobing and spatial aliasing.
+  - End-fire inter-element electronic delay: $\Delta t = \frac{d}{c} \times 1000$ ms.
+
+---
+
+## 3. Product Tiers & Pricing Model
+
+| Plan Tier | Price (USD) | Price (INR) | Billing Cycle | Core Inclusions |
+|---|---|---|---|---|
+| **Standard Free** | $0.00 | ₹0 | Forever Free | Essential calculators, basic 1/1 octave RTA, pinout directory, tap tempo. |
+| **Pro Monthly** | $4.99 | ₹299 | Monthly | 1/24-Octave RTA, 4 multi-trace overlays, unlimited Auto-Ping delay finder, raw CSV export, custom track ear training. |
+| **Pro Annual** | $29.99 | ₹1,499 | Annual (7-Day Free Trial) | All Pro features, 50% savings over monthly, risk-free 7-day evaluation window. |
+| **Founder Lifetime** | $69.00 | ₹3,499 | One-time Payment | Permanent unrestricted Pro license, lifetime updates, offline mic calibration profile imports. |
+
+---
+
+## 4. Platform Availability
+
+- **Web Browser (PWA):** https://www.soundengg.com/app.html (Full offline ServiceWorker cache, zero app store installation required)
+- **iOS App Store:** https://apps.apple.com/us/app/soundengg/id6783749210 (iPhone & iPad, universal binary)
+- **Google Play Store:** https://play.google.com/store/apps/details?id=com.soundengg.app (Android smartphones and tablets)
+- **Desktop:** macOS & Windows support via PWA standalone window and native wrappers.
+
+---
+
+## 5. Engineering Blog Knowledge Base (101 Curated Articles)
+
+SoundEngg maintains an open-access engineering library of 101 in-depth technical guides:
+
+### Subwoofers & Low-Frequency Alignment
+- [Cardioid Subwoofers 101: Physics of Gradient and Inverted Arrays](https://www.soundengg.com/blog/cardioid-subwoofers-101.html)
+- [End-Fire Subwoofer Arrays: Distance and Delay Synchronization](https://www.soundengg.com/blog/end-fire-subwoofer-arrays.html)
+- [Gradient vs End-Fire Subwoofers: Acoustic Physics Compared](https://www.soundengg.com/blog/gradient-vs-endfire-subwoofers-physics.html)
+- [Subwoofer Spacing & Power Alley Prevention](https://www.soundengg.com/blog/subwoofer-spacing-power-alley.html)
+- [Adamson Systems Cardioid Subwoofers Alignment](https://www.soundengg.com/blog/adamson-cardioid-subs.html)
+
+### Line Arrays & System Tuning
+- [Line Array Theory: Cylindrical Wavefronts vs Spherical Propagation](https://www.soundengg.com/blog/line-array-theory.html)
+- [Array Physics 101: Line Source Mechanics and Splay Angles](https://www.soundengg.com/blog/array-physics-101.html)
+- [PA System Tuning: Step-by-Step Optimization Guide](https://www.soundengg.com/blog/pa-system-tuning.html)
+- [L-Acoustics Line Array Ecosystem Breakdown](https://www.soundengg.com/blog/l-acoustics-line-array-ecosystem.html)
+- [d&b audiotechnik Array Processing & Design](https://www.soundengg.com/blog/dnb-audiotechnik-line-array-guide.html)
+- [Meyer Sound Self-Powered Line Array Engineering](https://www.soundengg.com/blog/meyer-sound-active-line-arrays.html)
+- [Adamson Systems Line Array Mastery: Kevlar Drivers](https://www.soundengg.com/blog/adamson-systems-line-array-mastery.html)
+
+### Digital Networking & Audio over IP (AoIP)
+- [Dante Network Redundancy: Primary and Secondary Best Practices](https://www.soundengg.com/blog/dante-redundancy-pro.html)
+- [Dante Networking Basics: PTP Clocks and Switch Configuration](https://www.soundengg.com/blog/dante-net-basics.html)
+- [Milan AVB vs Dante: Touring Protocol Shootout](https://www.soundengg.com/blog/milan-avb-vs-dante-touring-audio.html)
+
+### Digital Mixing Consoles & Workflow
+- [DiGiCo Quantum and SD Series Console Engineering](https://www.soundengg.com/blog/digico-quantum-sd-consoles-guide.html)
+- [Yamaha CL & QL Series Mixing Console Workflows](https://www.soundengg.com/blog/yamaha-cl-ql-series-consoles-guide.html)
+- [Yamaha Rivage PM & DM7 Flagship Audio Engines](https://www.soundengg.com/blog/yamaha-rivage-pm-dm7-guide.html)
+- [Avid VENUE S6L Live System Architecture](https://www.soundengg.com/blog/avid-venue-s6l-live-system-guide.html)
+- [Allen & Heath dLive & Avantis DSP Ecosystem](https://www.soundengg.com/blog/allen-heath-dlive-avantis-guide.html)
+- [Gain Structure on Modern Digital Consoles](https://www.soundengg.com/blog/gain-structure-digital-consoles.html)
+
+### Wireless Systems & RF Coordination
+- [RF Spectrum Coordination with Shure Wireless Workbench](https://www.soundengg.com/blog/rf-spectrum-coordination-wireless-workbench.html)
+- [In-Ear Monitor RF Combining & Helical Antennas](https://www.soundengg.com/blog/in-ear-monitor-rf-combining-antennas.html)
+- [Advanced Multi-Zone RF Wireless Coordination](https://www.soundengg.com/blog/rf-coordination-pro.html)
+
+### Acoustic Measurement & FFT
+- [SMAART Fundamentals: Transfer Function and Impulse Response](https://www.soundengg.com/blog/smaart-fundamentals.html)
+- [SMAART Transfer Function Phase Alignment Masterclass](https://www.soundengg.com/blog/smaart-transfer-function-phase-alignment.html)
+- [RTA Spectrum Analysis: FFT Windows and Ballistics](https://www.soundengg.com/blog/rta-explained.html)
+- [Phase Polarity and Comb Filtering Physics](https://www.soundengg.com/blog/phase-polarity-comb-filtering.html)
+
+---
+
+## 6. Verification & Contact Data
+
+- **Corporate Identity:** SoundEngg.com
+- **Founder:** Sujan Subedi
+- **Primary Support:** sujan@soundengg.com
+- **Legal Entity Inquiries:** legal@soundengg.com
+- **Social Media:** https://instagram.com/soundengg
+- **Robots.txt Directives:** https://www.soundengg.com/robots.txt
+- **Sitemap XML:** https://www.soundengg.com/sitemap.xml

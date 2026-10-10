@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
+    <title>Live BPM Tap Tempo & Millisecond Delay Calculator | SoundEngg</title>
+    <meta name="description" content="Calculate musical delay times in milliseconds from BPM. Interactive tap tempo counter with quarter note, dotted eighth, triplet, and reverb pre-delay values."/>
+    <meta name="keywords" content="tap tempo to ms, bpm to milliseconds, delay time calculator, reverb pre delay calculator, live bpm counter, dotted eighth delay ms, tempo sync delay"/>
+    <link rel="canonical" href="https://www.soundengg.com/tools/tap-tempo"/>
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://www.soundengg.com/tools/tap-tempo"/>
+    <meta property="og:title" content="Live BPM Tap Tempo & Millisecond Delay Calculator | SoundEngg"/>
+    <meta property="og:description" content="Interactive tap tempo to millisecond delay calculator: quarter notes, dotted eighths, triplets, and reverb pre-delay for live audio mixing."/>
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png"/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://www.soundengg.com/tools/tap-tempo"/>
+    <meta property="twitter:title" content="Live BPM Tap Tempo & Millisecond Delay Calculator | SoundEngg"/>
+    <meta property="twitter:description" content="Calculate musical delay times in milliseconds from BPM with interactive tap tempo."/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6.1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SoundEngg Live BPM Tap Tempo & Delay Calculator",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "iOS, Android, macOS, Windows, Web",
+      "description": "Live audio tempo counter and delay time subdivision calculator converting song BPM into precise millisecond delays and LFO frequencies.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Sujan Subedi",
+        "url": "https://www.soundengg.com/about.html"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the difference between a straight 8th and a dotted 8th delay in a live mix?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A straight 8th note delay repeats directly on the off-beat (50% of a quarter note). A dotted 8th delay repeats 75% through the beat, creating a syncopated polyrhythmic feel that bounces between consecutive quarter-note pulses without stepping on guitars or vocals."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does reverb pre-delay preserve upfront vocal articulation?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Reverb pre-delay introduces a short time gap (typically 20 to 60 ms or a 1/64th musical subdivision) between the dry vocal transient and the onset of the reverb tail. This ensures speech consonants and articulation cut through crisply before the reverberant wash blooms."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does SoundEngg's rolling tap tempo algorithm reject accidental mis-taps?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Live show environments are fast-paced. SoundEngg uses a rolling moving average filter that automatically discards outlier thumb slips while locking onto the steady tempo within four consecutive taps."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+
+    <style>
+        .tool-page-hero { padding: 130px 0 50px 0; text-align: center; }
+        .tool-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: rgba(0, 255, 204, 0.1); border: 1px solid var(--primary);
+            border-radius: 20px; color: var(--primary); font-family: var(--font-mono);
+            font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem;
+        }
+        .tool-title { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 800; color: var(--text-heading); line-height: 1.15; margin-bottom: 1.2rem; }
+        .tool-subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 2.5rem auto; line-height: 1.6; }
+        .tool-actions { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+        .calc-container {
+            max-width: 900px; margin: 0 auto 4rem auto; background: var(--surface);
+            border: 1px solid var(--outline); border-radius: 16px; padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .tap-hero-box {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            gap: 1.5rem; margin-bottom: 2.5rem; text-align: center;
+        }
+        .tap-button {
+            width: 180px; height: 180px; border-radius: 50%;
+            background: radial-gradient(circle, var(--primary) 0%, rgba(0, 204, 163, 0.8) 100%);
+            color: #000000; border: none; font-family: var(--font-mono);
+            font-size: 1.4rem; font-weight: 900; letter-spacing: 2px;
+            cursor: pointer; box-shadow: 0 0 30px rgba(0, 255, 204, 0.4);
+            transition: transform 0.1s ease, box-shadow 0.1s ease; outline: none; user-select: none;
+        }
+        .tap-button:active {
+            transform: scale(0.94);
+            box-shadow: 0 0 50px rgba(0, 255, 204, 0.8);
+        }
+        .bpm-display {
+            font-family: var(--font-mono); font-size: 3.5rem; font-weight: 900;
+            color: var(--primary); line-height: 1;
+        }
+        .subdiv-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.25rem; margin-top: 2rem;
+        }
+        .subdiv-card {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--outline);
+            border-radius: 10px; padding: 1.2rem; text-align: center;
+        }
+        html.light .subdiv-card { background: #f8fafc; }
+        .subdiv-title {
+            font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.35rem;
+        }
+        .subdiv-ms {
+            font-family: var(--font-mono); font-size: 1.6rem; font-weight: 700;
+            color: var(--text-heading);
+        }
+        .subdiv-hz { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; font-family: var(--font-mono); }
+        .info-card { background: var(--surface); border: 1px solid var(--outline); border-radius: 14px; padding: 2rem; margin-bottom: 2rem; }
+        .info-card h3 { color: var(--text-heading); font-size: 1.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .context-callout {
+            background: rgba(0, 255, 204, 0.05); border-left: 3px solid var(--primary); padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0; border-radius: 0 10px 10px 0;
+        }
+        html.light .context-callout { background: rgba(0, 180, 140, 0.06); }
+        .faq-item { border-bottom: 1px solid var(--outline); padding: 1.25rem 0; }
+        .faq-question { font-size: 1.15rem; font-weight: 600; color: var(--text-heading); margin-bottom: 0.5rem; }
+        .faq-answer { color: var(--text-main); line-height: 1.7; }
+        .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border: 1px solid var(--primary); border-radius: 16px; padding: 3rem 2rem; text-align: center; margin: 4rem 0;
+        }
+        .app-badge-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .app-store-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
+            background: #000000; color: #ffffff; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; border: 1px solid #333333; transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .app-store-btn:hover { transform: translateY(-2px); border-color: var(--primary); color: #ffffff; }
+    </style>
+</head>
+<body class="landing-page">
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo-link">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo"/>
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo"/>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../challenge.html" style="color: var(--primary); font-weight: 600;">Challenge</a>
+                <a href="../index.html#features">Tools</a>
+                <a href="../pro.html">Pro</a>
+                <a href="../blog.html">Blog</a>
+                <a href="../about.html">About</a>
+                <a href="../download.html">Download</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../app.html?view=taptempo" class="btn btn-primary">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="../index.html" class="mobile-nav-item">HOME</a>
+                        <a href="../challenge.html" class="mobile-nav-item" style="color: var(--primary); font-weight: 600;">CHALLENGE</a>
+                        <a href="../index.html#features" class="mobile-nav-item">TOOLS</a>
+                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="../about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="../download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="../app.html?view=taptempo" class="mobile-nav-item">LAUNCH CONSOLE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="tool-page-hero">
+            <div class="tool-badge">
+                <span class="material-symbols-outlined" style="font-size: 16px;">timer</span>
+                PRECISION RHYTHMIC DELAY DSP
+            </div>
+            <h1 class="tool-title">Live BPM Tap Tempo & Delay Calculator</h1>
+            <p class="tool-subtitle">
+                Tap tempo to calculate musical delay times in milliseconds. Sync digital delays, dotted eighth echoes, and reverb pre-delays to the exact live performance tempo in real time.
+            </p>
+            <div class="hero-actions store-button-grid" style="justify-content: center; margin-top: 1.5rem;">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=taptempo" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">Launch Tap Tempo in Console</a>
+            </div>
+        </section>
+
+        <!-- Interactive Tap Tempo Widget -->
+        <section class="calc-container">
+            <div class="tap-hero-box">
+                <button id="tap-btn" class="tap-button">
+                    TAP<br/>TEMPO
+                </button>
+                <div>
+                    <div class="bpm-display" id="res-bpm">120.0</div>
+                    <span style="font-family: var(--font-mono); font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px;">BEATS PER MINUTE</span>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <label for="manual-bpm" style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">MANUAL SET:</label>
+                    <input type="number" id="manual-bpm" value="120" min="20" max="300" style="width: 80px; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--outline); background: rgba(0,0,0,0.2); color: var(--text-heading); font-family: var(--font-mono); text-align: center;"/>
+                    <button id="reset-tap-btn" style="background: none; border: 1px solid var(--outline); color: var(--text-muted); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem;">RESET</button>
+                </div>
+            </div>
+
+            <div class="subdiv-grid">
+                <div class="subdiv-card">
+                    <div class="subdiv-title">1/4 Note (Quarter)</div>
+                    <div class="subdiv-ms" id="ms-quarter">500.0 ms</div>
+                    <div class="subdiv-hz" id="hz-quarter">2.00 Hz</div>
+                </div>
+                <div class="subdiv-card" style="border-color: var(--primary);">
+                    <div class="subdiv-title" style="color: var(--primary);">Dotted 1/8th (The Edge)</div>
+                    <div class="subdiv-ms" id="ms-dotted8" style="color: var(--primary);">375.0 ms</div>
+                    <div class="subdiv-hz" id="hz-dotted8">2.67 Hz</div>
+                </div>
+                <div class="subdiv-card">
+                    <div class="subdiv-title">1/8 Note (Eighth)</div>
+                    <div class="subdiv-ms" id="ms-eighth">250.0 ms</div>
+                    <div class="subdiv-hz" id="hz-eighth">4.00 Hz</div>
+                </div>
+                <div class="subdiv-card">
+                    <div class="subdiv-title">1/8 Triplet (Shuffle)</div>
+                    <div class="subdiv-ms" id="ms-triplet8">166.7 ms</div>
+                    <div class="subdiv-hz" id="hz-triplet8">6.00 Hz</div>
+                </div>
+                <div class="subdiv-card">
+                    <div class="subdiv-title">1/16 Note (Sixteenth)</div>
+                    <div class="subdiv-ms" id="ms-sixteenth">125.0 ms</div>
+                    <div class="subdiv-hz" id="hz-sixteenth">8.00 Hz</div>
+                </div>
+                <div class="subdiv-card">
+                    <div class="subdiv-title">Reverb Pre-Delay (1/64)</div>
+                    <div class="subdiv-ms" id="ms-predelay">31.3 ms</div>
+                    <div class="subdiv-hz" id="hz-predelay">32.00 Hz</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Practical Live Tempo Sync Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">music_note</span> Why Tempo-Synced Delays Keep Live Mixes Clean</h3>
+            <p>
+                In live sound reinforcement, time-based effects (delay and reverb) that drift out of time with the band clutter the stereo field, smear drum transients, and mask lead vocals. Locking delay repeats and reverb pre-delays to precise musical subdivisions creates rich acoustic depth while preserving maximum clarity and headroom.
+            </p>
+            <div class="context-callout">
+                <strong style="color: var(--primary); font-family: var(--font-mono); font-size: 0.85rem; display: block; margin-bottom: 0.3rem; text-transform: uppercase;">Musical Subdivisions & Sonic Separation</strong>
+                <p style="margin: 0; color: var(--text-main); font-size: 0.95rem;">
+                    The classic <strong>dotted eighth note delay</strong> produces the signature rhythmic bounce popularized in stadium rock, pop, and modern worship music. By repeating every three sixteenth notes, echoes bounce seamlessly between straight eighth-note guitar strums or vocal lines without masking them. Meanwhile, quarter-note repeats give soaring vocal solos majestic sustain, and 1/64th-note pre-delays allow vocal consonants to cut through before room reverb blooms.
+                </p>
+            </div>
+            <p>
+                Whether tapping along to an energetic live drummer or manually dialing in console delays before soundcheck, matching milliseconds to tempo is the secret to a wide, three-dimensional live mix.
+            </p>
+        </section>
+
+        <!-- App Features -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">touch_app</span> Why SoundEngg Tap Tempo Excels at Front of House</h3>
+            <p>
+                During live performances when the band speeds up or changes songs unexpectedly, fiddling with console menus takes your hands away from the faders. The native <strong>SoundEngg App</strong> gives you:
+            </p>
+            <ul style="color: var(--text-main); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li><strong>Capacitive Haptic Pulse:</strong> Instant subtle vibration under your thumb confirming each registered tap without looking at the screen.</li>
+                <li><strong>Rolling Four-Tap Filtering:</strong> Automatically discards erratic thumb glitches while calculating steady rolling tempo averages.</li>
+                <li><strong>Reverb Space Designer:</strong> Converts tempo directly to decay time and pre-delay settings for plates, halls, and vocal chambers.</li>
+            </ul>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">help</span> Frequently Asked Questions</h3>
+            <div class="faq-item">
+                <div class="faq-question">What is the difference between a straight 8th and a dotted 8th delay in a live mix?</div>
+                <div class="faq-answer">
+                    A straight 8th note delay repeats directly on the off-beat (50% of a quarter note). A dotted 8th delay repeats 75% through the beat, creating a syncopated polyrhythmic feel that bounces between consecutive quarter-note pulses without stepping on guitars or vocals.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How does reverb pre-delay preserve upfront vocal articulation?</div>
+                <div class="faq-answer">
+                    Reverb pre-delay introduces a short time gap (typically 20 to 60 ms or a 1/64th musical subdivision) between the dry vocal transient and the onset of the reverb tail. This ensures speech consonants and articulation cut through crisply before the reverberant wash blooms.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How does SoundEngg's rolling tap tempo algorithm reject accidental mis-taps?</div>
+                <div class="faq-answer">
+                    Live show environments are fast-paced. SoundEngg uses a rolling moving average filter that automatically discards outlier thumb slips while locking onto the steady tempo within four consecutive taps.
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Banner -->
+        <section class="app-cta-banner">
+            <h2 style="color: var(--text-heading); font-size: 2rem; margin-bottom: 0.75rem;">Keep Perfect Time at FOH</h2>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+                Download SoundEngg on iOS and Android with tactile haptic tap tempo and instant rhythmic delay subdivisions.
+            </p>
+            <div class="app-badge-group">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=taptempo" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">
+                    Open Web Console
+                </a>
+            </div>
+        </section>
+    </main>
+
+        <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo dark-logo">
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="footer-logo light-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>FIELD_TOOLS</h4>
+                <ul>
+                    <li><a href="delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="signal-generator.html">Signal Generator</a></li>
+                    <li><a href="audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="subwoofer-array.html">Subwoofer Array Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
+                    <li><a href="../blog.html">Engineering Blog</a></li>
+                    <li><a href="../about.html">About Us</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="../privacy.html">Privacy Policy</a></li>
+                    <li><a href="../terms.html">Terms of Service</a></li>
+                    <li><a href="../download.html">Download Apps</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/modules/theme.js"></script>
+    <script>
+        let tapTimes = [];
+        let currentBpm = 120.0;
+
+        function updateSubdivisions(bpm) {
+            currentBpm = bpm;
+            const msQuarter = 60000 / bpm;
+            const msDotted8 = msQuarter * 0.75;
+            const msEighth = msQuarter * 0.5;
+            const msTriplet8 = msQuarter / 3;
+            const msSixteenth = msQuarter * 0.25;
+            const msPredelay = msQuarter / 16;
+
+            document.getElementById('res-bpm').textContent = bpm.toFixed(1);
+            document.getElementById('manual-bpm').value = Math.round(bpm);
+
+            document.getElementById('ms-quarter').textContent = msQuarter.toFixed(1) + ' ms';
+            document.getElementById('hz-quarter').textContent = (1000 / msQuarter).toFixed(2) + ' Hz';
+
+            document.getElementById('ms-dotted8').textContent = msDotted8.toFixed(1) + ' ms';
+            document.getElementById('hz-dotted8').textContent = (1000 / msDotted8).toFixed(2) + ' Hz';
+
+            document.getElementById('ms-eighth').textContent = msEighth.toFixed(1) + ' ms';
+            document.getElementById('hz-eighth').textContent = (1000 / msEighth).toFixed(2) + ' Hz';
+
+            document.getElementById('ms-triplet8').textContent = msTriplet8.toFixed(1) + ' ms';
+            document.getElementById('hz-triplet8').textContent = (1000 / msTriplet8).toFixed(2) + ' Hz';
+
+            document.getElementById('ms-sixteenth').textContent = msSixteenth.toFixed(1) + ' ms';
+            document.getElementById('hz-sixteenth').textContent = (1000 / msSixteenth).toFixed(2) + ' Hz';
+
+            document.getElementById('ms-predelay').textContent = msPredelay.toFixed(1) + ' ms';
+            document.getElementById('hz-predelay').textContent = (1000 / msPredelay).toFixed(2) + ' Hz';
+        }
+
+        const tapBtn = document.getElementById('tap-btn');
+        tapBtn.addEventListener('click', () => {
+            const now = performance.now();
+            if (tapTimes.length > 0 && (now - tapTimes[tapTimes.length - 1]) > 2500) {
+                tapTimes = [];
+            }
+            tapTimes.push(now);
+            if (tapTimes.length > 8) {
+                tapTimes.shift();
+            }
+            if (tapTimes.length >= 2) {
+                let intervals = [];
+                for (let i = 1; i < tapTimes.length; i++) {
+                    intervals.push(tapTimes[i] - tapTimes[i - 1]);
+                }
+                const avgInterval = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+                const bpm = 60000 / avgInterval;
+                if (bpm >= 20 && bpm <= 320) {
+                    updateSubdivisions(bpm);
+                }
+            }
+        });
+
+        document.getElementById('manual-bpm').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            if (val >= 20 && val <= 320) {
+                updateSubdivisions(val);
+            }
+        });
+
+        document.getElementById('reset-tap-btn').addEventListener('click', () => {
+            tapTimes = [];
+            updateSubdivisions(120.0);
+        });
+
+        // Mobile Nav Dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+            const menu = document.querySelector('.landing-nav-dropdown-menu');
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = menu.style.display === 'flex';
+                    menu.style.display = isVisible ? 'none' : 'flex';
+                    toggleBtn.classList.toggle('active', !isVisible);
+                });
+                document.addEventListener('click', (e) => {
+                    if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                        menu.style.display = 'none';
+                        toggleBtn.classList.remove('active');
+                    }
+                });
+            }
+            updateSubdivisions(120.0);
+        });
+    </script>
+</body>
+</html>

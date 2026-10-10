@@ -45,6 +45,17 @@ window.isPremiumActive = function(featureKey) {
     return false;
 };
 
+window.isSnapshotSlotUnlocked = function(slotIdx) {
+    const idx = parseInt(slotIdx, 10);
+    if (isNaN(idx) || idx === 0) return true; // Slot 1 (Trace A, index 0) is unconditionally free
+    if (window.isUserPro) return true;
+    if (typeof window.isPremiumActive === 'function') {
+        if (window.isPremiumActive('snapshots')) return true;
+        if (window.isPremiumActive(`snapshot_slot_${idx}`)) return true;
+    }
+    return false;
+};
+
 window.isBlogUnlocked = function(articleId) {
     if (window.isUserPro) return true;
     const globalUntil = safeStorage.getItem('soundengg_temp_pro_until');
@@ -55,8 +66,17 @@ window.isBlogUnlocked = function(articleId) {
 };
 
 window.updatePremiumUI = function() {
-    const isAnyPro = window.isUserPro || 
-                     ['spectrogram', 'snapshots', 'mic_calibration', 'ear_training'].some(k => window.isPremiumActive(k));
+    const TRACKED_PRO_KEYS = [
+        'spectrogram', 
+        'snapshots', 
+        'snapshot_slot_1', 
+        'snapshot_slot_2', 
+        'snapshot_slot_3', 
+        'mic_calibration', 
+        'ear_training', 
+        'pulse_delay'
+    ];
+    const isAnyPro = window.isUserPro || TRACKED_PRO_KEYS.some(k => window.isPremiumActive(k));
     
     // Sync Pro navigation badge
     const profileTierBadge = document.getElementById('profile-tier-badge');
@@ -72,7 +92,7 @@ window.updatePremiumUI = function() {
             if (hasGlobalPro) {
                 profileTierBadge.textContent = '🎁 TEMP PRO (ALL)';
             } else {
-                const activeFeatures = ['spectrogram', 'snapshots', 'mic_calibration', 'ear_training']
+                const activeFeatures = TRACKED_PRO_KEYS
                     .filter(k => {
                         const tempFeatureUntil = safeStorage.getItem(`soundengg_temp_pro_until_${k}`);
                         return tempFeatureUntil && Date.now() < parseInt(tempFeatureUntil, 10);
@@ -81,8 +101,13 @@ window.updatePremiumUI = function() {
                     const featureNames = {
                         'spectrogram': 'SPECTRO',
                         'snapshots': 'SNAPSHOTS',
+                        'snapshot_slot_1': 'TRACE B',
+                        'snapshot_slot_2': 'TRACE C',
+                        'snapshot_slot_3': 'TRACE D',
                         'mic_calibration': 'MIC CAL',
-                        'ear_training': 'EAR TRAIN'
+                        'ear_training': 'EAR TRAIN',
+                        'fullscreen': 'FULLSCREEN',
+                        'pulse_delay': 'PULSE'
                     };
                     profileTierBadge.textContent = `🎁 TEMP PRO (${featureNames[activeFeatures[0]] || 'FEATURE'})`;
                 } else if (activeFeatures.length > 1) {
@@ -195,11 +220,12 @@ window.updatePremiumUI = function() {
             window.hideNativeBannerAd();
         }
     } else {
-        // If not Pro and on native mobile and unlocked, show native bottom banner
+        // If not Pro and on native mobile, keep the native bottom banner active outside RTA and lock modals
         if (window.isNativeMobile && window.isNativeMobile()) {
-            const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
-            const now = Date.now();
-            if (unlockedUntil && now < parseInt(unlockedUntil, 10)) {
+            const adLockModal = document.getElementById('ad-lock-modal');
+            const isLockModalOpen = adLockModal && !adLockModal.classList.contains('hidden');
+            const inRta = window.isRtaFullscreenActive || (typeof window.isRtaViewOrFullscreenActive === 'function' && window.isRtaViewOrFullscreenActive());
+            if (!isLockModalOpen && !inRta) {
                 if (typeof window.showNativeBannerAd === 'function') {
                     window.showNativeBannerAd();
                 }

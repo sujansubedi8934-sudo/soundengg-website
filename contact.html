@@ -1,6 +1,26 @@
 <!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>Contact Us | SoundEngg</title>
@@ -9,9 +29,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <style>
         html, body {
-            background: #0A0A0A !important;
-            background-color: #0A0A0A !important;
-            color: #FFFFFF !important;
+            background-color: var(--background);
+            color: var(--text-main);
         }
         
         main {
@@ -21,7 +40,7 @@
         }
         
         .page-title {
-            color: #FFFFFF !important;
+            color: var(--text-heading);
             font-size: 3rem;
             font-weight: 800;
             letter-spacing: -1px;
@@ -31,7 +50,7 @@
         .version-tag {
             font-family: var(--font-mono);
             font-size: 0.85rem;
-            color: var(--primary) !important;
+            color: var(--primary);
             letter-spacing: 1px;
             margin-bottom: 2rem;
             text-transform: uppercase;
@@ -70,20 +89,30 @@
                 <a href="contact.html" class="active">Contact</a>
                 <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
             </div>
-            <!-- Mobile View Navigation Select Dropdown -->
-            <div class="mobile-nav-dropdown-container">
-                <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
-                    <span class="landing-nav-active-label">MENU</span>
-                    <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
-                </button>
-                <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
-                    <a href="index.html" class="mobile-nav-item">HOME</a>
-                    <a href="about.html" class="mobile-nav-item">ABOUT</a>
-                    <a href="blog.html" class="mobile-nav-item">BLOG</a>
-                    <a href="pro.html" class="mobile-nav-item">PRO</a>
-                    <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
-                    <a href="contact.html" class="mobile-nav-item active">CONTACT</a>
-                    <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <!-- Mobile View Navigation Select Dropdown -->
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="index.html" class="mobile-nav-item">HOME</a>
+                        <a href="about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="contact.html" class="mobile-nav-item active">CONTACT</a>
+                        <a href="app.html" class="mobile-nav-item">LAUNCH</a>
+                    </div>
                 </div>
             </div>
             <script>
@@ -293,7 +322,12 @@
             }
         });
     </script>
-    <!-- Adsterra Social Bar Ad Network -->
-    <script src="https://pl30998896.profitableratecpmnetwork.com/23/7e/18/237e18fffe2a57217a7bef22595f2c5f.js"></script>
+    <script src="assets/js/modules/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof window.applyAutoTheme === 'function') window.applyAutoTheme();
+            if (typeof window.setupThemeToggle === 'function') window.setupThemeToggle();
+        });
+    </script>
 </body>
 </html>

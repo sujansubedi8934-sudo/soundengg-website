@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
+    <title>Acoustic Auto-Ping Delay Alignment Calculator | SoundEngg</title>
+    <meta name="description" content="Calculate acoustic delay times, speed of sound by temperature, and 1-mic auto-ping delay alignment for delay towers, front-fills, and under-balcony speakers."/>
+    <meta name="keywords" content="acoustic delay calculator, speaker delay alignment, speed of sound calculator, time align delay towers, auto ping delay finder, front fill delay, Haas effect"/>
+    <link rel="canonical" href="https://www.soundengg.com/tools/delay-finder"/>
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://www.soundengg.com/tools/delay-finder"/>
+    <meta property="og:title" content="Acoustic Auto-Ping Delay Alignment Calculator | SoundEngg"/>
+    <meta property="og:description" content="Professional acoustic speaker delay alignment: calculate speed of sound, propagation time, Haas offset, and 1-mic auto-ping delay alignment."/>
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png"/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://www.soundengg.com/tools/delay-finder"/>
+    <meta property="twitter:title" content="Acoustic Auto-Ping Delay Alignment Calculator | SoundEngg"/>
+    <meta property="twitter:description" content="Calculate acoustic delay times, speed of sound by temperature, and 1-mic auto-ping delay alignment for delay towers, front-fills, and under-balcony speakers."/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6.1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SoundEngg Acoustic Auto-Ping Delay Finder",
+      "applicationCategory": "AudioApplication",
+      "operatingSystem": "iOS, Android, macOS, Windows, Web",
+      "description": "One-mic acoustic delay alignment utility that measures sound arrival differences and calculates delay tower, front-fill, and outfill compensation.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Sujan Subedi",
+        "url": "https://www.soundengg.com/about.html"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do you calculate speaker delay time for a delay tower?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Speaker delay is determined by measuring the physical travel distance from the main PA to the delay zone, adjusted for the speed of sound at current ambient temperature. Live sound engineers also commonly add a 2 to 5 millisecond precedence offset so the audience perceives sound originating naturally from the main stage."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does temperature affect acoustic delay alignment?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The speed of sound changes directly with ambient temperature. As air warms up during a festival or arena show, sound travels faster through the venue. Over typical delay tower throws, day-to-night temperature changes can shift acoustic arrival by several milliseconds, creating comb filtering and phase cancellation if not re-aligned."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is the Haas Effect in live sound delay alignment?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "The Haas (precedence) effect states that when two identical sounds arrive within 5 to 30 ms of each other, the listener perceives the sound as originating entirely from the first arrival. By delaying fill speakers 2 to 5 ms beyond absolute acoustic arrival, the audience perceives all sound coming from the main stage while enjoying increased level."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+
+    <style>
+        .tool-page-hero {
+            padding: 130px 0 50px 0;
+            text-align: center;
+        }
+        .tool-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+        .tool-title {
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.15;
+            margin-bottom: 1.2rem;
+        }
+        .tool-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 780px;
+            margin: 0 auto 2.5rem auto;
+            line-height: 1.6;
+        }
+        .tool-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 3.5rem;
+        }
+        .calc-container {
+            max-width: 900px;
+            margin: 0 auto 4rem auto;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: 16px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .calc-field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .calc-label {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        .calc-input, .calc-select {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--outline);
+            border-radius: 8px;
+            padding: 12px 14px;
+            color: var(--text-heading);
+            font-family: var(--font-mono);
+            font-size: 1.1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        html.light .calc-input, html.light .calc-select {
+            background: #ffffff;
+            border: 1px solid #c8d4df;
+            color: #0f172a;
+        }
+        .calc-input:focus, .calc-select:focus {
+            border-color: var(--primary);
+        }
+        .calc-results {
+            background: rgba(0, 255, 204, 0.05);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            padding: 1.8rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1.5rem;
+            text-align: center;
+        }
+        .result-box h4 {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+        .result-val {
+            font-family: var(--font-mono);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        .result-unit {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-left: 2px;
+        }
+        .info-card {
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: 14px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .info-card h3 {
+            color: var(--text-heading);
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .faq-item {
+            border-bottom: 1px solid var(--outline);
+            padding: 1.25rem 0;
+        }
+        .faq-question {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: var(--text-heading);
+            margin-bottom: 0.5rem;
+        }
+        .faq-answer {
+            color: var(--text-main);
+            line-height: 1.7;
+        }
+        .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin: 4rem 0;
+        }
+        .app-badge-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        .app-store-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #000000;
+            color: #ffffff;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #333333;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .app-store-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body class="landing-page">
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo-link">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo"/>
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo"/>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../index.html#features">Tools</a>
+                <a href="../pro.html">Pro</a>
+                <a href="../blog.html">Blog</a>
+                <a href="../about.html">About</a>
+                <a href="../download.html">Download</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../app.html?view=delay" class="btn btn-primary">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="../index.html" class="mobile-nav-item">HOME</a>
+                        <a href="../index.html#features" class="mobile-nav-item">TOOLS</a>
+                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="../about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="../download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="../app.html?view=delay" class="mobile-nav-item">LAUNCH CONSOLE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="tool-page-hero">
+            <div class="tool-badge">
+                <span class="material-symbols-outlined" style="font-size: 16px;">speed</span>
+                ACOUSTIC ALIGNMENT TOOLKIT
+            </div>
+            <h1 class="tool-title">Acoustic Auto-Ping Delay Alignment Calculator</h1>
+            <p class="tool-subtitle">
+                Align delay towers, front-fills, outfills, and under-balcony speakers with acoustic precision. Calculate the exact speed of sound by temperature, propagation latency, and Haas precedence offset.
+            </p>
+            <div class="hero-actions store-button-grid" style="justify-content: center; margin-top: 1.5rem;">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=delay" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">Launch Live Auto-Ping in Console</a>
+            </div>
+        </section>
+
+        <!-- Interactive Calculator Widget -->
+        <section class="calc-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;">
+                <h3 style="color: var(--text-heading); font-size: 1.3rem; margin: 0;">Interactive Acoustic Delay Estimator</h3>
+                <span style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--primary);">STANDARD ISO 9613-1</span>
+            </div>
+
+            <div class="calc-grid">
+                <div class="calc-field">
+                    <label class="calc-label" for="calc-dist">Physical Distance to Delay Speaker</label>
+                    <input type="number" id="calc-dist" class="calc-input" value="30" min="0.1" step="0.1"/>
+                </div>
+                <div class="calc-field">
+                    <label class="calc-label" for="calc-unit">Distance Unit</label>
+                    <select id="calc-unit" class="calc-select">
+                        <option value="meters" selected>Meters (m)</option>
+                        <option value="feet">Feet (ft)</option>
+                    </select>
+                </div>
+                <div class="calc-field">
+                    <label class="calc-label" for="calc-temp">Ambient Temperature (°C)</label>
+                    <input type="number" id="calc-temp" class="calc-input" value="20" min="-20" max="55" step="1"/>
+                </div>
+                <div class="calc-field">
+                    <label class="calc-label" for="calc-haas">Haas Precedence Offset</label>
+                    <select id="calc-haas" class="calc-select">
+                        <option value="0">0 ms (Pure Physical Coincidence)</option>
+                        <option value="2">+2 ms (Subtle Frontal Pull)</option>
+                        <option value="3" selected>+3 ms (Standard Live FOH Haas)</option>
+                        <option value="5">+5 ms (Strong Stage Localization)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="calc-results">
+                <div class="result-box">
+                    <h4>Speed of Sound (c)</h4>
+                    <div class="result-val" id="res-speed">343.4<span class="result-unit">m/s</span></div>
+                </div>
+                <div class="result-box">
+                    <h4>Acoustic Flight Time</h4>
+                    <div class="result-val" id="res-flight">87.4<span class="result-unit">ms</span></div>
+                </div>
+                <div class="result-box">
+                    <h4>Recommended Delay</h4>
+                    <div class="result-val" id="res-total">90.4<span class="result-unit">ms</span></div>
+                </div>
+                <div class="result-box">
+                    <h4>Equivalent Distance</h4>
+                    <div class="result-val" id="res-equiv">31.0<span class="result-unit">m</span></div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: center;">
+                <button type="button" id="btn-open-share-card" class="btn btn-outline" style="border-color: var(--primary); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; max-width: 440px; padding: 12px 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;">
+                    <span class="material-symbols-outlined">badge</span>
+                    Generate FOH Alignment Share Card
+                </button>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.6rem;">
+                    Creates a high-res 1080×1080 verified calibration spec sheet for Instagram, WhatsApp & stage crews.
+                </p>
+            </div>
+        </section>
+
+        <!-- Practical FOH Delay Engineering Guidance -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">hearing</span> Why Time Alignment and Temperature Matter at FOH</h3>
+            <p>
+                In live sound reinforcement, aligning auxiliary speakers (delay towers, under-balcony fills, and stage front-fills) is critical to preventing comb filtering, smeared transients, and lost vocal intelligibility. Because sound takes time to travel through the air, listeners standing in front of a delay tower will hear two conflicting sound arrivals: the delayed sound from the main stage, and the immediate sound from the delay tower right in front of them.
+            </p>
+            <p>
+                When both arrivals are synchronized, the sound waves reinforce each other cleanly. However, temperature shifts between morning sound check and the evening show change how fast sound travels through the venue. On a warm festival afternoon, sound travels faster than in a cool morning arena—shifting acoustic arrival by several milliseconds over a typical delay throw. Re-checking delay times before showtime ensures tight punch and crystal-clear clarity from the front row to the lawn.
+            </p>
+        </section>
+
+        <!-- Field-Tested Precision -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">smartphone</span> Field-Tested Precision for Live Sound Crews</h3>
+            <p>
+                Laser tape measures tell you distance in a straight line, but they cannot account for crowd absorption, indoor temperature layers, or venue air movement.
+            </p>
+            <p>
+                SoundEngg's <strong>1-Mic Acoustic Auto-Ping</strong> is engineered for high-speed setup directly on the venue floor:
+            </p>
+            <ul style="color: var(--text-main); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li><strong>Rapid Acoustic Arrival Detection:</strong> Send a quick test pulse through the sound system and capture arrival times in seconds using your phone or measurement microphone.</li>
+                <li><strong>Precise Delay Offsets:</strong> Instantly get the recommended delay setting for your digital console or speaker management processor with sub-millisecond precision.</li>
+                <li><strong>100% Offline Reliability:</strong> Works anywhere—in concrete underground clubs, sports arenas, or remote festival grounds with zero cellular or Wi-Fi required.</li>
+                <li><strong>Haas Precedence Localization:</strong> Keep the acoustic image anchored on stage so the audience always looks toward the performer, even when listening to high-power fill speakers.</li>
+            </ul>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">help</span> Frequently Asked Questions</h3>
+            <div class="faq-item">
+                <div class="faq-question">How do I align front fills with the main line array?</div>
+                <div class="faq-answer">
+                    Measure the distance from the main PA to the front-fill listening zone, and the distance from the front-fill speaker to the listener. Calculate the flight difference, set the front-fill delay to that value, and add 2 to 3 ms of Haas precedence so the acoustic image pulls up to the performer on stage.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What is the Haas Effect in delay speaker alignment?</div>
+                <div class="faq-answer">
+                    The precedence (Haas) effect dictates that when two coherent sounds arrive within 5 to 30 ms of each other, the human auditory system localizes the sound to the first arrival. By delaying the fill speaker slightly (2–5 ms) past acoustic coincidence, listeners perceive all sound originating from the stage while benefiting from the fill speaker's SPL and high-frequency clarity.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Should I delay subwoofers to main line arrays?</div>
+                <div class="faq-answer">
+                    Yes. At the crossover frequency (typically 80 Hz to 100 Hz), subwoofers and main arrays must arrive with aligned phase. Delay offsets between ground subwoofers and flown mains cause destructive phase cancellation, creating acoustic nulls across the venue floor.
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Banner -->
+        <section class="app-cta-banner">
+            <h2 style="color: var(--text-heading); font-size: 2rem; margin-bottom: 0.75rem;">Get SoundEngg on Your Phone</h2>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+                Unlock 1-Mic Auto-Ping delay alignment, 1/24-octave RTA, and the complete offline FOH acoustic toolkit on iOS and Android.
+            </p>
+            <div class="app-badge-group">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=delay" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">
+                    Open Web Console
+                </a>
+            </div>
+        </section>
+    </main>
+
+        <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo dark-logo">
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="footer-logo light-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>FIELD_TOOLS</h4>
+                <ul>
+                    <li><a href="delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="signal-generator.html">Signal Generator</a></li>
+                    <li><a href="audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="subwoofer-array.html">Subwoofer Array Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
+                    <li><a href="../blog.html">Engineering Blog</a></li>
+                    <li><a href="../about.html">About Us</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="../privacy.html">Privacy Policy</a></li>
+                    <li><a href="../terms.html">Terms of Service</a></li>
+                    <li><a href="../download.html">Download Apps</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/modules/theme.js"></script>
+    <script src="../assets/js/modules/alignmentShareCard.js"></script>
+    <script>
+        // Interactive Calculator Logic
+        let lastCalcData = null;
+
+        function updateCalc() {
+            const distInput = parseFloat(document.getElementById('calc-dist').value) || 0;
+            const unit = document.getElementById('calc-unit').value;
+            const tempC = parseFloat(document.getElementById('calc-temp').value) || 20;
+            const haasMs = parseFloat(document.getElementById('calc-haas').value) || 0;
+
+            // Convert distance to meters
+            const distMeters = (unit === 'feet') ? (distInput * 0.3048) : distInput;
+
+            // Speed of sound c = 331.3 * sqrt(1 + T / 273.15)
+            const speedSound = 331.3 * Math.sqrt(1 + (tempC / 273.15));
+
+            // Flight time in ms
+            const flightTimeMs = (distMeters / speedSound) * 1000;
+            const totalDelayMs = flightTimeMs + haasMs;
+            const equivDistMeters = (totalDelayMs / 1000) * speedSound;
+
+            document.getElementById('res-speed').innerHTML = speedSound.toFixed(1) + '<span class="result-unit">m/s</span>';
+            document.getElementById('res-flight').innerHTML = flightTimeMs.toFixed(1) + '<span class="result-unit">ms</span>';
+            document.getElementById('res-total').innerHTML = totalDelayMs.toFixed(1) + '<span class="result-unit">ms</span>';
+            
+            let equivStr = '';
+            if (unit === 'feet') {
+                const equivFeet = equivDistMeters * 3.28084;
+                equivStr = equivFeet.toFixed(1) + ' ft';
+                document.getElementById('res-equiv').innerHTML = equivFeet.toFixed(1) + '<span class="result-unit">ft</span>';
+            } else {
+                equivStr = equivDistMeters.toFixed(1) + ' m';
+                document.getElementById('res-equiv').innerHTML = equivDistMeters.toFixed(1) + '<span class="result-unit">m</span>';
+            }
+
+            lastCalcData = {
+                zoneName: 'Main PA ↔ Delay Tower 1',
+                venueName: 'FOH Soundcheck Spec',
+                totalDelayMs: totalDelayMs.toFixed(1),
+                flightTimeMs: flightTimeMs.toFixed(1),
+                haasMs: haasMs.toFixed(1),
+                distance: distInput.toFixed(1),
+                unit: unit === 'feet' ? 'ft' : 'm',
+                equivDist: equivStr,
+                temp: tempC.toFixed(0),
+                tempUnit: '°C',
+                speed: speedSound.toFixed(1)
+            };
+        }
+
+        document.getElementById('calc-dist').addEventListener('input', updateCalc);
+        document.getElementById('calc-unit').addEventListener('change', updateCalc);
+        document.getElementById('calc-temp').addEventListener('input', updateCalc);
+        document.getElementById('calc-haas').addEventListener('change', updateCalc);
+
+        // Open Share Card Modal
+        document.getElementById('btn-open-share-card')?.addEventListener('click', () => {
+            if (!lastCalcData) updateCalc();
+            if (window.SoundEnggShareCard) {
+                window.SoundEnggShareCard.openModal(lastCalcData);
+            }
+        });
+
+        // Mobile Nav Dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+            const menu = document.querySelector('.landing-nav-dropdown-menu');
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = menu.style.display === 'flex';
+                    menu.style.display = isVisible ? 'none' : 'flex';
+                    toggleBtn.classList.toggle('active', !isVisible);
+                });
+                document.addEventListener('click', (e) => {
+                    if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                        menu.style.display = 'none';
+                        toggleBtn.classList.remove('active');
+                    }
+                });
+            }
+            updateCalc();
+        });
+    </script>
+</body>
+</html>

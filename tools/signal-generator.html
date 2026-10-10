@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
+    <title>Calibrated Audio Signal Generator & Pink Noise Lab | SoundEngg</title>
+    <meta name="description" content="Generate calibrated audio test signals: pure sine waves with ISO presets (100 Hz, 440 Hz, 1 kHz, 10 kHz), calibrated pink noise, and 3-second logarithmic sine sweeps. Pre-calibrated to the safe -18 dBFS 0 VU reference standard."/>
+    <meta name="keywords" content="audio signal generator, pink noise generator, 1kHz test tone, console lineup tone, logarithmic sine sweep, 3 second sweep, PA system tuning, ISO frequencies, web audio oscillator"/>
+    <link rel="canonical" href="https://www.soundengg.com/tools/signal-generator"/>
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://www.soundengg.com/tools/signal-generator"/>
+    <meta property="og:title" content="Calibrated Audio Signal Generator & Pink Noise Lab | SoundEngg"/>
+    <meta property="og:description" content="Precision audio test oscillator: calibrated sine waves (100 Hz, 440 Hz, 1 kHz, 10 kHz), pink noise, and 3-second logarithmic sine sweeps calibrated to safe -18 dBFS."/>
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png"/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://www.soundengg.com/tools/signal-generator"/>
+    <meta property="twitter:title" content="Calibrated Audio Signal Generator & Pink Noise Lab | SoundEngg"/>
+    <meta property="twitter:description" content="Generate calibrated audio test tones, pink noise, and 3-second logarithmic sine sweeps pre-set to safe -18 dBFS directly in your browser."/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6.1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SoundEngg Calibrated Signal Generator",
+      "applicationCategory": "AudioApplication",
+      "operatingSystem": "iOS, Android, macOS, Windows, Web",
+      "description": "Laboratory Web Audio test signal generator producing high-purity sine waves with ISO presets, calibrated pink noise (-3 dB/octave), and 3-second logarithmic sine sweeps at a safe -18 dBFS reference level.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Sujan Subedi",
+        "url": "https://www.soundengg.com/about.html"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why is 1 kHz at -18 dBFS standard for digital console calibration?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "In professional digital audio consoles, 0 dBFS represents full digital scale before clipping occurs. International standards (EBU R68 at -18 dBFS and SMPTE RP155 at -20 dBFS) align digital meter nominal level with analog 0 VU (+4 dBu). Sending a 1 kHz tone at -18 dBFS ensures 18 to 20 dB of headroom for live musical transients while achieving seamless unity gain alignment across mixing consoles, DSPs, and amplifiers."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Why do engineers use pink noise instead of white noise for PA system tuning?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "White noise contains equal energy per linear Hertz, which concentrates immense energy into higher frequencies (10 kHz to 20 kHz contains half of the total audible energy), sounding unnaturally bright and risking thermal damage to delicate high-frequency compression drivers. Pink noise decreases at 3 dB per octave (-10 dB per decade), providing equal energy per fraction-octave band and perfectly matching human hearing and fractional-octave RTA displays."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What is a 3-second logarithmic sine sweep used for in sound reinforcement?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A logarithmic sine sweep glides continuously from 20 Hz to 20,000 Hz, allocating equal time to each musical octave. Sound engineers use 3-second sweeps to test loudspeaker transducer health, detect voice coil rub or loose cabinet hardware, verify multi-way crossover handoffs, and assess room acoustics with clean, predictable excitation."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+
+    <style>
+        .tool-page-hero { padding: 130px 0 50px 0; text-align: center; }
+        .tool-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: rgba(0, 255, 204, 0.1); border: 1px solid var(--primary);
+            border-radius: 20px; color: var(--primary); font-family: var(--font-mono);
+            font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem;
+        }
+        .tool-title { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 800; color: var(--text-heading); line-height: 1.15; margin-bottom: 1.2rem; }
+        .tool-subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 2.5rem auto; line-height: 1.6; }
+        
+        /* Rack Unit Container */
+        .siggen-rack {
+            max-width: 840px; margin: 0 auto 4rem auto; background: var(--surface);
+            border: 1px solid var(--outline); border-radius: 16px; padding: 2.25rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25); position: relative;
+        }
+        
+        /* Top Status & Title Bar */
+        .rack-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--outline); padding-bottom: 1.25rem; margin-bottom: 1.75rem;
+            flex-wrap: wrap; gap: 1rem;
+        }
+        .rack-title-group { display: flex; align-items: center; gap: 10px; }
+        .rack-title { font-family: var(--font-headline); font-size: 1.3rem; font-weight: 700; color: var(--text-heading); margin: 0; }
+        .rack-status-badge {
+            font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700;
+            padding: 5px 12px; border-radius: 6px; letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.05); color: var(--text-muted); border: 1px solid var(--outline);
+            transition: all 0.2s ease;
+        }
+        .rack-status-badge.active {
+            background: rgba(0, 255, 204, 0.15); color: var(--primary); border-color: var(--primary);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.3);
+        }
+        html.light .rack-status-badge.active {
+            background: rgba(8, 145, 178, 0.15); color: #0891b2; border-color: #0891b2;
+            box-shadow: 0 0 10px rgba(8, 145, 178, 0.2);
+        }
+
+        /* Section Headings */
+        .section-label {
+            font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);
+            letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.75rem;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .section-subtext { font-size: 0.7rem; color: var(--primary); text-transform: none; letter-spacing: 0; }
+
+        /* 3 Waveform Buttons Grid */
+        .wave-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem;
+        }
+        @media (max-width: 600px) {
+            .wave-grid { grid-template-columns: 1fr; }
+        }
+        .wave-tab-btn {
+            padding: 16px 12px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--outline); border-radius: 10px; color: var(--text-main);
+            font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700;
+            display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+            cursor: pointer; transition: all 0.2s ease; outline: none; text-align: center;
+        }
+        html.light .wave-tab-btn { background: #f8fafc; border-color: #cbd5e1; color: #334155; }
+        .wave-tab-btn:hover { border-color: var(--primary); }
+        .wave-tab-btn.active {
+            background: rgba(0, 255, 204, 0.12); border-color: var(--primary); color: var(--primary);
+            box-shadow: 0 0 16px rgba(0, 255, 204, 0.2);
+        }
+        html.light .wave-tab-btn.active {
+            background: rgba(8, 145, 178, 0.12); border-color: #0891b2; color: #0891b2;
+            box-shadow: 0 2px 10px rgba(8, 145, 178, 0.2);
+        }
+
+        /* Frequency Quick ISO Presets Grid */
+        .freq-rack-panel {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--outline);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;
+            transition: opacity 0.2s ease;
+        }
+        html.light .freq-rack-panel { background: #f8fafc; border-color: #cbd5e1; }
+        
+        .preset-chips-grid {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.85rem;
+        }
+        @media (max-width: 650px) {
+            .preset-chips-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .preset-chip {
+            padding: 14px 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--outline);
+            border-radius: 8px; color: var(--text-main); font-family: var(--font-mono);
+            font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease;
+            text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center;
+        }
+        html.light .preset-chip { background: #ffffff; border-color: #cbd5e1; color: #334155; }
+        .preset-chip .chip-label { font-size: 0.65rem; color: var(--text-muted); font-weight: normal; }
+        .preset-chip:hover { border-color: var(--primary); color: var(--text-heading); }
+        .preset-chip.active {
+            border-color: var(--primary); color: var(--primary); background: rgba(0, 255, 204, 0.1);
+            box-shadow: 0 0 12px rgba(0, 255, 204, 0.2);
+        }
+        html.light .preset-chip.active {
+            border-color: #0891b2; color: #0891b2; background: rgba(8, 145, 178, 0.1);
+            box-shadow: 0 2px 8px rgba(8, 145, 178, 0.15);
+        }
+
+        /* Calibrated Output Level & Dynamic VU Meter */
+        .output-level-panel {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--outline);
+            border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;
+        }
+        html.light .output-level-panel { background: #f8fafc; border-color: #cbd5e1; }
+        
+        .level-header-row {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;
+        }
+        .level-spec-badge {
+            font-family: var(--font-mono); font-size: 0.75rem; font-weight: 700;
+            padding: 4px 10px; border-radius: 6px; background: rgba(0, 255, 204, 0.08);
+            border: 1px solid var(--primary); color: var(--primary); letter-spacing: 0.5px;
+        }
+        html.light .level-spec-badge { background: rgba(8, 145, 178, 0.08); border-color: #0891b2; color: #0891b2; }
+
+        .meter-container {
+            width: 100%; height: 16px; background: rgba(0, 0, 0, 0.4);
+            border-radius: 8px; border: 1px solid var(--outline); overflow: hidden;
+            position: relative; margin-top: 6px;
+        }
+        html.light .meter-container { background: #e2e8f0; border-color: #cbd5e1; }
+        .meter-bar {
+            position: absolute; left: 0; top: 0;
+            height: 100%; width: 100%;
+            background: linear-gradient(to right, 
+                #10b981 0%, 
+                #10b981 35%, 
+                #06b6d4 47%, 
+                #06b6d4 51%, 
+                #f59e0b 66%, 
+                #f59e0b 82%, 
+                #ef4444 96%, 
+                #ef4444 100%
+            );
+            clip-path: inset(0 100% 0 0 round 7px);
+            transition: clip-path 0.05s ease;
+            border-radius: 7px;
+        }
+        .meter-ref-notch {
+            position: absolute; top: 0; bottom: 0; left: 50%; width: 2px;
+            background: var(--primary); z-index: 3; pointer-events: none;
+            box-shadow: 0 0 6px var(--primary);
+        }
+        html.light .meter-ref-notch {
+            background: #0891b2; box-shadow: 0 0 4px rgba(8, 145, 178, 0.5);
+        }
+
+        .meter-scale {
+            position: relative; width: 100%; height: 18px;
+            font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted);
+            margin-top: 8px;
+        }
+        .meter-scale span {
+            position: absolute; transform: translateX(-50%); white-space: nowrap;
+        }
+        .meter-scale .scale-mark-start {
+            left: 0 !important; transform: none !important;
+        }
+        .meter-scale .scale-mark-end {
+            right: 0 !important; left: auto !important; transform: none !important;
+        }
+
+        /* Master Engage Button */
+        .btn-engage {
+            width: 100%; padding: 18px 24px; font-family: var(--font-mono); font-size: 1.1rem;
+            font-weight: 800; letter-spacing: 1.5px; border-radius: 12px; cursor: pointer;
+            display: inline-flex; align-items: center; justify-content: center; gap: 12px;
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.18), rgba(0, 255, 204, 0.06));
+            border: 2px solid var(--primary); color: var(--primary);
+            transition: all 0.2s ease; box-shadow: 0 0 20px rgba(0, 255, 204, 0.15);
+            outline: none; user-select: none;
+        }
+        .btn-engage:hover {
+            background: var(--primary); color: #050a12; transform: translateY(-1px);
+            box-shadow: 0 0 28px rgba(0, 255, 204, 0.4);
+        }
+        html.light .btn-engage {
+            background: rgba(8, 145, 178, 0.1); border-color: #0891b2; color: #0891b2;
+            box-shadow: 0 2px 12px rgba(8, 145, 178, 0.15);
+        }
+        html.light .btn-engage:hover { background: #0891b2; color: #ffffff; }
+        .btn-engage.active {
+            background: #e11d48; border-color: #f43f5e; color: #ffffff;
+            box-shadow: 0 0 28px rgba(225, 29, 72, 0.5);
+            animation: pulse-active 2s infinite;
+        }
+        @keyframes pulse-active {
+            0% { box-shadow: 0 0 15px rgba(225, 29, 72, 0.4); }
+            50% { box-shadow: 0 0 28px rgba(225, 29, 72, 0.8); }
+            100% { box-shadow: 0 0 15px rgba(225, 29, 72, 0.4); }
+        }
+
+        /* Information & FAQ Cards */
+        .info-card { background: var(--surface); border: 1px solid var(--outline); border-radius: 14px; padding: 2rem; margin-bottom: 2rem; }
+        .info-card h3 { color: var(--text-heading); font-size: 1.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .app-feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .app-feature-item {
+            background: rgba(0, 0, 0, 0.15); border: 1px solid var(--outline); border-radius: 10px; padding: 1.25rem;
+        }
+        html.light .app-feature-item { background: #f8fafc; border-color: #cbd5e1; }
+        .app-feature-item h4 { font-size: 1.05rem; font-weight: 700; color: var(--text-heading); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px; }
+        .app-feature-item p { color: var(--text-main); font-size: 0.9rem; line-height: 1.6; margin: 0; }
+
+        .faq-item { border-bottom: 1px solid var(--outline); padding: 1.25rem 0; }
+        .faq-question { font-size: 1.15rem; font-weight: 600; color: var(--text-heading); margin-bottom: 0.5rem; }
+        .faq-answer { color: var(--text-main); line-height: 1.7; }
+
+        .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border: 1px solid var(--primary); border-radius: 16px; padding: 3rem 2rem; text-align: center; margin: 4rem 0;
+        }
+        .app-badge-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .app-store-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
+            background: #000000; color: #ffffff; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; border: 1px solid #333333; transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .app-store-btn:hover { transform: translateY(-2px); border-color: var(--primary); color: #ffffff; }
+    </style>
+</head>
+<body class="landing-page">
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo-link">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo"/>
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo"/>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../index.html#features">Tools</a>
+                <a href="../pro.html">Pro</a>
+                <a href="../blog.html">Blog</a>
+                <a href="../about.html">About</a>
+                <a href="../download.html">Download</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../app.html?view=signalgen" class="btn btn-primary">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="../index.html" class="mobile-nav-item">HOME</a>
+                        <a href="../index.html#features" class="mobile-nav-item">TOOLS</a>
+                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="../about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="../download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="../app.html?view=signalgen" class="mobile-nav-item">LAUNCH CONSOLE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="tool-page-hero">
+            <div class="tool-badge">
+                <span class="material-symbols-outlined" style="font-size: 16px;">graphic_eq</span>
+                CALIBRATED TEST OSCILLATOR
+            </div>
+            <h1 class="tool-title">Calibrated Audio Signal Generator</h1>
+            <p class="tool-subtitle">
+                Generate laboratory-grade audio test signals directly in your browser: high-purity sine waves with standard ISO presets (100 Hz, 440 Hz, 1 kHz, 10 kHz), calibrated pink noise, and 3-second logarithmic sine sweeps. Pre-calibrated to the safe -18 dBFS 0 VU reference standard.
+            </p>
+            <div class="hero-actions store-button-grid" style="justify-content: center; margin-top: 1.5rem;">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=signalgen" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">Launch Signal Generator in Console</a>
+            </div>
+        </section>
+
+        <!-- Interactive Web Audio Signal Generator Rack -->
+        <section class="siggen-rack">
+            <!-- Header -->
+            <div class="rack-header">
+                <div class="rack-title-group">
+                    <span class="material-symbols-outlined text-primary" style="font-size: 1.6rem;">settings_input_composite</span>
+                    <h2 class="rack-title">Field Oscillator Rack</h2>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div id="siggen-status-badge" class="rack-status-badge">STATUS: STANDBY</div>
+                </div>
+            </div>
+
+            <!-- Waveform Selection (3 Core Signals) -->
+            <div style="margin-bottom: 1.75rem;">
+                <div class="section-label">
+                    <span>1. SELECT TEST SIGNAL</span>
+                    <span class="section-subtext" id="wave-mode-hint">Pure Tone Oscillator</span>
+                </div>
+                <div class="wave-grid">
+                    <button class="wave-tab-btn active" data-wave="sine" id="btn-wave-sine">
+                        <span class="material-symbols-outlined" style="font-size: 1.8rem;">waves</span>
+                        <span>SINE WAVE</span>
+                    </button>
+                    <button class="wave-tab-btn" data-wave="pink" id="btn-wave-pink">
+                        <span class="material-symbols-outlined" style="font-size: 1.8rem;">blur_on</span>
+                        <span>PINK NOISE</span>
+                    </button>
+                    <button class="wave-tab-btn" data-wave="sweep" id="btn-wave-sweep">
+                        <span class="material-symbols-outlined" style="font-size: 1.8rem;">stacked_line_chart</span>
+                        <span>SINE SWEEP (3s)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Frequency Selection: 4 Quick ISO Presets -->
+            <div class="freq-rack-panel" id="freq-controls-panel">
+                <div class="section-label">
+                    <span>2. FREQUENCY SELECTION (ISO STANDARD PRESETS)</span>
+                    <span class="section-subtext" id="active-freq-label">ACTIVE: 1.0 kHz</span>
+                </div>
+                <div class="preset-chips-grid">
+                    <button class="preset-chip" data-freq="100" id="chip-100">
+                        <span>100 Hz</span>
+                        <span class="chip-label">Subwoofer Band</span>
+                    </button>
+                    <button class="preset-chip" data-freq="440" id="chip-440">
+                        <span>440 Hz</span>
+                        <span class="chip-label">Concert Pitch A4</span>
+                    </button>
+                    <button class="preset-chip active" data-freq="1000" id="chip-1000">
+                        <span>1.0 kHz</span>
+                        <span class="chip-label">Console 0 VU Lineup</span>
+                    </button>
+                    <button class="preset-chip" data-freq="10000" id="chip-10000">
+                        <span>10.0 kHz</span>
+                        <span class="chip-label">HF Driver & Air</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Calibrated Output Level & Dynamic VU Meter -->
+            <div class="output-level-panel">
+                <div class="level-header-row">
+                    <div>
+                        <span class="section-label" style="margin: 0;">3. CALIBRATED OUTPUT LEVEL</span>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 2px;">Fixed safe reference alignment (EBU R68 / SMPTE RP155)</div>
+                    </div>
+                    <div class="level-spec-badge">-18.0 dBFS (0 VU)</div>
+                </div>
+
+                <div class="meter-container">
+                    <div id="siggen-vu-meter-bar" class="meter-bar"></div>
+                    <div class="meter-ref-notch" title="0 VU Reference (-18 dBFS)"></div>
+                </div>
+
+                <div class="meter-scale">
+                    <span style="left: 0%;" class="scale-mark-start">-60 dBFS</span>
+                    <span style="left: 28%;">-30</span>
+                    <span style="left: 50%; color: var(--primary); font-weight: 700;">-18 dBFS (0 VU)</span>
+                    <span style="left: 68%;">-12</span>
+                    <span style="left: 84%;">-6</span>
+                    <span style="right: 0%; color: #ef4444;" class="scale-mark-end">0 dBFS (CLIP)</span>
+                </div>
+            </div>
+
+            <!-- Master Engage / Disengage Toggle Button -->
+            <div>
+                <button id="btn-master-engage" class="btn-engage">
+                    <span class="material-symbols-outlined" id="engage-icon" style="font-size: 1.5rem;">power_settings_new</span>
+                    <span id="engage-text">ENGAGE OUTPUT</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- Technical Description: Console Meter Lineup -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">equalizer</span> Console Meter Lineup & Gain Staging</h3>
+            <p>
+                In professional live sound and broadcast engineering, calibrated test signals ensure that all gear across the audio chain—from digital mixing consoles to stage distribution racks, system DSP processors, and power amplifiers—operate at unity gain with predictable headroom.
+            </p>
+            <p>
+                Digital audio meters are measured in decibels full scale (<strong>dBFS</strong>), where 0 dBFS is the absolute digital ceiling above which harsh clipping occurs. Because live music requires substantial dynamic headroom for uncompressed acoustic transients, international standards define nominal operating level well below full scale:
+            </p>
+            <div class="app-feature-grid">
+                <div class="app-feature-item">
+                    <h4><span class="material-symbols-outlined text-primary" style="font-size: 20px;">public</span> EBU R68 Standard (-18 dBFS)</h4>
+                    <p>Widely used across Europe, touring consoles, and AES/EBU digital routing. A 1 kHz sine tone at <strong>-18 dBFS</strong> corresponds to nominal analog line level (<strong>0 VU = +4 dBu / 1.228 V RMS</strong>), leaving 18 dB of dynamic headroom before digital clipping.</p>
+                </div>
+                <div class="app-feature-item">
+                    <h4><span class="material-symbols-outlined text-primary" style="font-size: 20px;">broadcast_on_home</span> SMPTE RP155 Standard (-20 dBFS)</h4>
+                    <p>Standard across North American broadcast and live theater. A 1 kHz tone at <strong>-20 dBFS</strong> aligns with nominal 0 VU analog (+4 dBu), preserving 20 dB of dynamic headroom for loud brass and percussion transients.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Field Applications -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">engineering</span> Practical Field Applications for Sound Engineers</h3>
+            <div class="app-feature-grid">
+                <div class="app-feature-item">
+                    <h4><span class="material-symbols-outlined text-primary" style="font-size: 20px;">cable</span> Multi-Channel Snake & Line Checks</h4>
+                    <p>
+                        Injecting a steady 1 kHz tone at -18 dBFS down multi-pin stage snakes and Dante networks allows a single technician at FOH to trace input channels, verify patch bay labeling, and check split lines without needing a second person speaking into stage microphones.
+                    </p>
+                </div>
+                <div class="app-feature-item">
+                    <h4><span class="material-symbols-outlined text-primary" style="font-size: 20px;">graphic_eq</span> PA Acoustic Tuning with Pink Noise</h4>
+                    <p>
+                        Pink noise contains equal acoustic energy per fractional-octave band (-3 dB per octave rolloff), perfectly matching the logarithmic response of human hearing and Real-Time Analyzers (RTA). Feeding pink noise into a sound system allows technicians to measure room decay and correct tonal balance without burning out HF tweeters.
+                    </p>
+                </div>
+                <div class="app-feature-item">
+                    <h4><span class="material-symbols-outlined text-primary" style="font-size: 20px;">stacked_line_chart</span> 3-Second Logarithmic Sine Sweep</h4>
+                    <p>
+                        Sweeping a pure sine wave smoothly from 20 Hz to 20,000 Hz over a 3.0-second window distributes equal acoustic energy per octave. This allows technicians to sweep individual loudspeaker drivers, detect voice coil rubbing or cabinet buzzes, and inspect crossover handoffs with continuous broadband excitation.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">help</span> Frequently Asked Questions</h3>
+            <div class="faq-item">
+                <div class="faq-question">Why is 1 kHz at -18 dBFS standard for digital console calibration?</div>
+                <div class="faq-answer">
+                    In digital audio systems, 0 dBFS is the absolute ceiling where digital clipping occurs. To maintain headroom for uncompressed live transients, international standards (EBU R68 at -18 dBFS and SMPTE RP155 at -20 dBFS) align digital meter nominal level with analog 0 VU (+4 dBu). Sending a 1 kHz tone at -18 dBFS ensures 18 to 20 dB of headroom while achieving seamless unity gain alignment across mixing consoles, DSPs, and amplifiers.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Why do engineers use pink noise instead of white noise for PA system tuning?</div>
+                <div class="faq-answer">
+                    White noise contains equal energy per linear Hertz, which concentrates immense energy into higher frequencies (10 kHz to 20 kHz contains half of the total audible energy), sounding unnaturally bright and risking thermal damage to delicate high-frequency compression drivers. Pink noise decreases at 3 dB per octave (-10 dB per decade), providing equal energy per fraction-octave band and perfectly matching human hearing and fractional-octave RTA displays.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">What is a 3-second logarithmic sine sweep used for in sound reinforcement?</div>
+                <div class="faq-answer">
+                    A logarithmic sine sweep glides continuously from 20 Hz to 20,000 Hz, spending equal time in each musical octave band. Sound engineers use 3-second sweeps to inspect speaker cabinet resonances, identify driver voice coil rub or loose grilles, and verify clean broadband transfer through DSP crossovers and amplifiers without harmonic smearing.
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Banner -->
+        <section class="app-cta-banner">
+            <h2 style="color: var(--text-heading); font-size: 2rem; margin-bottom: 0.75rem;">Generate Bit-Perfect Test Signals</h2>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+                Download SoundEngg on iOS and Android for bit-perfect 24-bit test tones, sweeps, and calibrated pink noise in your pocket.
+            </p>
+            <div class="app-badge-group">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=signalgen" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">
+                    Open Web Console
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo dark-logo">
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="footer-logo light-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>FIELD_TOOLS</h4>
+                <ul>
+                    <li><a href="delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="signal-generator.html">Signal Generator</a></li>
+                    <li><a href="audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="subwoofer-array.html">Subwoofer Array Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
+                    <li><a href="../blog.html">Engineering Blog</a></li>
+                    <li><a href="../about.html">About Us</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="../privacy.html">Privacy Policy</a></li>
+                    <li><a href="../terms.html">Terms of Service</a></li>
+                    <li><a href="../download.html">Download Apps</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/modules/theme.js"></script>
+    <script>
+        // =========================================================================
+        // CALIBRATED AUDIO SIGNAL GENERATOR (SINE, PINK NOISE, 3S SINE SWEEP @ -18 dBFS)
+        // =========================================================================
+        (function() {
+            let audioCtx = null;
+            let gainNode = null;
+            let analyser = null;
+            let oscillator = null;
+            let noiseNode = null;
+            let filterNode = null;
+            let isPlaying = false;
+            let currentWave = 'sine'; // 'sine' | 'pink' | 'sweep'
+            let currentFreq = 1000;
+            const targetGainDb = -18; // Default safe reference level: -18 dBFS
+            const targetGainVal = Math.pow(10, targetGainDb / 20); // 0.1258925 (-18 dBFS)
+            
+            // Sweep configuration (3-second logarithmic sweep)
+            const sweepDuration = 3.0; // 3.0 seconds default
+            let sweepStartTime = 0;
+            let sweepRafId = null;
+            let smoothedPinkRms = 0;
+
+            // DOM Elements
+            const btnEngage = document.getElementById('btn-master-engage');
+            const engageIcon = document.getElementById('engage-icon');
+            const engageText = document.getElementById('engage-text');
+            const statusBadge = document.getElementById('siggen-status-badge');
+            const vuBar = document.getElementById('siggen-vu-meter-bar');
+            const waveBtns = document.querySelectorAll('.wave-tab-btn');
+            const waveModeHint = document.getElementById('wave-mode-hint');
+            const freqPanel = document.getElementById('freq-controls-panel');
+            const activeFreqLabel = document.getElementById('active-freq-label');
+            const presetChips = document.querySelectorAll('.preset-chip');
+
+            let vuRafId = null;
+            let timeDomainBuffer = null;
+
+            // Initialize AudioContext & Analyser Graph
+            function initAudio() {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
+
+                    gainNode = audioCtx.createGain();
+                    gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+
+                    analyser = audioCtx.createAnalyser();
+                    analyser.fftSize = 512;
+                    timeDomainBuffer = new Float32Array(analyser.fftSize);
+
+                    gainNode.connect(analyser);
+                    analyser.connect(audioCtx.destination);
+                }
+            }
+
+            // Paul Kellet 7-pole Pink Noise Generator (-3 dB / octave) calibrated so raw RMS = 1.0
+            function createPinkNoiseNode() {
+                const bufferSize = 4096 * 2;
+                const b = [0, 0, 0, 0, 0, 0, 0];
+                const kelletNormScale = 0.11 / 0.1928; // Calibrated normalization scalar to align -18 dBFS RMS
+                const node = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+                node.onaudioprocess = function(e) {
+                    const output = e.outputBuffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1;
+                        b[0] = 0.99886 * b[0] + white * 0.0555179;
+                        b[1] = 0.99332 * b[1] + white * 0.0750759;
+                        b[2] = 0.96900 * b[2] + white * 0.1538520;
+                        b[3] = 0.86650 * b[3] + white * 0.3104856;
+                        b[4] = 0.55000 * b[4] + white * 0.5329522;
+                        b[5] = -0.7616 * b[5] - white * 0.0168980;
+                        output[i] = (b[0] + b[1] + b[2] + b[3] + b[4] + b[5] + b[6] + white * 0.5362) * kelletNormScale;
+                        b[6] = white * 0.115926;
+                    }
+                };
+                return node;
+            }
+
+            // Teardown Active Generator Nodes
+            function cleanupSources() {
+                if (sweepRafId) {
+                    cancelAnimationFrame(sweepRafId);
+                    sweepRafId = null;
+                }
+                if (oscillator) {
+                    try { oscillator.stop(); } catch(e) {}
+                    try { oscillator.disconnect(); } catch(e) {}
+                    oscillator = null;
+                }
+                if (filterNode) {
+                    try { filterNode.disconnect(); } catch(e) {}
+                    filterNode = null;
+                }
+                if (noiseNode) {
+                    try { noiseNode.disconnect(); } catch(e) {}
+                    noiseNode = null;
+                }
+            }
+
+            // Update Frequency Chips UI
+            function updateFreqUI(freq) {
+                presetChips.forEach(chip => {
+                    const f = parseInt(chip.getAttribute('data-freq'), 10);
+                    chip.classList.toggle('active', f === freq);
+                });
+                const formatted = (freq >= 1000) ? (freq / 1000).toFixed(1) + ' kHz' : freq + ' Hz';
+                if (activeFreqLabel) {
+                    if (currentWave === 'sweep') {
+                        activeFreqLabel.textContent = `READY: 3.0s Sweep (20 Hz → 20 kHz)`;
+                    } else if (currentWave === 'pink') {
+                        activeFreqLabel.textContent = `FULL-RANGE: 20 Hz – 20 kHz Pink Noise`;
+                    } else {
+                        activeFreqLabel.textContent = `ACTIVE: ${formatted}`;
+                    }
+                }
+            }
+
+            // Soft Click-Free Ramp In to Safe -18 dBFS Target
+            function applyRampIn() {
+                gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+                gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+                gainNode.gain.linearRampToValueAtTime(targetGainVal, audioCtx.currentTime + 0.35);
+            }
+
+            // Sweep Progress Animation Loop
+            function updateSweepProgress() {
+                if (!isPlaying || currentWave !== 'sweep' || !audioCtx) return;
+                const elapsed = audioCtx.currentTime - sweepStartTime;
+                if (elapsed >= sweepDuration) {
+                    stopTone();
+                    if (activeFreqLabel) activeFreqLabel.textContent = 'SWEEP COMPLETE (3.0s / 20 Hz → 20 kHz)';
+                    return;
+                }
+                const progress = Math.max(0, Math.min(1, elapsed / sweepDuration));
+                // Logarithmic frequency ramp: 20 Hz to 20,000 Hz
+                const curF = Math.round(20 * Math.pow(20000 / 20, progress));
+                const formatted = (curF >= 1000) ? (curF / 1000).toFixed(1) + ' kHz' : curF + ' Hz';
+                if (activeFreqLabel) {
+                    activeFreqLabel.textContent = `SWEEPING: ${formatted} (${Math.round(progress * 100)}%)`;
+                }
+                sweepRafId = requestAnimationFrame(updateSweepProgress);
+            }
+
+            // Start Audio Output
+            async function startTone() {
+                initAudio();
+                if (audioCtx.state === 'suspended') {
+                    await audioCtx.resume();
+                }
+
+                cleanupSources();
+                smoothedPinkRms = 0;
+
+                if (currentWave === 'pink') {
+                    // Full-Bandwidth Calibrated Pink Noise @ -18 dBFS RMS
+                    noiseNode = createPinkNoiseNode();
+                    noiseNode.connect(gainNode);
+                    applyRampIn();
+                } else if (currentWave === 'sweep') {
+                    // 3-Second Continuous Logarithmic Sine Sweep (20 Hz → 20,000 Hz)
+                    const now = audioCtx.currentTime + 0.03;
+                    sweepStartTime = now;
+                    const endTime = now + sweepDuration;
+
+                    oscillator = audioCtx.createOscillator();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.cancelScheduledValues(now);
+                    oscillator.frequency.setValueAtTime(20, now);
+                    oscillator.frequency.exponentialRampToValueAtTime(20000, endTime);
+
+                    // Soft envelope: 40ms linear fade in, 40ms linear fade out
+                    gainNode.gain.cancelScheduledValues(now);
+                    gainNode.gain.setValueAtTime(0, now);
+                    gainNode.gain.linearRampToValueAtTime(targetGainVal, now + 0.04);
+                    gainNode.gain.setValueAtTime(targetGainVal, endTime - 0.04);
+                    gainNode.gain.linearRampToValueAtTime(0, endTime);
+
+                    oscillator.connect(gainNode);
+                    oscillator.start(now);
+                    oscillator.stop(endTime);
+
+                    if (sweepRafId) cancelAnimationFrame(sweepRafId);
+                    sweepRafId = requestAnimationFrame(updateSweepProgress);
+                } else {
+                    // Pure Sine Wave Oscillator with Selected ISO Preset
+                    updateFreqUI(currentFreq);
+                    oscillator = audioCtx.createOscillator();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(currentFreq, audioCtx.currentTime);
+                    oscillator.connect(gainNode);
+                    oscillator.start();
+                    applyRampIn();
+                }
+
+                isPlaying = true;
+                btnEngage.classList.add('active');
+                engageIcon.textContent = 'stop_circle';
+                engageText.textContent = 'DISENGAGE OUTPUT';
+                statusBadge.textContent = 'STATUS: ACTIVE';
+                statusBadge.classList.add('active');
+
+                if (!vuRafId) {
+                    vuRafId = requestAnimationFrame(updateVuMeter);
+                }
+            }
+
+            // Stop Audio Output with Soft Ramp Out (45ms)
+            function stopTone() {
+                if (!isPlaying) return;
+                isPlaying = false;
+
+                if (sweepRafId) {
+                    cancelAnimationFrame(sweepRafId);
+                    sweepRafId = null;
+                }
+
+                if (gainNode && audioCtx) {
+                    try {
+                        gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+                        gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.015);
+                    } catch(e) {}
+                    setTimeout(cleanupSources, 50);
+                } else {
+                    cleanupSources();
+                }
+
+                btnEngage.classList.remove('active');
+                engageIcon.textContent = 'power_settings_new';
+                engageText.textContent = 'ENGAGE OUTPUT';
+                statusBadge.textContent = 'STATUS: STANDBY';
+                statusBadge.classList.remove('active');
+                if (vuBar) vuBar.style.clipPath = 'inset(0 100% 0 0 round 7px)';
+                if (activeFreqLabel) {
+                    if (currentWave === 'sweep') {
+                        activeFreqLabel.textContent = 'READY: 3.0s Sweep (20 Hz → 20 kHz)';
+                    } else if (currentWave === 'pink') {
+                        activeFreqLabel.textContent = 'FULL-RANGE: 20 Hz – 20 kHz Pink Noise';
+                    } else {
+                        const formatted = (currentFreq >= 1000) ? (currentFreq / 1000).toFixed(1) + ' kHz' : currentFreq + ' Hz';
+                        activeFreqLabel.textContent = `ACTIVE: ${formatted}`;
+                    }
+                }
+            }
+
+            // Live VU Meter Animation
+            function updateVuMeter() {
+                if (!isPlaying || !analyser) {
+                    vuRafId = null;
+                    if (vuBar) vuBar.style.clipPath = 'inset(0 100% 0 0 round 7px)';
+                    return;
+                }
+
+                analyser.getFloatTimeDomainData(timeDomainBuffer);
+
+                let peak = 0;
+                let sumSq = 0;
+                const N = timeDomainBuffer.length;
+                for (let i = 0; i < N; i++) {
+                    const s = timeDomainBuffer[i];
+                    const abs = Math.abs(s);
+                    if (abs > peak) peak = abs;
+                    sumSq += s * s;
+                }
+                const currentRms = Math.sqrt(sumSq / N);
+
+                let measured = 0;
+                if (currentWave === 'pink') {
+                    // Ballistics-smoothed continuous RMS power
+                    smoothedPinkRms = (smoothedPinkRms === 0) ? currentRms : (smoothedPinkRms * 0.88 + currentRms * 0.12);
+                    measured = smoothedPinkRms;
+                } else {
+                    // Sine wave / Sine sweep: peak amplitude directly maps to safe lineup (-18 dBFS)
+                    measured = peak;
+                }
+
+                const db = measured > 1e-4 ? Math.min(0, Math.max(-60, 20 * Math.log10(measured))) : -60;
+                
+                // Map measured dBFS to scale-matched meter percentage (-18 dBFS exactly at 50% centerline)
+                const percent = dbToMeterPercent(db);
+                const clipRight = Math.max(0, Math.min(100, 100 - percent));
+                
+                if (vuBar) {
+                    vuBar.style.clipPath = `inset(0 ${clipRight.toFixed(1)}% 0 0 round 7px)`;
+                }
+
+                vuRafId = requestAnimationFrame(updateVuMeter);
+            }
+
+            // Piecewise meter scale mapping anchored to physical scale markers
+            const METER_POINTS = [
+                { db: -60, pos: 0 },
+                { db: -30, pos: 28 },
+                { db: -18, pos: 50 },
+                { db: -12, pos: 68 },
+                { db: -6,  pos: 84 },
+                { db: 0,   pos: 100 }
+            ];
+
+            function dbToMeterPercent(db) {
+                if (db <= -60) return 0;
+                if (db >= 0) return 100;
+                for (let i = 0; i < METER_POINTS.length - 1; i++) {
+                    const p1 = METER_POINTS[i];
+                    const p2 = METER_POINTS[i + 1];
+                    if (db >= p1.db && db <= p2.db) {
+                        const fraction = (db - p1.db) / (p2.db - p1.db);
+                        return p1.pos + fraction * (p2.pos - p1.pos);
+                    }
+                }
+                return 0;
+            }
+
+            // --- Event Bindings ---
+
+            // Master Engage / Disengage Button
+            btnEngage.addEventListener('click', async () => {
+                if (isPlaying) stopTone();
+                else await startTone();
+            });
+
+            // Waveform Selector Tabs
+            waveBtns.forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const wave = btn.getAttribute('data-wave');
+                    if (wave === currentWave) return;
+
+                    waveBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+
+                    currentWave = wave;
+
+                    if (wave === 'sine') {
+                        waveModeHint.textContent = 'Pure Tone Oscillator';
+                        freqPanel.style.opacity = '1';
+                        freqPanel.style.pointerEvents = 'auto';
+                        updateFreqUI(currentFreq);
+                    } else if (wave === 'pink') {
+                        waveModeHint.textContent = 'Full-Bandwidth Acoustic Noise (-3 dB/oct)';
+                        freqPanel.style.opacity = '0.5';
+                        freqPanel.style.pointerEvents = 'none';
+                        if (activeFreqLabel) activeFreqLabel.textContent = 'FULL-RANGE: 20 Hz – 20 kHz Pink Noise';
+                    } else if (wave === 'sweep') {
+                        waveModeHint.textContent = 'Logarithmic Sine Sweep (20 Hz – 20 kHz / 3.0s)';
+                        freqPanel.style.opacity = '0.75';
+                        freqPanel.style.pointerEvents = 'none';
+                        if (activeFreqLabel) activeFreqLabel.textContent = 'READY: 3.0s Sweep (20 Hz → 20 kHz)';
+                    }
+
+                    if (isPlaying) {
+                        stopTone();
+                        setTimeout(startTone, 60);
+                    }
+                });
+            });
+
+            // ISO Preset Chips
+            presetChips.forEach(chip => {
+                chip.addEventListener('click', () => {
+                    if (currentWave !== 'sine') {
+                        // Automatically switch back to Sine wave if user clicks an ISO preset
+                        currentWave = 'sine';
+                        waveBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-wave') === 'sine'));
+                        waveModeHint.textContent = 'Pure Tone Oscillator';
+                        freqPanel.style.opacity = '1';
+                        freqPanel.style.pointerEvents = 'auto';
+                    }
+
+                    currentFreq = parseInt(chip.getAttribute('data-freq'), 10);
+                    updateFreqUI(currentFreq);
+
+                    if (oscillator && audioCtx && isPlaying) {
+                        oscillator.frequency.setTargetAtTime(currentFreq, audioCtx.currentTime, 0.02);
+                    }
+                });
+            });
+
+            // Mobile Navigation Toggle
+            const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+            const menu = document.querySelector('.landing-nav-dropdown-menu');
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = menu.style.display === 'flex';
+                    menu.style.display = isVisible ? 'none' : 'flex';
+                    toggleBtn.classList.toggle('active', !isVisible);
+                });
+                document.addEventListener('click', (e) => {
+                    if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                        menu.style.display = 'none';
+                        toggleBtn.classList.remove('active');
+                    }
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

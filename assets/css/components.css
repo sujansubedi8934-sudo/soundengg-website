@@ -373,12 +373,29 @@ html.light .global-search:focus-within {
 .vfd-screen,
 .canvas-wrapper,
 .vfd-input-wrap,
-.config-visual,
-.vfd-badge {
+.config-visual {
     background: var(--vfd-bg) !important;
     border: 1px solid var(--outline) !important;
     box-shadow: var(--vfd-shadow) !important;
     transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.canvas-wrapper,
+.canvas-wrapper canvas,
+#rta-canvas,
+.rta-top-ribbon {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+    user-select: none !important;
+}
+
+/* Precision Badges & Status Tags */
+.vfd-badge {
+    background: var(--badge-bg) !important;
+    border: 1px solid var(--badge-border) !important;
+    color: var(--badge-color) !important;
+    box-shadow: none !important;
+    transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 /* Specific glows for VFD display screens in dark mode */
@@ -411,4 +428,1610 @@ html.light .vfd-screen .tuner-cents.in-tune {
 
 html.light .vfd-screen #rta-dom-val {
     color: var(--text-heading) !important; /* Deep navy for sharp LCD contrast */
+}
+
+/* RTA Telemetry & VU Meter Light/Dark Mode Tuning */
+html.light .vfd-screen #rta-vu-val {
+    color: var(--text-heading) !important;
+}
+html.light .rta-vu-meter-bar-wrap {
+    background: rgba(0, 0, 0, 0.08) !important;
+    border-color: rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Delay Calculator VFD Screen Light Mode tuning */
+html.light .vfd-screen #auto-ping-delay-output,
+html.light .vfd-screen #auto-ping-delay-output .delay-unit,
+html.light .vfd-screen #delay-output-mod,
+html.light .vfd-screen #delay-output-mod .delay-unit {
+    color: var(--text-heading) !important;
+    text-shadow: none !important;
+}
+html.light .vfd-screen #auto-ping-target-title {
+    color: var(--text-muted) !important;
+}
+html.light .vfd-screen #auto-ping-dist-readout {
+    color: var(--primary) !important;
+    font-weight: bold !important;
+}
+
+/* ==========================================================================
+   DELAY CALCULATOR & AUTO-PING THEME CONTRAST & VISIBILITY (LIGHT & DARK)
+   ========================================================================== */
+
+/* Mode Tabs Selector */
+.delay-mode-tabs-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: var(--surface-higher);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--outline);
+    transition: all 0.25s ease;
+}
+
+.delay-mode-tab-btn {
+    font-size: 0.72rem;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.delay-mode-tab-btn:hover {
+    color: var(--text-heading);
+}
+
+.delay-mode-tab-btn.active {
+    background: rgba(0, 240, 255, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+html.light .delay-mode-tab-btn {
+    color: var(--text-heading);
+    opacity: 0.75;
+}
+
+html.light .delay-mode-tab-btn.active {
+    background: rgba(20, 167, 181, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+    opacity: 1;
+}
+
+/* Delay Module Card Panels */
+.delay-card-panel {
+    background: var(--surface-higher);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.25s ease, border-color 0.25s ease;
+}
+
+html.light .delay-card-panel {
+    background: var(--surface) !important;
+    border: 1.5px solid var(--outline) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Zone / Speaker Select & Inputs */
+.delay-select-input {
+    flex: 1;
+    height: 38px;
+    font-size: 0.8rem;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    color: var(--text-heading);
+    border-radius: 6px;
+    padding: 0 8px;
+    outline: none;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delay-select-input:focus {
+    border-color: var(--primary);
+}
+
+.delay-select-input option {
+    background: var(--surface);
+    color: var(--text-heading);
+}
+
+html.light .delay-select-input {
+    background: #ffffff !important;
+    color: #001B36 !important;
+    border: 1.5px solid var(--outline) !important;
+}
+
+html.light .delay-select-input option {
+    background: #ffffff !important;
+    color: #001B36 !important;
+}
+
+/* Card Section Header Labels */
+.delay-section-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--text-heading);
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.delay-section-sublabel {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--primary);
+    font-weight: bold;
+    letter-spacing: 0.5px;
+}
+
+/* Guidance Banner */
+.delay-guidance-banner {
+    background: rgba(0, 240, 255, 0.05);
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    border-radius: 8px;
+    padding: 0.85rem;
+    font-size: 0.75rem;
+    color: var(--text-main);
+    line-height: 1.45;
+}
+
+html.light .delay-guidance-banner {
+    background: rgba(20, 167, 181, 0.06) !important;
+    border: 1.5px solid rgba(20, 167, 181, 0.3) !important;
+    color: var(--text-heading) !important;
+}
+
+/* Haas Buttons */
+.btn-haas-opt {
+    font-size: 0.68rem;
+    padding: 6px;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    background: var(--surface);
+    color: var(--text-main);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-haas-opt:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-haas-opt.active {
+    background: rgba(0, 240, 255, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+html.light .btn-haas-opt {
+    background: var(--surface) !important;
+    color: var(--text-heading) !important;
+    border: 1.5px solid var(--outline) !important;
+}
+
+html.light .btn-haas-opt.active {
+    background: rgba(20, 167, 181, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+/* Delay Submode Selector (Single vs 2-Point Differential) */
+.delay-submode-wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    background: var(--surface-higher);
+    padding: 4px;
+    border-radius: 8px;
+    border: 1px solid var(--outline);
+    transition: all 0.25s ease;
+}
+
+.delay-submode-btn {
+    font-size: 0.68rem;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.delay-submode-btn:hover {
+    color: var(--text-heading);
+}
+
+.delay-submode-btn.active {
+    background: rgba(0, 240, 255, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+html.light .delay-submode-wrap {
+    background: var(--surface) !important;
+    border: 1.5px solid var(--outline) !important;
+}
+
+html.light .delay-submode-btn {
+    color: var(--text-heading);
+    opacity: 0.75;
+}
+
+html.light .delay-submode-btn.active {
+    background: rgba(20, 167, 181, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+    opacity: 1;
+}
+
+/* Haas Manual Buttons */
+.btn-haas-manual {
+    font-size: 0.68rem;
+    padding: 6px;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    background: var(--surface);
+    color: var(--text-main);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-haas-manual:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-haas-manual.active {
+    background: rgba(0, 240, 255, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+html.light .btn-haas-manual {
+    background: var(--surface) !important;
+    color: var(--text-heading) !important;
+    border: 1.5px solid var(--outline) !important;
+}
+
+html.light .btn-haas-manual.active {
+    background: rgba(20, 167, 181, 0.15) !important;
+    color: var(--primary) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+/* Auto Ping Micro-Nudge Buttons */
+.btn-auto-nudge {
+    background: var(--surface);
+    color: var(--text-main);
+    border: 1px solid var(--outline);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-auto-nudge:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.btn-auto-nudge:active {
+    transform: scale(0.95);
+}
+
+html.light .btn-auto-nudge {
+    background: var(--surface) !important;
+    color: var(--text-heading) !important;
+    border: 1.5px solid var(--outline) !important;
+}
+
+/* Differential Warning State */
+#delay-diff-badge.warning {
+    background: rgba(255, 153, 0, 0.1) !important;
+    border-color: #ff9900 !important;
+    color: #ff9900 !important;
+}
+
+/* Spatial Sample Rows */
+.spatial-pos-row {
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    padding: 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    transition: all 0.2s ease;
+}
+
+html.light .spatial-pos-row {
+    background: #ffffff !important;
+    border: 1.5px solid var(--outline) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Spatial Re-measure & Discard Buttons */
+.delay-btn-remeasure {
+    padding: 4px 6px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid var(--outline);
+    color: var(--primary);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.delay-btn-remeasure:hover {
+    border-color: var(--primary);
+}
+
+html.light .delay-btn-remeasure {
+    background: rgba(20, 167, 181, 0.12) !important;
+    border: 1.5px solid var(--outline) !important;
+    color: var(--primary) !important;
+}
+
+.delay-btn-discard {
+    padding: 4px 6px;
+    background: rgba(255, 50, 50, 0.1);
+    border: 1px solid rgba(255, 50, 50, 0.3);
+    color: #ff5555;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.delay-btn-discard:hover {
+    background: rgba(255, 50, 50, 0.2);
+}
+
+html.light .delay-btn-discard {
+    background: rgba(220, 38, 38, 0.08) !important;
+    border: 1.5px solid rgba(220, 38, 38, 0.25) !important;
+    color: #dc2626 !important;
+}
+
+/* Action Secondary Buttons */
+.delay-btn-secondary {
+    font-size: 0.58rem;
+    padding: 3px 8px;
+    font-family: var(--font-mono);
+    font-weight: bold;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    color: var(--text-muted);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delay-btn-secondary:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+html.light .delay-btn-secondary {
+    color: var(--text-heading) !important;
+    border: 1.5px solid var(--outline) !important;
+}
+
+/* Empty Hint Box */
+.delay-empty-hint {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 12px;
+    border: 1px dashed var(--outline);
+    border-radius: 6px;
+    background: var(--surface);
+}
+
+html.light .delay-empty-hint {
+    color: var(--text-main) !important;
+    background: var(--surface-higher) !important;
+    border: 1.5px dashed var(--outline) !important;
+}
+
+/* Reference Audio Card */
+.delay-ref-audio-card {
+    background: var(--surface-higher);
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+html.light .delay-ref-audio-card {
+    background: var(--surface) !important;
+    border: 1.5px solid var(--outline) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Download / Export Button in Reference Card */
+.delay-btn-download {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    color: var(--text-heading);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    font-size: 0.72rem;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+.delay-btn-download:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+html.light .delay-btn-download {
+    background: #ffffff !important;
+    border: 1.5px solid var(--outline) !important;
+    color: var(--text-heading) !important;
+}
+
+/* Oscilloscope Container Frame */
+.delay-scope-wrap {
+    background: #02060a;
+    border: 1px solid var(--outline);
+    border-radius: 8px;
+    padding: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+html.light .delay-scope-wrap {
+    background: #0b1219 !important;
+    border: 1.5px solid var(--outline) !important;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Delay Module Segmented Controls */
+#delay-sensitivity-btn-group button,
+#delay-scope-zoom-pill button {
+    transition: all 0.15s ease;
+}
+
+html.light #delay-sensitivity-btn-group,
+html.light #delay-scope-zoom-pill {
+    background: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+}
+
+html.light #delay-sensitivity-btn-group button.active,
+html.light #delay-scope-zoom-pill button.active {
+    background: #ffffff !important;
+    color: var(--primary) !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* Primary Action Button (Record & Analyze 60 BPM - Solid Gradient Highlight) */
+.delay-action-primary,
+#btn-start-auto-ping.delay-action-primary {
+    flex: 1;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #00f0ff 0%, #00b4ff 50%, #0077ff 100%) !important;
+    border: 1px solid rgba(140, 250, 255, 0.75) !important;
+    color: #021019 !important;
+    font-family: var(--font-mono);
+    font-weight: 800 !important;
+    font-size: 0.82rem;
+    letter-spacing: 0.5px;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0, 210, 255, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+    transition: all 0.2s ease;
+}
+
+.delay-action-primary:hover,
+#btn-start-auto-ping.delay-action-primary:hover {
+    background: linear-gradient(135deg, #33f5ff 0%, #1ac0ff 50%, #1a88ff 100%) !important;
+    box-shadow: 0 6px 20px rgba(0, 240, 255, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+    transform: translateY(-1px);
+}
+
+.delay-action-primary.is-recording,
+#btn-start-auto-ping.delay-action-primary.is-recording {
+    background: linear-gradient(135deg, #ff4b4b 0%, #e11d48 100%) !important;
+    border-color: rgba(255, 140, 140, 0.8) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(255, 59, 59, 0.35) !important;
+}
+
+html.light .delay-action-primary,
+html.light #btn-start-auto-ping.delay-action-primary {
+    background: linear-gradient(135deg, #00b8d4 0%, #0284c7 100%) !important;
+    border: 1px solid #0284c7 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.28) !important;
+}
+
+html.light .delay-action-primary:hover,
+html.light #btn-start-auto-ping.delay-action-primary:hover {
+    background: linear-gradient(135deg, #00acc1 0%, #0369a1 100%) !important;
+}
+
+/* Secondary Action Button Outline (Record Position, etc.) */
+.delay-action-outline {
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    font-size: 0.74rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.delay-action-outline:hover {
+    background: rgba(0, 240, 255, 0.2);
+}
+
+html.light .delay-action-outline {
+    background: rgba(20, 167, 181, 0.1) !important;
+    border: 1.5px solid var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+/* Loop Alignment Click Button */
+.delay-loop-btn {
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    background: rgba(0, 240, 255, 0.12);
+    border: 1.5px solid var(--primary);
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-weight: bold;
+    font-size: 0.72rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+html.light .delay-loop-btn {
+    background: rgba(20, 167, 181, 0.1) !important;
+    border: 1.5px solid var(--primary) !important;
+    color: var(--primary) !important;
+}
+
+.delay-loop-btn.is-looping {
+    background: rgba(0, 255, 120, 0.18) !important;
+    border-color: #00ff78 !important;
+    color: #00ff78 !important;
+}
+
+html.light .delay-loop-btn.is-looping {
+    background: rgba(0, 168, 77, 0.15) !important;
+    border-color: #008f44 !important;
+    color: #008f44 !important;
+}
+
+/* Apply Delay & Copy DSP Button (De-highlighted Secondary Utility Action) */
+.delay-apply-btn,
+#btn-apply-auto-delay.delay-apply-btn {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.025) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: rgba(148, 163, 184, 0.5) !important;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 0.74rem;
+    border-radius: 6px;
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: none !important;
+    transition: all 0.2s ease;
+}
+
+html.light .delay-apply-btn,
+html.light #btn-apply-auto-delay.delay-apply-btn {
+    background: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    color: #94a3b8 !important;
+    box-shadow: none !important;
+}
+
+.delay-apply-btn:not(:disabled),
+.delay-apply-btn.ready,
+#btn-apply-auto-delay.delay-apply-btn:not(:disabled),
+#btn-apply-auto-delay.delay-apply-btn.ready {
+    cursor: pointer !important;
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.045) !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    color: #cbd5e1 !important;
+    box-shadow: none !important;
+}
+
+.delay-apply-btn:not(:disabled):hover,
+.delay-apply-btn.ready:hover,
+#btn-apply-auto-delay.delay-apply-btn:not(:disabled):hover,
+#btn-apply-auto-delay.delay-apply-btn.ready:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(0, 240, 255, 0.35) !important;
+    color: #f8fafc !important;
+}
+
+html.light .delay-apply-btn:not(:disabled),
+html.light .delay-apply-btn.ready,
+html.light #btn-apply-auto-delay.delay-apply-btn:not(:disabled),
+html.light #btn-apply-auto-delay.delay-apply-btn.ready {
+    background: #e2e8f0 !important;
+    border: 1px solid #94a3b8 !important;
+    color: #1e293b !important;
+    box-shadow: none !important;
+}
+
+/* Sensitivity Slider Min/Max Labels */
+.delay-slider-label {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-family: var(--font-mono);
+}
+
+html.light .delay-slider-label {
+    color: #4A5568 !important;
+}
+
+/* Spatial Summary Strip */
+.delay-spatial-summary {
+    display: none;
+    background: rgba(0, 240, 255, 0.08);
+    border: 1.5px solid var(--primary);
+    border-radius: 6px;
+    padding: 8px 10px;
+    justify-content: space-between;
+    align-items: center;
+    font-family: var(--font-mono);
+}
+
+html.light .delay-spatial-summary {
+    background: rgba(20, 167, 181, 0.08) !important;
+    border: 1.5px solid var(--primary) !important;
+}
+
+html.light #spatial-variance-readout {
+    color: #b45309 !important;
+}
+
+/* Safe bottom clearance on module view so AdMob banner and bottom nav never block controls */
+#module-view .module-content {
+    padding-bottom: calc(180px + env(safe-area-inset-bottom, 0px)) !important;
+}
+
+@media (min-width: 768px) {
+    #module-view .module-content {
+        padding-bottom: calc(240px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+}
+
+/* Phase 2: RTA DSP Controls Styling */
+.rta-octave-segmented .train-source-btn {
+    font-size: 0.65rem;
+    font-family: var(--font-mono);
+    padding: 6px 2px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tilt-preset-btn {
+    border-radius: 4px;
+    font-size: 0.62rem;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+}
+
+.tilt-preset-btn.active {
+    background: var(--primary) !important;
+    color: var(--surface) !important;
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+    font-weight: bold;
+}
+
+#rta-window-select {
+    outline: none;
+    font-weight: 500;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#rta-window-select:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+html.light #rta-window-select {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+}
+
+html.light .tilt-preset-btn.active {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+/* Tactical Top Telemetry Ribbon & Unified HUD Dock */
+.rta-top-ribbon {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(8, 12, 20, 0.85);
+    border: 1px solid var(--outline-light);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    min-height: 38px;
+    box-sizing: border-box;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.rta-ribbon-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rta-ribbon-run-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 26px;
+    padding: 0 8px;
+    background: rgba(0, 255, 157, 0.12);
+    border: 1px solid #00FF9D;
+    color: #00FF9D;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rta-ribbon-run-btn:hover {
+    background: #00FF9D;
+    color: #030812;
+}
+
+.rta-ribbon-run-btn.active {
+    background: rgba(255, 59, 48, 0.15);
+    border-color: #FF3B30;
+    color: #FF3B30;
+}
+
+.rta-ribbon-run-btn.active:hover {
+    background: #FF3B30;
+    color: #ffffff;
+}
+
+.rta-ribbon-vu {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rta-ribbon-tag {
+    font-size: 0.56rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.rta-ribbon-meter-bar {
+    width: 76px;
+    height: 7px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 3px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    position: relative;
+    overflow: hidden;
+}
+
+.rta-ribbon-level {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #00FF9D 0%, #00FF9D 65%, #FFB300 85%, #FF3B30 100%);
+    transition: width 0.08s ease-out;
+}
+
+.rta-ribbon-peak-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #ffffff;
+    left: 0%;
+    transition: left 0.15s ease-out;
+}
+
+.rta-ribbon-db {
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: var(--primary);
+    min-width: 44px;
+}
+
+.rta-ribbon-clip {
+    display: none;
+    font-size: 0.52rem;
+    font-weight: 800;
+    background: #FF3B30;
+    color: #fff;
+    padding: 1px 4px;
+    border-radius: 2px;
+    box-shadow: 0 0 8px #FF3B30;
+}
+
+.rta-ribbon-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.rta-ribbon-val {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: -0.2px;
+}
+
+.rta-ribbon-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 26px;
+    padding: 0 9px;
+    background: rgba(0, 240, 255, 0.12);
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.rta-ribbon-action-btn:hover {
+    background: var(--primary);
+    color: #030812;
+}
+
+/* Tactical HUD Dock (Always active on canvas) */
+.rta-fs-hud-dock {
+    display: flex !important;
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    max-width: calc(100% - 20px);
+    pointer-events: auto;
+    transition: transform 0.25s cubic-bezier(0.2, 0, 0, 1), opacity 0.25s ease;
+}
+
+.rta-fs-hud-dock.minimized {
+    transform: translateX(-50%) translateY(30px) scale(0.9);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.canvas-wrapper.fullscreen-canvas .rta-fs-hud-dock {
+    bottom: calc(32px + var(--rta-safe-bottom, max(env(safe-area-inset-bottom, 0px), 22px)));
+    z-index: 10008;
+    max-width: calc(100vw - 32px);
+}
+
+/* Restore button displayed when dock is minimized (both inline and fullscreen) */
+.rta-fs-restore-hud-btn {
+    display: none;
+}
+
+.canvas-wrapper.hud-minimized .rta-fs-restore-hud-btn {
+    display: flex !important;
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    z-index: 10010;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: rgba(8, 12, 20, 0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid var(--primary);
+    border-radius: 999px;
+    color: var(--primary);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(0, 240, 255, 0.35);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+
+.canvas-wrapper.fullscreen-canvas.hud-minimized .rta-fs-restore-hud-btn {
+    bottom: calc(32px + var(--rta-safe-bottom, max(env(safe-area-inset-bottom, 0px), 22px)));
+    right: calc(16px + env(safe-area-inset-right, 0px));
+}
+
+.canvas-wrapper.hud-minimized .rta-fs-restore-hud-btn:hover,
+.canvas-wrapper.hud-minimized .rta-fs-restore-hud-btn:active {
+    background: var(--primary);
+    color: #050508;
+    transform: scale(1.05);
+}
+
+html.light .canvas-wrapper.hud-minimized .rta-fs-restore-hud-btn {
+    background: rgba(255, 255, 255, 0.96);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 4px 16px rgba(0, 100, 120, 0.25);
+}
+
+html.light .canvas-wrapper.hud-minimized .rta-fs-restore-hud-btn:hover,
+html.light .canvas-wrapper.hud-minimized .rta-fs-restore-hud-btn:active {
+    background: var(--primary);
+    color: #ffffff;
+}
+
+/* Trace Capsules & Dedicated Single Delete Buttons */
+.rta-trace-capsule {
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-delete-trace:hover,
+.btn-delete-trace:active {
+    background: rgba(255, 59, 48, 0.28) !important;
+    color: #ffffff !important;
+}
+
+html.light .rta-trace-capsule {
+    background: rgba(0, 0, 0, 0.04) !important;
+}
+
+.rta-fs-dock-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    background: rgba(8, 12, 20, 0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 999px;
+    box-shadow: 0 10px 35px rgba(0, 0, 0, 0.75), 0 0 20px rgba(0, 240, 255, 0.15);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x;
+    scrollbar-width: none;
+}
+
+.rta-fs-dock-inner::-webkit-scrollbar {
+    display: none;
+}
+
+.rta-fs-segmented {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 999px;
+    padding: 2px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    flex-shrink: 0;
+}
+
+.rta-fs-pill {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 6px 10px;
+    min-height: 36px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    position: relative;
+}
+
+.rta-fs-pill::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    bottom: -5px;
+    left: -2px;
+    right: -2px;
+    pointer-events: auto;
+}
+
+.rta-fs-pill:hover {
+    color: #ffffff;
+}
+
+.rta-fs-pill.active {
+    background: var(--primary) !important;
+    color: #030812 !important;
+    font-weight: 800;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.55);
+}
+
+.rta-fs-pill.fs-action-btn {
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-heading);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+}
+
+.rta-fs-pill.fs-action-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.rta-fs-pill.fs-accent-btn {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 8px rgba(0, 240, 255, 0.25);
+    flex-shrink: 0;
+}
+
+.rta-fs-pill.fs-accent-btn:hover {
+    background: var(--primary);
+    color: #030812;
+}
+
+#btn-rta-fs-pink-noise.active {
+    background: #ff0055 !important;
+    color: #ffffff !important;
+    border-color: #ff0055 !important;
+    box-shadow: 0 0 16px rgba(255, 0, 85, 0.7) !important;
+}
+
+.rta-fs-pill.fs-icon-btn {
+    padding: 6px 7px;
+    flex-shrink: 0;
+}
+
+.rta-fs-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 2px;
+    flex-shrink: 0;
+}
+
+/* Precision Drawer Backdrop */
+.rta-fs-drawer-backdrop {
+    display: block !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(3, 6, 12, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 10015;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+}
+
+.rta-fs-drawer-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Precision Drawer Panel */
+.rta-fs-drawer {
+    display: flex !important;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 360px;
+    max-width: 88vw;
+    height: 100vh;
+    z-index: 10020;
+    background: var(--drawer-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-left: 1px solid var(--drawer-border);
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.5);
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.rta-fs-drawer.open {
+    transform: translateX(0);
+}
+
+/* Tablet Side Inspector Docking & Multi-Window Layout */
+@media (min-width: 768px) {
+    .canvas-wrapper.drawer-docked #rta-canvas {
+        width: calc(100% - 360px) !important;
+    }
+    .canvas-wrapper.fullscreen-canvas.drawer-docked #rta-labels,
+    .canvas-wrapper.fullscreen-canvas.drawer-docked .freq-labels {
+        width: calc(100% - var(--rta-safe-left, 0px) - var(--rta-safe-right, 0px) - 360px) !important;
+    }
+    .canvas-wrapper.fullscreen-canvas.drawer-docked.layout-spl-history #rta-labels,
+    .canvas-wrapper.fullscreen-canvas.drawer-docked.layout-dual-view #rta-labels,
+    .canvas-wrapper.fullscreen-canvas.drawer-docked.layout-spl-history .freq-labels,
+    .canvas-wrapper.fullscreen-canvas.drawer-docked.layout-dual-view .freq-labels {
+        width: calc((100% - var(--rta-safe-left, 0px) - var(--rta-safe-right, 0px) - 360px) * 0.64) !important;
+    }
+    .canvas-wrapper.drawer-docked .rta-fs-hud-dock {
+        left: calc((100vw - 360px) / 2) !important;
+    }
+    .canvas-wrapper.drawer-docked .rta-fs-restore-hud-btn {
+        right: calc(376px + env(safe-area-inset-right, 0px)) !important;
+    }
+    .canvas-wrapper.drawer-docked #btn-rta-fullscreen {
+        right: calc(376px + env(safe-area-inset-right, 0px)) !important;
+    }
+    .canvas-wrapper.drawer-docked .rta-fs-drawer-backdrop {
+        display: none !important;
+        pointer-events: none !important;
+        opacity: 0 !important;
+    }
+}
+
+/* Landscape Mobile & Low-Height Screens */
+@media (orientation: landscape) and (max-height: 520px) {
+    .canvas-wrapper.fullscreen-canvas .rta-fs-hud-dock {
+        bottom: calc(28px + var(--rta-safe-bottom, max(env(safe-area-inset-bottom, 0px), 18px))) !important;
+        transform: translateX(-50%) scale(0.92);
+    }
+    .rta-fs-pill {
+        font-size: 0.60rem !important;
+        padding: 4px 6px !important;
+        min-height: 30px !important;
+    }
+}
+
+.rta-fs-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: calc(14px + max(env(safe-area-inset-top, 0px), 28px)) 16px 14px 16px;
+    border-bottom: 1px solid var(--drawer-border);
+    background: var(--drawer-header-bg);
+    flex-shrink: 0;
+}
+
+.rta-fs-drawer-close {
+    background: var(--drawer-close-bg);
+    border: 1px solid var(--drawer-border);
+    color: var(--drawer-close-color);
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.rta-fs-drawer-close:hover {
+    background: rgba(255, 59, 48, 0.2);
+    border-color: #ff3b30;
+    color: #ff3b30;
+}
+
+.rta-fs-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 16px 16px calc(150px + env(safe-area-inset-bottom, 0px)) 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.rta-fs-drawer-section {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.rta-fs-drawer-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: bold;
+    color: var(--text-heading);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Light Mode Overrides */
+html.light .canvas-wrapper.fullscreen-canvas .rta-fs-hud-dock {
+    background: rgba(245, 247, 250, 0.88);
+    border-color: rgba(0, 170, 190, 0.4);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+html.light .rta-fs-dock-inner {
+    background: rgba(255, 255, 255, 0.85);
+    border-color: rgba(0, 170, 190, 0.4);
+}
+
+html.light .rta-fs-segmented {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+html.light .rta-fs-pill {
+    color: #475569;
+}
+
+html.light .rta-fs-pill.active {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+}
+
+/* Responsive HUD Dock & Ribbon Adaptation for Mobile Screens */
+@media (max-width: 640px) {
+    .rta-fs-hud-dock {
+        bottom: 10px;
+        max-width: calc(100% - 10px);
+    }
+    .has-native-banner:not(.has-fullscreen-canvas) .rta-fs-hud-dock {
+        bottom: 70px;
+    }
+    .rta-fs-dock-inner {
+        gap: 3px;
+        padding: 4px 6px;
+    }
+    .rta-fs-segmented {
+        padding: 1px;
+    }
+    .rta-fs-pill {
+        font-size: 0.60rem;
+        padding: 5px 7px;
+        min-height: 32px;
+        gap: 3px;
+        touch-action: manipulation;
+    }
+    .desktop-only-octave,
+    .desktop-only-divider,
+    .desktop-only-control,
+    .desktop-only-stat {
+        display: none !important;
+    }
+    .rta-top-ribbon {
+        padding: 4px 8px;
+        min-height: 34px;
+        gap: 4px;
+    }
+    .rta-ribbon-meter-bar {
+        width: 52px;
+    }
+    .rta-ribbon-val {
+        font-size: 0.68rem;
+    }
+}
+
+.train-source-btn,
+.fs-delay-action-btn,
+.fs-mode-btn,
+.fs-octave-btn,
+.btn-rta-toggle-watermark,
+.btn-rta-toggle-spl-watermark,
+.fs-drawer-layout-btn {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Dual-Channel Transfer Function & Hardware I/O Matrix */
+.fs-io-matrix-box {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--drawer-box-bg);
+    border: 1px solid var(--drawer-box-border);
+    border-radius: 8px;
+    padding: 0.85rem;
+}
+
+.fs-channel-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    background: var(--surface);
+    border: 1px solid var(--outline);
+    border-radius: 6px;
+    padding: 0.6rem;
+}
+
+.fs-channel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.fs-vu-meter-wrap {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fs-vu-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(to right, #00FF9D 0%, #00FF9D 65%, #FFB300 80%, #FF3B30 100%);
+    transition: width 0.06s linear;
+}
+
+.fs-vu-clip-led {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 59, 48, 0.2);
+    border: 1px solid rgba(255, 59, 48, 0.4);
+    transition: all 0.1s;
+}
+
+.fs-vu-clip-led.active {
+    background: #ff3b30;
+    box-shadow: 0 0 8px #ff3b30;
+}
+
+#rta-fs-tf-controls-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 999px;
+    padding: 2px 4px;
+    border: 1px solid rgba(0, 240, 255, 0.25);
+    flex-shrink: 0;
+}
+
+#fs-tf-delay-readout {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: bold;
+    color: #ffffff;
+    padding: 2px 6px;
+    white-space: nowrap;
+}
+
+#fs-tf-coh-readout {
+    font-family: var(--font-mono);
+    font-size: 0.60rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   3-Tab Precision DSP Drawer Navigation & Panel Switching
+   ========================================================================== */
+.rta-drawer-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.35);
+    border-bottom: 1px solid var(--drawer-border);
+    flex-shrink: 0;
+}
+
+.rta-drawer-tab-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    height: 34px;
+    padding: 0 6px;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.61rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    white-space: nowrap;
+}
+
+.rta-drawer-tab-btn .material-symbols-outlined {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.rta-drawer-tab-btn:hover {
+    border-color: rgba(0, 240, 255, 0.35);
+    color: var(--text-heading);
+}
+
+.rta-drawer-tab-btn.active {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.22) 0%, rgba(0, 153, 255, 0.18) 100%);
+    border-color: var(--primary);
+    color: #00F0FF;
+    box-shadow: 0 2px 10px rgba(0, 240, 255, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+html.light .rta-drawer-tabs {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+html.light .rta-drawer-tab-btn {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #475569;
+}
+
+html.light .rta-drawer-tab-btn.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+}
+
+.rta-fs-drawer[data-active-tab="dsp"] .rta-fs-drawer-section:not([data-drawer-panel="dsp"]),
+.rta-fs-drawer[data-active-tab="io"] .rta-fs-drawer-section:not([data-drawer-panel="io"]),
+.rta-fs-drawer[data-active-tab="traces"] .rta-fs-drawer-section:not([data-drawer-panel="traces"]) {
+    display: none !important;
+}
+
+.rta-cal-preset-btn.active {
+    background: rgba(0, 240, 255, 0.18) !important;
+    border-color: var(--primary) !important;
+    color: #00F0FF !important;
+    font-weight: 700;
+}
+
+.rta-fs-drawer button.train-source-btn {
+    border: 1px solid var(--seg-border);
+    border-radius: 6px;
+    background: var(--seg-bg);
+    color: var(--seg-inactive-color);
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.rta-fs-drawer button.train-source-btn.active {
+    background: var(--seg-active-bg) !important;
+    color: var(--seg-active-color) !important;
+    border-color: var(--primary) !important;
+    box-shadow: var(--seg-active-shadow);
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   3-Tier Hardware Console Button Hierarchy
+   ========================================================================== */
+.btn-console-primary {
+    background: linear-gradient(135deg, #00F0FF 0%, #0099FF 100%) !important;
+    color: #041019 !important;
+    border: 1px solid #00F0FF !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.6px;
+    box-shadow: 0 4px 16px rgba(0, 240, 255, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.btn-console-primary:hover {
+    filter: brightness(1.07);
+    box-shadow: 0 6px 22px rgba(0, 240, 255, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+.btn-console-secondary {
+    background: rgba(255, 255, 255, 0.04) !important;
+    color: var(--text-muted) !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: none !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease;
+}
+
+.btn-console-secondary:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-heading) !important;
+    border-color: rgba(0, 240, 255, 0.35) !important;
+}
+
+.btn-console-danger {
+    background: linear-gradient(135deg, #FF3B30 0%, #D70015 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #FF453A !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 16px rgba(255, 59, 48, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }

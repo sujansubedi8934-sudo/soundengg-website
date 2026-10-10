@@ -26,6 +26,12 @@
 -keep class * extends com.getcapacitor.Plugin {
     @com.getcapacitor.PluginMethod public *;
 }
+-keep class com.soundengg.app.** { *; }
+
+# Google Play In-App Review API
+-keep class com.google.android.play.core.review.** { *; }
+-dontwarn com.google.android.play.core.review.**
+
 
 # Google Mobile Ads (AdMob) & Play Services (Allow R8 optimization)
 -keep,allowoptimization class com.google.android.gms.ads.** { *; }

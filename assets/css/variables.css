@@ -56,6 +56,7 @@
     /* Dark Mode Defaults */
     --background: #0A0A0A;
     --surface: #121212;
+    --surface-main: #121212;
     --surface-higher: #1A1A1A;
     --surface-highest: #242424;
     --surface-light: #2A2E35;
@@ -81,6 +82,34 @@
     --vfd-bg: #020204;
     --vfd-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.95);
     --vfd-glow: 0 0 15px rgba(20, 167, 181, 0.15);
+
+    /* Precision Drawer & Panels (Dark Console) */
+    --drawer-bg: rgba(10, 15, 24, 0.98);
+    --drawer-border: rgba(0, 240, 255, 0.25);
+    --drawer-header-bg: rgba(5, 8, 14, 0.75);
+    --drawer-close-bg: rgba(255, 255, 255, 0.08);
+    --drawer-close-color: #FFFFFF;
+    --drawer-box-bg: rgba(0, 0, 0, 0.4);
+    --drawer-box-border: rgba(0, 240, 255, 0.2);
+
+    /* Segmented Controls & Buttons (Dark Console) */
+    --seg-bg: rgba(0, 0, 0, 0.4);
+    --seg-border: rgba(0, 240, 255, 0.25);
+    --seg-btn-color: #94A3B8;
+    --seg-active-bg: var(--primary);
+    --seg-active-color: #000000;
+    --seg-active-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+
+    /* Badges (Dark Console) */
+    --badge-bg: rgba(0, 240, 255, 0.12);
+    --badge-color: #00F2FE;
+    --badge-border: rgba(0, 240, 255, 0.3);
+
+    /* Mobile Bottom Tab Bar (Dark Console) */
+    --bottom-tab-bg: rgba(10, 10, 15, 0.95);
+    --bottom-tab-border: #001B36;
+    --bottom-tab-color: #8899AA;
+    --bottom-tab-active-color: #00F2FE;
 }
 
 html.light {
@@ -95,6 +124,7 @@ html.light {
     
     --background: #F8F9FA;
     --surface: #FFFFFF;
+    --surface-main: #F4F6F9;
     --surface-higher: #F0F2F5;
     --surface-highest: #E8EAED;
     --surface-light: #F4F6F9;
@@ -115,6 +145,34 @@ html.light {
     --vfd-bg: #e6eff2; /* Soft retro-LCD backlight color */
     --vfd-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.15);
     --vfd-glow: none;
+
+    /* Precision Drawer & Panels (Studio Daylight) */
+    --drawer-bg: rgba(255, 255, 255, 0.98);
+    --drawer-border: #CBD5E1;
+    --drawer-header-bg: #F8FAFC;
+    --drawer-close-bg: #F1F5F9;
+    --drawer-close-color: #334155;
+    --drawer-box-bg: #F8FAFC;
+    --drawer-box-border: #E2E8F0;
+
+    /* Segmented Controls & Buttons (Studio Daylight) */
+    --seg-bg: #F1F5F9;
+    --seg-border: #CBD5E1;
+    --seg-btn-color: #64748B;
+    --seg-active-bg: #0891B2;
+    --seg-active-color: #FFFFFF;
+    --seg-active-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+
+    /* Badges (Studio Daylight) */
+    --badge-bg: rgba(8, 145, 178, 0.08);
+    --badge-color: #0891B2;
+    --badge-border: rgba(8, 145, 178, 0.25);
+
+    /* Mobile Bottom Tab Bar (Studio Daylight) */
+    --bottom-tab-bg: rgba(255, 255, 255, 0.96);
+    --bottom-tab-border: #E2E8F0;
+    --bottom-tab-color: #64748B;
+    --bottom-tab-active-color: #0891B2;
 }
 
 * {

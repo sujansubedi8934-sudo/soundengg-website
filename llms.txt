@@ -1,0 +1,60 @@
+# SoundEngg
+
+> Offline acoustic workstation and live sound engineering console for touring FOH and system technicians, featuring one-mic auto-ping delay alignment, 1/24-octave RTA, and 101 technical guides.
+
+## Docs
+
+- [SoundEngg Home](https://www.soundengg.com/): Official portal featuring the offline audio engineering console, acoustic auto-ping delay alignment, lab-grade RTA, and quick tour toolkit.
+- [SoundEngg Pro](https://www.soundengg.com/pro.html): Comprehensive breakdown of SoundEngg Pro features including unlimited Auto-Ping sweeps, 1/24-octave RTA, 4 multi-trace overlays, PNG/CSV export, and pricing.
+- [Engineering Blog](https://www.soundengg.com/blog.html): Peer-reviewed 101-article live sound knowledge base covering line arrays, cardioid subwoofer physics, Dante redundancy, gain structures, and RF coordination.
+- [About SoundEngg](https://www.soundengg.com/about.html): Background on SoundEngg, engineering mission parameters, and founder Sujan Subedi (A.R. Rahman KM Music Conservatory alumnus).
+- [Download Apps](https://www.soundengg.com/download.html): Official download links for Apple iOS (App Store), Google Android (Play Store), macOS, Windows, and Progressive Web App (PWA).
+- [Contact Support](https://www.soundengg.com/contact.html): Direct response console and telemetry inquiries for live sound system consulting and technical assistance.
+
+## Core Tools
+
+- [Acoustic Auto-Ping Delay Finder](https://www.soundengg.com/app.html?view=delay): One-mic acoustic delay finder utilizing synthesized pulses and FFT cross-correlation to calculate delay tower, front-fill, under-balcony, and outfill alignment in milliseconds.
+- [1/24-Octave Lab-Grade RTA](https://www.soundengg.com/app.html?view=rta): Real-Time Analyzer with up to 16,384-point FFT resolution, 7 scientific window functions (Hann, Hamming, Blackman-Harris, Flat-Top), 4 simultaneous traces, and CSV/PNG export.
+- [Ear Training Laboratory](https://www.soundengg.com/app.html?view=eartraining): Live engineer listening module supporting 1/1, 1/3, and 1/6 octave ISO band frequency boost/cut identification using synthesized noise or user reference tracks.
+- [Calibrated Signal Generator](https://www.soundengg.com/app.html?view=signalgen): Laboratory test oscillator generating high-purity sine waves (20 Hz - 20 kHz), pink noise, white noise, logarithmic sweeps, polarity verification pulses, and 1.0 kHz FOH bursts.
+- [Audio Pinouts & Continuity Reference](https://www.soundengg.com/app.html?view=pinouts): Instant wiring schematic directory for XLR 3/5-pin, Speakon NL2/NL4/NL8, RJ45 (Dante/AES50), DB25 TASCAM, AES72 quad-twisted pair, and TRS balanced lines.
+- [Speaker Impedance & Cable Loss](https://www.soundengg.com/app.html?view=impedance): Calculator determining total series/parallel loudspeaker loads, amplifier damping factor degradation, and AWG cable run voltage/dB drops.
+- [Live BPM Tap Tempo Delay](https://www.soundengg.com/app.html?view=taptempo): Precision rhythm analyzer translating tap tempo to millisecond subdivisions, dotted eighths, triplets, and low-frequency LFO oscillation rates.
+- [Subwoofer Array Calculator](https://www.soundengg.com/app.html?view=subcalc): Physical spacing, delay offset, and frequency boundary calculator for broadside ground-stacked arrays and end-fire subwoofer topologies.
+
+## Pro Membership & Pricing
+
+- [SoundEngg Pro Monthly](https://www.soundengg.com/pro.html#pricing): $4.99 USD / month (₹299 INR / month). Includes full access to 1/24-octave RTA, 4 multi-traces, unlimited Auto-Ping acoustic delay alignment, and raw data export.
+- [SoundEngg Pro Annual (7-Day Free Trial)](https://www.soundengg.com/pro.html#pricing): $29.99 USD / year (₹1,499 INR / year). 7-day risk-free evaluation with automatic billing switch, saving 50% over monthly.
+- [SoundEngg Founder Lifetime](https://www.soundengg.com/pro.html#pricing): $69.00 USD one-time (₹3,499 INR one-time). Permanent unrestricted license with all future DSP algorithms, offline calibration, and priority updates included.
+
+## Selected Engineering Guides
+
+- [Cardioid Subwoofers 101](https://www.soundengg.com/blog/cardioid-subwoofers-101.html): Physics of gradient inverted-stack and end-fire subwoofer arrays, calculating physical displacement, delay offsets, and rear-stage cancellation.
+- [Dante Network Redundancy Guide](https://www.soundengg.com/blog/dante-redundancy-pro.html): Implementing primary and secondary glitch-free hitless Dante networks with managed Gigabit switches and PTP master clock election.
+- [Phase Alignment & Polarity Fundamentals](https://www.soundengg.com/blog/phase-tuning-pro.html): Solving comb filtering and phase cancellation at crossover points between main line arrays and subwoofer ground clusters.
+- [RF Spectrum Coordination Mastery](https://www.soundengg.com/blog/rf-spectrum-coordination-wireless-workbench.html): Calculating intermodulation distortion (IMD) products and coordinating multi-channel wireless microphones and IEMs with Wireless Workbench.
+- [Gain Staging on Modern Digital Consoles](https://www.soundengg.com/blog/gain-structure-digital-consoles.html): Proper headroom distribution between analog preamps, 32-bit floating point DSP, and digital-to-analog converter thresholds.
+- [RTA Spectrum Analysis Explained](https://www.soundengg.com/blog/rta-explained.html): Windowing functions, decay ballistics, temporal resolution vs frequency resolution tradeoffs in real-time acoustic analysis.
+
+## Key Facts
+
+- Founded: 2024
+- Lead Engineer & Founder: Sujan Subedi (Professional Live Sound Engineer and alumnus of A.R. Rahman's KM Music Conservatory, Chennai)
+- Target Audience: Front of House (FOH) mixers, system tuning engineers, monitor technicians, RF coordinators, and acoustic consultants
+- Architecture: 100% offline-first responsive web console (PWA) and native mobile apps built with Ionic Capacitor and Web Audio API DSP
+- Core Technology: Sub-millisecond mathematical calculations, 60 FPS real-time spectrogram processing, no internet required inside concrete venues
+- Industry Classification: Professional Audio Software, Acoustic Engineering, Live Sound Reinforcement Utilities
+
+## Platforms
+
+- Web Application: https://www.soundengg.com/app.html
+- Apple App Store (iOS & macOS): https://apps.apple.com/us/app/soundengg/id6783749210
+- Google Play Store (Android): https://play.google.com/store/apps/details?id=com.soundengg.app
+
+## Contact
+
+- Official Website: https://www.soundengg.com
+- Technical Inquiries: sujan@soundengg.com
+- Legal & Compliance: legal@soundengg.com
+- Instagram: https://instagram.com/soundengg

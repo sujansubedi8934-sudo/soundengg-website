@@ -22,6 +22,10 @@ function initSignalGenerator() {
     let analyzer = null;
     let oscillator = null;
     let noiseNode = null;
+    let stopTimeout = null;
+    let waveRestartTimeout = null;
+    let visualsRafId = null;
+    let timeDomainData = null;
 
     function saveSignalGenState() {
         saveConfigToCloud('siggen_config', {
@@ -29,6 +33,22 @@ function initSignalGenerator() {
             freq: currentFreq,
             gain: currentGain
         });
+    }
+
+    function cleanupActiveSources() {
+        if (stopTimeout) {
+            clearTimeout(stopTimeout);
+            stopTimeout = null;
+        }
+        if (oscillator) {
+            try { oscillator.stop(); } catch (e) {}
+            try { oscillator.disconnect(); } catch (e) {}
+            oscillator = null;
+        }
+        if (noiseNode) {
+            try { noiseNode.disconnect(); } catch (e) {}
+            noiseNode = null;
+        }
     }
 
     function initAudio() {
@@ -57,12 +77,11 @@ function initSignalGenerator() {
                 gainNode.gain.setValueAtTime(0, audioCtx.currentTime); // Start muted
                 
                 analyzer = audioCtx.createAnalyser();
-                analyzer.fftSize = 256;
+                analyzer.fftSize = 1024;
+                timeDomainData = new Float32Array(analyzer.fftSize);
                 
                 gainNode.connect(analyzer);
                 analyzer.connect(audioCtx.destination);
-                
-                updateVisuals();
             } catch (e) {
                 console.error("Failed to build Web Audio graph:", e);
             }
@@ -104,6 +123,10 @@ function initSignalGenerator() {
     }
 
     async function startOutput() {
+        if (waveRestartTimeout) {
+            clearTimeout(waveRestartTimeout);
+            waveRestartTimeout = null;
+        }
         initAudio();
         if (!audioCtx) return;
 
@@ -116,6 +139,17 @@ function initSignalGenerator() {
             }
         }
 
+        // On iOS/Safari, ensure native audio session routes to USB DAC / headphones
+        const audioPlugin = window.Capacitor?.Plugins?.AudioSessionPlugin;
+        if (audioPlugin && typeof audioPlugin.configureAudioSession === 'function') {
+            try {
+                await audioPlugin.configureAudioSession({ category: 'playback', mode: 'default' });
+            } catch (e) {}
+        }
+
+        // Always tear down any prior source or pending stop timeout to prevent zombie tones
+        cleanupActiveSources();
+
         if (currentWave === 'white' || currentWave === 'pink') {
             noiseNode = (currentWave === 'white') ? createWhiteNoise() : createPinkNoise();
             noiseNode.connect(gainNode);
@@ -127,37 +161,52 @@ function initSignalGenerator() {
             oscillator.start();
         }
 
-        // Soft Ramp In: 1.0 Second Linear Ramp to target volume
+        // Soft Ramp In: 0.35 Second Linear Ramp to target volume
         const targetGain = Math.pow(10, currentGain / 20);
+        gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
         gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(targetGain, audioCtx.currentTime + 1.0);
+        gainNode.gain.linearRampToValueAtTime(targetGain, audioCtx.currentTime + 0.35);
         
         isPlaying = true;
         btnToggle.classList.add('active');
         btnToggle.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1.1rem;">stop_circle</span> <span>DISENGAGE</span>';
         statusBadge.textContent = 'STATUS: ACTIVE';
         statusBadge.classList.add('active');
+
+        if (!visualsRafId) {
+            visualsRafId = requestAnimationFrame(updateVisuals);
+        }
     }
 
     // Common stop logic
-    function stopOutput() {
-        if (!isPlaying) return;
-        
-        // Soft Ramp Out
-        gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.02);
-        
-        setTimeout(() => {
-            if (oscillator) {
-                oscillator.stop();
-                oscillator.disconnect();
-                oscillator = null;
-            }
-            if (noiseNode) {
-                noiseNode.disconnect();
-                noiseNode = null;
-            }
-            isPlaying = false;
-        }, 50);
+    function stopOutput(immediate = false) {
+        if (waveRestartTimeout) {
+            clearTimeout(waveRestartTimeout);
+            waveRestartTimeout = null;
+        }
+        if (!isPlaying && !oscillator && !noiseNode) return;
+        isPlaying = false;
+
+        if (visualsRafId) {
+            cancelAnimationFrame(visualsRafId);
+            visualsRafId = null;
+        }
+        if (vuFill) vuFill.style.height = '0%';
+        if (meterText) meterText.textContent = '-∞ dB';
+
+        if (immediate || !audioCtx || !gainNode) {
+            cleanupActiveSources();
+        } else {
+            // Soft Ramp Out
+            try {
+                gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+                gainNode.gain.setTargetAtTime(0, audioCtx.currentTime, 0.015);
+            } catch (e) {}
+            if (stopTimeout) clearTimeout(stopTimeout);
+            stopTimeout = setTimeout(() => {
+                cleanupActiveSources();
+            }, 45);
+        }
 
         btnToggle.classList.remove('active');
         btnToggle.innerHTML = '<span class="material-symbols-outlined" style="font-size: 1.1rem;">power_settings_new</span> <span>ENGAGE</span>';
@@ -167,36 +216,47 @@ function initSignalGenerator() {
     window.stopSignalGenerator = stopOutput;
 
     function updateVisuals() {
-        if (!isPlaying) {
-            vuFill.style.height = '0%';
-            meterText.textContent = '-∞ dB';
-            requestAnimationFrame(updateVisuals);
+        if (!isPlaying || !analyzer) {
+            visualsRafId = null;
+            if (vuFill) vuFill.style.height = '0%';
+            if (meterText) meterText.textContent = '-∞ dB';
             return;
         }
 
-        const data = new Uint8Array(analyzer.frequencyBinCount);
-        analyzer.getByteFrequencyData(data);
+        if (!timeDomainData || timeDomainData.length !== analyzer.fftSize) {
+            timeDomainData = new Float32Array(analyzer.fftSize);
+        }
+        analyzer.getFloatTimeDomainData(timeDomainData);
         
-        let sum = 0;
-        for (let i = 0; i < data.length; i++) sum += data[i];
-        const avg = sum / data.length;
-        const levelPercent = (avg / 255) * 100;
+        let peakAbs = 0;
+        let sumSq = 0;
+        const N = timeDomainData.length;
+        for (let i = 0; i < N; i++) {
+            const s = timeDomainData[i];
+            const abs = Math.abs(s);
+            if (abs > peakAbs) peakAbs = abs;
+            sumSq += s * s;
+        }
+        const rms = Math.sqrt(sumSq / N);
+        // For periodic waveforms (sine/triangle/square/saw), peak amplitude directly equals targetGain dBFS;
+        // for noise, display true RMS/peak dBFS smoothly.
+        const measuredAmp = (currentWave === 'white' || currentWave === 'pink') ? Math.max(rms * 2.2, peakAbs * 0.707) : peakAbs;
+        const db = measuredAmp > 1e-5 ? Math.min(0, Math.max(-60, 20 * Math.log10(measuredAmp))) : -60;
+        const levelPercent = Math.min(100, Math.max(0, ((db + 60) / 60) * 100));
         
-        vuFill.style.height = `${levelPercent}%`;
-        
-        // Map back to approximate dB for display
-        const db = currentGain + (levelPercent / 10);
-        meterText.textContent = `${db.toFixed(1)} dB`;
+        if (vuFill) vuFill.style.height = `${levelPercent.toFixed(1)}%`;
+        if (meterText) meterText.textContent = db <= -59.5 ? '-∞ dB' : `${db.toFixed(1)} dB`;
 
-        requestAnimationFrame(updateVisuals);
+        visualsRafId = requestAnimationFrame(updateVisuals);
     }
 
     async function startSweep() {
-        // If noise waveform is active, sweep is not possible. Programmatically click Sine button.
+        // If noise waveform is active, switch cleanly to Sine without triggering delayed button timeout race
         if (currentWave === 'white' || currentWave === 'pink') {
-            const sineBtn = document.querySelector('.wave-btn[data-wave="sine"]');
-            if (sineBtn) {
-                sineBtn.click();
+            currentWave = 'sine';
+            waveBtns.forEach(b => b.classList.toggle('active', b.getAttribute('data-wave') === 'sine'));
+            if (isPlaying) {
+                stopOutput(true);
             }
         }
 
@@ -224,12 +284,14 @@ function initSignalGenerator() {
 
         // UI Sync Loop
         function updateSweepUI() {
-            if (!isPlaying || audioCtx.currentTime >= endTime) {
+            if (!isPlaying || !oscillator || audioCtx.currentTime >= endTime) {
                 btnSweep.classList.remove('active');
                 btnSweep.innerHTML = '<span class="material-symbols-outlined">settings_backup_restore</span> START_SWEEP';
-                currentFreq = 20000;
-                freqInput.value = currentFreq;
-                freqSlider.value = 1;
+                if (isPlaying && oscillator) {
+                    currentFreq = 20000;
+                    freqInput.value = currentFreq;
+                    freqSlider.value = 1;
+                }
                 return;
             }
             
@@ -320,7 +382,7 @@ function initSignalGenerator() {
             sweepSection.style.pointerEvents = 'all';
             
             if (wasPlaying) {
-                setTimeout(startOutput, 100);
+                waveRestartTimeout = setTimeout(startOutput, 60);
             }
             saveSignalGenState();
         });

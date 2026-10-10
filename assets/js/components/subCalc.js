@@ -10,25 +10,48 @@ function initSubCalc() {
 
     let currentCardioid = 'gradient'; // gradient, csa, lac
 
-    function syncUI() {
-        if (window.globalUnitSystem === 'metric') {
-            unitBtn.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)';
-        } else {
-            unitBtn.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
+    let lastDistSystem = window.globalUnitSystem || 'metric';
+
+    function syncTempFromGlobal() {
+        const tUnit = window.globalTempUnit || 'C';
+        const gTempC = typeof window.globalTempC === 'number' ? window.globalTempC : 22.0;
+        const tempUnitEl = document.getElementById('subcalc-temp-unit');
+        if (tempUnitEl) tempUnitEl.textContent = tUnit === 'F' ? '°F' : '°C';
+        if (tempInput && document.activeElement !== tempInput) {
+            tempInput.value = tUnit === 'F' ? ((gTempC * 9 / 5) + 32).toFixed(1) : gTempC.toFixed(1);
         }
-        updateCalculations();
+    }
+
+    function syncUI(skipSave = true) {
+        const isMetric = window.globalUnitSystem === 'metric';
+        const tUnit = window.globalTempUnit || 'C';
+        const tempUnitEl = document.getElementById('subcalc-temp-unit');
+        const speedUnitEl = document.getElementById('subcalc-speed-unit');
+        if (tempUnitEl) tempUnitEl.textContent = tUnit === 'F' ? '°F' : '°C';
+        if (speedUnitEl) speedUnitEl.textContent = isMetric ? 'm/s' : 'ft/s';
+        document.querySelectorAll('.wave-unit, .su-unit').forEach(el => el.textContent = isMetric ? 'm' : 'ft');
+
+        if (unitBtn) {
+            if (isMetric) {
+                unitBtn.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)';
+            } else {
+                unitBtn.innerHTML = '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
+            }
+        }
+        updateCalculations(skipSave);
     }
 
     function updateCalculations(skipCloudSave = false) {
         const isMetric = window.globalUnitSystem === 'metric';
+        const tUnit = window.globalTempUnit || 'C';
         let f = parseFloat(freqInput.value);
         let t = parseFloat(tempInput.value);
         if (isNaN(f) || f <= 0) f = 100;
-        if (isNaN(t)) t = isMetric ? 20 : 68;
+        if (isNaN(t)) t = tUnit === 'C' ? 22 : 71.6;
 
         // Speed of Sound
         let c_ms = 0;
-        if (isMetric) {
+        if (tUnit === 'C') {
             c_ms = window.AudioCalcs.calcSpeedOfSound(t); // m/s
         } else {
             let t_c = (t - 32) * 5/9;
@@ -164,7 +187,19 @@ function initSubCalc() {
         updateCalculations();
     });
 
-    tempInput.addEventListener('input', updateCalculations);
+    tempInput.addEventListener('input', () => {
+        const rawT = parseFloat(tempInput.value);
+        const tUnit = window.globalTempUnit || 'C';
+        if (!isNaN(rawT)) {
+            const tempC = tUnit === 'F' ? (rawT - 32) * 5 / 9 : rawT;
+            window.globalTempC = Math.max(-30, Math.min(65, tempC));
+            safeStorage.setItem('soundengg-temp-c', window.globalTempC.toFixed(2));
+            if (typeof window.syncVenueEnvUI === 'function') {
+                window.syncVenueEnvUI();
+            }
+        }
+        updateCalculations();
+    });
     if(cDepthInput) cDepthInput.addEventListener('input', updateCalculations);
 
     cTabs.forEach(tab => {
@@ -278,51 +313,39 @@ function initSubCalc() {
         });
     });
 
-    unitBtn.addEventListener('click', () => {
-        const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
-        window.globalUnitSystem = nextSystem;
-        safeStorage.setItem('soundengg-units', nextSystem);
-        
-        const globalSelect = document.getElementById('global-unit-select');
-        if (globalSelect) globalSelect.value = nextSystem;
-
-        document.dispatchEvent(new CustomEvent('unitsChanged'));
-    });
+    if (unitBtn) {
+        unitBtn.addEventListener('click', () => {
+            const nextSystem = window.globalUnitSystem === 'metric' ? 'imperial' : 'metric';
+            const nextTempUnit = nextSystem === 'imperial' ? 'F' : 'C';
+            if (typeof window.applyGlobalVenueEnvironment === 'function') {
+                window.applyGlobalVenueEnvironment(nextSystem, nextTempUnit, window.globalTempC, false);
+            } else {
+                window.globalUnitSystem = nextSystem;
+                window.globalTempUnit = nextTempUnit;
+                safeStorage.setItem('soundengg-units', nextSystem);
+                document.dispatchEvent(new CustomEvent('unitsChanged'));
+            }
+        });
+    }
 
     document.addEventListener('unitsChanged', () => {
         const isMetric = window.globalUnitSystem === 'metric';
-        
-        // Update labels
-        document.getElementById('subcalc-temp-unit').textContent = isMetric ? "°C" : "°F";
-        document.getElementById('subcalc-speed-unit').textContent = isMetric ? "m/s" : "ft/s";
-        document.querySelectorAll('.wave-unit, .su-unit').forEach(el => el.textContent = isMetric ? "m" : "ft");
-        
-        unitBtn.innerHTML = isMetric 
-            ? '<span class="material-symbols-outlined">straighten</span> USE IMPERIAL (FT/°F)'
-            : '<span class="material-symbols-outlined">straighten</span> USE METRIC (M/°C)';
+        syncTempFromGlobal();
 
-        // Convert current temperature input gracefully
-        let currentT = parseFloat(tempInput.value);
-        if (!isNaN(currentT)) {
-            if (isMetric) {
-                tempInput.value = Math.round((currentT - 32) * 5/9);
-            } else {
-                tempInput.value = Math.round((currentT * 9/5) + 32);
+        // Convert cabinet depth gracefully only if the distance unit system actually changed
+        if (lastDistSystem !== window.globalUnitSystem && cDepthInput) {
+            let currentD = parseFloat(cDepthInput.value);
+            if (!isNaN(currentD)) {
+                if (isMetric) {
+                    cDepthInput.value = (currentD / 3.28084).toFixed(1);
+                } else {
+                    cDepthInput.value = (currentD * 3.28084).toFixed(1);
+                }
             }
+            lastDistSystem = window.globalUnitSystem;
         }
 
-        // Convert cabinet depth gracefully
-        let currentD = parseFloat(cDepthInput.value);
-        if (!isNaN(currentD)) {
-            if (isMetric) {
-                cDepthInput.value = (currentD / 3.28084).toFixed(1);
-            } else {
-                cDepthInput.value = (currentD * 3.28084).toFixed(1);
-            }
-        }
-        
-        syncUI();
-        pull();
+        syncUI(true);
     });
 
     // --- Pull from Cloud ---
@@ -340,8 +363,12 @@ function initSubCalc() {
                 .maybeSingle();
 
             if (data && data.data) {
-                freqInput.value = data.data.freq;
-                tempInput.value = data.data.temp;
+                if (data.data.freq !== undefined) freqInput.value = data.data.freq;
+                if (!safeStorage.getItem('soundengg-temp-c') && data.data.temp !== undefined) {
+                    tempInput.value = data.data.temp;
+                } else {
+                    syncTempFromGlobal();
+                }
                 if(cDepthInput) cDepthInput.value = data.data.depth || (window.globalUnitSystem === 'metric' ? 0.8 : 2.6);
                 currentCardioid = data.data.cardioidType || 'gradient';
                 
@@ -396,6 +423,8 @@ function initSubCalc() {
     }
 
     // --- Process Shared URL Link on Load ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get('view');
     if (viewParam === 'subcalc') {
         const freqQ = urlParams.get('freq');
         const tempQ = urlParams.get('temp');
@@ -420,9 +449,11 @@ function initSubCalc() {
                 masterTabBtn.click();
             }
         }
+    } else {
+        syncTempFromGlobal();
     }
 
-    syncUI();
+    syncUI(true);
     if (viewParam !== 'subcalc') {
         pull();
     } else {

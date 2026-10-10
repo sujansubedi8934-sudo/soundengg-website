@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
+    <title>Speaker Impedance & Amplifier Safety Guide | SoundEngg</title>
+    <meta name="description" content="Calculate total speaker load impedance for series and parallel wiring. Prevent amplifier overload, protect against hazardous low-impedance faults, and evaluate safe power distribution backstage."/>
+    <meta name="keywords" content="speaker impedance calculator, parallel speaker impedance, series speaker impedance, amplifier safety guide, loudspeaker load ohm rating, stage audio distribution"/>
+    <link rel="canonical" href="https://www.soundengg.com/tools/speaker-impedance"/>
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://www.soundengg.com/tools/speaker-impedance"/>
+    <meta property="og:title" content="Speaker Impedance & Amplifier Safety Guide | SoundEngg"/>
+    <meta property="og:description" content="Calculate series and parallel speaker loads, prevent amplifier overloads, and ensure safe stage power distribution."/>
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png"/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://www.soundengg.com/tools/speaker-impedance"/>
+    <meta property="twitter:title" content="Speaker Impedance & Amplifier Safety Guide | SoundEngg"/>
+    <meta property="twitter:description" content="Calculate series and parallel speaker loads, prevent amplifier overloads, and ensure safe stage power distribution."/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/styles.css?v=3.6.1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "SoundEngg Speaker Impedance & Amplifier Safety Guide",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "iOS, Android, macOS, Windows, Web",
+      "description": "Calculates electrical loudspeaker network impedance and amplifier load safety limits for live PA systems.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Sujan Subedi",
+        "url": "https://www.soundengg.com/about.html"
+      }
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Why should you avoid running touring amplifiers below 2 ohms per channel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "When total speaker impedance drops below 2 ohms, the output transistors must supply extreme current, causing severe thermal stress, triggering amplifier protect shutdown, and inducing distortion during heavy low-end peaks. Maintaining a 4-ohm or 8-ohm minimum ensures clean headroom and prevents equipment failure."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does speaker cable gauge (AWG) affect subwoofer punch and transient response?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Thin speaker wire has high loop resistance, which degrades the amplifier's effective damping factor. A lower damping factor prevents the amplifier from electro-magnetically braking the heavy woofer cone after a bass transient, resulting in loose, muddy low-end and wasted amplifier wattage."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I daisy-chain 4-ohm and 8-ohm speaker cabinets on the same amplifier channel?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "While physically possible in parallel (yielding 2.67 ohms total), power will divide unevenly. The 4-ohm cabinet draws twice as much current (+3 dB) as the 8-ohm cabinet, creating an acoustic volume imbalance and straining the lower-impedance speaker."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- Google AdSense -->
+    <meta name="google-adsense-account" content="ca-pub-4117687060036448"/>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4117687060036448" crossorigin="anonymous"></script>
+
+    <style>
+        .tool-page-hero { padding: 130px 0 50px 0; text-align: center; }
+        .tool-badge {
+            display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px;
+            background: rgba(0, 255, 204, 0.1); border: 1px solid var(--primary);
+            border-radius: 20px; color: var(--primary); font-family: var(--font-mono);
+            font-size: 0.75rem; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 1.25rem;
+        }
+        .tool-title { font-size: clamp(2rem, 4.5vw, 3.2rem); font-weight: 800; color: var(--text-heading); line-height: 1.15; margin-bottom: 1.2rem; }
+        .tool-subtitle { font-size: 1.15rem; color: var(--text-muted); max-width: 780px; margin: 0 auto 2.5rem auto; line-height: 1.6; }
+        .tool-actions { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 3.5rem; }
+        .calc-container {
+            max-width: 900px; margin: 0 auto 4rem auto; background: var(--surface);
+            border: 1px solid var(--outline); border-radius: 16px; padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .calc-field { display: flex; flex-direction: column; gap: 0.5rem; }
+        .calc-label { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; }
+        .calc-input, .calc-select {
+            background: rgba(0, 0, 0, 0.2); border: 1px solid var(--outline); border-radius: 8px;
+            padding: 12px 14px; color: var(--text-heading); font-family: var(--font-mono);
+            font-size: 1.1rem; outline: none; transition: border-color 0.2s ease;
+        }
+        html.light .calc-input, html.light .calc-select { background: #ffffff; border: 1px solid #c8d4df; color: #0f172a; }
+        .calc-input:focus, .calc-select:focus { border-color: var(--primary); }
+        .calc-results {
+            background: rgba(0, 255, 204, 0.05); border: 1px solid var(--primary); border-radius: 12px;
+            padding: 1.8rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; text-align: center;
+        }
+        .result-box h4 { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.4rem; }
+        .result-val { font-family: var(--font-mono); font-size: 2rem; font-weight: 700; color: var(--primary); }
+        .result-unit { font-size: 0.85rem; color: var(--text-muted); margin-left: 2px; }
+        .info-card { background: var(--surface); border: 1px solid var(--outline); border-radius: 14px; padding: 2rem; margin-bottom: 2rem; }
+        .info-card h3 { color: var(--text-heading); font-size: 1.4rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 10px; }
+        .context-callout {
+            background: rgba(0, 255, 204, 0.05); border-left: 3px solid var(--primary); padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0; border-radius: 0 10px 10px 0;
+        }
+        html.light .context-callout { background: rgba(0, 180, 140, 0.06); }
+        .faq-item { border-bottom: 1px solid var(--outline); padding: 1.25rem 0; }
+        .faq-question { font-size: 1.15rem; font-weight: 600; color: var(--text-heading); margin-bottom: 0.5rem; }
+        .faq-answer { color: var(--text-main); line-height: 1.7; }
+        .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.1) 0%, rgba(0, 102, 255, 0.1) 100%);
+            border: 1px solid var(--primary); border-radius: 16px; padding: 3rem 2rem; text-align: center; margin: 4rem 0;
+        }
+        .app-badge-group { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+        .app-store-btn {
+            display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px;
+            background: #000000; color: #ffffff; border-radius: 10px; text-decoration: none;
+            font-weight: 600; font-size: 0.9rem; border: 1px solid #333333; transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .app-store-btn:hover { transform: translateY(-2px); border-color: var(--primary); color: #ffffff; }
+    </style>
+</head>
+<body class="landing-page">
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="../index.html" class="logo-link">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo"/>
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo"/>
+            </a>
+            <div class="nav-links">
+                <a href="../index.html">Home</a>
+                <a href="../challenge.html" style="color: var(--primary); font-weight: 600;">Challenge</a>
+                <a href="../index.html#features">Tools</a>
+                <a href="../pro.html">Pro</a>
+                <a href="../blog.html">Blog</a>
+                <a href="../about.html">About</a>
+                <a href="../download.html">Download</a>
+                <a href="../contact.html">Contact</a>
+                <a href="../app.html?view=impedance" class="btn btn-primary">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="../index.html" class="mobile-nav-item">HOME</a>
+                        <a href="../challenge.html" class="mobile-nav-item" style="color: var(--primary); font-weight: 600;">CHALLENGE</a>
+                        <a href="../index.html#features" class="mobile-nav-item">TOOLS</a>
+                        <a href="../pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="../blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="../about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="../download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="../contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="../app.html?view=impedance" class="mobile-nav-item">LAUNCH CONSOLE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="tool-page-hero">
+            <div class="tool-badge">
+                <span class="material-symbols-outlined" style="font-size: 16px;">bolt</span>
+                ELECTRO-ACOUSTIC POWER & SAFETY
+            </div>
+            <h1 class="tool-title">Speaker Impedance & Amplifier Safety Guide</h1>
+            <p class="tool-subtitle">
+                Calculate total speaker load impedance for series and parallel wiring. Prevent amplifier overload, protect against hazardous low-impedance faults, and evaluate safe power distribution backstage.
+            </p>
+            <div class="hero-actions store-button-grid" style="justify-content: center; margin-top: 1.5rem;">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=impedance" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">Launch Impedance Calc in Console</a>
+            </div>
+        </section>
+
+        <!-- Live Impedance Console Feature Showcase Card -->
+        <section class="calc-container" style="background: var(--surface); border: 1px solid var(--outline); border-radius: 16px; padding: 2.2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--outline); padding-bottom: 1.25rem;">
+                <div>
+                    <div style="display: inline-flex; align-items: center; gap: 6px; color: var(--primary); font-family: var(--font-mono); font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.35rem;">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">bolt</span>
+                        Workstation Capabilities
+                    </div>
+                    <h3 style="color: var(--text-heading); font-size: 1.4rem; margin: 0;">Stage Amplifier & Loudspeaker Load Suite</h3>
+                </div>
+                <a href="../app.html?view=impedance" class="btn btn-primary" style="padding: 10px 22px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">play_arrow</span> Open Impedance Console
+                </a>
+            </div>
+
+            <!-- Key Feature Metric Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div class="result-box" style="background: rgba(0, 255, 204, 0.03); border: 1px solid var(--outline); border-radius: 12px; padding: 1.25rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 20px;">account_tree</span>
+                        <h4 style="margin: 0; font-size: 0.85rem; color: var(--text-heading); text-transform: none; letter-spacing: normal;">Parallel & Series Modeling</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Instant load calculation for up to 8 daisy-chained cabinets across 4Ω, 8Ω, and 16Ω drivers.</p>
+                </div>
+
+                <div class="result-box" style="background: rgba(0, 255, 204, 0.03); border: 1px solid var(--outline); border-radius: 12px; padding: 1.25rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 20px;">warning</span>
+                        <h4 style="margin: 0; font-size: 0.85rem; color: var(--text-heading); text-transform: none; letter-spacing: normal;">Amp Safety Limit Alerts</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Automated visual warnings for hazardous &lt; 2Ω loads to prevent power supply rail sag and protect trips.</p>
+                </div>
+
+                <div class="result-box" style="background: rgba(0, 255, 204, 0.03); border: 1px solid var(--outline); border-radius: 12px; padding: 1.25rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 20px;">electrical_services</span>
+                        <h4 style="margin: 0; font-size: 0.85rem; color: var(--text-heading); text-transform: none; letter-spacing: normal;">Stage Cable Standards</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Evaluates round-trip copper loop resistance across 10, 12, 14, and 16 AWG touring multicores.</p>
+                </div>
+
+                <div class="result-box" style="background: rgba(0, 255, 204, 0.03); border: 1px solid var(--outline); border-radius: 12px; padding: 1.25rem; text-align: left;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                        <span class="material-symbols-outlined text-primary" style="font-size: 20px;">pie_chart</span>
+                        <h4 style="margin: 0; font-size: 0.85rem; color: var(--text-heading); text-transform: none; letter-spacing: normal;">Power Distribution Check</h4>
+                    </div>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.5;">Calculates exact wattage split per cabinet so mixed-impedance enclosures receive balanced acoustic power.</p>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; background: rgba(0, 255, 204, 0.05); border: 1px solid var(--primary); border-radius: 12px; padding: 1rem 1.4rem;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span class="material-symbols-outlined text-primary" style="font-size: 24px;">bolt</span>
+                    <span style="color: var(--text-main); font-size: 0.95rem;">Verify speaker loads backstage in real time with zero installation required.</span>
+                </div>
+                <a href="../app.html?view=impedance" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 42px; display: inline-flex; align-items: center; white-space: nowrap;">
+                    Launch Console
+                </a>
+            </div>
+        </section>
+
+        <!-- Practical Live Amplifier & Cable Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">electric_bolt</span> Why Speaker Impedance & Cable Damping Matter on Stage</h3>
+            <p>
+                When daisy-chaining passive loudspeakers and subwoofers with Speakon link cables, total electrical impedance drops with every cabinet added. Chaining too many boxes onto a single amplifier channel forces the amp to deliver dangerous current levels, causing power supply rail sag, thermal overload, and sudden protect mode shutdown in the middle of a show.
+            </p>
+            <div class="context-callout">
+                <strong style="color: var(--primary); font-family: var(--font-mono); font-size: 0.85rem; display: block; margin-bottom: 0.3rem; text-transform: uppercase;">Cable Resistance & Voice Coil Transient Control</strong>
+                <p style="margin: 0; color: var(--text-main); font-size: 0.95rem;">
+                    Even if your amplifier boasts an impressive bench damping factor of 1,000+, the actual damping factor experienced at the woofer voice coil is dictated by the round-trip resistance of your speaker cable. Long runs of undersized cable (like 16 or 18 AWG) add substantial loop resistance, crippling the amplifier's ability to brake the heavy woofer cone after transient impacts. This turns tight, punchy kick drums into sloppy, distorted bass mud and dissipates costly amplifier wattage as heat inside the cable jacket.
+                </p>
+            </div>
+            <p>
+                To maintain tight low-end transients and preserve amplifier headroom on long stage runs, always select heavy gauge copper cable (10 to 12 AWG) and avoid dropping total load impedance below 2 ohms per channel.
+            </p>
+        </section>
+
+        <!-- App Features -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">speed</span> Protect Amplifiers with Native SoundEngg Tools</h3>
+            <p>
+                Accidentally loading an amplifier with 1.33 ohms by chaining three 4-ohm subs will trip thermal breakers midway through a headlining concert. The native <strong>SoundEngg App</strong> gives system technicians:
+            </p>
+            <ul style="color: var(--text-main); line-height: 1.8; margin-left: 1.5rem; margin-bottom: 1.5rem;">
+                <li><strong>Instant Amplifier Safety Status:</strong> Highlights hazardous &lt; 2Ω loads in red before you energize the rack.</li>
+                <li><strong>Metric and Imperial Cable Run Tables:</strong> Switch between meters and feet for AWG/mm² cross-sections instantly.</li>
+                <li><strong>Wattage & Voltage Headroom Visualizer:</strong> Calculates how many decibels of headroom are wasted as heat inside long stage snake runs.</li>
+            </ul>
+        </section>
+
+        <!-- FAQ Section -->
+        <section class="info-card">
+            <h3><span class="material-symbols-outlined text-primary">help</span> Frequently Asked Questions</h3>
+            <div class="faq-item">
+                <div class="faq-question">Why should you avoid running touring amplifiers below 2 ohms per channel?</div>
+                <div class="faq-answer">
+                    When total speaker impedance drops below 2 ohms, the output transistors must supply extreme current, causing severe thermal stress, triggering amplifier protect shutdown, and inducing distortion during heavy low-end peaks. Maintaining a 4-ohm or 8-ohm minimum ensures clean headroom and prevents equipment failure.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">How does speaker cable gauge (AWG) affect subwoofer punch and transient response?</div>
+                <div class="faq-answer">
+                    Thin speaker wire has high loop resistance, which degrades the amplifier's effective damping factor. A lower damping factor prevents the amplifier from electro-magnetically braking the heavy woofer cone after a bass transient, resulting in loose, muddy low-end and wasted amplifier wattage.
+                </div>
+            </div>
+            <div class="faq-item">
+                <div class="faq-question">Can I daisy-chain 4-ohm and 8-ohm speaker cabinets on the same amplifier channel?</div>
+                <div class="faq-answer">
+                    While physically possible in parallel (yielding 2.67 ohms total), power will divide unevenly. The 4-ohm cabinet draws twice as much current (+3 dB) as the 8-ohm cabinet, creating an acoustic volume imbalance and straining the lower-impedance speaker.
+                </div>
+            </div>
+        </section>
+
+        <!-- Download Banner -->
+        <section class="app-cta-banner">
+            <h2 style="color: var(--text-heading); font-size: 2rem; margin-bottom: 0.75rem;">Never Blow an Amplifier Channel</h2>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+                Keep the complete speaker impedance and amp rack calculator on your phone offline with SoundEngg.
+            </p>
+            <div class="app-badge-group">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="../app.html?view=impedance" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">
+                    Open Web Console
+                </a>
+            </div>
+        </section>
+    </main>
+
+        <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="../assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo dark-logo">
+                <img src="../assets/img/logo.png" alt="SoundEngg Logo" class="footer-logo light-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>FIELD_TOOLS</h4>
+                <ul>
+                    <li><a href="delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="signal-generator.html">Signal Generator</a></li>
+                    <li><a href="audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="subwoofer-array.html">Subwoofer Array Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="../challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
+                    <li><a href="../blog.html">Engineering Blog</a></li>
+                    <li><a href="../about.html">About Us</a></li>
+                    <li><a href="../contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="../privacy.html">Privacy Policy</a></li>
+                    <li><a href="../terms.html">Terms of Service</a></li>
+                    <li><a href="../download.html">Download Apps</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/modules/theme.js"></script>
+    <script>
+        // Mobile Nav Dropdown
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.querySelector('.btn-landing-nav-toggle');
+            const menu = document.querySelector('.landing-nav-dropdown-menu');
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isVisible = menu.style.display === 'flex';
+                    menu.style.display = isVisible ? 'none' : 'flex';
+                    toggleBtn.classList.toggle('active', !isVisible);
+                });
+                document.addEventListener('click', (e) => {
+                    if (!menu.contains(e.target) && e.target !== toggleBtn) {
+                        menu.style.display = 'none';
+                        toggleBtn.classList.remove('active');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

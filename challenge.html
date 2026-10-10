@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>
+        // Synchronous Time-Based Theme initialization (Day: 06:00-17:59 -> Light, Night: 18:00-05:59 -> Dark)
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
+    <title>Golden Ears Audio Frequency Challenge | SoundEngg</title>
+    <meta name="description" content="Test your live sound ear training skills! Can you identify feedback frequencies in under 3 seconds? Take the 10-round Golden Ears Challenge and earn your shareable engineer badge."/>
+    <meta name="keywords" content="golden ears audio challenge, frequency recognition quiz, sound engineer ear training, identify feedback frequencies, live sound ear test, 1/3 octave quiz"/>
+    <link rel="canonical" href="https://www.soundengg.com/challenge.html"/>
+
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://www.soundengg.com/challenge.html"/>
+    <meta property="og:title" content="Golden Ears Audio Frequency Challenge | SoundEngg"/>
+    <meta property="og:description" content="Can you identify audio feedback frequencies by ear? Take the 10-round FOH challenge and generate your certified score badge."/>
+    <meta property="og:image" content="https://www.soundengg.com/assets/img/og-preview.png"/>
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image"/>
+    <meta property="twitter:url" content="https://www.soundengg.com/challenge.html"/>
+    <meta property="twitter:title" content="Golden Ears Audio Frequency Challenge | SoundEngg"/>
+    <meta property="twitter:description" content="Test your frequency recognition and get your FOH engineer badge!"/>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1"/>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"/>
+
+    <!-- Schema.org JSON-LD -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "SoundEngg Golden Ears Audio Frequency Challenge",
+      "applicationCategory": "GameApplication, EducationalApplication",
+      "operatingSystem": "iOS, Android, macOS, Windows, Web",
+      "description": "Interactive 10-round live sound frequency ear training challenge testing feedback recognition speed and accuracy.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+    </script>
+
+    <style>
+        .challenge-hero {
+            padding: 130px 0 35px 0;
+            text-align: center;
+        }
+        .challenge-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(20, 167, 181, 0.12);
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            color: var(--primary);
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 1.25rem;
+        }
+        html.light .challenge-badge {
+            background: rgba(8, 145, 178, 0.08);
+            border-color: rgba(8, 145, 178, 0.35);
+            color: #0891b2;
+        }
+        .challenge-title {
+            font-size: clamp(2.2rem, 5vw, 3.5rem);
+            font-weight: 800;
+            color: var(--text-heading);
+            line-height: 1.15;
+            margin-bottom: 1rem;
+        }
+        .challenge-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 720px;
+            margin: 0 auto 2.5rem auto;
+            line-height: 1.6;
+        }
+        .game-card {
+            max-width: 720px;
+            margin: 0 auto 4rem auto;
+            background: var(--surface);
+            border: 1px solid var(--outline);
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .game-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--outline);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .round-counter {
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        .score-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--outline);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: var(--text-heading);
+        }
+        .audio-trigger-box {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px dashed var(--outline);
+            border-radius: 16px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        html.light .audio-trigger-box {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+        }
+        .play-big-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #0b0f17;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .play-big-btn:hover {
+            transform: scale(1.08);
+            box-shadow: 0 0 35px rgba(0, 255, 204, 0.6);
+        }
+        .play-big-btn.playing {
+            animation: pulse-ring 1s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(0, 255, 204, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(0, 255, 204, 0); }
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        @media (max-width: 520px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .opt-btn {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--outline);
+            border-radius: 12px;
+            padding: 1.25rem 1rem;
+            color: var(--text-heading);
+            font-family: var(--font-mono);
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        html.light .opt-btn {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+        .opt-btn:hover:not(:disabled) {
+            border-color: var(--primary);
+            background: rgba(0, 255, 204, 0.08);
+            transform: translateY(-2px);
+        }
+        .opt-btn.correct {
+            background: rgba(0, 255, 120, 0.2) !important;
+            border-color: #00ff78 !important;
+            color: #00ff78 !important;
+        }
+        .opt-btn.wrong {
+            background: rgba(255, 68, 68, 0.2) !important;
+            border-color: #ff4444 !important;
+            color: #ff4444 !important;
+        }
+        .feedback-text {
+            min-height: 28px;
+            text-align: center;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .scorecard-wrap {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            text-align: center;
+        }
+        #challenge-cert-canvas {
+            width: 100%;
+            max-width: 520px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+        }
+        .cert-name-input {
+            flex: 1;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--outline);
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-heading);
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+        html.light .cert-name-input {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            color: #0f172a;
+        }
+        .cert-name-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 255, 204, 0.2);
+        }
+        .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.08) 0%, rgba(0, 102, 255, 0.08) 100%);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin: 4rem auto;
+            max-width: 860px;
+        }
+        html.light .app-cta-banner {
+            background: linear-gradient(135deg, rgba(0, 255, 204, 0.12) 0%, rgba(240, 249, 255, 0.9) 100%);
+            border-color: #00cca3;
+        }
+        .app-badge-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+        .app-store-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: #000000;
+            color: #ffffff !important;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid #333333;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .app-store-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary);
+            color: #ffffff !important;
+        }
+        .app-store-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: currentColor;
+            flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="landing-page">
+    <header class="landing-nav">
+        <div class="container nav-container">
+            <a href="index.html" class="logo-link">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="brand-logo dark-logo"/>
+                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="brand-logo light-logo"/>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="challenge.html" style="color: var(--primary); font-weight: 700;">Challenge</a>
+                <a href="tools/delay-finder.html">Tools</a>
+                <a href="pro.html">Pro</a>
+                <a href="blog.html">Blog</a>
+                <a href="about.html">About</a>
+                <a href="download.html">Download</a>
+                <a href="contact.html">Contact</a>
+                <a href="app.html" class="btn btn-primary launch-btn">Launch Console</a>
+            </div>
+            <div class="header-actions" style="display: flex; align-items: center; gap: 1rem;">
+                <div class="theme-toggle">
+                    <button id="btn-light" aria-label="Light Mode">
+                        <span class="material-symbols-outlined">light_mode</span>
+                    </button>
+                    <button id="btn-dark" aria-label="Dark Mode">
+                        <span class="material-symbols-outlined">dark_mode</span>
+                    </button>
+                </div>
+                <div class="mobile-nav-dropdown-container">
+                    <button class="mobile-nav-toggle-btn btn-landing-nav-toggle" aria-label="Toggle Navigation Dropdown">
+                        <span class="landing-nav-active-label">MENU</span>
+                        <span class="material-symbols-outlined dropdown-arrow">arrow_drop_down</span>
+                    </button>
+                    <div class="mobile-nav-dropdown-menu landing-nav-dropdown-menu" style="display: none;">
+                        <a href="index.html" class="mobile-nav-item">HOME</a>
+                        <a href="challenge.html" class="mobile-nav-item" style="color: var(--primary); font-weight: 700;">CHALLENGE</a>
+                        <a href="tools/delay-finder.html" class="mobile-nav-item">TOOLS</a>
+                        <a href="pro.html" class="mobile-nav-item">PRO</a>
+                        <a href="blog.html" class="mobile-nav-item">BLOG</a>
+                        <a href="about.html" class="mobile-nav-item">ABOUT</a>
+                        <a href="download.html" class="mobile-nav-item">DOWNLOAD</a>
+                        <a href="contact.html" class="mobile-nav-item">CONTACT</a>
+                        <a href="app.html" class="mobile-nav-item">LAUNCH CONSOLE</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="challenge-hero">
+            <div class="challenge-badge">
+                <span class="material-symbols-outlined" style="font-size: 16px;">military_tech</span>
+                LIVE SOUND LISTENING BENCHMARK
+            </div>
+            <h1 class="challenge-title">The "Golden Ears" Frequency Challenge</h1>
+            <p class="challenge-subtitle">
+                Stage feedback happens in fractions of a second. Can you identify ISO frequency resonances by ear? Complete the 10-round challenge and earn your certified sound engineer badge.
+            </p>
+        </section>
+
+        <!-- Interactive Game Card -->
+        <div class="game-card">
+            <!-- Active Game State -->
+            <div id="game-active-state">
+                <div class="game-header-bar">
+                    <div class="round-counter">ROUND <span id="cur-round">1</span> / 10</div>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <div class="score-pill">
+                            <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">star</span>
+                            SCORE: <span id="score-display">0</span>
+                        </div>
+                        <div class="score-pill">
+                            <span class="material-symbols-outlined" style="font-size: 16px; color: #ff5500;">local_fire_department</span>
+                            STREAK: <span id="streak-display">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="audio-trigger-box">
+                    <button type="button" id="btn-play-tone" class="play-big-btn" aria-label="Play Frequency Tone">
+                        <span class="material-symbols-outlined" style="font-size: 38px;">volume_up</span>
+                    </button>
+                    <p style="margin: 0; font-size: 0.85rem; color: var(--text-muted); font-family: var(--font-mono);">
+                        TAP TO PLAY FREQUENCY BURST (1.2s)
+                    </p>
+                </div>
+
+                <div class="options-grid" id="options-container">
+                    <!-- Populated dynamically -->
+                </div>
+
+                <div class="feedback-text" id="feedback-msg"></div>
+            </div>
+
+            <!-- Game Over / Scorecard State -->
+            <div id="game-over-state" class="scorecard-wrap">
+                <div>
+                    <h2 style="font-size: 1.8rem; color: var(--text-heading); margin-bottom: 0.2rem;">Challenge Completed!</h2>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin: 0;">Here is your certified live sound engineer badge:</p>
+                </div>
+
+                <canvas id="challenge-cert-canvas" width="1080" height="1080"></canvas>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem; width: 100%; max-width: 420px;">
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="cert-engineer-name" class="cert-name-input" placeholder="Enter Your Name / Handle" value="Live Sound Tech" maxlength="28" />
+                        <button type="button" id="btn-update-cert" class="btn btn-outline" style="padding: 0 16px;">Update</button>
+                    </div>
+
+                    <button type="button" id="btn-download-cert" class="btn btn-primary" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; font-weight: 700; width: 100%;">
+                        <span class="material-symbols-outlined">download</span> Download Scorecard (PNG)
+                    </button>
+                    
+                    <button type="button" id="btn-share-cert" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; width: 100%;">
+                        <span class="material-symbols-outlined">share</span> Share Scorecard (Instagram / X)
+                    </button>
+
+                    <button type="button" id="btn-play-again" class="btn btn-outline" style="padding: 10px; border-color: var(--outline); color: var(--text-muted);">
+                        ↻ Play Again
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Download Upsell Banner -->
+        <section class="app-cta-banner">
+            <h2 style="color: var(--text-heading); font-size: 2rem; margin-bottom: 0.75rem;">Train on Real Music Tracks in SoundEngg Pro</h2>
+            <p style="color: var(--text-muted); max-width: 600px; margin: 0 auto; font-size: 1.05rem;">
+                Load your favorite tour tracks or band stems offline and practice 1/3 and 1/6 octave frequency cuts on real audio. Includes full 1-Mic Auto-Ping delay alignment and 1/24-octave RTA.
+            </p>
+            <div class="app-badge-group">
+                <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="btn-store btn-google-play">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M5,3.14L15.3,13.44L18.4,10.34L5,2.04C4.6,1.74 4,1.84 3.7,2.24C3.5,2.54 3.5,2.94 3.7,3.14M3,4.24V19.74C3,20.24 3.4,20.74 3.9,20.74C4.1,20.74 4.3,20.64 4.4,20.54L14.4,12.54M20.3,12.04C20.5,12.24 20.5,12.64 20.3,12.84L17.3,14.64L14.7,12.04L17.3,9.44M4.4,3.44L14.4,11.54L4.4,19.64C4,19.94 3.4,19.84 3.1,19.44C2.9,19.14 2.9,18.74 3.1,18.54L4.4,3.44Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">GET IT ON</span>
+                        <span class="store-maintext">Google Play</span>
+                    </div>
+                </a>
+                <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="btn-store btn-app-store">
+                    <span class="store-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M18.71,19.5C17.88,20.74 17,21.95 15.66,21.97C14.32,22 13.89,21.18 12.37,21.18C10.84,21.18 10.37,21.95 9.1,22C7.79,22.05 6.8,20.68 5.96,19.47C4.25,17 2.94,12.45 4.7,9.39C5.57,7.87 7.13,6.91 8.82,6.88C10.1,6.86 11.32,7.75 12.11,7.75C12.89,7.75 14.37,6.68 15.92,6.84C16.57,6.87 18.39,7.1 19.56,8.82C19.47,8.88 17.39,10.1 17.41,12.63C17.44,15.65 20.06,16.66 20.1,16.67C20.08,16.74 19.67,18.11 18.71,19.5M15.97,4.17C16.63,3.37 17.07,2.28 16.95,1C16,1.04 14.9,1.6 14.24,2.38C13.68,3.04 13.19,4.14 13.34,5.39C14.39,5.47 15.4,4.88 15.97,4.17Z"/></svg></span>
+                    <div class="store-btn-text">
+                        <span class="store-subtext">Download on the</span>
+                        <span class="store-maintext">App Store</span>
+                    </div>
+                </a>
+                <a href="app.html?view=earTraining" class="btn btn-outline hero-btn inline-console-btn" style="min-height: 48px; display: inline-flex; align-items: center;">
+                    Open Pro Console
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="landing-footer">
+        <div class="container footer-grid">
+            <div class="footer-col-brand">
+                <img src="assets/img/logo-dark.png" alt="SoundEngg Logo" class="footer-logo dark-logo">
+                <img src="assets/img/logo.png" alt="SoundEngg Logo" class="footer-logo light-logo">
+                <p>Advanced engineering tools for the modern sound technician. Precision verified.</p>
+                <div class="social-links">
+                    <a href="https://instagram.com/soundengg" target="_blank" aria-label="Instagram" class="instagram-link">
+                        <svg class="instagram-icon" viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-col">
+                <h4>FIELD_TOOLS</h4>
+                <ul>
+                    <li><a href="tools/delay-finder.html">Auto-Ping Delay Finder</a></li>
+                    <li><a href="tools/rta-analyzer.html">1/24-Octave RTA</a></li>
+                    <li><a href="tools/ear-training.html">Ear Training Lab</a></li>
+                    <li><a href="tools/signal-generator.html">Signal Generator</a></li>
+                    <li><a href="tools/audio-pinouts.html">Audio Pinouts</a></li>
+                    <li><a href="tools/speaker-impedance.html">Speaker Impedance</a></li>
+                    <li><a href="tools/tap-tempo.html">Tap Tempo Delay</a></li>
+                    <li><a href="tools/subwoofer-array.html">Subwoofer Array Calc</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>KNOWLEDGE</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="challenge.html" style="color: var(--primary); font-weight: 600;">★ Golden Ears Challenge</a></li>
+                    <li><a href="blog.html">Engineering Blog</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>LEGAL</h4>
+                <ul>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                    <li><a href="terms.html">Terms of Service</a></li>
+                    <li><a href="download.html">Download Apps</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>&copy; 2026 SoundEngg. Built by Sound Engineer for Sound Crews.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="assets/js/modules/theme.js"></script>
+    <script>
+        (function() {
+            // ISO Center Frequencies tested
+            const ISO_FREQS = [
+                { f: 125, label: '125 Hz', band: 'Low' },
+                { f: 250, label: '250 Hz', band: 'Low-Mid' },
+                { f: 500, label: '500 Hz', band: 'Low-Mid' },
+                { f: 630, label: '630 Hz', band: 'Mid' },
+                { f: 800, label: '800 Hz', band: 'Mid' },
+                { f: 1000, label: '1.0 kHz', band: 'Mid' },
+                { f: 1600, label: '1.6 kHz', band: 'High-Mid' },
+                { f: 2000, label: '2.0 kHz', band: 'High-Mid' },
+                { f: 2500, label: '2.5 kHz', band: 'High-Mid' },
+                { f: 3150, label: '3.15 kHz', band: 'High-Mid' },
+                { f: 4000, label: '4.0 kHz', band: 'Presence' },
+                { f: 5000, label: '5.0 kHz', band: 'Presence' },
+                { f: 6300, label: '6.3 kHz', band: 'Presence' },
+                { f: 8000, label: '8.0 kHz', band: 'Brilliance' },
+                { f: 10000, label: '10.0 kHz', band: 'Brilliance' },
+                { f: 12500, label: '12.5 kHz', band: 'Air' }
+            ];
+
+            let audioCtx = null;
+            let currentRound = 1;
+            let totalRounds = 10;
+            let score = 0;
+            let streak = 0;
+            let maxStreak = 0;
+            let currentTarget = null;
+            let currentOptions = [];
+            let roundStartTime = 0;
+            let responseTimes = [];
+            let answered = false;
+
+            function getAudioContext() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                return audioCtx;
+            }
+
+            function playFrequencyTone(freq) {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, ctx.currentTime);
+
+                // Smooth exponential attack & release envelope to avoid clicks
+                gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.3, ctx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.3, ctx.currentTime + 1.1);
+                gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.3);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(ctx.currentTime);
+                osc.stop(ctx.currentTime + 1.35);
+
+                const btn = document.getElementById('btn-play-tone');
+                btn.classList.add('playing');
+                setTimeout(() => btn.classList.remove('playing'), 1300);
+            }
+
+            function setupRound() {
+                answered = false;
+                document.getElementById('cur-round').textContent = currentRound;
+                document.getElementById('score-display').textContent = score;
+                document.getElementById('streak-display').textContent = streak;
+                document.getElementById('feedback-msg').textContent = '';
+
+                // Select target
+                const targetIdx = Math.floor(Math.random() * ISO_FREQS.length);
+                currentTarget = ISO_FREQS[targetIdx];
+
+                // Select 3 distractors
+                const distractors = [];
+                while (distractors.length < 3) {
+                    const rand = Math.floor(Math.random() * ISO_FREQS.length);
+                    if (rand !== targetIdx && !distractors.includes(rand)) {
+                        distractors.push(rand);
+                    }
+                }
+
+                currentOptions = [targetIdx, ...distractors]
+                    .map(idx => ISO_FREQS[idx])
+                    .sort((a, b) => a.f - b.f);
+
+                // Render options
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+                currentOptions.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'opt-btn';
+                    btn.textContent = opt.label;
+                    btn.onclick = () => handleAnswer(opt, btn);
+                    container.appendChild(btn);
+                });
+
+                roundStartTime = performance.now();
+                playFrequencyTone(currentTarget.f);
+            }
+
+            function handleAnswer(selectedOpt, btnEl) {
+                if (answered) return;
+                answered = true;
+
+                const responseTime = (performance.now() - roundStartTime) / 1000;
+                responseTimes.push(responseTime);
+
+                const isCorrect = selectedOpt.f === currentTarget.f;
+                const feedbackEl = document.getElementById('feedback-msg');
+
+                const allBtns = document.querySelectorAll('.opt-btn');
+                allBtns.forEach(b => {
+                    b.disabled = true;
+                    if (b.textContent === currentTarget.label) {
+                        b.classList.add('correct');
+                    }
+                });
+
+                if (isCorrect) {
+                    score++;
+                    streak++;
+                    if (streak > maxStreak) maxStreak = streak;
+                    btnEl.classList.add('correct');
+                    feedbackEl.style.color = '#00ff78';
+                    feedbackEl.textContent = `✓ Correct! ${currentTarget.label} (${responseTime.toFixed(1)}s)`;
+                } else {
+                    streak = 0;
+                    btnEl.classList.add('wrong');
+                    feedbackEl.style.color = '#ff4444';
+                    feedbackEl.textContent = `✕ Incorrect. The frequency was ${currentTarget.label}.`;
+                }
+
+                document.getElementById('score-display').textContent = score;
+                document.getElementById('streak-display').textContent = streak;
+
+                setTimeout(() => {
+                    if (currentRound < totalRounds) {
+                        currentRound++;
+                        setupRound();
+                    } else {
+                        endGame();
+                    }
+                }, 1600);
+            }
+
+            function endGame() {
+                document.getElementById('game-active-state').style.display = 'none';
+                document.getElementById('game-over-state').style.display = 'flex';
+                renderCertificate();
+            }
+
+            function renderCertificate() {
+                const canvas = document.getElementById('challenge-cert-canvas');
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                const name = document.getElementById('cert-engineer-name').value || 'Live Sound Tech';
+                const pct = Math.round((score / totalRounds) * 100);
+                const avgSpeed = responseTimes.length > 0 
+                    ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length).toFixed(1) 
+                    : '2.0';
+
+                let tierTitle = 'AUDIO APPRENTICE';
+                let tierSub = 'Level 1 Listener • Keep Training';
+                let tierColor = '#38bdf8';
+                if (pct >= 90) {
+                    tierTitle = 'GOLDEN EAR FOH VETERAN';
+                    tierSub = 'Tier 1 Master • Certified Soundcheck Ear';
+                    tierColor = '#ffd700';
+                } else if (pct >= 75) {
+                    tierTitle = 'LEAD SYSTEM TECHNICIAN';
+                    tierSub = 'Pro Level • Feedback Notch Ready';
+                    tierColor = '#00ffcc';
+                } else if (pct >= 60) {
+                    tierTitle = 'STAGE MONITOR ENGINEER';
+                    tierSub = 'Field Ready • Accurate ISO Detection';
+                    tierColor = '#a855f7';
+                }
+
+                // 1. Background
+                const bg = ctx.createLinearGradient(0, 0, 1080, 1080);
+                bg.addColorStop(0, '#0a0d14');
+                bg.addColorStop(0.5, '#121724');
+                bg.addColorStop(1, '#080a0f');
+                ctx.fillStyle = bg;
+                ctx.fillRect(0, 0, 1080, 1080);
+
+                // Subtle Grid
+                ctx.strokeStyle = 'rgba(255, 215, 0, 0.05)';
+                ctx.lineWidth = 1;
+                for (let i = 60; i < 1080; i += 60) {
+                    ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 1080); ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(1080, i); ctx.stroke();
+                }
+
+                // Double Border with Golden Accents
+                ctx.strokeStyle = tierColor;
+                ctx.lineWidth = 3;
+                ctx.strokeRect(50, 50, 980, 980);
+
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(58, 58, 964, 964);
+
+                // Corner decorative brackets
+                ctx.strokeStyle = tierColor;
+                ctx.lineWidth = 4;
+                const bLen = 35;
+                ctx.beginPath(); ctx.moveTo(46, 46 + bLen); ctx.lineTo(46, 46); ctx.lineTo(46 + bLen, 46); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(1034 - bLen, 46); ctx.lineTo(1034, 46); ctx.lineTo(1034, 46 + bLen); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(46, 1034 - bLen); ctx.lineTo(46, 1034); ctx.lineTo(46 + bLen, 1034); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(1034 - bLen, 1034); ctx.lineTo(1034, 1034); ctx.lineTo(1034, 1034 - bLen); ctx.stroke();
+
+                // Top Header
+                ctx.fillStyle = '#00ffcc';
+                ctx.font = 'bold 30px "SF Pro Display", sans-serif';
+                ctx.fillText('SOUNDENGG', 90, 120);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '500 16px "SF Mono", monospace';
+                ctx.fillText('// GOLDEN EARS FREQUENCY BENCHMARK', 90, 148);
+
+                // Right Badge
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(810, 85, 180, 50, 25);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffd700';
+                ctx.font = 'bold 15px "SF Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('10-ROUND TEST', 900, 116);
+                ctx.textAlign = 'left';
+
+                // Engineer Name & Title
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 44px "SF Pro Display", sans-serif';
+                ctx.fillText(name.toUpperCase(), 90, 240);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '18px "SF Mono", monospace';
+                ctx.fillText(`VERIFIED BENCHMARK  •  DATE: ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}`, 90, 280);
+
+                // Hero Score Box
+                const heroGrad = ctx.createLinearGradient(90, 320, 990, 680);
+                heroGrad.addColorStop(0, 'rgba(15, 23, 42, 0.95)');
+                heroGrad.addColorStop(1, 'rgba(8, 12, 22, 0.98)');
+                ctx.fillStyle = heroGrad;
+                ctx.strokeStyle = tierColor;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(90, 320, 900, 350, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                // Tier Tag
+                ctx.fillStyle = tierColor;
+                ctx.font = 'bold 18px "SF Mono", monospace';
+                ctx.letterSpacing = '2px';
+                ctx.fillText('ASSIGNED CERTIFICATION TIER', 130, 375);
+
+                // Tier Title (Large)
+                ctx.shadowColor = tierColor;
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = tierColor;
+                ctx.font = 'bold 50px "SF Pro Display", sans-serif';
+                ctx.fillText(tierTitle, 130, 440);
+                ctx.shadowBlur = 0;
+
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '22px "SF Pro Display", sans-serif';
+                ctx.fillText(tierSub, 130, 480);
+
+                // Big Score Metric inside Hero
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 88px "SF Mono", monospace';
+                ctx.fillText(`${pct}%`, 130, 600);
+
+                ctx.font = '24px "SF Pro Display", sans-serif';
+                ctx.fillStyle = '#64748b';
+                ctx.fillText(`(${score} / ${totalRounds} Correct)`, 340, 580);
+
+                // Metrics Grid (3 Boxes Below)
+                const gridData = [
+                    { title: 'ACCURACY', val: `${pct}%`, sub: `${score} of ${totalRounds} bands`, color: tierColor },
+                    { title: 'MAX STREAK', val: `${maxStreak} BANDS`, sub: 'Consecutive hits', color: '#ff5500' },
+                    { title: 'AVG REACTION', val: `${avgSpeed}s`, sub: 'Listening speed', color: '#38bdf8' }
+                ];
+
+                const cardW = 280;
+                const cardH = 140;
+                const startX = 90;
+                const cardY = 710;
+
+                gridData.forEach((c, i) => {
+                    const cx = startX + i * 310;
+                    ctx.fillStyle = 'rgba(15, 23, 42, 0.8)';
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(cx, cardY, cardW, cardH, 12);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#64748b';
+                    ctx.font = 'bold 13px "SF Mono", monospace';
+                    ctx.fillText(c.title, cx + 24, cardY + 36);
+
+                    ctx.fillStyle = c.color;
+                    ctx.font = 'bold 32px "SF Mono", monospace';
+                    ctx.fillText(c.val, cx + 24, cardY + 80);
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.font = '13px "SF Pro Display", sans-serif';
+                    ctx.fillText(c.sub, cx + 24, cardY + 112);
+                });
+
+                // Footer
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(90, 960);
+                ctx.lineTo(990, 960);
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 18px "SF Pro Display", -apple-system, sans-serif';
+                ctx.fillText('SoundEngg Ear Training Lab & Acoustic Workstation', 90, 995);
+
+                ctx.fillStyle = '#64748b';
+                ctx.font = '14px "SF Mono", monospace';
+                ctx.fillText('Test your frequency ears at www.soundengg.com/challenge.html', 90, 1020);
+
+                ctx.fillStyle = 'rgba(255, 215, 0, 0.12)';
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.roundRect(830, 975, 160, 40, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffd700';
+                ctx.font = 'bold 14px "SF Mono", monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText('GOLDEN EARS', 910, 1000);
+                ctx.textAlign = 'left';
+            }
+
+            // Bind Events
+            document.getElementById('btn-play-tone').onclick = () => {
+                if (currentTarget) playFrequencyTone(currentTarget.f);
+            };
+
+            document.getElementById('btn-update-cert').onclick = renderCertificate;
+            document.getElementById('cert-engineer-name').oninput = renderCertificate;
+
+            document.getElementById('btn-download-cert').onclick = () => {
+                const canvas = document.getElementById('challenge-cert-canvas');
+                const link = document.createElement('a');
+                link.download = `soundengg-golden-ears-${(document.getElementById('cert-engineer-name').value || 'badge').toLowerCase().replace(/[^a-z0-9]/g, '-')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+
+            document.getElementById('btn-share-cert').onclick = async () => {
+                const canvas = document.getElementById('challenge-cert-canvas');
+                if (navigator.share && canvas.toBlob) {
+                    canvas.toBlob(async (blob) => {
+                        const file = new File([blob], 'soundengg-golden-ears-badge.png', { type: 'image/png' });
+                        try {
+                            await navigator.share({
+                                title: 'My SoundEngg Golden Ears Badge',
+                                text: `I scored ${Math.round((score / totalRounds) * 100)}% on the Golden Ears Audio Frequency Challenge! Can you beat my score?`,
+                                files: [file]
+                            });
+                        } catch (err) {
+                            console.log('Share canceled');
+                        }
+                    });
+                } else {
+                    document.getElementById('btn-download-cert').click();
+                }
+            };
+
+            document.getElementById('btn-play-again').onclick = () => {
+                currentRound = 1;
+                score = 0;
+                streak = 0;
+                responseTimes = [];
+                document.getElementById('game-over-state').style.display = 'none';
+                document.getElementById('game-active-state').style.display = 'block';
+                setupRound();
+            };
+
+            // Start on load
+            setupRound();
+        })();
+    </script>
+</body>
+</html>

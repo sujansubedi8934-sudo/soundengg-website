@@ -21,14 +21,18 @@ const filesToCopy = [
     'ads.txt',
     'app-ads.txt',
     'robots.txt',
+    'llms.txt',
+    'llms-full.txt',
     'sitemap.xml',
     'google69f652e51c080b5b.html',
-    'download.html'
+    'download.html',
+    'challenge.html'
 ];
 
 // List of folders to copy recursively
 const foldersToCopy = [
-    'assets'
+    'assets',
+    'tools'
 ];
 
 function deleteFolderRecursive(directoryPath) {
@@ -116,7 +120,29 @@ try {
     console.log('🌐 Generating static blog posts for SEO & AdSense...');
     require('./generate-static-blog.js');
 
-    console.log('✅ App bundle build completed successfully inside /www!');
+    // Sync compiled /www bundle into Android & iOS Capacitor public asset folders
+    const nativeTargets = [
+        path.join(srcDir, 'android', 'app', 'src', 'main', 'assets', 'public'),
+        path.join(srcDir, 'ios', 'App', 'App', 'public')
+    ];
+    nativeTargets.forEach((nativePublicDir) => {
+        const parentDir = path.dirname(nativePublicDir);
+        if (fs.existsSync(parentDir)) {
+            deleteFolderRecursive(nativePublicDir);
+            fs.mkdirSync(nativePublicDir, { recursive: true });
+            fs.readdirSync(destDir).forEach((entry) => {
+                const curSrc = path.join(destDir, entry);
+                if (fs.lstatSync(curSrc).isDirectory()) {
+                    copyFolderRecursiveSync(curSrc, nativePublicDir);
+                } else {
+                    copyFileSync(curSrc, nativePublicDir);
+                }
+            });
+            console.log(`📱 Synced /www bundle to ${path.relative(srcDir, nativePublicDir)}`);
+        }
+    });
+
+    console.log('✅ App bundle build completed successfully inside /www, Android, and iOS!');
 } catch (err) {
     console.error('❌ Build failed:', err);
     process.exit(1);

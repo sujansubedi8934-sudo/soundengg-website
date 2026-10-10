@@ -74,8 +74,28 @@ const getTemplate = (blog) => {
     };
 
     return `<!DOCTYPE html>
-<html class="dark" lang="en">
+<html lang="en">
 <head>
+    <script>
+        (function() {
+            try {
+                const hour = new Date().getHours();
+                const isDay = (hour >= 6 && hour < 18);
+                const currentPeriod = isDay ? 'day' : 'night';
+                let theme = isDay ? 'light' : 'dark';
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                const todayStr = new Date().toDateString();
+                if (overridePeriod === currentPeriod && overrideDate === todayStr && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    theme = overrideTheme;
+                }
+                document.documentElement.className = theme;
+            } catch (e) {
+                document.documentElement.className = 'dark';
+            }
+        })();
+    </script>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <title>${blog.title} | SoundEngg Blog</title>
@@ -185,13 +205,6 @@ const getTemplate = (blog) => {
              <!-- Article Main Content -->
              ${blog.content}
              
-             <!-- Sponsor Advertisement / Native Banner Ad Unit -->
-             <div class="ad-placeholder adsterra-container" style="margin-top: 3rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1rem 0.5rem; text-align: center; overflow: hidden;">
-                 <div style="font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 1px;">SPONSOR_ADVERTISEMENT</div>
-                 <script async="async" data-cfasync="false" src="https://pl30998961.profitableratecpmnetwork.com/26b7b70eb2dde1e417c5beef508656fe/invoke.js"></script>
-                 <div id="container-26b7b70eb2dde1e417c5beef508656fe"></div>
-             </div>
-             
              <!-- Mobile App Promotion Field Companion Banner -->
              <div class="blog-promo-banner-card" style="margin-top: 3rem; background: linear-gradient(135deg, rgba(20, 167, 181, 0.08) 0%, rgba(10, 10, 15, 0.6) 100%); border: 1px solid var(--border-color, #222); border-radius: 12px; padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; box-shadow: 0 4px 20px rgba(0,0,0,0.35);">
                  <div style="flex: 1; min-width: 250px; text-align: left;">
@@ -204,7 +217,7 @@ const getTemplate = (blog) => {
                      </p>
                  </div>
                  <div class="store-badge-wrap" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-                     <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" style="display: block; transition: transform 0.2s ease;">
+                     <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" style="display: block; transition: transform 0.2s ease;">
                          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" alt="Get it on Google Play" style="height: 38px;">
                      </a>
                      <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" style="display: block; transition: transform 0.2s ease;">
@@ -300,8 +313,6 @@ const getTemplate = (blog) => {
             if (typeof setupThemeToggle === 'function') setupThemeToggle();
         });
     </script>
-    <!-- Adsterra Social Bar Ad Network -->
-    <script src="https://pl30998896.profitableratecpmnetwork.com/23/7e/18/237e18fffe2a57217a7bef22595f2c5f.js"></script>
 </body>
 </html>
 `;
@@ -318,57 +329,114 @@ blogs.forEach(blog => {
 // Dynamic Sitemap generation including all newly discovered blogs
 const generateSitemap = () => {
     const sitemapPath = path.join(destDir, 'sitemap.xml');
+    const today = new Date().toISOString().split('T')[0];
     
     let xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Core Pages -->
   <url>
     <loc>https://www.soundengg.com/</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://www.soundengg.com/app</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/blog</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://www.soundengg.com/download</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/pro</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://www.soundengg.com/pro</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://www.soundengg.com/blog</loc>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.soundengg.com/about</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.soundengg.com/contact</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://www.soundengg.com/privacy</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://www.soundengg.com/terms</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
+  </url>
+
+  <!-- Standalone Technical Tool Deep Dives -->
+  <url>
+    <loc>https://www.soundengg.com/tools/delay-finder</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/rta-analyzer</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/ear-training</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/signal-generator</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/audio-pinouts</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/speaker-impedance</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/tap-tempo</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://www.soundengg.com/tools/subwoofer-array</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
   </url>
 
   <!-- Blog Articles -->
@@ -377,7 +445,7 @@ const generateSitemap = () => {
     blogs.forEach(blog => {
         xml += `  <url>
     <loc>https://www.soundengg.com/blog/${blog.id}</loc>
-    <lastmod>2026-06-14</lastmod>
+    <lastmod>${today}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>

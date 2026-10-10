@@ -152,9 +152,15 @@ app.*.symbols
 supabase/.temp/
 
 # Local Dev Screenshots, Internal Notes & Migration Guides
-dev-tools/*.png
-dev-tools/mcp/
+dev-tools/
+store-screenshots/
+tests/
 scripts/
+task.md
+walkthrough.md
+ASO_README.md
+aso_store_listing_draft.md
+demo-organic-growth.html
 soundengg_migration_guide.txt
 soundengg_migration_guide.pdf
 COMPETITOR_ASO_GEO_TAKEOVER_BLUEPRINT.md
@@ -163,3 +169,4 @@ docs/superpowers/
 *.p8
 *.p12
 *.mobileprovision
+
