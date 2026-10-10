@@ -705,7 +705,23 @@
                     ? (responseTimes.reduce((a, b) => a + b, 0) / responseTimes.length).toFixed(1) 
                     : '2.0';
 
-                const accentColor = pct >= 90 ? '#ffd700' : '#00ffcc';
+                const TAGLINES_BY_SCORE = {
+                    10: { title: 'CERTIFIED GOLDEN EARS', sub: 'Flawless 10/10 ISO Frequency Recognition!', color: '#ffd700' },
+                    9:  { title: 'GOLDEN EARS UNLOCKED', sub: 'Surgical Precision • Nearly Flawless Run!', color: '#ffd700' },
+                    8:  { title: 'SHARP & DIALED-IN EARS', sub: 'Locked-In Frequency Instincts • Very Close to Golden!', color: '#00ffcc' },
+                    7:  { title: 'GOING STRONG • SOLID EARS', sub: 'Great Frequency Tracking • Keep Pushing for 90%+!', color: '#00ffcc' },
+                    6:  { title: 'GOING GOOD • GETTING SHARPER', sub: 'Solid Listening Foundation • Lock In Those Mid Bands!', color: '#38bdf8' },
+                    5:  { title: 'HALFWAY TO GOLDEN EARS', sub: 'Good Momentum • A Few More Rounds Will Lock It In!', color: '#38bdf8' },
+                    4:  { title: 'WARMING UP THE EARS', sub: 'Getting the Hang of It • Practice Builds Precision!', color: '#a855f7' },
+                    3:  { title: 'TUNING IN • KEEP TRAINING', sub: 'Building Frequency Memory • Give It Another Spin!', color: '#a855f7' },
+                    2:  { title: 'TIME FOR EAR TRAINING', sub: 'Every Great Ear Starts Here • Keep Practicing!', color: '#f59e0b' },
+                    1:  { title: 'NEEDS MORE EAR TRAINING', sub: 'Warm Up in the SoundEngg Ear Training Lab & Try Again!', color: '#f59e0b' },
+                    0:  { title: 'NEEDS MORE EAR TRAINING', sub: 'Warm Up in the SoundEngg Ear Training Lab & Try Again!', color: '#f59e0b' }
+                };
+                const taglineMeta = TAGLINES_BY_SCORE[score] || TAGLINES_BY_SCORE[7];
+                const tierTitle = taglineMeta.title;
+                const tierSub = taglineMeta.sub;
+                const accentColor = taglineMeta.color;
 
                 // 1. Background
                 const bg = ctx.createLinearGradient(0, 0, 1080, 1080);
@@ -789,24 +805,33 @@
                 // Benchmark Header Label inside Hero
                 ctx.fillStyle = accentColor;
                 ctx.font = 'bold 18px "SF Mono", monospace';
-                ctx.fillText('FREQUENCY RECOGNITION SCORE', 130, 385);
+                ctx.letterSpacing = '2px';
+                ctx.fillText('LISTENING BENCHMARK RESULT', 130, 375);
+                ctx.letterSpacing = '0px';
 
-                // Big Score Metric inside Hero
+                // Positive Motivating Tagline (Large)
                 ctx.shadowColor = accentColor;
-                ctx.shadowBlur = 24;
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 124px "SF Mono", monospace';
-                ctx.fillText(`${pct}%`, 130, 520);
+                ctx.shadowBlur = 20;
+                ctx.fillStyle = accentColor;
+                ctx.font = 'bold 46px "SF Pro Display", sans-serif';
+                ctx.fillText(tierTitle, 130, 440);
                 ctx.shadowBlur = 0;
 
-                // Score Breakdown & Range Subtitle
-                ctx.fillStyle = '#e2e8f0';
-                ctx.font = 'bold 28px "SF Pro Display", sans-serif';
-                ctx.fillText(`${score} / ${totalRounds} ISO Frequency Bands Identified`, 130, 585);
+                // Tagline Subtitle
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '22px "SF Pro Display", sans-serif';
+                ctx.fillText(tierSub, 130, 480);
 
+                // Big Score Metric inside Hero
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 88px "SF Mono", monospace';
+                const pctText = `${pct}%`;
+                ctx.fillText(pctText, 130, 600);
+                const pctWidth = ctx.measureText(pctText).width;
+
+                ctx.font = '24px "SF Pro Display", sans-serif';
                 ctx.fillStyle = '#94a3b8';
-                ctx.font = '19px "SF Mono", monospace';
-                ctx.fillText('125 Hz – 12.5 kHz Blind Sine Burst Recognition  •  Avg Speed: ' + avgSpeed + 's', 130, 628);
+                ctx.fillText(`(${score} / ${totalRounds} Correct)`, 130 + pctWidth + 28, 582);
 
                 // Metrics Grid (3 Boxes Below)
                 const gridData = [
