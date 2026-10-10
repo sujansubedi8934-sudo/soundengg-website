@@ -250,6 +250,83 @@
             };
         }
 
+        // --- Share Config Button (#btn-share-impedance) ---
+        const btnShareImp = document.getElementById('btn-share-impedance');
+        if (btnShareImp) {
+            btnShareImp.addEventListener('click', (e) => {
+                if (e) e.preventDefault();
+                calculateResults();
+
+                const count = parseInt(speakerCountEl.value, 10) || 2;
+                const speakerImp = parseFloat(speakerImpedanceEl.value) || 8;
+                const speakerPower = parseFloat(speakerPowerEl.value) || 400;
+                const ampPower = parseFloat(amplifierPowerEl.value) || 1000;
+                const ampImp = parseFloat(amplifierImpedanceEl.value) || 8;
+                const activeResult = computeSpecs(currentMode, count, speakerImp, speakerPower, ampPower, ampImp);
+
+                const modeLabel = currentMode === 'parallel' ? 'Parallel Wiring' : currentMode === 'series' ? 'Series Wiring' : 'Series-Parallel Wiring';
+                const totalImpTxt = activeResult.safe ? `${activeResult.totalImpedance.toFixed(2)} Ω` : `${activeResult.totalImpedance.toFixed(2)} Ω (SHORT CIRCUIT HAZARD)`;
+                const totalPowTxt = activeResult.safe ? `${Math.round(activeResult.totalPower)} W` : `0 W (Unsafe Load)`;
+                const perSpeakerTxt = activeResult.safe ? `${Math.round(activeResult.powerPerSpeaker)} W / cabinet` : `Dangerous Load`;
+                const verdictTitle = recTitle ? recTitle.textContent : 'System Evaluated';
+                const verdictText = recDescription ? recDescription.textContent.replace(/\s+/g, ' ').trim() : '';
+
+                const baseUrl = typeof window.getPublicAppUrl === 'function'
+                    ? window.getPublicAppUrl()
+                    : 'https://www.soundengg.com/app.html';
+                const shareUrl = `${baseUrl}?view=impedance&mode=${encodeURIComponent(currentMode)}&count=${count}&simp=${speakerImp}&spow=${speakerPower}&apow=${ampPower}&aimp=${ampImp}`;
+
+                const reportStr = [
+                    `SoundEngg Speaker Impedance & Power Matching Report`,
+                    `• Wiring Mode: ${modeLabel}`,
+                    `• Speakers: ${count}x ${speakerImp} Ω Cabinets (${speakerPower} W RMS each)`,
+                    `• Amplifier Rating: ${ampPower} W @ ${ampImp} Ω`,
+                    `• Total System Load: ${totalImpTxt}`,
+                    `• Delivered Power: ${totalPowTxt} (${perSpeakerTxt})`,
+                    `• Verdict: ${verdictTitle}${verdictText ? ' — ' + verdictText : ''}`,
+                    `• Interactive Config: ${shareUrl}`
+                ].join('\n');
+
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(reportStr).then(() => {
+                        if (typeof window.showSoundEnggToast === 'function') {
+                            window.showSoundEnggToast('✓ Copied Impedance & Power Report & Link!');
+                        } else {
+                            alert(reportStr);
+                        }
+                    }).catch(() => {
+                        alert(reportStr);
+                    });
+                } else {
+                    alert(reportStr);
+                }
+            });
+        }
+
+        // --- Restore Shared Config from URL Query Params ---
+        const urlParams = new URLSearchParams(window.location.search);
+        const viewParam = (urlParams.get('view') || '').toLowerCase();
+        if (viewParam === 'impedance' || viewParam === 'speakerimpedance') {
+            const countQ = urlParams.get('count');
+            const simpQ = urlParams.get('simp');
+            const spowQ = urlParams.get('spow');
+            const apowQ = urlParams.get('apow');
+            const aimpQ = urlParams.get('aimp');
+            const modeQ = urlParams.get('mode');
+
+            if (countQ && speakerCountEl) speakerCountEl.value = countQ;
+            if (simpQ && speakerImpedanceEl) speakerImpedanceEl.value = simpQ;
+            if (spowQ && speakerPowerEl) speakerPowerEl.value = parseFloat(spowQ);
+            if (apowQ && amplifierPowerEl) amplifierPowerEl.value = parseFloat(apowQ);
+            if (aimpQ && amplifierImpedanceEl) amplifierImpedanceEl.value = aimpQ;
+            if (modeQ === 'parallel' || modeQ === 'series' || modeQ === 'series-parallel') {
+                currentMode = modeQ;
+                modeButtons.forEach(b => {
+                    b.classList.toggle('active', b.getAttribute('data-mode') === currentMode);
+                });
+            }
+        }
+
         // Initialize state
         validateLayout();
         calculateResults();

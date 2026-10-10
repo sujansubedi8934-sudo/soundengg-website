@@ -3,6 +3,25 @@ window.isNativeMobile = function() {
     return typeof window !== 'undefined' && window.Capacitor !== undefined;
 };
 
+// --- Public Share URL helper (Never outputs capacitor://localhost or localhost in shared links) ---
+window.getPublicAppUrl = function() {
+    if (typeof window === 'undefined') return 'https://www.soundengg.com/app.html';
+    const proto = window.location.protocol || '';
+    const host = window.location.hostname || '';
+    if (
+        window.isNativeMobile() ||
+        proto === 'capacitor:' ||
+        proto === 'file:' ||
+        host === 'localhost' ||
+        host === '127.0.0.1' ||
+        !host
+    ) {
+        return 'https://www.soundengg.com/app.html';
+    }
+    return `${window.location.origin}${window.location.pathname}`;
+};
+
+
 // --- SAFE STORAGE PROXY (Safari Protection) ---
 const safeStorage = window.safeStorage || {
     getItem: function(key) {

@@ -1250,7 +1250,9 @@ function setupNavigation() {
                         forgotPasswordLink.textContent = 'Sending...';
                         
                         const { error } = await window.supabaseClient.auth.resetPasswordForEmail(email, {
-                            redirectTo: window.location.origin + window.location.pathname
+                            redirectTo: typeof window.getPublicAppUrl === 'function'
+                                ? window.getPublicAppUrl()
+                                : (window.isNativeMobile() ? 'https://www.soundengg.com/app.html' : window.location.origin + window.location.pathname)
                         });
                         
                         if (error) throw error;

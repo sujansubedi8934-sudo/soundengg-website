@@ -141,7 +141,14 @@ function initTapTempoDelay() {
         if (subEighth) subEighth.innerHTML = `--- <span style="font-size: 0.9rem; color: var(--text-dim);">ms</span>`;
     });
 
-    // 3. Clipboard helper integration
+    // 4. Individual Subdivision Clipboard Copy Integration
+    const subLabels = {
+        'tap-sub-2x-val': '2x / Half Note',
+        'tap-sub-1x-val': '1x / Quarter Note',
+        'tap-sub-half-val': '1/2 / Eighth Note',
+        'tap-sub-quarter-val': '1/4 / Sixteenth Note',
+        'tap-sub-eighth-val': '1/8 / Thirty-Second Note'
+    };
     const copyButtons = document.querySelectorAll('.btn-copy-delay');
     copyButtons.forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -151,13 +158,73 @@ function initTapTempoDelay() {
             if (targetEl) {
                 const numeric = parseInt(targetEl.textContent, 10);
                 if (!isNaN(numeric)) {
+                    const currentBpm = parseInt(bpmDisplay.textContent, 10) || parseInt(manualInput?.value, 10) || 120;
+                    const label = subLabels[targetId] || 'Subdivision';
                     navigator.clipboard.writeText(numeric.toString()).then(() => {
                         const original = btn.innerHTML;
                         btn.innerHTML = `<span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">check</span> COPIED`;
                         setTimeout(() => { btn.innerHTML = original; }, 1200);
+                        if (typeof window.showSoundEnggToast === 'function') {
+                            window.showSoundEnggToast(`✓ Copied ${numeric} ms (${label} @ ${currentBpm} BPM)`);
+                        }
                     });
+                } else if (typeof window.showSoundEnggToast === 'function') {
+                    window.showSoundEnggToast('Tap or enter a BPM first to copy delay time!');
                 }
             }
         });
     });
+
+    // 5. Share Complete Tap Tempo Delay Chart (#btn-share-taptempo)
+    const btnShareTap = document.getElementById('btn-share-taptempo');
+    if (btnShareTap) {
+        btnShareTap.addEventListener('click', (e) => {
+            if (e) e.preventDefault();
+            let bpm = parseInt(bpmDisplay.textContent, 10) || parseInt(manualInput?.value, 10);
+            if (isNaN(bpm) || bpm < 20 || bpm > 320) {
+                bpm = 120;
+                renderTempo(bpm, true);
+            }
+            const avg = 60000 / bpm;
+            const baseUrl = typeof window.getPublicAppUrl === 'function'
+                ? window.getPublicAppUrl()
+                : 'https://www.soundengg.com/app.html';
+            const shareUrl = `${baseUrl}?view=tapdelay&bpm=${bpm}`;
+
+            const reportStr = [
+                `SoundEngg Tap Tempo FX Delay Chart`,
+                `• Tempo: ${bpm} BPM`,
+                `• Double Delay (2x / Half Note): ${Math.round(2 * avg)} ms`,
+                `• Single Delay (1x / Quarter Note): ${Math.round(avg)} ms`,
+                `• Half Delay (1/2 / Eighth Note): ${Math.round(avg / 2)} ms`,
+                `• Quarter Delay (1/4 / Sixteenth Note): ${Math.round(avg / 4)} ms`,
+                `• Eighth Delay (1/8 / Thirty-Second Note): ${Math.round(avg / 8)} ms`,
+                `• Interactive Config: ${shareUrl}`
+            ].join('\n');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(reportStr).then(() => {
+                    if (typeof window.showSoundEnggToast === 'function') {
+                        window.showSoundEnggToast(`✓ Copied ${bpm} BPM Delay Chart & Link!`);
+                    } else {
+                        alert(reportStr);
+                    }
+                }).catch(() => {
+                    alert(reportStr);
+                });
+            } else {
+                alert(reportStr);
+            }
+        });
+    }
+
+    // 6. Restore Shared BPM from URL Query Params
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = (urlParams.get('view') || '').toLowerCase();
+    if (viewParam === 'tapdelay' || viewParam === 'taptempo') {
+        const bpmQ = parseFloat(urlParams.get('bpm'));
+        if (!isNaN(bpmQ) && bpmQ >= 20 && bpmQ <= 320) {
+            renderTempo(bpmQ, true);
+        }
+    }
 }

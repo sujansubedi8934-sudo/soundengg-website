@@ -394,28 +394,100 @@ function initSubCalc() {
     if (btnShareSub) {
         btnShareSub.addEventListener('click', (e) => {
             e.preventDefault();
-            const f = freqInput.value;
-            const t = tempInput.value;
-            const d = cDepthInput ? cDepthInput.value : '';
+            updateCalculations(true);
+
+            const isMetric = window.globalUnitSystem !== 'imperial';
+            const sys = isMetric ? 'metric' : 'imperial';
+            const distUnit = isMetric ? 'm' : 'ft';
+            const speedUnit = isMetric ? 'm/s' : 'ft/s';
+            const tUnit = window.globalTempUnit || 'C';
+
+            const f = freqInput.value || '100';
+            const t = tempInput.value || (tUnit === 'F' ? '71.6' : '22.0');
+            const d = cDepthInput ? cDepthInput.value : (isMetric ? '0.8' : '2.6');
             const activeMasterTabBtn = document.querySelector('.subcalc-master-tab.active');
             const activeMaster = activeMasterTabBtn ? activeMasterTabBtn.getAttribute('data-tab') : 'cardioid';
-            
-            const shareUrl = `${window.location.origin}${window.location.pathname}?view=subcalc&freq=${f}&temp=${t}&depth=${d}&type=${currentCardioid}&tab=${activeMaster}`;
-            
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(shareUrl).then(() => {
+
+            const speedVal = document.getElementById('subcalc-speed-val')?.textContent || '344.6';
+            const w1_4 = document.getElementById('wave-1-4')?.textContent || '0.862';
+            const w1_2 = document.getElementById('wave-1-2')?.textContent || '1.723';
+            const w1 = document.getElementById('wave-1')?.textContent || '3.446';
+
+            const baseUrl = typeof window.getPublicAppUrl === 'function'
+                ? window.getPublicAppUrl()
+                : 'https://www.soundengg.com/app.html';
+            const shareUrl = `${baseUrl}?view=subcalc&freq=${encodeURIComponent(f)}&temp=${encodeURIComponent(t)}&depth=${encodeURIComponent(d)}&type=${encodeURIComponent(currentCardioid)}&tab=${encodeURIComponent(activeMaster)}&sys=${sys}&tunit=${tUnit}`;
+
+            let configDetails = '';
+            if (activeMaster === 'cardioid') {
+                const cDelay = document.getElementById('cardioid-delay')?.textContent || '2.5';
+                const cSpace = document.getElementById('cardioid-space')?.textContent || w1_4;
+                if (currentCardioid === 'gradient') {
+                    configDetails = [
+                        `• Array Mode: Cardioid — Gradient (2-Box Horizontal)`,
+                        `• Front-to-Rear Spacing (1/4 λ): ${cSpace} ${distUnit}`,
+                        `• Processor Delay (Rear Sub): ${cDelay} ms`,
+                        `• Polarity (Rear Sub): INVERT REAR (180°)`
+                    ].join('\n');
+                } else if (currentCardioid === 'csa') {
+                    configDetails = [
+                        `• Array Mode: Cardioid — d&b CSA (3-Box Same Plane)`,
+                        `• Cabinet Depth: ${d} ${distUnit}`,
+                        `• Processor Delay (Middle/Inverted Sub): ${cDelay} ms`,
+                        `• Polarity (Middle Sub): INVERT REAR (180°)`
+                    ].join('\n');
+                } else {
+                    configDetails = [
+                        `• Array Mode: Cardioid — L-Acoustics Block (4-Box Same Plane)`,
+                        `• Cabinet Depth: ${d} ${distUnit}`,
+                        `• Processor Delay (Bottom-Rear Inverted Sub): ${cDelay} ms`,
+                        `• Polarity (Bottom-Rear Sub): INVERT REAR (180°)`
+                    ].join('\n');
+                }
+            } else if (activeMaster === 'endfire') {
+                const eSpace = document.getElementById('endfire-space')?.textContent || w1_4;
+                const eDelay = parseFloat(document.getElementById('endfire-delay')?.textContent) || 2.5;
+                configDetails = [
+                    `• Array Mode: End-Fire Array (Front-to-Back In-Line)`,
+                    `• Inter-Cabinet Spacing (1/4 λ): ${eSpace} ${distUnit}`,
+                    `• Progressive Delay per Step: +${eDelay.toFixed(1)} ms`,
+                    `• 4-Box Tap Schedule: Box 1 = 0.0 ms | Box 2 = +${(eDelay * 1).toFixed(1)} ms | Box 3 = +${(eDelay * 2).toFixed(1)} ms | Box 4 = +${(eDelay * 3).toFixed(1)} ms`,
+                    `• Polarity: ALL NORMAL (0°)`
+                ].join('\n');
+            } else {
+                const bHalf = document.getElementById('broadside-half')?.textContent || w1_2;
+                const bTwoThird = document.getElementById('broadside-two-third')?.textContent || '2.297';
+                configDetails = [
+                    `• Array Mode: Broadside Array (Side-by-Side Line)`,
+                    `• Recommended Max Spacing (1/2 λ): ${bHalf} ${distUnit} (center-to-center)`,
+                    `• Absolute Lobe-Free Limit (2/3 λ): ${bTwoThird} ${distUnit}`,
+                    `• Polarity: ALL NORMAL (0°)`
+                ].join('\n');
+            }
+
+            const reportStr = [
+                `SoundEngg Subwoofer Array Alignment Report`,
+                `• Target Frequency: ${f} Hz`,
+                configDetails,
+                `• Reference Wavelengths @ ${f} Hz: 1/4 λ = ${w1_4} ${distUnit} | 1/2 λ = ${w1_2} ${distUnit} | 1 λ = ${w1} ${distUnit}`,
+                `• Environment: ${t}°${tUnit} (Speed of Sound: ${speedVal} ${speedUnit})`,
+                `• Interactive Config: ${shareUrl}`
+            ].join('\n');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(reportStr).then(() => {
                     if (typeof window.showSoundEnggToast === 'function') {
-                        window.showSoundEnggToast('Subwoofer configuration copied to clipboard!');
+                        window.showSoundEnggToast('✓ Copied Sub Array Alignment Report & Link!');
                     } else {
-                        alert('Link copied to clipboard: ' + shareUrl);
+                        alert('Subwoofer Array Report copied:\n\n' + reportStr);
                     }
                 }).catch(() => {
-                    alert('Share Link: ' + shareUrl);
+                    alert(reportStr);
                 });
             } else {
-                alert('Share Link: ' + shareUrl);
+                alert(reportStr);
             }
-            
+
             if (typeof window.trackUsageForRating === 'function') {
                 window.trackUsageForRating();
             }
@@ -431,16 +503,31 @@ function initSubCalc() {
         const depthQ = urlParams.get('depth');
         const typeQ = urlParams.get('type');
         const tabQ = urlParams.get('tab');
-        
-        if (freqQ) freqInput.value = parseInt(freqQ);
+        const sysQ = urlParams.get('sys');
+        const tunitQ = urlParams.get('tunit');
+
+        if (sysQ === 'imperial' || sysQ === 'metric') {
+            window.globalUnitSystem = sysQ;
+            lastDistSystem = sysQ;
+        }
+        if (tunitQ === 'C' || tunitQ === 'F') {
+            window.globalTempUnit = tunitQ;
+        }
+
+        if (freqQ) {
+            freqInput.value = parseFloat(freqQ);
+            presetBtns.forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-freq') === String(freqInput.value));
+            });
+        }
         if (tempQ) tempInput.value = parseFloat(tempQ);
         if (depthQ && cDepthInput) cDepthInput.value = parseFloat(depthQ);
+
         if (typeQ) {
             currentCardioid = typeQ;
             const activeTab = Array.from(cTabs).find(t => t.getAttribute('data-ctype') === currentCardioid);
             if (activeTab) {
-                cTabs.forEach(t => t.classList.remove('active'));
-                activeTab.classList.add('active');
+                activeTab.click();
             }
         }
         if (tabQ) {

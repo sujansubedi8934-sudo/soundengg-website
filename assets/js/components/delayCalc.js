@@ -80,11 +80,29 @@ function initDelayCalc() {
         const modeQ = urlParams.get('mode');
         const mainQ = urlParams.get('main');
         const delayQ = urlParams.get('del');
+        const sysQ = urlParams.get('sys');
+        const haasQ = urlParams.get('haas');
+
+        if (sysQ === 'imperial' || sysQ === 'metric') {
+            window.globalUnitSystem = sysQ;
+        }
         if (distQ) distInput.value = parseFloat(distQ);
         if (tempQ) tempInput.value = parseFloat(tempQ);
-        if (unitQ) tempUnitSelect.value = unitQ;
+        if (unitQ === 'C' || unitQ === 'F') {
+            tempUnitSelect.value = unitQ;
+            window.globalTempUnit = unitQ;
+        }
         if (mainQ && diffMainInput) diffMainInput.value = parseFloat(mainQ);
         if (delayQ && diffDelayInput) diffDelayInput.value = parseFloat(delayQ);
+        if (haasQ !== null && !isNaN(parseFloat(haasQ))) {
+            selectedManualHaasMs = parseFloat(haasQ);
+            haasManualBtns.forEach(b => {
+                b.classList.toggle('active', parseFloat(b.dataset.haas) === selectedManualHaasMs);
+            });
+            if (haasManualBadge) {
+                haasManualBadge.textContent = selectedManualHaasMs === 0 ? '0 ms (EXACT)' : `+${selectedManualHaasMs} ms`;
+            }
+        }
         if (modeQ === 'diff') switchManualSubmode('diff');
     } else {
         // Initialize from Global Venue Environment state
@@ -1738,7 +1756,7 @@ function initDelayCalc() {
         });
     });
 
-    // Apply measured auto delay to manual inputs
+    // Apply measured auto delay to manual inputs & copy DSP value to clipboard
     if (btnApplyAutoDelay) {
         btnApplyAutoDelay.addEventListener('click', () => {
             const stats = getSpatialAverageData();
@@ -1748,9 +1766,12 @@ function initDelayCalc() {
             if (baseDelay <= 0) return;
             const totalDelay = baseDelay + selectedHaasMs;
             const equivDistMeters = (totalDelay / 1000) * measuredSpeedOfSound;
-            
+            const equivDistFeet = equivDistMeters * 3.28084;
+            const samples48k = Math.round((totalDelay / 1000) * 48000);
+            const samples96k = Math.round((totalDelay / 1000) * 96000);
+
             if (window.globalUnitSystem === 'imperial') {
-                distInput.value = (equivDistMeters * 3.28084).toFixed(2);
+                distInput.value = equivDistFeet.toFixed(2);
             } else {
                 distInput.value = equivDistMeters.toFixed(2);
             }
@@ -1758,8 +1779,20 @@ function initDelayCalc() {
             update();
             switchMode('manual');
 
+            const copySpec = [
+                `SoundEngg Acoustic Auto-Ping DSP Alignment`,
+                `• Total DSP Delay: ${totalDelay.toFixed(2)} ms (Acoustic: ${baseDelay.toFixed(2)} ms + Haas: +${selectedHaasMs} ms)`,
+                `• DSP Sample Offset: ${samples48k.toLocaleString()} samples @ 48kHz | ${samples96k.toLocaleString()} samples @ 96kHz`,
+                `• Equivalent Distance: ${equivDistMeters.toFixed(2)} m (${equivDistFeet.toFixed(2)} ft)`,
+                `• Environment: ${tempInput.value}°${tempUnitSelect.value} (${measuredSpeedOfSound.toFixed(1)} m/s)`
+            ].join('\n');
+
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(copySpec).catch(() => {});
+            }
+
             if (typeof window.showSoundEnggToast === 'function') {
-                window.showSoundEnggToast(`Applied +${totalDelay.toFixed(2)}ms to Delay Calculator!`);
+                window.showSoundEnggToast(`✓ Applied +${totalDelay.toFixed(2)} ms & Copied DSP Alignment Spec!`);
             }
         });
     }
@@ -1809,9 +1842,15 @@ function initDelayCalc() {
     if (btnShareDelay) {
         btnShareDelay.addEventListener('click', (e) => {
             e.preventDefault();
-            const t = tempInput.value;
-            const u = tempUnitSelect.value;
-            const isMetric = window.globalUnitSystem === 'metric';
+            const t = tempInput.value || '22.0';
+            const u = tempUnitSelect.value || 'C';
+            const isMetric = window.globalUnitSystem !== 'imperial';
+            const sys = isMetric ? 'metric' : 'imperial';
+            const distUnit = isMetric ? 'm' : 'ft';
+            const baseUrl = typeof window.getPublicAppUrl === 'function'
+                ? window.getPublicAppUrl()
+                : 'https://www.soundengg.com/app.html';
+
             let shareUrl = '';
             let effD = parseFloat(distInput.value) || 0;
 
@@ -1819,29 +1858,47 @@ function initDelayCalc() {
                 const m = diffMainInput?.value || '0';
                 const del = diffDelayInput?.value || '0';
                 effD = Math.max(0, parseFloat(m) - parseFloat(del));
-                shareUrl = `${window.location.origin}${window.location.pathname}?view=delay&mode=diff&main=${m}&del=${del}&temp=${t}&unit=${u}`;
+                shareUrl = `${baseUrl}?view=delay&mode=diff&main=${encodeURIComponent(m)}&del=${encodeURIComponent(del)}&temp=${encodeURIComponent(t)}&unit=${encodeURIComponent(u)}&sys=${sys}&haas=${selectedManualHaasMs}`;
             } else {
-                shareUrl = `${window.location.origin}${window.location.pathname}?view=delay&dist=${distInput.value}&temp=${t}&unit=${u}`;
+                shareUrl = `${baseUrl}?view=delay&dist=${encodeURIComponent(distInput.value)}&temp=${encodeURIComponent(t)}&unit=${encodeURIComponent(u)}&sys=${sys}&haas=${selectedManualHaasMs}`;
             }
 
-            const tempC = (u === 'F') ? (parseFloat(t) - 32) * 5/9 : parseFloat(t);
-            const speed = isMetric ? window.AudioCalcs.calcSpeedOfSound(tempC) : window.AudioCalcs.calcSpeedOfSoundF(parseFloat(t));
-            const rawMs = (effD / speed) * 1000;
-            const totalMs = rawMs + selectedManualHaasMs;
-            const reportStr = `SoundEngg Delay Alignment Report:\nMode: ${manualMode === 'diff' ? '2-Point Differential (Main: ' + diffMainInput?.value + ', Delay: ' + diffDelayInput?.value + ' | ΔD = ' + effD.toFixed(2) + (isMetric ? 'm' : 'ft') + ')' : 'Single Distance (' + distInput.value + (isMetric ? 'm' : 'ft') + ')'}\nTotal Delay Setting: ${totalMs.toFixed(2)} ms (Acoustic: ${rawMs.toFixed(2)} ms + Haas: +${selectedManualHaasMs} ms)\nSpeed of Sound: ${speed.toFixed(1)} ${isMetric ? 'm/s' : 'ft/s'} @ ${t}°${u}\nLink: ${shareUrl}`;
+            const tempC = (u === 'F') ? (parseFloat(t) - 32) * 5 / 9 : parseFloat(t);
+            const speedM_s = window.AudioCalcs.calcSpeedOfSound(tempC);
+            const speedFt_s = speedM_s * 3.28084;
+            const speed = isMetric ? speedM_s : speedFt_s;
+            const rawMs = effD > 0 ? (effD / speed) * 1000 : 0;
+            const totalMs = rawMs + (rawMs > 0 ? selectedManualHaasMs : 0);
+            const samples48k = Math.round((totalMs / 1000) * 48000);
+            const samples96k = Math.round((totalMs / 1000) * 96000);
+            const effMeters = isMetric ? effD : (effD / 3.28084);
+            const effFeet = isMetric ? (effD * 3.28084) : effD;
+
+            const modeLine = manualMode === 'diff'
+                ? `2-Point Differential (Ref/Main: ${diffMainInput?.value || 0} ${distUnit}, Target/Delay: ${diffDelayInput?.value || 0} ${distUnit} | ΔD = ${effMeters.toFixed(2)} m / ${effFeet.toFixed(2)} ft)`
+                : `Single Distance (${effMeters.toFixed(2)} m / ${effFeet.toFixed(2)} ft)`;
+
+            const reportStr = [
+                `SoundEngg Delay Alignment Report`,
+                `• Mode: ${modeLine}`,
+                `• Total DSP Delay: ${totalMs.toFixed(2)} ms (Acoustic: ${rawMs.toFixed(2)} ms + Haas Offset: +${selectedManualHaasMs} ms)`,
+                `• DSP Sample Offset: ${samples48k.toLocaleString()} samples @ 48kHz | ${samples96k.toLocaleString()} samples @ 96kHz`,
+                `• Environment: ${t}°${u} (Speed of Sound: ${speedM_s.toFixed(1)} m/s / ${speedFt_s.toFixed(1)} ft/s)`,
+                `• Interactive Config: ${shareUrl}`
+            ].join('\n');
 
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(reportStr).then(() => {
                     if (typeof window.showSoundEnggToast === 'function') {
-                        window.showSoundEnggToast('✓ Copied complete delay alignment report!');
+                        window.showSoundEnggToast('✓ Copied Delay Alignment Report & Link!');
                     } else {
-                        alert('Report copied:\n' + reportStr);
+                        alert('Report copied:\n\n' + reportStr);
                     }
                 }).catch(() => {
-                    alert('Share Link: ' + shareUrl);
+                    alert(reportStr);
                 });
             } else {
-                alert('Share Link: ' + shareUrl);
+                alert(reportStr);
             }
             
             if (typeof window.trackUsageForRating === 'function') {
