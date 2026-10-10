@@ -601,6 +601,31 @@ function initAdManager() {
         );
     };
 
+    // Explicit Pro Feature Gatekeeper with Trial exemption and 2.5m Cooldown
+    window.gateProFeature = function(featureName, onUnlockedCallback) {
+        if (typeof onUnlockedCallback !== 'function') return;
+
+        // 1. Pro subscribers and Active 7-Day Trial users have 100% zero ads
+        if (typeof window.isPremiumActive === 'function' && window.isPremiumActive()) {
+            onUnlockedCallback();
+            return;
+        }
+
+        // 2. Active 2.5-minute cooldown check
+        const unlockedUntil = Number(safeStorage.getItem('tools_unlocked_until') || 0);
+        if (Date.now() < unlockedUntil) {
+            onUnlockedCallback();
+            return;
+        }
+
+        // 3. Trigger ad gate on free tier
+        if (typeof window.executeWithAdGate === 'function') {
+            window.executeWithAdGate(onUnlockedCallback, featureName);
+        } else {
+            onUnlockedCallback();
+        }
+    };
+
     function grantAccess(hours) {
         const ms = hours * 60 * 60 * 1000;
         safeStorage.setItem('tools_unlocked_until', Date.now() + ms);
