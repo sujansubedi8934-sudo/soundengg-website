@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-itunes-app" content="app-id=6783749210">
     <title>SoundEngg: RTA Audio Analyzer & Utilities</title>
     <meta name="description" content="SoundEngg is a professional audio engineering console featuring a precise Real-Time Analyzer (RTA), acoustic delay calculators, and connector pinout references.">
     <meta name="keywords" content="RTA, Real-Time Analyzer, audio engineering, sound engineer tools, delay calculator, subwoofer array calculator, ear training, pro audio pinouts, sound system tuning">
@@ -38,7 +39,7 @@
     }
     </script>
 
-    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.1">
+    <link rel="stylesheet" href="assets/css/styles.css?v=3.6.8">
     <style>
         /* iOS App platform styles */
     </style>
@@ -53,7 +54,21 @@
                     document.body.classList.add('is-desktop-console', 'dark');
                     document.body.classList.remove('light');
                 });
+                return;
             }
+            const hour = new Date().getHours();
+            const currentPeriod = (hour >= 6 && hour < 18) ? 'day' : 'night';
+            let targetTheme = currentPeriod === 'day' ? 'light' : 'dark';
+            try {
+                const overridePeriod = localStorage.getItem('soundengg-theme-override-period');
+                const overrideTheme = localStorage.getItem('soundengg-theme-override-val');
+                const overrideDate = localStorage.getItem('soundengg-theme-override-date');
+                if (overridePeriod === currentPeriod && overrideDate === new Date().toDateString() && (overrideTheme === 'light' || overrideTheme === 'dark')) {
+                    targetTheme = overrideTheme;
+                }
+            } catch (e) {}
+            document.documentElement.classList.remove('light', 'dark');
+            document.documentElement.classList.add(targetTheme);
         })();
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet"/>
@@ -80,11 +95,11 @@
             </div>
         </div>
         <div class="smart-banner-actions" style="display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap;">
-            <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" target="_blank" class="smart-banner-btn" style="background: rgba(255,255,255,0.06); border: 1px solid var(--outline); color: #fff !important; display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.65rem; height: 28px; box-shadow: none;">
+            <a href="https://play.google.com/store/apps/details?id=com.soundengg.app" target="_blank" class="smart-banner-btn" style="background: rgba(255,255,255,0.06); border: 1px solid var(--outline); color: #fff !important; display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.65rem; height: 28px; box-shadow: none;">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align: middle;"><path d="M3.609 1.814L13.783 12 3.609 22.186A2.22 2.22 0 0 1 3 20.598V3.402c0-.665.234-1.25.609-1.588zm10.88 10.89l2.766 2.766L4.853 22.164l9.636-9.46zm3.56-3.56l3.705 2.115a1.86 1.86 0 0 1 0 3.226l-3.705 2.115-3.06-3.06 3.06-3.066zm-4.326-4.32l-9.636 9.46 12.402-6.698-2.766-2.762z"/></svg>
                 PLAY STORE
             </a>
-            <a href="https://apps.apple.com/us/app/soundengg/id6783749210" target="_blank" class="smart-banner-btn" style="background: var(--primary); color: #050508 !important; display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.65rem; height: 28px; box-shadow: none;">
+            <a href="https://apps.apple.com/app/soundengg/id6783749210" target="_blank" class="smart-banner-btn" style="background: var(--primary); color: #050508 !important; display: flex; align-items: center; gap: 6px; padding: 5px 10px; font-size: 0.65rem; height: 28px; box-shadow: none;">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" style="vertical-align: middle;"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 4.17c.66-.81 1.11-1.93.99-3.06-1 .04-2.2.67-2.92 1.49-.62.71-1.16 1.85-1.01 2.96 1.12.09 2.27-.58 2.94-1.39z"/></svg>
                 APP STORE
             </a>
@@ -107,8 +122,12 @@
         <!-- Center Title (Active View name inside tools) -->
         <div id="mobile-header-title"></div>
         
-        <!-- Right Area: Subscription tier pill badge -->
-        <div class="mobile-header-badge-container" style="min-width: 60px; display: flex; justify-content: flex-end; align-items: center;">
+        <!-- Right Area: Global Venue Environment Pill & Subscription tier pill badge -->
+        <div class="mobile-header-badge-container" style="min-width: 60px; display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
+            <button type="button" id="mobile-env-pill" onclick="if(window.openVenueEnvModal) window.openVenueEnvModal();" title="Venue Temperature & Units" style="display: inline-flex; align-items: center; gap: 3px; height: 22px; padding: 0 7px; border-radius: 5px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.35); color: var(--primary); font-family: var(--font-mono); font-size: 0.62rem; font-weight: bold; cursor: pointer; white-space: nowrap;">
+                <span class="material-symbols-outlined" style="font-size: 12px;">thermostat</span>
+                <span id="mobile-env-pill-text">20°C • M</span>
+            </button>
             <span id="mobile-sub-badge" class="tier-badge free">FREE</span>
         </div>
     </header>
@@ -173,6 +192,10 @@
             </div>
 
             <div class="actions desktop-actions">
+                <button type="button" id="desktop-env-pill" onclick="if(window.openVenueEnvModal) window.openVenueEnvModal();" title="Venue Temperature & Units" style="display: inline-flex; align-items: center; gap: 4px; height: 30px; padding: 0 10px; border-radius: 6px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.35); color: var(--primary); font-family: var(--font-mono); font-size: 0.7rem; font-weight: bold; cursor: pointer;">
+                    <span class="material-symbols-outlined" style="font-size: 14px;">thermostat</span>
+                    <span id="desktop-env-pill-text">20°C • M (343.4 m/s)</span>
+                </button>
                 <div class="theme-toggle">
                     <button id="btn-light" aria-label="Light Mode">
                         <span class="material-symbols-outlined">light_mode</span>
@@ -325,50 +348,98 @@
                 </div>
             </div>
 
-            <!-- Mobile Dashboard Layout (hidden on desktop) -->
+            <!-- Mobile & iPad Console Dashboard Layout -->
             <div class="mobile-only-dashboard">
                 <!-- All 8 Engineering Tools Grid -->
-                <div class="mobile-section-title">ENGINEERING TOOLS</div>
+                <div class="mobile-section-title">PRO AUDIO ENGINEERING SUITE</div>
                 <div class="mobile-quick-tools-grid">
                     <!-- 1. RTA Spectrogram -->
                     <button class="mobile-tool-card tool-rta" id="btn-mobile-launch-rta">
-                        <span class="material-symbols-outlined tool-card-icon">analytics</span>
-                        <span class="tool-card-name">RTA Analyzer</span>
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">analytics</span>
+                            <span class="tool-card-badge">LIVE FFT • TF</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">RTA Spectrum Analyzer</span>
+                            <span class="tool-card-desc">Octave RTA, FFT, Waterfall & Dual-Ch TF</span>
+                        </div>
                     </button>
-                    <!-- 2. Ear Training -->
-                    <button class="mobile-tool-card tool-ear-training" id="btn-mobile-launch-ear-training">
-                        <span class="material-symbols-outlined tool-card-icon">hearing</span>
-                        <span class="tool-card-name">Ear Training</span>
+                    <!-- 2. Time Delay Calculation -->
+                    <button class="mobile-tool-card tool-delay" id="btn-mobile-launch-delay">
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">straighten</span>
+                            <span class="tool-card-badge">AUTO-PING DSP</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Delay & Auto-Ping</span>
+                            <span class="tool-card-desc">Chirp Arrival Finder & Tower Alignment</span>
+                        </div>
                     </button>
                     <!-- 3. Signal Generator -->
                     <button class="mobile-tool-card tool-siggen" id="btn-mobile-launch-siggen">
-                        <span class="material-symbols-outlined tool-card-icon">waves</span>
-                        <span class="tool-card-name">Signal Generator</span>
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">waves</span>
+                            <span class="tool-card-badge">TEST TONES</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Signal Generator</span>
+                            <span class="tool-card-desc">Sine, Pink/White Noise & Log Sweeps</span>
+                        </div>
                     </button>
-                    <!-- 4. Time Delay Calculation -->
-                    <button class="mobile-tool-card tool-delay" id="btn-mobile-launch-delay">
-                        <span class="material-symbols-outlined tool-card-icon">straighten</span>
-                        <span class="tool-card-name">Delay Calc</span>
-                    </button>
-                    <!-- 5. Impedance & Power -->
-                    <button class="mobile-tool-card tool-impedance" id="btn-mobile-launch-impedance">
-                        <span class="material-symbols-outlined tool-card-icon">settings_input_component</span>
-                        <span class="tool-card-name">Load Calc</span>
-                    </button>
-                    <!-- 6. Sub Array Calc -->
+                    <!-- 4. Sub Array Calc -->
                     <button class="mobile-tool-card tool-subcalc" id="btn-mobile-launch-subcalc">
-                        <span class="material-symbols-outlined tool-card-icon">speaker</span>
-                        <span class="tool-card-name">Sub Arrays</span>
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">speaker</span>
+                            <span class="tool-card-badge">ARRAY MATH</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Subwoofer Arrays</span>
+                            <span class="tool-card-desc">End-Fire, Gradient Cardioid & Arc Delay</span>
+                        </div>
+                    </button>
+                    <!-- 5. Ear Training -->
+                    <button class="mobile-tool-card tool-ear-training" id="btn-mobile-launch-ear-training">
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">hearing</span>
+                            <span class="tool-card-badge">1/6 OCTAVE</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Ear Training Lab</span>
+                            <span class="tool-card-desc">ISO Frequency Cut/Boost Identification</span>
+                        </div>
+                    </button>
+                    <!-- 6. Impedance & Power -->
+                    <button class="mobile-tool-card tool-impedance" id="btn-mobile-launch-impedance">
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">settings_input_component</span>
+                            <span class="tool-card-badge">OHM • WATTS</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Impedance & Load</span>
+                            <span class="tool-card-desc">Series/Parallel Cabinets & Amp Headroom</span>
+                        </div>
                     </button>
                     <!-- 7. Pinout Reference -->
                     <button class="mobile-tool-card tool-pinout" id="btn-mobile-launch-pinout">
-                        <span class="material-symbols-outlined tool-card-icon">cable</span>
-                        <span class="tool-card-name">Pinouts</span>
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">cable</span>
+                            <span class="tool-card-badge">WIRING REF</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Connector Pinouts</span>
+                            <span class="tool-card-desc">XLR, SpeakON NL4/NL8, DB25 & DMX512</span>
+                        </div>
                     </button>
                     <!-- 8. Tap Delay -->
                     <button class="mobile-tool-card tool-tapdelay" id="btn-mobile-launch-tap-delay">
-                        <span class="material-symbols-outlined tool-card-icon">ads_click</span>
-                        <span class="tool-card-name">Tap Delay</span>
+                        <div class="tool-card-top">
+                            <span class="material-symbols-outlined tool-card-icon">ads_click</span>
+                            <span class="tool-card-badge">BPM • TEMPO</span>
+                        </div>
+                        <div class="tool-card-bottom">
+                            <span class="tool-card-name">Tap Tempo Delay</span>
+                            <span class="tool-card-desc">Live BPM to Dotted & Triplet FX Times</span>
+                        </div>
                     </button>
                 </div>
             </div>
@@ -411,19 +482,46 @@
                         <span class="status-badge active" style="font-size: 0.65rem; padding: 2px 8px;">SYSTEM_CALIBRATED</span>
                     </div>
 
+                    <!-- VENUE ENVIRONMENT SUMMARY BAR (Visible in Manual & Auto Ping modes) -->
+                    <div id="delay-venue-env-bar" onclick="if(window.openVenueEnvModal) window.openVenueEnvModal()" style="display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.25); border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">thermostat</span>
+                            <span style="font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-muted); text-transform: uppercase;">VENUE ENV:</span>
+                            <strong id="delay-env-summary-temp" style="font-family: var(--font-mono); font-size: 0.78rem; color: var(--primary);">22.0°C</strong>
+                            <span style="color: var(--outline);">•</span>
+                            <strong id="delay-env-summary-unit" style="font-family: var(--font-mono); font-size: 0.75rem; color: #00e676;">METERS (m)</strong>
+                            <span style="color: var(--outline);">•</span>
+                            <span id="delay-env-summary-speed" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-main);">c = 344.5 m/s</span>
+                        </div>
+                        <button type="button" class="rugged-btn" style="padding: 3px 9px; font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; color: var(--primary); border-color: rgba(0, 240, 255, 0.4); background: rgba(0, 240, 255, 0.1); flex-shrink: 0;">
+                            EDIT ENV
+                        </button>
+                    </div>
+
                     <!-- MODE SELECTOR TABS -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: rgba(0,0,0,0.4); padding: 4px; border-radius: 8px; border: 1px solid var(--outline);">
-                        <button id="tab-delay-manual" class="rugged-btn active" style="font-size: 0.72rem; padding: 6px 10px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(0, 240, 255, 0.15); color: var(--primary); border: 1px solid var(--primary); font-family: var(--font-mono); font-weight: bold; cursor: pointer; border-radius: 6px; transition: all 0.2s;">
+                    <div class="delay-mode-tabs-wrap">
+                        <button id="tab-delay-manual" class="rugged-btn delay-mode-tab-btn">
                             <span class="material-symbols-outlined" style="font-size: 15px;">straighten</span> MANUAL (DISTANCE)
                         </button>
-                        <button id="tab-delay-auto" class="rugged-btn" style="font-size: 0.72rem; padding: 6px 10px; display: flex; align-items: center; justify-content: center; gap: 6px; background: transparent; color: var(--text-muted); border: 1px solid transparent; font-family: var(--font-mono); font-weight: bold; cursor: pointer; border-radius: 6px; transition: all 0.2s;">
+                        <button id="tab-delay-auto" class="rugged-btn delay-mode-tab-btn active">
                             <span class="material-symbols-outlined" style="font-size: 15px;">mic</span> ACOUSTIC AUTO PING
                         </button>
                     </div>
 
                     <!-- MANUAL MODE CONTAINER -->
-                    <div id="delay-manual-container" style="display: flex; flex-direction: column; gap: 1rem;">
-                        <div class="calc-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 0.5rem;">
+                    <div id="delay-manual-container" style="display: none; flex-direction: column; gap: 0.85rem;">
+                        <!-- Distance Sub-Mode Selector -->
+                        <div class="delay-submode-wrap">
+                            <button type="button" id="btn-manual-submode-single" class="rugged-btn delay-submode-btn active">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">straighten</span> SINGLE DISTANCE
+                            </button>
+                            <button type="button" id="btn-manual-submode-diff" class="rugged-btn delay-submode-btn">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">compare_arrows</span> 2-POINT (REF − TARGET)
+                            </button>
+                        </div>
+
+                        <!-- 1. Single Distance Mode Input Row -->
+                        <div id="row-delay-single" class="calc-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                             <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
                                 <label for="delay-dist-mod" id="label-dist-mod" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Distance (m)</label>
                                 <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; width: 100%; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important;">
@@ -444,11 +542,62 @@
                             </div>
                         </div>
 
+                        <!-- 2. 2-Point Differential Mode Input Rows (hidden by default) -->
+                        <div id="row-delay-diff" style="display: none; flex-direction: column; gap: 0.75rem;">
+                            <div class="calc-inputs" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label for="delay-diff-main" id="label-diff-main" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Ref Spkr / Far (m)</label>
+                                    <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; width: 100%; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important;">
+                                        <input type="number" id="delay-diff-main" class="vfd-glow vfd-input" value="30.0" step="0.1" min="0" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(0, 240, 255, 0.6) !important;">
+                                    </div>
+                                </div>
+                                <div class="input-group" style="display: flex; flex-direction: column; gap: 6px;">
+                                    <label for="delay-diff-delay" id="label-diff-delay" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Target / Near (m)</label>
+                                    <div class="vfd-input-wrap" style="display: flex; align-items: center; height: 38px !important; width: 100%; box-sizing: border-box; padding: 4px 10px !important; border-radius: 6px !important;">
+                                        <input type="number" id="delay-diff-delay" class="vfd-glow vfd-input" value="8.0" step="0.1" min="0" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: #ff9900; width: 100% !important; text-align: left !important; padding: 0 !important; text-shadow: 0 0 8px rgba(255, 153, 0, 0.6) !important;">
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Differential Status Pill -->
+                            <div id="delay-diff-badge" style="background: rgba(0, 240, 255, 0.08); border: 1px solid var(--primary); border-radius: 6px; padding: 6px 10px; font-family: var(--font-mono); font-size: 0.68rem; color: var(--primary); display: flex; justify-content: space-between; align-items: center;">
+                                <span>ΔD = (Ref − Target): <strong id="delay-diff-result">22.00 m</strong></span>
+                                <span id="delay-diff-equiv-feet" style="opacity: 0.8; font-size: 0.62rem;">(72.18 ft)</span>
+                            </div>
+                        </div>
+
+                        <!-- Speed of Sound Acoustic Info Strip -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 2px; font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted);">
+                            <span>SPEED OF SOUND (c):</span>
+                            <span id="delay-speed-readout" style="color: var(--primary); font-weight: bold;">344.9 m/s (1,131.6 ft/s)</span>
+                        </div>
+
+                        <!-- Haas Precedence Selector (Manual Mode) -->
+                        <div class="delay-card-panel" style="padding: 8px 10px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <span class="delay-section-label" style="font-size: 0.65rem;">
+                                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">psychology</span>
+                                    HAAS PRECEDENCE OFFSET
+                                </span>
+                                <span class="delay-section-sublabel" id="delay-manual-haas-badge" style="font-size: 0.58rem;">0 ms (EXACT)</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                                <button type="button" class="rugged-btn btn-haas-manual active" data-haas="0">
+                                    0ms (Exact)
+                                </button>
+                                <button type="button" class="rugged-btn btn-haas-manual" data-haas="2">
+                                    +2ms (Vocal)
+                                </button>
+                                <button type="button" class="rugged-btn btn-haas-manual" data-haas="5">
+                                    +5ms (Stage)
+                                </button>
+                            </div>
+                        </div>
+
                         <!-- Delay Output Display Screen -->
-                        <div class="vfd-screen" style="border-radius: 10px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0.25rem; position: relative; overflow: hidden;">
+                        <div class="vfd-screen" style="border-radius: 10px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0.15rem; position: relative; overflow: hidden;">
                             <div style="display: flex; flex-direction: column; gap: 2px;">
                                 <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">DELAY OFFSET</span>
-                                <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--primary); opacity: 0.6; letter-spacing: 0.5px;">ACOUSTIC LATENCY CALC</span>
+                                <span id="delay-manual-subreadout" style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--primary); opacity: 0.75; letter-spacing: 0.5px;">ACOUSTIC: 2.91 ms • HAAS: 0 ms</span>
                             </div>
                             <div class="delay-val vfd-glow" id="delay-output-mod" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); line-height: 1; display: flex; align-items: baseline;">
                                 2.91<span class="delay-unit" style="font-size: 0.95rem; margin-left: 4px; opacity: 0.7; font-weight: normal;">ms</span>
@@ -456,122 +605,234 @@
                         </div>
 
                         <!-- Propagation progress meter -->
-                        <div style="margin-top: 0.5rem;">
+                        <div style="margin-top: 0.25rem;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                                 <span style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Propagation Progress (0 - 50ms)</span>
                                 <span id="delay-progress-percent" style="font-family: var(--font-mono); font-size: 0.55rem; color: var(--primary); font-weight: bold;">0.0%</span>
                             </div>
-                            <div class="meter-track" style="height: 8px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; padding: 1px; box-sizing: border-box; box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
+                            <div class="meter-track" style="height: 8px; background: var(--surface-highest); border: 1px solid var(--outline); border-radius: 999px; overflow: hidden; padding: 1px; box-sizing: border-box; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">
                                 <div class="meter-fill" id="delay-progress-mod" style="width: 2.91%; height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #00ffcc 100%); border-radius: 999px; box-shadow: 0 0 8px var(--primary); transition: width 0.1s ease;"></div>
                             </div>
                         </div>
                         
-                        <div style="display: flex; gap: 0.5rem; margin-top: 0.75rem;">
-                            <button id="btn-share-delay" class="rugged-btn pulse-glow" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 0.7rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--outline); background: rgba(255,255,255,0.03); cursor: pointer; transition: all 0.2s; height: 34px; color: var(--text-heading);">
+                        <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button id="btn-share-delay" class="rugged-btn pulse-glow" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 0.7rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--outline); background: var(--surface); cursor: pointer; transition: all 0.2s; height: 34px; color: var(--text-heading);">
                                 <span class="material-symbols-outlined" style="font-size: 14px;">share</span> SHARE CONFIG
+                            </button>
+                            <button id="btn-share-card-delay" class="rugged-btn pulse-glow" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 12px; font-size: 0.7rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--primary); background: rgba(0, 255, 204, 0.1); cursor: pointer; transition: all 0.2s; height: 34px; color: var(--primary);">
+                                <span class="material-symbols-outlined" style="font-size: 14px;">badge</span> FOH SPEC CARD
                             </button>
                         </div>
                     </div>
 
                     <!-- ACOUSTIC AUTO PING CONTAINER -->
-                    <div id="delay-auto-container" style="display: none; flex-direction: column; gap: 1rem;">
+                    <div id="delay-auto-container" style="display: flex; flex-direction: column; gap: 1rem;">
                         <!-- Pro Audio Guidance Banner -->
-                        <div style="background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 8px; padding: 0.85rem; font-size: 0.75rem; color: var(--text-muted); line-height: 1.45;">
+                        <div class="delay-guidance-banner">
                             <div style="display: flex; align-items: center; gap: 6px; color: var(--primary); font-weight: bold; margin-bottom: 4px; font-family: var(--font-mono); font-size: 0.75rem;">
                                 <span class="material-symbols-outlined" style="font-size: 16px;">info</span>
                                 FIELD MEASUREMENT PROTOCOL
                             </div>
-                            1. Unmute both <strong>Main PA</strong> and <strong>Front Fill (or Delay Tower)</strong>.<br>
-                            2. Play the <strong>1.0 kHz Alignment Pulse</strong> (below) or a sharp snare rimshot.<br>
-                            3. <strong>Positioning:</strong> Stand in the acoustic overlap zone (Row 1–2, approx. 1.5–2.5m from the fill) holding your phone at ear level.
+                            1. Unmute both <strong>Main PA</strong> and <strong>Target Speaker (e.g. Front Fill, Delay Ring, or Outfill)</strong>.<br>
+                            2. Play the <strong>1.5 kHz HD Alignment Pulse (60 BPM)</strong> or a sharp snare click.<br>
+                            3. <strong>Positioning:</strong> Hold phone at ear level in the acoustic overlap plane.
+                        </div>
+
+                        <!-- CONSOLIDATED SCAN SETTINGS PANEL -->
+                        <div class="delay-card-panel" style="padding: 9px 12px; gap: 8px;">
+                            <!-- Row 1: Target Speaker / Zone Selection -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                <span class="delay-section-label" style="margin-bottom: 0; white-space: nowrap;">
+                                    <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">speaker</span>
+                                    ZONE
+                                </span>
+                                <div style="display: flex; gap: 6px; align-items: center; flex: 1; justify-content: flex-end; min-width: 0;">
+                                    <select id="delay-zone-select" class="delay-select-input" style="height: 32px; font-size: 0.74rem; max-width: 220px;">
+                                        <option value="Front Fill" selected>Front Fill (Overall)</option>
+                                        <option value="Center Fill">Center Fill (Mono)</option>
+                                        <option value="Left Center Fill">Left Center Fill</option>
+                                        <option value="Right Center Fill">Right Center Fill</option>
+                                        <option value="Left Outfill">Left Outfill</option>
+                                        <option value="Right Outfill">Right Outfill</option>
+                                        <option value="Delay Ring 1">Delay Ring 1</option>
+                                        <option value="Delay Ring 2">Delay Ring 2</option>
+                                        <option value="Under-Balcony">Under-Balcony Fills</option>
+                                        <option value="Sub-to-Main">Sub-to-Main Alignment</option>
+                                        <option value="Custom">Custom Zone...</option>
+                                    </select>
+                                    <input type="text" id="delay-zone-custom-input" class="delay-select-input" placeholder="Zone Name" style="display: none; height: 32px; width: 110px; font-size: 0.74rem;" />
+                                </div>
+                            </div>
+
+                            <!-- Row 2: Sensitivity (3 discrete buttons) & Duration (6s / 10s) -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--outline-light); padding-top: 8px;">
+                                <!-- Sensitivity Group -->
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); font-weight: bold; letter-spacing: 0.5px;">SENS:</span>
+                                    <div id="delay-sensitivity-btn-group" style="display: inline-flex; background: rgba(255,255,255,0.06); border: 1px solid var(--outline); border-radius: 5px; padding: 2px; gap: 2px;">
+                                        <button type="button" id="btn-sens-low" class="rugged-btn-sm" style="padding: 2px 8px; font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; border: none; border-radius: 3px; background: transparent; color: var(--text-muted); cursor: pointer;" title="Low sensitivity / High noise rejection (Club / Loud PA)">LOW</button>
+                                        <button type="button" id="btn-sens-normal" class="rugged-btn-sm active" style="padding: 2px 8px; font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; border: none; border-radius: 3px; background: rgba(0,240,255,0.18); color: var(--primary); cursor: pointer;" title="Standard sensitivity (FOH Default)">NORMAL</button>
+                                        <button type="button" id="btn-sens-high" class="rugged-btn-sm" style="padding: 2px 8px; font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; border: none; border-radius: 3px; background: transparent; color: var(--text-muted); cursor: pointer;" title="High sensitivity (Quiet / Balcony)">HIGH</button>
+                                    </div>
+                                </div>
+
+                                <!-- Duration Group -->
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); font-weight: bold; letter-spacing: 0.5px;">SCAN:</span>
+                                    <div style="display: inline-flex; background: rgba(255,255,255,0.06); border: 1px solid var(--outline); border-radius: 5px; padding: 2px; gap: 2px;">
+                                        <button type="button" id="btn-cap-dur-6s" class="rugged-btn-sm active" style="padding: 2px 8px; font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; border: none; border-radius: 3px; background: rgba(0,240,255,0.18); color: var(--primary); cursor: pointer;" title="6 Seconds (6 Bursts)">6s</button>
+                                        <button type="button" id="btn-cap-dur-10s" class="rugged-btn-sm" style="padding: 2px 8px; font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; border: none; border-radius: 3px; background: transparent; color: var(--text-muted); cursor: pointer;" title="10 Seconds (Deep Scan)">10s</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Mini Oscilloscope Canvas Display -->
-                        <div style="background: #02060a; border: 1px solid var(--outline); border-radius: 8px; padding: 8px; position: relative; overflow: hidden;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase;">
-                                <span>Acoustic Transient Capture (Decibel Domain)</span>
+                        <div class="delay-scope-wrap">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-family: var(--font-mono); font-size: 0.6rem; color: #8899aa; font-weight: bold; text-transform: uppercase;">
                                 <div style="display: flex; align-items: center; gap: 6px;">
-                                    <span id="auto-ping-level-badge" style="font-size: 0.55rem; padding: 2px 6px; border-radius: 4px; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--outline); color: var(--primary); font-weight: bold;">LEVEL: STANDBY</span>
-                                    <span id="auto-ping-status" style="color: var(--primary); font-weight: bold;">STANDBY</span>
+                                    <span style="color: var(--text-heading); letter-spacing: 0.5px;">ETC WAVEFORM</span>
+                                    <span id="auto-ping-level-badge" style="font-size: 0.54rem; padding: 1px 6px; border-radius: 3px; background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.3); color: var(--primary); font-weight: bold;">STANDBY</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <div id="delay-scope-zoom-pill" style="display: inline-flex; background: rgba(255,255,255,0.06); border: 1px solid var(--outline); border-radius: 4px; padding: 1px; gap: 1px;">
+                                        <button type="button" id="btn-scope-zoom-auto" class="rugged-btn active" style="font-size: 0.54rem; padding: 1px 5px; height: 18px; border: none; border-radius: 3px; background: rgba(0,240,255,0.18); color: var(--primary); font-weight: bold;">AUTO</button>
+                                        <button type="button" id="btn-scope-zoom-100" class="rugged-btn" style="font-size: 0.54rem; padding: 1px 5px; height: 18px; border: none; border-radius: 3px; background: transparent; color: var(--text-muted);">100ms</button>
+                                        <button type="button" id="btn-scope-zoom-500" class="rugged-btn" style="font-size: 0.54rem; padding: 1px 5px; height: 18px; border: none; border-radius: 3px; background: transparent; color: var(--text-muted);">500ms</button>
+                                    </div>
+                                    <div id="ping-tracker-container" style="display: flex; align-items: center; gap: 3px;" title="Consensus Burst Tracker">
+                                        <span id="ping-pip-1" title="Pulse 1" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid var(--outline); transition: all 0.2s;"></span>
+                                        <span id="ping-pip-2" title="Pulse 2" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid var(--outline); transition: all 0.2s;"></span>
+                                        <span id="ping-pip-3" title="Pulse 3 (Min Required)" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid var(--outline); transition: all 0.2s;"></span>
+                                        <span id="ping-pip-4" title="Pulse 4 (Cluster Verify)" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid var(--outline); transition: all 0.2s;"></span>
+                                        <span id="ping-pip-5" title="Pulse 5 (Full Cluster)" style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 1px solid var(--outline); transition: all 0.2s;"></span>
+                                    </div>
+                                    <span id="auto-ping-status" style="display: none; color: var(--primary); font-weight: bold;">READY</span>
                                 </div>
                             </div>
-                            <canvas id="delay-oscilloscope" width="600" height="130" style="width: 100%; height: 130px; display: block; background: #010408; border-radius: 4px;"></canvas>
+                            <canvas id="delay-oscilloscope" width="600" height="130" style="width: 100%; height: 130px; display: block; background: #010408; border-radius: 4px; cursor: pointer; touch-action: none;"></canvas>
                         </div>
 
-                        <!-- Auto Listen Action Button -->
-                        <div style="display: flex; gap: 0.5rem;">
-                            <button id="btn-start-auto-ping" class="rugged-btn pulse-glow" style="flex: 1; height: 44px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(0, 240, 255, 0.15); border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-weight: bold; font-size: 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
-                                <span class="material-symbols-outlined" id="icon-auto-ping" style="font-size: 18px;">hearing</span>
-                                <span id="btn-auto-ping-text">LISTEN FOR TRANSIENT DELTA</span>
+                        <!-- Auto Listen Action Button & Progress Bar -->
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem;">
+                            <button id="btn-start-auto-ping" class="rugged-btn pulse-glow delay-action-primary" style="width: 100%;">
+                                <span class="material-symbols-outlined" id="icon-auto-ping" style="font-size: 18px;">mic</span>
+                                <span id="btn-auto-ping-text">RECORD & ANALYZE (60 BPM)</span>
                             </button>
+                            <div id="delay-record-progress-wrap" style="display: none; width: 100%; background: rgba(255,255,255,0.08); border-radius: 4px; height: 6px; overflow: hidden; position: relative;">
+                                <div id="delay-record-progress-bar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00f0ff, #00ff78); transition: width 0.1s linear;"></div>
+                            </div>
                         </div>
 
                         <!-- Measured Result Screen -->
-                        <div id="auto-ping-result-screen" class="vfd-screen" style="border-radius: 10px; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
-                            <div style="display: flex; flex-direction: column; gap: 2px;">
-                                <span style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">DETECTED DELAY OFFSET</span>
-                                <span id="auto-ping-dist-readout" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--primary); opacity: 0.8; letter-spacing: 0.5px;">Equiv. Distance: -- m</span>
+                        <div id="auto-ping-result-screen" class="vfd-screen" style="border-radius: 10px; padding: 0.9rem 1.15rem; display: flex; justify-content: space-between; align-items: center; position: relative; overflow: hidden;">
+                            <div style="display: flex; flex-direction: column; gap: 3px;">
+                                <span id="auto-ping-target-title" style="font-family: var(--font-mono); font-size: 0.64rem; text-transform: uppercase; letter-spacing: 0.8px; font-weight: bold; color: var(--text-heading);">FRONT FILL DELAY OFFSET</span>
+                                <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                                    <span id="auto-ping-dist-readout" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--primary); letter-spacing: 0.5px;">Equiv. Distance: -- m</span>
+                                    <span id="auto-ping-burst-lock-badge" style="display: none; font-size: 0.55rem; padding: 1px 6px; border-radius: 3px; background: rgba(0, 255, 120, 0.15); border: 1px solid #00ff78; color: #00ff78; font-family: var(--font-mono); font-weight: bold;">✓ 5 BURSTS LOCKED</span>
+                                </div>
                             </div>
-                            <div class="delay-val vfd-glow" id="auto-ping-delay-output" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(0, 240, 255, 0.4); line-height: 1; display: flex; align-items: baseline;">
+                            <div class="delay-val vfd-glow" id="auto-ping-delay-output" style="font-family: var(--font-mono); font-size: 2.2rem; font-weight: bold; line-height: 1; display: flex; align-items: baseline;">
                                 --<span class="delay-unit" style="font-size: 0.95rem; margin-left: 4px; opacity: 0.7; font-weight: normal;">ms</span>
                             </div>
                         </div>
 
+                        <button type="button" id="btn-auto-ping-share-card" class="rugged-btn pulse-glow" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 8px 14px; font-size: 0.72rem; font-family: var(--font-mono); font-weight: bold; border-radius: 6px; border: 1px solid var(--primary); background: rgba(0, 255, 204, 0.1); cursor: pointer; transition: all 0.2s; width: 100%; color: var(--primary);">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">badge</span> EXPORT FOH SPEC CARD (PNG)
+                        </button>
+
+                        <!-- SPATIAL MEASUREMENTS & MULTI-POSITION AVERAGING -->
+                        <div id="delay-spatial-card" class="delay-card-panel">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span class="delay-section-label">
+                                    <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">scatter_plot</span>
+                                    VENUE SPATIAL SAMPLES (<span id="spatial-count-badge">0</span>)
+                                </span>
+                                <button id="btn-clear-spatial" class="rugged-btn delay-btn-secondary">
+                                    CLEAR SAMPLES
+                                </button>
+                            </div>
+
+                            <!-- Positions List -->
+                            <div id="delay-positions-list" style="display: flex; flex-direction: column; gap: 6px; max-height: 180px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; touch-action: pan-y;">
+                                <div id="spatial-empty-hint" class="delay-empty-hint">
+                                    Sample multiple positions across the zone to compute a spatial compromise average.
+                                </div>
+                            </div>
+
+                            <!-- Spatial Average Summary Strip -->
+                            <div id="spatial-summary-strip" class="delay-spatial-summary">
+                                <div>
+                                    <div style="font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">SPATIAL AVERAGE DELAY</div>
+                                    <div id="spatial-avg-readout" style="font-size: 1.1rem; font-weight: bold; color: var(--primary);">-- ms (-- m)</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-size: 0.58rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold;">SEAT VARIANCE</div>
+                                    <div id="spatial-variance-readout">±0.00 ms</div>
+                                </div>
+                            </div>
+
+                            <button id="btn-add-spatial-position" class="rugged-btn delay-action-outline">
+                                <span class="material-symbols-outlined" style="font-size: 16px;">add_location_alt</span>
+                                RECORD POSITION SAMPLE
+                            </button>
+                        </div>
+
                         <!-- Haas Precedence Selector -->
-                        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--outline); border-radius: 8px; padding: 0.75rem;">
-                            <div style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); font-weight: bold; text-transform: uppercase; margin-bottom: 6px; display: flex; justify-content: space-between;">
-                                <span>Haas Precedence Offset</span>
-                                <span style="color: var(--primary); font-size: 0.6rem;">FOH Recommended</span>
+                        <div class="delay-card-panel">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                                <span class="delay-section-label">HAAS PRECEDENCE OFFSET</span>
+                                <span class="delay-section-sublabel">FOH RECOMMENDED</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                                <button class="rugged-btn btn-haas-opt active" data-haas="0" style="font-size: 0.68rem; padding: 6px; font-family: var(--font-mono); font-weight: bold; background: rgba(0, 240, 255, 0.15); color: var(--primary); border: 1px solid var(--primary); border-radius: 4px; cursor: pointer;">
+                                <button class="rugged-btn btn-haas-opt active" data-haas="0">
                                     0ms (Exact)
                                 </button>
-                                <button class="rugged-btn btn-haas-opt" data-haas="2" style="font-size: 0.68rem; padding: 6px; font-family: var(--font-mono); font-weight: bold; background: transparent; color: var(--text-muted); border: 1px solid var(--outline); border-radius: 4px; cursor: pointer;">
+                                <button class="rugged-btn btn-haas-opt" data-haas="2">
                                     +2ms (Vocal Focus)
                                 </button>
-                                <button class="rugged-btn btn-haas-opt" data-haas="5" style="font-size: 0.68rem; padding: 6px; font-family: var(--font-mono); font-weight: bold; background: transparent; color: var(--text-muted); border: 1px solid var(--outline); border-radius: 4px; cursor: pointer;">
+                                <button class="rugged-btn btn-haas-opt" data-haas="5">
                                     +5ms (Deep Stage)
                                 </button>
                             </div>
                         </div>
 
-                        <!-- Apply to Delay Setting -->
-                        <button id="btn-apply-auto-delay" class="rugged-btn" disabled style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(0, 255, 204, 0.1); border: 1px solid #00ffcc; color: #00ffcc; font-family: var(--font-mono); font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; opacity: 0.5;">
-                            <span class="material-symbols-outlined" style="font-size: 15px;">sync_alt</span>
-                            APPLY MEASURED OFFSET TO CONSOLE DELAY
+                        <!-- Apply to Delay Setting & Copy DSP Value -->
+                        <button id="btn-apply-auto-delay" class="rugged-btn delay-apply-btn" disabled>
+                            <span class="material-symbols-outlined" style="font-size: 16px;">content_copy</span>
+                            APPLY DELAY TO CALCULATOR & COPY DSP VALUE
                         </button>
                     </div>
                 </div>
 
                 <!-- FOH REFERENCE AUDIO PULSE CARD -->
-                <div class="siggen-widget" style="margin-bottom: 1.5rem; border-left: 3px solid var(--primary); background: rgba(0, 240, 255, 0.02); display: flex; flex-direction: column; gap: 0.75rem;">
+                <div class="delay-ref-audio-card" id="delay-reference-audio-card" style="margin-bottom: 1.5rem; border-left: 3px solid var(--primary);">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.2rem;">graphic_eq</span>
                             <div>
-                                <span style="font-family: var(--font-mono); font-weight: bold; color: var(--text-heading); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">FOH Acoustic Alignment Pulse (1.0 kHz)</span>
-                                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">15s Loop • 48 kHz 24-bit PCM • 8ms 1.0 kHz Burst @ 1.0s interval</span>
+                                <span style="font-family: var(--font-mono); font-weight: bold; color: var(--text-heading); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; display: block;">FOH Acoustic Alignment Pulse (60 BPM)</span>
+                                <span style="font-size: 0.65rem; color: var(--text-muted); font-family: var(--font-mono);">Universal 48 kHz 16-bit Broadcast WAV • 1.5 kHz HD Transient @ 60 BPM (Console Ready)</span>
                             </div>
                         </div>
-                        <span class="status-badge active" style="font-size: 0.6rem; padding: 2px 6px;">BROADCAST_WAV</span>
+                        <span class="status-badge active" style="font-size: 0.6rem; padding: 2px 6px;">60_BPM_WAV</span>
                     </div>
 
-                    <p style="font-size: 0.72rem; color: var(--text-muted); margin: 0; line-height: 1.4;">
-                        Play this punchy 1.0 kHz calibrated pulse through your console (Main PA & Fills) to allow the app to detect wavefront arrival delta.
+                    <p style="font-size: 0.72rem; color: var(--text-main); margin: 0; line-height: 1.45;">
+                        Play this calibrated 1.5 kHz 60 BPM high-definition pulse through your console (Main PA & Fills) or loop directly from phone. The 1.0s interval captures 6 to 10 bursts in seconds with optimal MEMS mic SNR, enabling matched-filter batch analysis for surgical precision down to 0.25m.
                     </p>
 
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.25rem;">
-                        <button id="btn-play-alignment-click" class="rugged-btn pulse-glow" style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(0, 240, 255, 0.1); border: 1px solid var(--primary); color: var(--primary); font-family: var(--font-mono); font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; transition: all 0.2s;">
+                        <button id="btn-play-alignment-click" class="rugged-btn pulse-glow delay-loop-btn">
                             <span class="material-symbols-outlined" id="icon-play-alignment" style="font-size: 16px;">play_arrow</span>
                             <span id="text-play-alignment">LOOP FROM PHONE</span>
                         </button>
-                        <a id="btn-download-alignment-click" href="assets/audio/soundengg-delay-alignment-click-48k.wav" download="soundengg-delay-alignment-click-48k.wav" class="rugged-btn" style="height: 38px; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--outline); color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; font-size: 0.72rem; border-radius: 6px; cursor: pointer; text-decoration: none; box-sizing: border-box; transition: all 0.2s;">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">download</span>
-                            DOWNLOAD .WAV (1.0 kHz, 2.1MB)
-                        </a>
+                        <button id="btn-download-alignment-click" class="rugged-btn delay-btn-download">
+                            <span class="material-symbols-outlined" id="icon-download-alignment" style="font-size: 16px;">download</span>
+                            <span id="text-download-alignment">DOWNLOAD .WAV (1.4MB)</span>
+                        </button>
                     </div>
-                </div>
                 </div>
 
                 <!-- Theory: Delay Calculator Engineering Insight -->
@@ -603,23 +864,6 @@
                             </p>
                         </div>
                     </div>
-                </div>
-
-                <!-- Google AdSense Horizontal Native Ad Unit -->
-                <div class="ad-placeholder adsbygoogle-container" style="position: relative; margin-top: 1.5rem; background: var(--surface-low); border: 1px dashed var(--border-color); border-radius: 8px; padding: 1rem; text-align: center; min-height: 120px;">
-                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1; pointer-events: none;">
-                        <span class="material-symbols-outlined" style="color: var(--text-muted); opacity: 0.3; font-size: 24px; margin-bottom: 4px;">inventory_2</span>
-                        <span style="color: var(--text-muted); font-size: 0.7rem; font-family: var(--font-mono); opacity: 0.5; letter-spacing: 1px;">SPONSOR SPACE (PENDING)</span>
-                    </div>
-                    <ins class="adsbygoogle"
-                         style="position: relative; z-index: 2; display:block; text-align:center;"
-                         data-ad-layout="in-article"
-                         data-ad-format="fluid"
-                         data-ad-client="ca-pub-4117687060036448"
-                         data-ad-slot="1234567890"></ins>
-                    <script>
-                         (adsbygoogle = window.adsbygoogle || []).push({});
-                    </script>
                 </div>
 
             </div>
@@ -993,22 +1237,6 @@
                         <option value="default">Default System Microphone</option>
                     </select>
                 </div>
-                <div class="menu-item-row" style="flex-direction: column; align-items: stretch; gap: 6px; border-bottom: none;">
-                    <span class="menu-item-label" style="font-size: 0.85rem; color: var(--text-muted);">Audio Output</span>
-                    <select id="global-output-select" class="rugged-select" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 6px; width: 100%;">
-                        <option value="default">Default System Speaker</option>
-                    </select>
-                </div>
-                
-                <!-- Safari Output Warning Box -->
-                <div id="safari-output-warning" class="warn-box" style="display: none; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; padding: 12px 14px; border-radius: 6px; font-size: 0.8rem; line-height: 1.45;">
-                    <div style="display: flex; align-items: center; gap: 6px; font-weight: 700; text-transform: uppercase; font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.05em;">
-                        <span class="material-symbols-outlined" style="font-size: 1.1rem; vertical-align: middle;">warning</span>
-                        <span>Safari Routing Notice</span>
-                    </div>
-                    <span style="color: var(--text-muted);">Programmatic output selection is not supported in Safari/macOS. Audio will always play from your system default speaker. Please change your output device using the macOS Control Center or System Settings.</span>
-                </div>
-                
                 <div style="margin-top: 8px;">
                     <button id="btn-request-mic" class="auth-submit-btn" style="width: 100%; margin: 0; padding: 10px 0; font-size: 0.8rem; font-weight: bold; cursor: pointer;">REQUEST DEVICE ACCESS</button>
                 </div>
@@ -1263,7 +1491,7 @@
             </aside>
 
             <!-- Main Content Area -->
-            <main class="blog-content">
+            <div class="blog-content">
                 <!-- Global Search Bar -->
                 <div class="global-search-container" style="margin-bottom: 2.5rem; max-width: 100%;">
                     <div class="global-search">
@@ -1285,7 +1513,7 @@
                         <!-- Loaded dynamically via JS -->
                     </div>
                 </div>
-            </main>
+            </div>
         </div>
     </div>
 
@@ -1322,15 +1550,47 @@
             <!-- 1. Spectrum Analyzer Screen Widget -->
             <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 1rem; padding: 1.25rem;">
                 
-                <!-- Telemetry VFD Dashboard -->
-                <div class="rta-telemetry-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                    <div class="vfd-screen" style="padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px;">
-                        <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase;">PEAK LEVEL</span>
-                        <span id="rta-peak-val" style="font-family: var(--font-mono); font-size: 1.3rem; font-weight: bold; color: #ff3b30; text-shadow: 0 0 10px rgba(255, 59, 48, 0.4); margin-top: 2px; white-space: nowrap; letter-spacing: -0.5px;">-∞ dB</span>
+                <!-- Sleek Top Tactical Telemetry Ribbon -->
+                <div class="rta-top-ribbon">
+                    <!-- Left: Run/Pause & Input VU Meter -->
+                    <div class="rta-ribbon-group">
+                        <button id="btn-rta-ribbon-run" class="rta-ribbon-run-btn" title="Toggle Run / Pause">
+                            <span class="material-symbols-outlined" style="font-size: 14px;">play_arrow</span>
+                            <span class="rta-run-label">RUN</span>
+                        </button>
+                        <div class="rta-ribbon-vu">
+                            <span class="rta-ribbon-tag">IN</span>
+                            <div class="rta-ribbon-meter-bar">
+                                <div id="rta-vu-level" class="rta-ribbon-level"></div>
+                                <div id="rta-vu-peak-line" class="rta-ribbon-peak-line"></div>
+                            </div>
+                            <span id="rta-vu-val" class="rta-ribbon-db">-∞ dBFS</span>
+                            <span id="rta-vu-clip" class="rta-ribbon-clip">CLIP</span>
+                        </div>
                     </div>
-                    <div class="vfd-screen" style="padding: 0.75rem 1rem; display: flex; flex-direction: column; justify-content: center; align-items: center; border-radius: 12px;">
-                        <span style="font-family: var(--font-mono); font-size: 0.58rem; color: var(--text-muted); letter-spacing: 1.5px; text-transform: uppercase;">DOMINANT FREQ</span>
-                        <span id="rta-dom-val" style="font-family: var(--font-mono); font-size: 1.3rem; font-weight: bold; color: var(--primary); text-shadow: 0 0 10px rgba(20, 167, 181, 0.4); margin-top: 2px; white-space: nowrap; letter-spacing: -0.5px;">--- Hz</span>
+
+                    <!-- Center: Peak Frequency & Amplitude -->
+                    <div class="rta-ribbon-group rta-ribbon-center">
+                        <div class="rta-ribbon-stat">
+                            <span class="rta-ribbon-tag">PEAK</span>
+                            <span id="rta-peak-val" class="rta-ribbon-val text-red">-∞ dB</span>
+                        </div>
+                        <div class="rta-ribbon-stat">
+                            <span class="rta-ribbon-tag">DOM</span>
+                            <span id="rta-dom-val" class="rta-ribbon-val text-cyan">--- Hz</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Live SPL Reading & Quick DSP Trigger -->
+                    <div class="rta-ribbon-group rta-ribbon-right">
+                        <div class="rta-ribbon-stat desktop-only-stat">
+                            <span class="rta-ribbon-tag">SPL</span>
+                            <span id="rta-ribbon-spl-val" class="rta-ribbon-val text-green">--.- dBA</span>
+                        </div>
+                        <button id="btn-rta-ribbon-dsp" class="rta-ribbon-action-btn" title="Open Precision DSP Controls">
+                            <span class="material-symbols-outlined" style="font-size: 15px;">tune</span>
+                            <span>DSP</span>
+                        </button>
                     </div>
                 </div>
 
@@ -1343,95 +1603,486 @@
                     <button id="btn-rta-fullscreen" class="vfd-glow" style="position: absolute; top: 15px; right: 15px; background: rgba(5,5,8,0.75); border: 1px solid var(--primary); border-radius: 6px; color: var(--primary); width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 100; transition: all 0.2s; outline: none; box-shadow: 0 0 8px rgba(0, 240, 255, 0.2);" title="Toggle Fullscreen View">
                         <span class="material-symbols-outlined" style="font-size: 20px;">fullscreen</span>
                     </button>
-                    <div class="freq-labels" id="rta-labels">
-                        <!-- Labels injected via JS -->
-                    </div>
-                </div>
-            </div>
+                    <!-- Minimized HUD Restore Badge (Works in both Inline & Fullscreen modes) -->
+                    <button id="btn-rta-fs-restore-hud" class="rta-fs-restore-hud-btn" title="Restore Controls Dock">
+                        <span class="material-symbols-outlined" style="font-size: 16px;">expand_less</span>
+                        <span>DOCK</span>
+                    </button>
 
-            <!-- Responsive Grid for Control cards -->
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1.5rem; width: 100%;">
-                
-                <!-- 2. Signal & Mode Setup Widget -->
-                <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem;">
-                    <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.5rem;">Analysis Setup</h3>
-                    
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;">
-                        <span class="train-label">Pink Noise Source</span>
-                        <button id="btn-rta-pink-noise" class="train-source-btn" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.3s ease;">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">volume_up</span> PLAY PINK NOISE
-                        </button>
-                    </div>
+                    <!-- Fullscreen Floating Tactical HUD Dock -->
+                    <div id="rta-fs-hud-dock" class="rta-fs-hud-dock">
+                        <div class="rta-fs-dock-inner">
+                            <!-- Section 0: Live Measurement Run / Stop Toggle -->
+                            <button id="btn-rta-fs-run" class="rta-fs-pill fs-action-btn active" title="Toggle Live Measurement">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">stop</span>
+                                <span class="fs-btn-label">STOP</span>
+                            </button>
 
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;">
-                        <span class="train-label">Display Mode</span>
-                        <div class="segmented-control">
-                            <button class="train-source-btn active mode-btn" data-mode="fft">CURVE</button>
-                            <button class="train-source-btn mode-btn" data-mode="rta">RTA</button>
-                            <button class="train-source-btn mode-btn" data-mode="waterfall">WATERFALL</button>
-                        </div>
-                    </div>
+                            <div class="rta-fs-divider"></div>
 
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;">
-                        <span class="train-label">Frequency Weighting</span>
-                        <div class="segmented-control">
-                            <button class="train-source-btn active weight-btn" data-weight="a">A-WT</button>
-                            <button class="train-source-btn weight-btn" data-weight="c">C-WT</button>
-                        </div>
-                    </div>
-                </div>
+                            <!-- Section 1: Mode Switcher -->
+                            <div class="rta-fs-segmented" title="Display Mode">
+                                <button class="rta-fs-pill active fs-mode-btn" data-mode="fft">CURVE</button>
+                                <button class="rta-fs-pill fs-mode-btn" data-mode="rta">RTA</button>
+                                <button class="rta-fs-pill fs-mode-btn" data-mode="waterfall" id="fs-btn-waterfall"><span class="material-symbols-outlined fs-lock-icon" id="fs-wtfl-lock-icon" style="font-size: 11px; margin-right: 2px;">lock</span>WTFL</button>
+                                <button class="rta-fs-pill fs-mode-btn" data-mode="tf" id="fs-btn-tf" title="Dual-Channel Transfer Function"><span class="material-symbols-outlined" style="font-size: 11px; margin-right: 2px;">compare_arrows</span>TF</button>
+                            </div>
 
-                <!-- 3. Engine Calibration & Settings Widget -->
-                <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem;">
-                    <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.5rem;">Calibration & Settings</h3>
+                            <!-- Section 1.8: Transfer Function Quick Alignment Controls (active in TF mode) -->
+                            <div id="rta-fs-tf-controls-group" class="rta-fs-segmented" style="display: none;" title="Transfer Function Quick Alignment">
+                                <button id="btn-fs-tf-find-delay" class="rta-fs-pill fs-action-btn fs-accent-btn" style="background: var(--primary); color: #030812; font-weight: 800;" title="Compute Impulse Response Peak & Auto-Lock Delay">
+                                    <span class="material-symbols-outlined" style="font-size: 13px;">auto_fix_high</span>
+                                    <span>FIND DELAY</span>
+                                </button>
+                                <span id="fs-tf-delay-readout" style="font-family: var(--font-mono); font-size: 0.65rem; font-weight: bold; color: #fff; padding: 2px 6px; white-space: nowrap;">0.00 ms (0.0m)</span>
+                                <span id="fs-tf-coh-readout" class="vfd-badge" style="font-size: 0.60rem; padding: 2px 6px; border-radius: 4px; color: #00FF9D; white-space: nowrap;">COH: 100%</span>
+                                <button type="button" id="btn-fs-tf-mic-trim-quick" class="rta-fs-pill" style="font-family: var(--font-mono); font-size: 0.65rem; color: #00f2fe; padding: 2px 8px; gap: 4px; display: inline-flex; align-items: center;" title="iPad Mic Sensitivity / Gain Trim (Tap to open in drawer)">
+                                    <span class="material-symbols-outlined" style="font-size: 13px;">mic_external_on</span>
+                                    <span id="fs-tf-mic-trim-label">0.0dB</span>
+                                </button>
+                            </div>
 
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                            <span class="train-label">Averaging</span>
-                            <span id="avg-val" class="vfd-badge" style="color: var(--primary); font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px;">4</span>
-                        </div>
-                        <input type="range" id="rta-averaging" min="0" max="10" value="4" class="rugged-slider" style="width: 100%;">
-                    </div>
+                            <div class="rta-fs-divider"></div>
 
-                    <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem; width: 100%;">
-                        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
-                            <span class="train-label">Calibration Offset</span>
-                            <span class="vfd-badge" style="color: var(--primary); font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 4px;"><span id="cal-offset">100</span> dB</span>
-                        </div>
-                        <input type="range" id="rta-calibration" min="50" max="150" value="100" class="rugged-slider" style="width: 100%;">
-                    </div>
+                            <!-- Section 2: Octave Banding -->
+                            <div id="rta-fs-octave-group" class="rta-fs-segmented" title="Octave Band Resolution">
+                                <button class="rta-fs-pill fs-octave-btn" data-octave="1">1/1</button>
+                                <button class="rta-fs-pill active fs-octave-btn" data-octave="3">1/3</button>
+                                <button class="rta-fs-pill fs-octave-btn" data-octave="6">1/6</button>
+                                <button class="rta-fs-pill fs-octave-btn" data-octave="12">1/12</button>
+                            </div>
 
-                    <div style="display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem; width: 100%;">
-                        <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                            <span class="train-label">Mic Calibration</span>
-                            <button id="btn-mic-cal-modal" class="train-source-btn active-pro-glow" style="width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; gap: 4px; font-size: 0.7rem; font-family: var(--font-mono); padding: 0;">
-                                <span class="material-symbols-outlined" style="font-size: 16px;">settings_input_antenna</span> LOAD PROFILE
+                            <div class="rta-fs-divider"></div>
+
+                            <!-- Section 4: Pink Noise Generator Toggle -->
+                            <button id="btn-rta-fs-pink-noise" class="rta-fs-pill fs-action-btn" title="Toggle Pink Noise Generator">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">volume_up</span>
+                                <span class="fs-btn-label">PINK</span>
+                            </button>
+
+                            <div class="rta-fs-divider"></div>
+
+                            <!-- Section 6: Snapshot Capture -->
+                            <button id="btn-rta-fs-snap" class="rta-fs-pill fs-action-btn" title="Capture Spectrum Snapshot">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">camera</span>
+                                <span class="fs-btn-label">SNAP</span>
+                            </button>
+
+                            <div class="rta-fs-divider"></div>
+
+                            <!-- Section 7: Precision Drawer Trigger -->
+                            <button id="btn-rta-fs-open-drawer" class="rta-fs-pill fs-action-btn fs-accent-btn" title="Open Full Precision DSP Controls">
+                                <span class="material-symbols-outlined" style="font-size: 15px;">tune</span>
+                                <span class="fs-btn-label">DSP</span>
+                            </button>
+
+                            <!-- Section 8: Minimize HUD Pill -->
+                            <button id="btn-rta-fs-minimize-hud" class="rta-fs-pill fs-icon-btn" title="Minimize HUD Dock">
+                                <span class="material-symbols-outlined" style="font-size: 18px;">expand_more</span>
                             </button>
                         </div>
-                        <div class="train-control-group" style="flex-direction: column; align-items: flex-start; gap: 0.5rem;">
-                            <span class="train-label">Peak Hold</span>
-                            <div style="display: flex; gap: 4px; width: 100%;">
-                                <button id="btn-peak-toggle" class="train-source-btn active" style="flex: 1; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">ON</button>
-                                <button id="btn-peak-reset" class="train-source-btn" style="flex: 1; height: 38px; padding: 0; display: flex; align-items: center; justify-content: center; font-size: 0.75rem;">RESET</button>
+                    </div>
+
+                    <!-- Slide-Out Precision DSP Drawer Backdrop -->
+                    <div id="rta-fs-drawer-backdrop" class="rta-fs-drawer-backdrop"></div>
+
+                    <!-- Slide-Out Precision DSP Drawer Panel -->
+                    <div id="rta-fs-drawer" class="rta-fs-drawer" data-active-tab="dsp">
+                        <div class="rta-fs-drawer-header">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <span class="material-symbols-outlined" style="color: var(--primary); font-size: 20px;">tune</span>
+                                <span style="font-family: var(--font-mono); font-size: 0.82rem; font-weight: bold; letter-spacing: 1px; color: var(--text-heading);">PRECISION DSP CONTROLS</span>
+                            </div>
+                            <button id="btn-rta-fs-close-drawer" class="rta-fs-drawer-close" title="Close Panel">
+                                <span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+                            </button>
+                        </div>
+
+                        <!-- 3-Tab Precision DSP Drawer Navigation -->
+                        <div class="rta-drawer-tabs" role="tablist" aria-label="DSP Drawer Tabs">
+                            <button type="button" class="rta-drawer-tab-btn active" data-drawer-tab="dsp" role="tab" aria-selected="true">
+                                <span class="material-symbols-outlined">equalizer</span>
+                                <span>DSP &amp; VIEW</span>
+                            </button>
+                            <button type="button" class="rta-drawer-tab-btn" data-drawer-tab="io" role="tab" aria-selected="false">
+                                <span class="material-symbols-outlined">settings_input_component</span>
+                                <span>I/O &amp; CAL</span>
+                            </button>
+                            <button type="button" class="rta-drawer-tab-btn" data-drawer-tab="traces" role="tab" aria-selected="false">
+                                <span class="material-symbols-outlined">layers</span>
+                                <span>TRACES &amp; DATA</span>
+                            </button>
+                        </div>
+
+                        <div class="rta-fs-drawer-body">
+                            <!-- TAB 1: DSP & VIEW -->
+                            <div class="rta-fs-drawer-section" data-drawer-panel="dsp">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Averaging Speed</span>
+                                    <span id="rta-fs-avg-val" class="vfd-badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">SLOW</span>
+                                </div>
+                                <div class="segmented-control" style="width: 100%; height: 32px;">
+                                    <button class="train-source-btn fs-drawer-speed-btn" data-speed="fast" style="padding: 0; font-size: 0.65rem; font-family: var(--font-mono);">FAST</button>
+                                    <button class="train-source-btn active fs-drawer-speed-btn" data-speed="slow" style="padding: 0; font-size: 0.65rem; font-family: var(--font-mono);">SLOW</button>
+                                    <button class="train-source-btn fs-drawer-speed-btn" data-speed="inf" style="padding: 0; font-size: 0.65rem; font-family: var(--font-mono);">INFINITE</button>
+                                </div>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="dsp">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Peak Hold Trace</span>
+                                    <span id="rta-fs-peak-badge" class="vfd-badge" style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">HOLD: ON</span>
+                                </div>
+                                <div style="display: flex; gap: 6px; width: 100%;">
+                                    <button id="btn-rta-fs-peak-toggle" class="train-source-btn active" style="flex: 1; height: 32px; font-size: 0.68rem; font-family: var(--font-mono);">HOLD: ON</button>
+                                    <button id="btn-rta-fs-peak-reset" class="train-source-btn" style="flex: 1; height: 32px; font-size: 0.68rem; font-family: var(--font-mono);">RESET PEAKS</button>
+                                </div>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="dsp">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Weighting Filter</span>
+                                </div>
+                                <div class="segmented-control" style="width: 100%; height: 32px;">
+                                    <button class="train-source-btn active fs-drawer-weight-btn" data-weight="Z" style="padding: 0; font-size: 0.65rem; font-family: var(--font-mono);">Z (FLAT)</button>
+                                    <button class="train-source-btn fs-drawer-weight-btn" data-weight="A" style="padding: 0; font-size: 0.65rem; font-family: var(--font-mono);">A-WEIGHT</button>
+                                    <button class="train-source-btn fs-drawer-weight-btn" data-weight="C" style="padding: 0; font-size: 0.65rem; font-family: var(--font-mono);">C-WEIGHT</button>
+                                </div>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="dsp">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Workstation Layout</span>
+                                    <span id="rta-fs-layout-badge" class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">FULL SPECTRUM</span>
+                                </div>
+                                <div class="segmented-control" style="width: 100%; height: 34px;">
+                                    <button class="train-source-btn fs-drawer-layout-btn active" data-layout="single" style="flex: 1; padding: 0; font-size: 0.68rem; font-family: var(--font-mono);">SPECTRUM (1D)</button>
+                                    <button class="train-source-btn fs-drawer-layout-btn" data-layout="spl_history" style="flex: 1; padding: 0; font-size: 0.68rem; font-family: var(--font-mono); display: flex; align-items: center; justify-content: center; gap: 4px;">
+                                        <span class="material-symbols-outlined" style="font-size: 14px;">show_chart</span>
+                                        <span>SPL TIME LOG</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="dsp">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Canvas Watermark Overlays</span>
+                                    <span class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">GLANCEABLE HUD</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%;">
+                                    <button class="train-source-btn btn-rta-toggle-watermark" id="btn-rta-fs-watermark-toggle" style="height: 36px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px;">
+                                        <span class="material-symbols-outlined" style="font-size: 15px;">subtitles</span>
+                                        <span class="watermark-label-text">FREQ: OFF</span>
+                                    </button>
+                                    <button class="train-source-btn btn-rta-toggle-spl-watermark" id="btn-rta-fs-spl-watermark-toggle" style="height: 36px; font-size: 0.68rem; font-family: var(--font-mono); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 0 4px;">
+                                        <span class="material-symbols-outlined" style="font-size: 15px;">speed</span>
+                                        <span class="spl-watermark-label-text">SPL: OFF</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- TAB 2: I/O & CAL -->
+                            <div class="rta-fs-drawer-section" id="rta-card-mic-routing" data-drawer-panel="io">
+                                <div class="rta-fs-drawer-label">
+                                    <span id="rta-input-section-title">Audio Input Microphone</span>
+                                    <span id="rta-mic-badge" class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">DEFAULT MIC</span>
+                                </div>
+                                <div style="position: relative; width: 100%;">
+                                    <select id="rta-input-select" class="train-source-btn" style="width: 100%; height: 36px; padding: 0 32px 0 10px; font-size: 0.70rem; font-family: var(--font-mono); appearance: none; -webkit-appearance: none; background: rgba(0, 240, 255, 0.05); border: 1px solid var(--outline); color: var(--text-main); cursor: pointer; text-align: left; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; border-radius: 6px;">
+                                        <option value="default">Default Device Microphone</option>
+                                    </select>
+                                    <span class="material-symbols-outlined" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 18px; color: var(--primary);">expand_more</span>
+                                </div>
+
+                                <!-- Single-Channel RTA Guidance & Quick Switch to TF -->
+                                <div id="rta-single-ch-notice" style="background: rgba(0, 240, 255, 0.04); border: 1px dashed rgba(0, 240, 255, 0.22); border-radius: 6px; padding: 8px 10px; margin-top: 8px; font-size: 0.64rem; font-family: var(--font-mono); color: var(--text-muted); line-height: 1.45;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                                        <span style="font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 4px;">
+                                            <span class="material-symbols-outlined" style="font-size: 14px;">info</span>
+                                            SINGLE-CHANNEL RTA ACTIVE
+                                        </span>
+                                        <button id="btn-quick-switch-tf" class="rugged-link-btn" style="font-size: 0.60rem; color: #00FF9D; background: transparent; border: none; font-weight: bold; cursor: pointer; text-decoration: underline;">
+                                            SWITCH TO TF (DUAL-CH) →
+                                        </button>
+                                    </div>
+                                    <div>Capturing room acoustics via selected mic. For Dual-Channel Transfer Function (<strong>Measurement Mic vs Reference Signal</strong>), switch mode to <strong>TF</strong>.</div>
+                                </div>
+
+                                <!-- DEDICATED TRANSFER FUNCTION HARDWARE MATRIX (Visible in TF mode) -->
+                                <div id="rta-fs-tf-matrix-section" style="display: none; margin-top: 10px;">
+                                    <div class="rta-fs-drawer-label" style="margin-bottom: 6px;">
+                                        <span>Dual-Channel I/O Routing</span>
+                                        <span id="rta-fs-hardware-badge" class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">2-CH READY</span>
+                                    </div>
+                                    <div class="fs-io-matrix-box">
+                                        <!-- Channel 1 Strip -->
+                                        <div class="fs-channel-strip">
+                                            <div class="fs-channel-header">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: bold; color: var(--text-heading);">INPUT 1 (LEFT)</span>
+                                                    <span id="fs-ch1-role-badge" class="vfd-badge" style="font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; color: #00FFFF; background: rgba(0,255,255,0.1);">🎙️ MEAS MIC</span>
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span id="fs-ch1-meter-val" style="font-family: var(--font-mono); font-size: 0.65rem; color: #00FF9D;">-100 dBFS</span>
+                                                    <div id="fs-ch1-clip-led" class="fs-vu-clip-led" title="Input 1 Clip Indicator"></div>
+                                                </div>
+                                            </div>
+                                            <div class="fs-vu-meter-wrap">
+                                                <div id="fs-ch1-vu-bar" class="fs-vu-bar"></div>
+                                            </div>
+                                            <div style="display: flex; gap: 6px; margin-top: 4px;">
+                                                <button class="train-source-btn active fs-ch-assign-btn" data-channel="0" data-role="meas" style="flex: 1; height: 26px; padding: 0; font-size: 0.62rem; font-family: var(--font-mono);">MEAS (MIC)</button>
+                                                <button class="train-source-btn fs-ch-assign-btn" data-channel="0" data-role="ref" style="flex: 1; height: 26px; padding: 0; font-size: 0.62rem; font-family: var(--font-mono);">REF (LOOP)</button>
+                                                <button id="btn-fs-ch1-invert" class="train-source-btn" style="width: 44px; height: 26px; padding: 0; font-size: 0.62rem; font-family: var(--font-mono);" title="Invert Polarity">Ø NORM</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quick Swap Action Button -->
+                                        <div style="display: flex; justify-content: center; margin: -2px 0;">
+                                            <button id="btn-fs-tf-swap-channels" class="train-source-btn" style="width: 100%; height: 24px; font-size: 0.60rem; font-family: var(--font-mono); display: flex; align-items: center; justify-content: center; gap: 4px; background: rgba(0, 240, 255, 0.08); border-color: rgba(0, 240, 255, 0.25); color: var(--primary);">
+                                                <span class="material-symbols-outlined" style="font-size: 14px;">swap_vert</span>
+                                                <span>SWAP MIC ⇄ REF CHANNELS</span>
+                                            </button>
+                                        </div>
+
+                                        <!-- Channel 2 Strip -->
+                                        <div class="fs-channel-strip">
+                                            <div class="fs-channel-header">
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span style="font-family: var(--font-mono); font-size: 0.68rem; font-weight: bold; color: var(--text-heading);">INPUT 2 (RIGHT)</span>
+                                                    <span id="fs-ch2-role-badge" class="vfd-badge" style="font-size: 0.58rem; padding: 1px 5px; border-radius: 3px; color: #FF00FF; background: rgba(255,0,255,0.1);">⚡ REF SIGNAL</span>
+                                                </div>
+                                                <div style="display: flex; align-items: center; gap: 6px;">
+                                                    <span id="fs-ch2-meter-val" style="font-family: var(--font-mono); font-size: 0.65rem; color: #00FF9D;">-100 dBFS</span>
+                                                    <div id="fs-ch2-clip-led" class="fs-vu-clip-led" title="Input 2 Clip Indicator"></div>
+                                                </div>
+                                            </div>
+                                            <div class="fs-vu-meter-wrap">
+                                                <div id="fs-ch2-vu-bar" class="fs-vu-bar"></div>
+                                            </div>
+                                            <div style="display: flex; gap: 6px; margin-top: 4px;">
+                                                <button class="train-source-btn fs-ch-assign-btn" data-channel="1" data-role="meas" style="flex: 1; height: 26px; padding: 0; font-size: 0.62rem; font-family: var(--font-mono);">MEAS (MIC)</button>
+                                                <button class="train-source-btn active fs-ch-assign-btn" data-channel="1" data-role="ref" style="flex: 1; height: 26px; padding: 0; font-size: 0.62rem; font-family: var(--font-mono);">REF (LOOP)</button>
+                                                <button id="btn-fs-ch2-invert" class="train-source-btn" style="width: 44px; height: 26px; padding: 0; font-size: 0.62rem; font-family: var(--font-mono);" title="Invert Polarity">Ø NORM</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Generator Output Routing & Virtual Loopback -->
+                                        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 2px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Generator Output Routing</span>
+                                                <span id="fs-tf-gen-level-val" style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--primary); font-weight: bold;">-18 dBFS</span>
+                                            </div>
+                                            <div class="segmented-control" style="width: 100%; height: auto; min-height: 28px; flex-wrap: wrap;">
+                                                <button class="train-source-btn fs-tf-gen-out-btn" data-out="left" style="padding: 2px 4px; font-size: 0.62rem; font-family: var(--font-mono);">OUT 1 (L)</button>
+                                                <button class="train-source-btn fs-tf-gen-out-btn" data-out="right" style="padding: 2px 4px; font-size: 0.62rem; font-family: var(--font-mono);">OUT 2 (R)</button>
+                                                <button class="train-source-btn active fs-tf-gen-out-btn" data-out="both" style="padding: 2px 4px; font-size: 0.62rem; font-family: var(--font-mono);">STEREO (L+R)</button>
+                                            </div>
+                                            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 4px;">
+                                                <span style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted);" title="Synthesize internal generator reference when using single-channel mic">Virtual Loopback (1-CH Mic)</span>
+                                                <button id="btn-fs-tf-vloop" class="train-source-btn" style="height: 24px; padding: 0 8px; font-size: 0.60rem; font-family: var(--font-mono);">OFF</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- Delay Locator & Alignment Trims -->
+                                        <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.08);">
+                                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                                <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase;">Delay Compensation</span>
+                                                <span id="fs-tf-locked-delay" style="font-family: var(--font-mono); font-size: 0.68rem; color: #00FF9D; font-weight: bold;">0.00 ms</span>
+                                            </div>
+                                            <div style="display: flex; gap: 6px;">
+                                                <button id="btn-fs-tf-find-delay-drawer" class="fs-delay-action-btn" style="flex: 1; height: 30px; justify-content: center;" title="Auto-find and lock acoustic delay (Continuous Pink Noise)">
+                                                    <span class="material-symbols-outlined" style="font-size: 14px;">auto_fix_high</span> FIND DELAY
+                                                </button>
+                                                <button id="btn-fs-tf-autotrack" class="train-source-btn" style="height: 30px; padding: 0 8px; font-size: 0.62rem; font-family: var(--font-mono);" title="Continuously track acoustic delay">TRACK: OFF</button>
+                                            </div>
+                                        </div>
+
+                                        <!-- 2-Step Speaker Delay Alignment Wizard -->
+                                        <div id="spk-delay-wizard-box" style="margin-top: 8px; padding: 8px; background: rgba(0, 240, 255, 0.04); border: 1px solid rgba(0, 240, 255, 0.22); border-radius: 6px;">
+                                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                                <span style="font-family: var(--font-mono); font-size: 0.65rem; font-weight: bold; color: var(--text-heading); display: flex; align-items: center; gap: 4px;">
+                                                    <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">hourglass_top</span>
+                                                    2-STEP SPEAKER ALIGNMENT (Δt)
+                                                </span>
+                                                <button id="btn-spk-align-reset" class="rugged-link-btn" style="font-size: 0.58rem; color: var(--text-muted); background: transparent; border: none; cursor: pointer; text-decoration: underline;">RESET</button>
+                                            </div>
+                                            <div style="font-size: 0.60rem; font-family: var(--font-mono); color: var(--text-muted); line-height: 1.35; margin-bottom: 6px;">
+                                                Universal 2-step ping automatically cancels audio interface/device latency.
+                                            </div>
+                                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                                                <button id="btn-spk-ping-ref" class="train-source-btn" style="height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-color: rgba(0, 240, 255, 0.4); text-align: center; padding: 2px 4px;">
+                                                    <span style="font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; color: var(--primary);">1. REF SPEAKER</span>
+                                                    <span id="spk-ping-ref-time" style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-muted);">TAP TO PING (t₁)</span>
+                                                </button>
+                                                <button id="btn-spk-ping-target" class="train-source-btn" style="height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-color: rgba(255, 184, 0, 0.4); text-align: center; padding: 2px 4px;">
+                                                    <span style="font-size: 0.62rem; font-family: var(--font-mono); font-weight: bold; color: #FFB800;">2. TARGET SPEAKER</span>
+                                                    <span id="spk-ping-target-time" style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-muted);">TAP TO PING (t₂)</span>
+                                                </button>
+                                            </div>
+                                            <div id="spk-align-result-box" style="margin-top: 6px; padding: 6px 8px; background: rgba(0, 0, 0, 0.35); border-radius: 4px; display: flex; justify-content: space-between; align-items: center;">
+                                                <div>
+                                                    <div style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Alignment Delay (Δt)</div>
+                                                    <div id="spk-align-delay-val" style="font-size: 0.85rem; font-family: var(--font-mono); font-weight: bold; color: #00FF9D;">-- ms</div>
+                                                </div>
+                                                <div style="text-align: right;">
+                                                    <div style="font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-muted); text-transform: uppercase;">Offset Distance</div>
+                                                    <div id="spk-align-dist-val" style="font-size: 0.72rem; font-family: var(--font-mono); font-weight: bold; color: var(--primary);">-- m / -- ft</div>
+                                                </div>
+                                                <button id="btn-spk-align-apply" class="train-source-btn" style="height: 26px; padding: 0 8px; font-size: 0.60rem; font-family: var(--font-mono); color: #00FF9D; border-color: #00FF9D; display: none;">
+                                                    APPLY
+                                                </button>
+                                            </div>
+                                            <div id="spk-align-hint" style="font-size: 0.58rem; font-family: var(--font-mono); color: #FFB800; margin-top: 4px; display: none;"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Mic Sensitivity / Gain Trim Control -->
+                            <div class="rta-fs-drawer-section" data-drawer-panel="io">
+                                <div class="rta-fs-drawer-label">
+                                    <span style="display: flex; align-items: center; gap: 4px;">
+                                        <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">mic_external_on</span>
+                                        <span>Mic Sensitivity / Gain Trim</span>
+                                    </span>
+                                    <div style="display: flex; align-items: center; gap: 6px;">
+                                        <button type="button" id="btn-rta-mic-trim-reset" class="rugged-link-btn" title="Reset to 0.0 dB" style="font-size: 0.60rem; color: var(--text-muted); background: transparent; border: none; font-family: var(--font-mono); cursor: pointer;">RESET (0dB)</button>
+                                        <span class="vfd-badge" style="font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);"><span id="rta-mic-trim-val">0.0</span> dB</span>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                    <span style="font-size: 0.65rem; font-family: var(--font-mono); color: var(--text-muted); width: 44px; text-align: right;">-24 dB</span>
+                                    <input type="range" id="rta-mic-trim-slider" min="-24" max="24" step="0.5" value="0" class="rugged-slider" style="flex: 1;" title="Double-tap to reset to 0 dB">
+                                    <span style="font-size: 0.65rem; font-family: var(--font-mono); color: var(--text-muted); width: 44px;">+24 dB</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 0.58rem; font-family: var(--font-mono); color: var(--text-muted);">
+                                    <span>iPad / Internal Mic Preamp Boost & Attenuation</span>
+                                    <span id="rta-mic-trim-status" style="color: #00FF9D; font-weight: bold;">0.0 dB (UNITY)</span>
+                                </div>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="io">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Calibration Offset (dB SPL)</span>
+                                    <span class="vfd-badge" style="font-size: 0.68rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);"><span id="rta-fs-cal-val">100</span> dB</span>
+                                </div>
+                                <input type="range" id="rta-fs-cal-slider" min="50" max="150" value="100" class="rugged-slider" style="width: 100%;">
+                                <div style="display: flex; gap: 6px; margin-top: 6px;">
+                                    <button type="button" class="train-source-btn rta-cal-preset-btn" data-cal-preset="100" style="flex: 1; height: 28px; font-size: 0.62rem; font-family: var(--font-mono);">100 dB (STD / ANDROID)</button>
+                                    <button type="button" class="train-source-btn rta-cal-preset-btn" data-cal-preset="125" style="flex: 1; height: 28px; font-size: 0.62rem; font-family: var(--font-mono);">125 dB (iOS / iPAD)</button>
+                                </div>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="io">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Mic Calibration Profile (.CAL)</span>
+                                    <span id="cal-status-badge" class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">FLAT (DEFAULT)</span>
+                                </div>
+                                <button id="btn-mic-cal-modal" class="train-source-btn active-pro-glow" style="width: 100%; height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.68rem; font-family: var(--font-mono);">
+                                    <span class="material-symbols-outlined" style="font-size: 15px;">settings_input_antenna</span>
+                                    <span>LOAD CAL PROFILE (.CAL)</span>
+                                </button>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="io">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Venue Acoustic Environment</span>
+                                    <span class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">GLOBAL</span>
+                                </div>
+                                <button type="button" id="rta-drawer-env-strip" class="train-source-btn" onclick="if(window.openVenueEnvModal) window.openVenueEnvModal('env')" style="width: 100%; height: 34px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 0.66rem; font-family: var(--font-mono);">
+                                    <span style="display: flex; align-items: center; gap: 6px;">
+                                        <span class="material-symbols-outlined" style="font-size: 15px; color: var(--primary);">thermostat</span>
+                                        <span id="rta-drawer-env-text">22.0°C • METERS • 344.6 m/s</span>
+                                    </span>
+                                    <span style="color: var(--primary); font-weight: bold; font-size: 0.60rem;">CONFIGURE →</span>
+                                </button>
+                            </div>
+
+                            <!-- TAB 3: TRACES & DATA -->
+                            <div class="rta-fs-drawer-section" data-drawer-panel="traces">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Reference Pink Noise</span>
+                                    <span id="rta-pink-badge" class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">-18 dBFS</span>
+                                </div>
+                                <button id="btn-rta-pink-noise" class="train-source-btn" style="width: 100%; height: 34px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.68rem; font-family: var(--font-mono);">
+                                    <span class="material-symbols-outlined" style="font-size: 15px;">volume_up</span>
+                                    <span id="rta-pink-noise-label">START PINK NOISE</span>
+                                </button>
+                            </div>
+
+                            <div class="rta-fs-drawer-section" data-drawer-panel="traces">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Reference Memory Traces (4 Slots)</span>
+                                    <button id="btn-rta-fs-clear-snaps" class="rugged-link-btn" style="font-size: 0.62rem; color: var(--primary); background: transparent; border: none; font-family: var(--font-mono); cursor: pointer;">CLEAR ALL</button>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%;">
+                                    <!-- Trace A Capsule -->
+                                    <div class="rta-trace-capsule" id="rta-trace-capsule-a" style="display: flex; align-items: stretch; border: 1px solid var(--outline); border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.25);">
+                                        <button id="btn-rta-trace-a" class="train-source-btn rta-trace-slot-btn" data-slot="0" style="flex: 1; height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 4px; border: none; border-radius: 0; background: transparent;">
+                                            <span style="font-size: 0.72rem; font-weight: bold; font-family: var(--font-mono); color: #00FFFF;">TRACE A</span>
+                                            <span class="trace-status-text" style="font-size: 0.55rem; color: var(--text-muted);">EMPTY (TAP TO SAVE)</span>
+                                        </button>
+                                        <button id="btn-rta-delete-trace-a" class="btn-delete-trace" data-slot="0" title="Delete Trace A" style="display: none; width: 34px; background: rgba(255, 59, 48, 0.12); border: none; border-left: 1px solid var(--outline); color: #ff3b30; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                                        </button>
+                                    </div>
+                                    <!-- Trace B Capsule -->
+                                    <div class="rta-trace-capsule" id="rta-trace-capsule-b" style="display: flex; align-items: stretch; border: 1px solid var(--outline); border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.25);">
+                                        <button id="btn-rta-trace-b" class="train-source-btn rta-trace-slot-btn" data-slot="1" style="flex: 1; height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 4px; border: none; border-radius: 0; background: transparent;">
+                                            <span style="font-size: 0.72rem; font-weight: bold; font-family: var(--font-mono); color: #FF00FF;">TRACE B</span>
+                                            <span class="trace-status-text" style="font-size: 0.55rem; color: var(--text-muted);">EMPTY (TAP TO SAVE)</span>
+                                        </button>
+                                        <button id="btn-rta-delete-trace-b" class="btn-delete-trace" data-slot="1" title="Delete Trace B" style="display: none; width: 34px; background: rgba(255, 59, 48, 0.12); border: none; border-left: 1px solid var(--outline); color: #ff3b30; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                                        </button>
+                                    </div>
+                                    <!-- Trace C Capsule -->
+                                    <div class="rta-trace-capsule" id="rta-trace-capsule-c" style="display: flex; align-items: stretch; border: 1px solid var(--outline); border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.25);">
+                                        <button id="btn-rta-trace-c" class="train-source-btn rta-trace-slot-btn" data-slot="2" style="flex: 1; height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 4px; border: none; border-radius: 0; background: transparent;">
+                                            <span style="font-size: 0.72rem; font-weight: bold; font-family: var(--font-mono); color: #FFE600;">TRACE C</span>
+                                            <span class="trace-status-text" style="font-size: 0.55rem; color: var(--text-muted);">EMPTY (TAP TO SAVE)</span>
+                                        </button>
+                                        <button id="btn-rta-delete-trace-c" class="btn-delete-trace" data-slot="2" title="Delete Trace C" style="display: none; width: 34px; background: rgba(255, 59, 48, 0.12); border: none; border-left: 1px solid var(--outline); color: #ff3b30; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                                        </button>
+                                    </div>
+                                    <!-- Trace D Capsule -->
+                                    <div class="rta-trace-capsule" id="rta-trace-capsule-d" style="display: flex; align-items: stretch; border: 1px solid var(--outline); border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.25);">
+                                        <button id="btn-rta-trace-d" class="train-source-btn rta-trace-slot-btn" data-slot="3" style="flex: 1; height: 38px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px 4px; border: none; border-radius: 0; background: transparent;">
+                                            <span style="font-size: 0.72rem; font-weight: bold; font-family: var(--font-mono); color: #00FF66;">TRACE D</span>
+                                            <span class="trace-status-text" style="font-size: 0.55rem; color: var(--text-muted);">EMPTY (TAP TO SAVE)</span>
+                                        </button>
+                                        <button id="btn-rta-delete-trace-d" class="btn-delete-trace" data-slot="3" title="Delete Trace D" style="display: none; width: 34px; background: rgba(255, 59, 48, 0.12); border: none; border-left: 1px solid var(--outline); color: #ff3b30; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                                            <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="rta-fs-snapshot-slots" style="display: none;"></div>
+                            </div>
+
+                            <!-- Export Acoustic Report & Data -->
+                            <div class="rta-fs-drawer-section" data-drawer-panel="traces">
+                                <div class="rta-fs-drawer-label">
+                                    <span>Export Acoustic Data</span>
+                                    <span class="vfd-badge" style="font-size: 0.62rem; padding: 2px 6px; border-radius: 4px; color: var(--primary);">ARCHIVE</span>
+                                </div>
+                                <div style="display: flex; gap: 8px; width: 100%;">
+                                    <button id="btn-rta-export-png" class="train-source-btn" style="flex: 1; height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.68rem; font-family: var(--font-mono);" title="Export High-Resolution Spectrum Graph (PNG)">
+                                        <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">image</span>
+                                        <span>EXPORT PNG</span>
+                                    </button>
+                                    <button id="btn-rta-export-csv" class="train-source-btn" style="flex: 1; height: 36px; display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.68rem; font-family: var(--font-mono);" title="Export Measurement Data to CSV (Excel/REW/Smaart)">
+                                        <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">table_chart</span>
+                                        <span>EXPORT CSV</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- 4. Snapshot Memory Bank Widget -->
-                <div class="siggen-widget" style="display: flex; flex-direction: column; gap: 1.25rem; padding: 1.25rem;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--outline-light); padding-bottom: 0.5rem;">
-                        <h3 style="font-size: 0.85rem; color: var(--text-heading); font-family: var(--font-mono); font-weight: bold; text-transform: uppercase; margin: 0; letter-spacing: 1px;">Snapshot Bank</h3>
-                        <button id="btn-clear-all-snapshots" class="rugged-link-btn" style="font-size: 0.7rem; color: var(--primary); background: transparent; border: none; font-family: var(--font-mono); cursor: pointer;">CLEAR_ALL</button>
-                    </div>
-
-                    <div style="display: flex; flex-direction: column; gap: 1rem; width: 100%;">
-                        <button id="btn-capture-snapshot" class="rugged-btn pulse-glow" style="width: 100%; height: 38px; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.75rem; font-weight: bold;">
-                            <span class="material-symbols-outlined" style="font-size: 16px;">camera</span> CAPTURE SNAPSHOT
-                        </button>
-                        <div id="snapshot-slots-container" style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; padding: 0.5rem; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--outline); min-height: 48px; align-content: center;">
-                            <!-- Slots like [1] [2] [3]... -->
-                        </div>
+                    <div class="freq-labels frequency-labels" id="rta-labels" data-testid="rta-frequency-labels">
+                        <!-- Labels injected via JS -->
                     </div>
                 </div>
             </div>
@@ -2078,7 +2729,6 @@
             </div>
 
         </div>
-    </div>
 
     <!-- Tap Tempo Delay View (Hidden) -->
     <div id="tap-delay-view" class="view-container" style="display:none">
@@ -2122,9 +2772,12 @@
                         </button>
                     </div>
 
-                    <button id="btn-tap-delay-reset" class="tap-tempo-reset-button">
-                        RESET TEMPO
-                    </button>
+                    <!-- Manual BPM Set & Reset Controls -->
+                    <div class="tap-delay-manual-row">
+                        <label for="tap-delay-manual-bpm" class="tap-delay-manual-label">MANUAL SET:</label>
+                        <input type="number" id="tap-delay-manual-bpm" placeholder="120" min="20" max="320" class="tap-delay-manual-input"/>
+                        <button id="btn-tap-delay-reset" class="tap-tempo-reset-button">RESET</button>
+                    </div>
                 </div>
             </div>
 
@@ -2244,7 +2897,10 @@
                         <span class="menu-item-value" id="menu-profile-renewal">N/A</span>
                     </div>
                     <div style="margin-top: 0.5rem; display: flex; flex-direction: column; gap: 8px;">
-                        <a href="pro.html" id="menu-btn-upgrade" class="auth-submit-btn" style="text-align: center; text-decoration: none; padding: 10px 0; margin-top: 0;">UPGRADE TO PRO PASS</a>
+                        <a href="pro.html" id="menu-btn-upgrade" class="auth-submit-btn" style="text-align: center; text-decoration: none; padding: 12px 14px; margin-top: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-family: var(--font-headline); font-weight: 700; letter-spacing: 0.5px;">
+                            <span style="font-size: 0.95rem; display: flex; align-items: center; gap: 6px;"><span class="material-symbols-outlined" style="font-size: 1.15rem; color: #fff;">bolt</span> START 7-DAY FREE TRIAL</span>
+                            <span style="font-size: 0.72rem; font-weight: 400; opacity: 0.85; font-family: var(--font-mono);">Free for 7 days • Cancel anytime</span>
+                        </a>
                         <button type="button" id="menu-btn-billing-portal" class="auth-submit-btn outline-warning" style="display: none; padding: 10px 0; margin-top: 0; cursor: pointer; width: 100%;">MANAGE SUBSCRIPTION</button>
                     </div>
                 </div>
@@ -2641,24 +3297,25 @@
             <div class="plan-cards-container" style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.5rem;">
                 <!-- Monthly Plan -->
                 <div class="plan-card-option" data-plan="monthly" style="border: 1px solid var(--outline); border-radius: 8px; padding: 1.2rem; background: var(--surface-highest); cursor: pointer; transition: all 0.3s ease; position: relative;">
+                    <div style="position: absolute; top: -11px; right: 15px; background: rgba(0, 240, 255, 0.15); color: var(--primary); border: 1px solid var(--primary); font-family: var(--font-mono); font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; letter-spacing: 1px;">7-DAY FREE TRIAL</div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <h4 style="margin: 0; color: var(--text); font-size: 1rem; letter-spacing: 1px; font-weight: 700;">MONTHLY PASS</h4>
-                            <p style="margin: 0.2rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">BILLED MONTHLY. CANCEL ANYTIME.</p>
+                            <p style="margin: 0.2rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">7-DAY TRIAL. BILLED MONTHLY.</p>
                         </div>
-                        <div id="modal-price-monthly" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: var(--font-mono);">$1.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span></div>
+                        <div id="modal-price-monthly" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: var(--font-mono);">$4.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span></div>
                     </div>
                 </div>
                 
                 <!-- Yearly Plan -->
                 <div class="plan-card-option featured-option" data-plan="yearly" style="border: 2px solid var(--primary); border-radius: 8px; padding: 1.2rem; background: rgba(0, 255, 204, 0.05); cursor: pointer; transition: all 0.3s ease; position: relative; box-shadow: 0 0 15px rgba(0, 255, 204, 0.15);">
-                    <div style="position: absolute; top: -11px; right: 15px; background: var(--primary); color: #000; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; letter-spacing: 1px;">POPULAR</div>
+                    <div style="position: absolute; top: -11px; right: 15px; background: var(--primary); color: #000; font-family: var(--font-mono); font-size: 0.65rem; font-weight: 800; padding: 2px 8px; border-radius: 10px; letter-spacing: 1px;">7-DAY FREE TRIAL • SAVE 50%</div>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <h4 style="margin: 0; color: var(--primary); font-size: 1rem; letter-spacing: 1px; font-weight: 700;">YEARLY PASS</h4>
-                            <p style="margin: 0.2rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">SAVE 50%. EXCELLENT VALUE.</p>
+                            <p style="margin: 0.2rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">7-DAY TRIAL. SAVE 50% VS MONTHLY.</p>
                         </div>
-                        <div id="modal-price-yearly" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: var(--font-mono);">$19.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span></div>
+                        <div id="modal-price-yearly" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: var(--font-mono);">$29.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span></div>
                     </div>
                 </div>
                 
@@ -2666,10 +3323,10 @@
                 <div class="plan-card-option" data-plan="lifetime" style="border: 1px solid var(--outline); border-radius: 8px; padding: 1.2rem; background: var(--surface-highest); cursor: pointer; transition: all 0.3s ease; position: relative;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                         <div>
-                            <h4 style="margin: 0; color: var(--text); font-size: 1rem; letter-spacing: 1px; font-weight: 700;">LIFETIME PASS</h4>
+                            <h4 style="margin: 0; color: var(--text); font-size: 1rem; letter-spacing: 1px; font-weight: 700;">FOUNDER'S LIFETIME</h4>
                             <p style="margin: 0.2rem 0 0 0; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">ONE-TIME PAYMENT. FOREVER ACCESS.</p>
                         </div>
-                        <div id="modal-price-lifetime" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: var(--font-mono);">$34.99</div>
+                        <div id="modal-price-lifetime" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); font-family: var(--font-mono);">$69.00</div>
                     </div>
                 </div>
             </div>
@@ -2754,27 +3411,154 @@
         </div>
     </div>
 
-    <!-- Pro Upgrade Influence Modal -->
+    <!-- Pro Upgrade Influence Modal (Support SoundEngg Bottom Sheet) -->
     <div id="pro-upgrade-modal" class="modal-overlay hidden">
-        <div class="modal-content auth-modal-box" style="max-width: 480px; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 20px rgba(0, 240, 255, 0.25); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">
-            <button id="btn-close-pro-upgrade" class="modal-close-btn" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); cursor: pointer; transition: color 0.2s;"><span class="material-symbols-outlined">close</span></button>
+        <div class="pro-support-sheet">
+            <!-- Mobile grab pill -->
+            <div style="width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; margin: 0 auto 14px;"></div>
             
-            <div style="margin-bottom: 1.5rem; display: inline-flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: rgba(0, 240, 255, 0.1); border: 2px dashed var(--neon-blue);">
-                <span class="material-symbols-outlined" style="font-size: 32px; color: var(--neon-blue); animation: pulse 2s infinite;">workspace_premium</span>
+            <button id="btn-close-pro-upgrade" class="modal-close-btn" style="position: absolute; top: 14px; right: 14px; background: none; border: none; color: var(--text-dim); cursor: pointer; transition: color 0.2s;" title="Close">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+            
+            <!-- Feature Header -->
+            <div style="display: flex; align-items: flex-start; gap: 14px; margin-bottom: 1rem;">
+                <div id="pro-feature-icon-wrap" style="width: 46px; height: 46px; min-width: 46px; border-radius: 12px; background: rgba(0, 240, 255, 0.12); border: 1.5px solid var(--neon-blue); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);">
+                    <span id="pro-feature-icon" class="material-symbols-outlined" style="font-size: 26px; color: var(--neon-blue);">workspace_premium</span>
+                </div>
+                <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 3px;">
+                        <span style="font-family: var(--font-mono); font-size: 0.65rem; font-weight: 800; color: #FFB800; letter-spacing: 0.08em; text-transform: uppercase;">PRO FEATURE</span>
+                        <span style="color: var(--text-dim); font-size: 0.65rem;">•</span>
+                        <span style="font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-dim);">SUPPORT SOUNDENGG</span>
+                    </div>
+                    <h2 id="pro-feature-title" style="font-family: var(--font-headline); font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0 0 4px 0; text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);">Unlock Feature</h2>
+                    <p id="pro-feature-desc" style="font-size: 0.8rem; color: var(--text-dim); margin: 0; line-height: 1.35;">Take your acoustic tuning precision to the next level with our advanced audio engineering toolset.</p>
+                </div>
             </div>
-            
-            <h2 style="font-family: var(--font-headline); font-size: 1.8rem; font-weight: bold; margin-bottom: 0.5rem; color: #fff; text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);">Unlock SoundEngg Pro</h2>
-            <p style="font-size: 0.9rem; color: var(--text-dim); margin-bottom: 2rem; line-height: 1.4;">Take your acoustic tuning precision to the absolute limit with our full diagnostic hardware toolkit.</p>
-            
-            <div style="display: flex; flex-direction: column; gap: 10px;">
-                <a href="pro.html" class="pro-nav-redirect-btn" style="text-align: center !important; text-decoration: none !important; padding: 12px !important; font-weight: bold !important; font-family: var(--font-mono) !important; font-size: 0.9rem !important; display: flex !important; align-items: center !important; justify-content: center !important; gap: 0.5rem !important; border-radius: 4px !important; background: linear-gradient(135deg, var(--primary), var(--secondary)) !important; color: #ffffff !important; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4) !important; transition: all 0.2s ease !important;">
-                    <span class="material-symbols-outlined">payments</span> VIEW PRO SUBSCRIPTIONS
+
+            <!-- Option 1: PRO SUBSCRIPTION (Hero Card) -->
+            <div style="background: linear-gradient(135deg, rgba(20, 167, 181, 0.14), rgba(0, 240, 255, 0.05)); border: 1.5px solid var(--primary); border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 0.75rem; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="font-family: var(--font-mono); font-size: 0.62rem; font-weight: 800; color: #00FF9D; letter-spacing: 0.08em; text-transform: uppercase; background: rgba(0, 255, 157, 0.12); padding: 2px 8px; border-radius: 99px; border: 1px solid rgba(0, 255, 157, 0.3);">7-DAY FREE TRIAL • BEST VALUE</span>
+                    <span id="pro-plan-pricing-preview" style="font-family: var(--font-headline); font-size: 0.82rem; color: #fff; font-weight: bold;">$0.00 today • Renews at $29.99/yr</span>
+                </div>
+                <div style="font-family: var(--font-headline); font-size: 1.05rem; font-weight: 700; color: #fff; margin-bottom: 3px;">SoundEngg Pro Workstation</div>
+                <div style="font-size: 0.74rem; color: var(--text-dim); line-height: 1.35; margin-bottom: 10px;">Full acoustic workstation • Zero ads • Cancel anytime</div>
+                <a href="pro.html" class="rugged-btn" style="width: 100%; text-align: center; text-decoration: none; padding: 11px 14px; font-weight: bold; font-family: var(--font-headline); font-size: 0.88rem; background: linear-gradient(135deg, var(--primary, #00f0ff), #0099cc); color: #020713; border-radius: 6px; box-shadow: 0 0 16px rgba(0, 240, 255, 0.35); display: flex; align-items: center; justify-content: center; gap: 6px; box-sizing: border-box;">
+                    <span class="material-symbols-outlined" style="font-size: 18px;">bolt</span> START 7-DAY FREE TRIAL
                 </a>
-                <button id="btn-watch-ad-pro-unlock" class="rugged-btn-sm" style="background: linear-gradient(135deg, #FF9800, #F57C00); color: #fff; border: none; padding: 12px; cursor: pointer; font-family: var(--font-mono); font-size: 0.85rem; font-weight: bold; border-radius: 4px; transition: all 0.2s; box-shadow: 0 0 15px rgba(245, 124, 0, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-                    <span class="material-symbols-outlined">workspace_premium</span> 🎁 UNLOCK FEATURE FOR 4 HOURS (WATCH AD)
-                </button>
-                <button id="btn-maybe-later-pro" class="rugged-btn-sm" style="background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.1); padding: 10px; cursor: pointer; font-family: var(--font-mono); font-size: 0.8rem; border-radius: 4px; transition: all 0.2s;">MAYBE LATER</button>
             </div>
+
+            <!-- Option 2: 1-AD UNLOCK (Gentle single-tool unlock) -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 0.85rem 1.1rem; margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <span style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase;">Free Tier Single-Tool Access</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.62rem; color: #FFB800; font-weight: bold;">SESSION UNLOCK</span>
+                </div>
+                <p style="font-size: 0.74rem; color: var(--text-dim); line-height: 1.35; margin: 0 0 8px 0;">Unlock this specific tool for this session by watching 1 quick sponsor video (zero ads for Pro subscribers).</p>
+                <button id="btn-watch-ad-pro-unlock" class="rugged-btn-sm" style="width: 100%; background: linear-gradient(135deg, rgba(255, 152, 0, 0.2), rgba(245, 124, 0, 0.15)); border: 1px solid #FF9800; color: #FFA726; padding: 10px; cursor: pointer; font-family: var(--font-mono); font-size: 0.78rem; font-weight: bold; border-radius: 6px; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">play_circle</span> <span id="btn-watch-ad-pro-text">WATCH 1 AD (UNLOCK FOR THIS SESSION)</span>
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-top: 8px;">
+                <button id="btn-maybe-later-pro" style="background: none; border: none; color: var(--text-muted); font-family: var(--font-mono); font-size: 0.75rem; cursor: pointer; padding: 6px 12px; transition: color 0.2s;">Maybe Later</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Venue Environment Setup & Support Modal -->
+    <div id="venue-env-modal" class="modal-overlay hidden" style="z-index: 99995 !important; background: rgba(5, 7, 12, 0.84);">
+        <div class="modal-card" style="width: 100%; max-width: 400px; background: linear-gradient(165deg, rgba(16, 22, 32, 0.98) 0%, rgba(9, 13, 20, 0.99) 100%); border: 1px solid rgba(0, 240, 255, 0.35); border-radius: 14px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 0 25px rgba(0, 240, 255, 0.12); padding: 14px 16px !important; display: flex; flex-direction: column; gap: 10px; position: relative; box-sizing: border-box;">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div style="width: 30px; height: 30px; border-radius: 7px; background: rgba(0, 240, 255, 0.12); border: 1px solid rgba(0, 240, 255, 0.35); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <span class="material-symbols-outlined" style="color: var(--primary); font-size: 18px;">thermostat</span>
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-heading); letter-spacing: 0.04em; text-transform: uppercase;">Venue Environment Setup</h3>
+                        <span style="font-family: var(--font-sans); font-size: 0.67rem; color: var(--text-muted); display: block; margin-top: 1px;">Syncs Delay Calc, Auto Ping, Sub Arrays &amp; RTA</span>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-venue-env" aria-label="Close" style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); color: var(--text-muted); width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0;">
+                    <span class="material-symbols-outlined" style="font-size: 16px;">close</span>
+                </button>
+            </div>
+
+            <!-- 1 & 2. Distance & Temperature Scale Row -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">1. Distance Unit</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                        <button type="button" id="btn-env-dist-metric" class="rugged-btn" style="height: 32px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; padding: 0 4px;">
+                            M
+                        </button>
+                        <button type="button" id="btn-env-dist-imperial" class="rugged-btn" style="height: 32px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; padding: 0 4px;">
+                            FT
+                        </button>
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-family: var(--font-mono); font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">2. Temp Scale</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4px;">
+                        <button type="button" id="btn-env-temp-c" class="rugged-btn" style="height: 32px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; padding: 0 4px;">
+                            °C
+                        </button>
+                        <button type="button" id="btn-env-temp-f" class="rugged-btn" style="height: 32px; font-family: var(--font-mono); font-size: 0.68rem; font-weight: bold; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; padding: 0 4px;">
+                            °F
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Ambient Venue Temperature Input + Steppers -->
+            <div style="display: flex; flex-direction: column; gap: 5px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <label for="venue-env-temp-input" style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase; font-weight: bold;">3. Ambient Venue Temp</label>
+                    <span id="venue-env-temp-alt-label" style="font-family: var(--font-mono); font-size: 0.64rem; color: var(--primary);">= 71.6°F</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <button type="button" id="btn-env-temp-dec" class="rugged-btn" style="width: 40px; height: 36px; border-radius: 7px; font-family: var(--font-mono); font-size: 0.9rem; font-weight: bold; color: var(--text-heading); cursor: pointer; flex-shrink: 0;">−1°</button>
+                    <div class="vfd-input-wrap" style="flex: 1; height: 36px !important; display: flex; align-items: center; justify-content: center; padding: 0 10px !important; border-radius: 7px !important; background: rgba(0, 0, 0, 0.55); border: 1px solid rgba(0, 240, 255, 0.35);">
+                        <input type="number" id="venue-env-temp-input" step="0.5" value="22.0" style="background: transparent !important; border: none !important; outline: none !important; font-family: var(--font-mono); font-weight: bold; font-size: 1.1rem !important; color: var(--primary); width: 100% !important; text-align: center !important; text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);">
+                        <span id="venue-env-temp-unit-suffix" style="font-family: var(--font-mono); font-size: 0.82rem; font-weight: bold; color: var(--text-muted); margin-left: 4px;">°C</span>
+                    </div>
+                    <button type="button" id="btn-env-temp-inc" class="rugged-btn" style="width: 40px; height: 36px; border-radius: 7px; font-family: var(--font-mono); font-size: 0.9rem; font-weight: bold; color: var(--text-heading); cursor: pointer; flex-shrink: 0;">+1°</button>
+                </div>
+            </div>
+
+            <!-- Live Speed of Sound Readout Box -->
+            <div style="background: rgba(0, 240, 255, 0.06); border: 1px solid rgba(0, 240, 255, 0.22); border-radius: 7px; padding: 6px 10px; display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase;">Speed of Sound (c):</span>
+                <strong id="venue-env-speed-preview" style="font-family: var(--font-mono); font-size: 0.74rem; color: #00e676;">344.5 m/s • 1130.2 ft/s</strong>
+            </div>
+
+            <!-- Polite Community Support & Pro Upgrade Section (Hidden for Pro Users) -->
+            <div id="venue-env-support-box" style="background: linear-gradient(135deg, rgba(255, 184, 0, 0.07), rgba(0, 240, 255, 0.05)); border: 1px solid rgba(255, 184, 0, 0.28); border-radius: 9px; padding: 9px 10px; display: flex; flex-direction: column; gap: 7px;">
+                <div style="display: flex; align-items: flex-start; gap: 6px;">
+                    <span class="material-symbols-outlined" style="font-size: 15px; color: #FFB800; margin-top: 1px; flex-shrink: 0;">volunteer_activism</span>
+                    <span style="font-family: var(--font-sans); font-size: 0.68rem; color: var(--text-main); line-height: 1.32;">
+                        <strong style="color: #FFB800;">Support Independent Audio Tools:</strong> Watch 1 quick ad (with your consent) or go Pro to help keep SoundEngg free &amp; accurate for engineers.
+                    </span>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <button type="button" id="btn-venue-support-ad" class="rugged-btn" style="height: 34px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.64rem; font-weight: bold; background: rgba(255, 152, 0, 0.16); border: 1px solid #FF9800; color: #FFB800; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 0 6px;">
+                        <span class="material-symbols-outlined" style="font-size: 15px;">play_circle</span> SUPPORT (1 AD)
+                    </button>
+                    <button type="button" id="btn-venue-buy-pro" class="rugged-btn" style="height: 34px; border-radius: 6px; font-family: var(--font-mono); font-size: 0.64rem; font-weight: bold; background: rgba(0, 230, 118, 0.14); border: 1px solid #00e676; color: #00e676; display: flex; align-items: center; justify-content: center; gap: 4px; cursor: pointer; padding: 0 6px;">
+                        <span class="material-symbols-outlined" style="font-size: 15px;">workspace_premium</span> GO PRO AD-FREE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Confirm Action -->
+            <button type="button" id="btn-confirm-venue-env" class="rugged-btn primary" style="height: 38px; width: 100%; border-radius: 8px; font-family: var(--font-mono); font-size: 0.75rem; font-weight: bold; letter-spacing: 0.05em; background: var(--primary); color: #05070c !important; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);">
+                <span class="material-symbols-outlined" style="font-size: 17px;">check_circle</span>
+                APPLY TO ALL TOOLS
+            </button>
         </div>
     </div>
 
@@ -2826,7 +3610,7 @@
     </div>
 
     <!-- Mobile Ad Loading Glassmorphic Overlay -->
-    <div id="mobile-ad-loader" class="mobile-ad-loader">
+    <div id="mobile-ad-loader" class="mobile-ad-loader" style="display: none;">
         <div class="mobile-ad-loader-content">
             <div class="mobile-ad-spinner">
                 <div class="mobile-ad-spinner-ring"></div>
@@ -2839,7 +3623,7 @@
     </div>
 
     <!-- Rewarded Ad Modal for Fullscreen RTA -->
-    <div id="ad-reward-modal" class="ad-modal">
+    <div id="ad-reward-modal" class="ad-modal" style="display: none;">
         <div class="ad-modal-content">
             <div class="ad-header">
                 <div class="ad-header-title">
@@ -2885,7 +3669,7 @@
         </div>
     </div>
 
-    <div id="ad-lock-modal" class="modal-overlay hidden">
+    <div id="ad-lock-modal" class="modal-overlay hidden" style="display: none;">
         <div class="ad-modal-content">
             <div id="ad-state-online" class="ad-state">
                 <h2 class="ad-title">Support SoundEngg</h2>
@@ -3110,6 +3894,7 @@
     </script>
 
     <script src="assets/js/modules/utils.js"></script>
+    <script src="assets/js/modules/venueEnvModal.js"></script>
     <script src="assets/js/modules/theme.js"></script>
     <script src="assets/js/modules/premium.js"></script>
     <script src="assets/js/modules/billing.js"></script>
@@ -3118,22 +3903,30 @@
     <script src="assets/js/utils/adManager.js"></script>
     
     <!-- Components -->
+    <script src="assets/js/components/transferFunctionEngine.js"></script>
+    <script src="assets/js/components/rta/rtaDspMath.js"></script>
+    <script src="assets/js/components/rta/rtaDataExport.js"></script>
+    <script src="assets/js/components/rta/rtaAdController.js"></script>
     <script src="assets/js/components/rtaEngine.js"></script>
     <script src="assets/js/components/impedanceCalculator.js"></script>
     <script src="assets/js/components/signalGenerator.js"></script>
     <script src="assets/js/components/subCalc.js"></script>
+    <script src="assets/js/components/delay/delaySignalSynth.js"></script>
+    <script src="assets/js/components/delay/delayAcousticDsp.js"></script>
+    <script src="assets/js/modules/alignmentShareCard.js"></script>
     <script src="assets/js/components/delayCalc.js"></script>
     <script src="assets/js/components/earTraining.js"></script>
     <script src="assets/js/components/tapTempo.js"></script>
     <script src="assets/js/components/pinouts.js"></script>
     <script src="assets/js/components/blogEngine.js"></script>
 
-    <script src="assets/js/main.js?v=3.6.1"></script>
+    <script src="assets/js/main.js?v=3.7.4"></script>
+    <script src="assets/js/modules/checkoutAndPlatform.js?v=3.7.4"></script>
     
     <!-- Register SoundEngg PWA Service Worker (Network-First Cache Buster) -->
     <script>
         // Force unregister and cache clear on version mismatch to bypass stale service worker caches
-        const CURRENT_VERSION = '3.6.3';
+        const CURRENT_VERSION = '3.7.3';
         if (window.safeStorage.getItem('soundengg-app-version') !== CURRENT_VERSION) {
             window.safeStorage.setItem('soundengg-app-version', CURRENT_VERSION);
             if ('serviceWorker' in navigator) {
@@ -3197,14 +3990,14 @@
         </div>
         <div class="dialog-actions">
             <button id="btn-rating-later" class="rugged-btn" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 12px; cursor: pointer; border: 1px solid var(--outline); background: transparent;">LATER</button>
-            <a href="https://play.google.com/store/apps/details?id=com.soundengg.console" id="btn-rating-store-redirect" target="_blank" class="rugged-btn pulse-glow" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 16px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: bold; background: var(--primary); color: #050508 !important;">RATE NOW</a>
+            <a href="https://apps.apple.com/app/id6783749210?action=write-review" id="btn-rating-store-redirect" target="_blank" class="rugged-btn pulse-glow" style="font-size: 0.7rem; font-family: var(--font-mono); height: 34px; padding: 0 16px; display: flex; align-items: center; justify-content: center; text-decoration: none; font-weight: bold; background: var(--primary); color: #050508 !important;">RATE NOW</a>
         </div>
     </dialog>
 
     <!-- Custom Toast Notifications Container -->
     <div id="soundengg-toast" class="toast-container">
         <span class="material-symbols-outlined" style="color: var(--primary); font-size: 1.1rem;">check_circle</span>
-        <span id="soundengg-toast-text" style="font-family: var(--font-mono); font-size: 0.72rem; color: #fff;">Action completed successfully!</span>
+        <span id="soundengg-toast-text" style="font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-main);">Action completed successfully!</span>
     </div>
 </body>
 </html>
