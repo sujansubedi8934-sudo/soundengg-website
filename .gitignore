@@ -19,6 +19,8 @@ releases/
 
 # Miscellaneous & Confidential Project Notes
 project_context.md
+.top_tools*
+.apinex*
 *.class
 *.lock
 *.log
@@ -149,3 +151,15 @@ app.*.symbols
 # Supabase CLI temp files
 supabase/.temp/
 
+# Local Dev Screenshots, Internal Notes & Migration Guides
+dev-tools/*.png
+dev-tools/mcp/
+scripts/
+soundengg_migration_guide.txt
+soundengg_migration_guide.pdf
+COMPETITOR_ASO_GEO_TAKEOVER_BLUEPRINT.md
+.superpowers/
+docs/superpowers/
+*.p8
+*.p12
+*.mobileprovision

@@ -2,13 +2,13 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 // ==========================================
-// ⚙️ CONFIGURATION: Fill in your values here
+// ⚙️ CONFIGURATION: Set via environment variables
 // ==========================================
-const KEY_ID = '83LDBX5HX4'; // e.g. 'ABC123XYZ8'
-const P8_PATH = '/Users/sujansubedi/Downloads/AuthKey_83LDBX5HX4.p8'; // e.g. '/Users/sujan/Downloads/AuthKey_ABC123XYZ8.p8'
+const KEY_ID = process.env.APPLE_KEY_ID || 'YOUR_KEY_ID_HERE';
+const P8_PATH = process.env.APPLE_P8_PATH || 'PATH_TO_YOUR_P8_FILE_HERE';
 
-const TEAM_ID = 'NXCNY3ZVL6';
-const SERVICES_ID = 'com.soundengg.app.sid';
+const TEAM_ID = process.env.APPLE_TEAM_ID || 'YOUR_TEAM_ID_HERE';
+const SERVICES_ID = process.env.APPLE_SERVICES_ID || 'com.soundengg.app.sid';
 // ==========================================
 
 function base64url(buf) {

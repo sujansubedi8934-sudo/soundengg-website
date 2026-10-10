@@ -1,5 +1,11 @@
 apply plugin: 'com.android.application'
 
+def keystorePropertiesFile = rootProject.file("key.properties")
+def keystoreProperties = new Properties()
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+
 android {
     namespace = "com.soundengg.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -18,10 +24,12 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file('upload-keystore.jks')
-            storePassword 'SoundEnggSecureKeyStorePass2026!'
-            keyAlias 'soundengg-upload-alias'
-            keyPassword 'SoundEnggSecureKeyStorePass2026!'
+            if (keystorePropertiesFile.exists()) {
+                storeFile file(keystoreProperties['storeFile'] ?: 'upload-keystore.jks')
+                storePassword keystoreProperties['storePassword']
+                keyAlias keystoreProperties['keyAlias']
+                keyPassword keystoreProperties['keyPassword']
+            }
         }
     }
     buildTypes {
@@ -54,6 +62,9 @@ dependencies {
     implementation 'com.google.android.gms:play-services-ads:23.3.0'
     implementation 'com.google.ads.mediation:inmobi:10.8.0.0'
     implementation 'com.google.ads.mediation:unity:4.12.5.0'
+
+    // Google Play In-App Review (1-tap native bottom sheet)
+    implementation 'com.google.android.play:review:2.0.2'
 }
 
 apply from: 'capacitor.build.gradle'
