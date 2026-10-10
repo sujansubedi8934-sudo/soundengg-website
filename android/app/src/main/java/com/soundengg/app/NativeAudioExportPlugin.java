@@ -98,8 +98,29 @@ public class NativeAudioExportPlugin extends Plugin {
         String mimeType = call.getString("mimeType", "audio/wav");
         String text = call.getString("text", "SoundEngg Acoustic Measurement Export");
 
+        // Plain-text report share when no binary file is attached
         if (base64Data == null || base64Data.isEmpty()) {
-            call.reject("base64Data is required");
+            if (text != null && !text.isEmpty()) {
+                try {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, title);
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+
+                    Intent chooser = Intent.createChooser(shareIntent, title);
+                    chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    getContext().startActivity(chooser);
+
+                    JSObject ret = new JSObject();
+                    ret.put("success", true);
+                    call.resolve(ret);
+                    return;
+                } catch (Exception e) {
+                    call.reject("Error sharing text report: " + e.getMessage(), e);
+                    return;
+                }
+            }
+            call.reject("base64Data or text is required");
             return;
         }
 

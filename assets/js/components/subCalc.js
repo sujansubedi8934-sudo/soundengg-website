@@ -474,7 +474,13 @@ function initSubCalc() {
                 `• Interactive Config: ${shareUrl}`
             ].join('\n');
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
+            if (typeof window.shareConfigReport === 'function') {
+                window.shareConfigReport(
+                    'SoundEngg Subwoofer Array Alignment Report',
+                    reportStr,
+                    '✓ Copied Sub Array Alignment Report & Link!'
+                );
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(reportStr).then(() => {
                     if (typeof window.showSoundEnggToast === 'function') {
                         window.showSoundEnggToast('✓ Copied Sub Array Alignment Report & Link!');

@@ -482,7 +482,7 @@
                                 </div>
                                 <div class="se-btn-stack">
                                     <button type="button" id="se-btn-native-share" class="se-btn se-btn-primary">
-                                        <span class="material-symbols-outlined">ios_share</span> Share / Save Alignment Card
+                                        <span class="material-symbols-outlined">share</span> Share / Save Alignment Card
                                     </button>
                                 </div>
                             </div>
@@ -553,7 +553,7 @@
                 return window.Capacitor?.Plugins?.AudioSessionPlugin || window.Capacitor?.Plugins?.AudioSession || null;
             };
 
-            // Single Unified Native Share / Save Handler
+            // Single Unified Native Share / Save Handler (iOS, iPadOS, Android & Web)
             btnShare.onclick = async () => {
                 const origHtml = btnShare.innerHTML;
                 const fileName = getFileName();
@@ -576,25 +576,48 @@
                         (window.isNativeMobile && window.isNativeMobile())
                     );
 
-                    // 1. Native iOS / iPadOS / Android Share Sheet via Capacitor Plugin
+                    // 1. Native iOS / iPadOS & Android Share Sheet via Capacitor Plugin
                     if (isNative) {
                         const dataUrl = previewCanvas.toDataURL('image/png');
                         const base64Data = dataUrl.split(',')[1];
                         const nativeExporter = getNativeExportPlugin();
+                        const platform = window.Capacitor?.getPlatform ? window.Capacitor.getPlatform() : (window.Capacitor?.platform || 'web');
 
-                        if (nativeExporter && typeof nativeExporter.shareWavFile === 'function') {
-                            try {
-                                await nativeExporter.shareWavFile({
-                                    base64Data,
-                                    fileName,
-                                    mimeType: 'image/png',
-                                    title: 'SoundEngg FOH Alignment Spec',
-                                    text: shareText
-                                });
-                                restoreBtn('<span class="material-symbols-outlined">check_circle</span> Ready to Share / Save!');
+                        if (nativeExporter) {
+                            // On Android, also save directly to Downloads/SoundEngg/ before launching the Android Share Sheet
+                            let savedAndroid = false;
+                            if (platform === 'android' && typeof nativeExporter.saveWavToDownloads === 'function') {
+                                try {
+                                    await nativeExporter.saveWavToDownloads({
+                                        base64Data,
+                                        fileName,
+                                        mimeType: 'image/png'
+                                    });
+                                    savedAndroid = true;
+                                } catch (saveErr) {
+                                    console.warn('[ShareCard] Android saveWavToDownloads warning:', saveErr);
+                                }
+                            }
+
+                            if (typeof nativeExporter.shareWavFile === 'function') {
+                                try {
+                                    await nativeExporter.shareWavFile({
+                                        base64Data,
+                                        fileName,
+                                        mimeType: 'image/png',
+                                        title: 'SoundEngg FOH Alignment Spec',
+                                        text: shareText
+                                    });
+                                    restoreBtn('<span class="material-symbols-outlined">check_circle</span> Ready to Share / Save!');
+                                    return;
+                                } catch (nativeErr) {
+                                    console.warn('[ShareCard] NativeAudioExport.shareWavFile fallback:', nativeErr);
+                                }
+                            }
+
+                            if (savedAndroid) {
+                                restoreBtn('<span class="material-symbols-outlined">check_circle</span> Saved to Downloads!');
                                 return;
-                            } catch (nativeErr) {
-                                console.warn('[ShareCard] NativeAudioExport.shareWavFile fallback:', nativeErr);
                             }
                         }
                     }

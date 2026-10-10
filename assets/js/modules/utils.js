@@ -21,6 +21,60 @@ window.getPublicAppUrl = function() {
     return `${window.location.origin}${window.location.pathname}`;
 };
 
+// --- Unified Config Report Share & Clipboard Helper (iOS + Android + Web) ---
+window.shareConfigReport = async function(title, reportStr, toastMsg) {
+    let copied = false;
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+            await navigator.clipboard.writeText(reportStr);
+            copied = true;
+            if (typeof window.showSoundEnggToast === 'function') {
+                window.showSoundEnggToast(toastMsg || '✓ Copied FOH Report & Link to clipboard!');
+            }
+        } catch (e) {}
+    }
+
+    const isNative = typeof window !== 'undefined' && (
+        window.Capacitor?.isNativePlatform?.() ||
+        (window.isNativeMobile && window.isNativeMobile())
+    );
+
+    if (isNative) {
+        let nativeExporter = window._cachedNativeAudioExportPlugin || window.Capacitor?.Plugins?.NativeAudioExport;
+        if (!nativeExporter && window.Capacitor?.registerPlugin) {
+            try {
+                nativeExporter = window.Capacitor.registerPlugin('NativeAudioExport');
+                window._cachedNativeAudioExportPlugin = nativeExporter;
+            } catch (e) {}
+        }
+        if (!nativeExporter) {
+            nativeExporter = window.Capacitor?.Plugins?.AudioSessionPlugin || window.Capacitor?.Plugins?.AudioSession || null;
+        }
+        if (nativeExporter && typeof nativeExporter.shareWavFile === 'function') {
+            try {
+                await nativeExporter.shareWavFile({
+                    title: title || 'SoundEngg Engineering Report',
+                    text: reportStr
+                });
+                return;
+            } catch (e) {
+                console.warn('[shareConfigReport] Native share fallback:', e);
+            }
+        }
+    }
+
+    if (!copied) {
+        if (typeof navigator !== 'undefined' && navigator.share) {
+            try {
+                await navigator.share({ title: title || 'SoundEngg Report', text: reportStr });
+                return;
+            } catch (e) {}
+        }
+        alert(reportStr);
+    }
+};
+
+
 
 // --- SAFE STORAGE PROXY (Safari Protection) ---
 const safeStorage = window.safeStorage || {

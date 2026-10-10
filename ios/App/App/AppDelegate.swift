@@ -196,7 +196,43 @@ public class NativeAudioExport: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func shareWavFile(_ call: CAPPluginCall) {
-        guard let base64Data = call.getString("base64Data"),
+        let base64Data = call.getString("base64Data") ?? ""
+        let text = call.getString("text") ?? ""
+
+        // Plain-text report share when no binary file is attached
+        if base64Data.isEmpty && !text.isEmpty {
+            DispatchQueue.main.async {
+                let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+                var presenter: UIViewController? = self.bridge?.viewController
+                if presenter == nil {
+                    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+                    let window = scenes.flatMap({ $0.windows }).first(where: { $0.isKeyWindow })
+                    presenter = window?.rootViewController
+                }
+                while let next = presenter?.presentedViewController {
+                    if next.isBeingDismissed { break }
+                    presenter = next
+                }
+                if let popover = activityVC.popoverPresentationController {
+                    let targetView = presenter?.view ?? self.webView
+                    popover.sourceView = targetView
+                    if let v = targetView {
+                        popover.sourceRect = CGRect(x: v.bounds.midX, y: v.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
+                }
+                if let presenter = presenter {
+                    presenter.present(activityVC, animated: true) {
+                        call.resolve(["success": true])
+                    }
+                } else {
+                    call.reject("Unable to find presenting view controller")
+                }
+            }
+            return
+        }
+
+        guard !base64Data.isEmpty,
               let data = Data(base64Encoded: base64Data) else {
             call.reject("Invalid base64 audio data")
             return
@@ -500,7 +536,43 @@ public class AudioSessionPlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     @objc func shareWavFile(_ call: CAPPluginCall) {
-        guard let base64Data = call.getString("base64Data"),
+        let base64Data = call.getString("base64Data") ?? ""
+        let text = call.getString("text") ?? ""
+
+        // Plain-text report share when no binary file is attached
+        if base64Data.isEmpty && !text.isEmpty {
+            DispatchQueue.main.async {
+                let activityVC = UIActivityViewController(activityItems: [text], applicationActivities: nil)
+                var presenter: UIViewController? = self.bridge?.viewController
+                if presenter == nil {
+                    let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+                    let window = scenes.flatMap({ $0.windows }).first(where: { $0.isKeyWindow })
+                    presenter = window?.rootViewController
+                }
+                while let next = presenter?.presentedViewController {
+                    if next.isBeingDismissed { break }
+                    presenter = next
+                }
+                if let popover = activityVC.popoverPresentationController {
+                    let targetView = presenter?.view ?? self.webView
+                    popover.sourceView = targetView
+                    if let v = targetView {
+                        popover.sourceRect = CGRect(x: v.bounds.midX, y: v.bounds.midY, width: 0, height: 0)
+                        popover.permittedArrowDirections = []
+                    }
+                }
+                if let presenter = presenter {
+                    presenter.present(activityVC, animated: true) {
+                        call.resolve(["success": true])
+                    }
+                } else {
+                    call.reject("Unable to find presenting view controller")
+                }
+            }
+            return
+        }
+
+        guard !base64Data.isEmpty,
               let data = Data(base64Encoded: base64Data) else {
             call.reject("Invalid base64 audio data")
             return

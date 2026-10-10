@@ -202,7 +202,13 @@ function initTapTempoDelay() {
                 `• Interactive Config: ${shareUrl}`
             ].join('\n');
 
-            if (navigator.clipboard && navigator.clipboard.writeText) {
+            if (typeof window.shareConfigReport === 'function') {
+                window.shareConfigReport(
+                    `SoundEngg Tap Tempo FX Delay Chart (${bpm} BPM)`,
+                    reportStr,
+                    `✓ Copied ${bpm} BPM Delay Chart & Link!`
+                );
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
                 navigator.clipboard.writeText(reportStr).then(() => {
                     if (typeof window.showSoundEnggToast === 'function') {
                         window.showSoundEnggToast(`✓ Copied ${bpm} BPM Delay Chart & Link!`);
