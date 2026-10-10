@@ -277,7 +277,7 @@ async function syncSubscriptionStatus(session) {
         for (let attempt = 1; attempt <= 4; attempt++) {
             const response = await window.supabaseClient
                 .from('profiles')
-                .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
+                .select('is_pro, subscription_tier, subscription_expires_at, trial_started_at, trial_expires_at, subscription_provider, subscription_id, full_name, company, device_ids')
                 .eq('id', session.user.id)
                 .maybeSingle();
             
@@ -289,12 +289,12 @@ async function syncSubscriptionStatus(session) {
                 break;
             }
 
-            // Omission Fallback: If device_ids column does not exist in user's Supabase DB, fetch all other fields cleanly
+            // Omission Fallback: If device_ids or trial columns error in user's Supabase DB, fetch standard fields cleanly
             if (error && (error.code === '42703' || error.message.includes('not found') || error.message.includes('column'))) {
                 console.warn('[syncSubscriptionStatus] Column error detected. Retrying profile fetch without device_ids...');
                 const responseNoDevices = await window.supabaseClient
                     .from('profiles')
-                    .select('is_pro, subscription_tier, subscription_expires_at, subscription_provider, subscription_id, full_name, company')
+                    .select('is_pro, subscription_tier, subscription_expires_at, trial_started_at, trial_expires_at, subscription_provider, subscription_id, full_name, company')
                     .eq('id', session.user.id)
                     .maybeSingle();
                 
@@ -545,14 +545,18 @@ async function syncSubscriptionStatus(session) {
             const isExpired = expiresAt && !isNaN(expiresAt.getTime()) && expiresAt < now;
 
             const isTierPro = data.subscription_tier && data.subscription_tier !== 'free';
+            const isTrialActive = !!(data.trial_expires_at && new Date(data.trial_expires_at) > now);
+
             const isNative = typeof window.isNativeMobile === 'function' && window.isNativeMobile();
             if (isNative && window.isUserPro) {
                 console.log('[syncSubscriptionStatus] Native mobile Pro active, skipping Supabase overwrite.');
             } else {
-                window.isUserPro = !!data.is_pro && isTierPro && !isExpired;
-                window.userSubscriptionTier = data.subscription_tier;
+                window.isUserPro = (!!data.is_pro && isTierPro && !isExpired) || isTrialActive;
+                window.userSubscriptionTier = isTrialActive && (!data.subscription_tier || data.subscription_tier === 'free')
+                    ? 'trial'
+                    : (data.subscription_tier || (window.isUserPro ? 'pro' : 'free'));
             }
-            console.log('Cloud Sync Success. Pro:', window.isUserPro);
+            console.log('Cloud Sync Success. Pro:', window.isUserPro, 'Trial Active:', isTrialActive);
             
             const profileTierBadge = document.getElementById('profile-tier-badge');
             const inputFullname = document.getElementById('profile-fullname');
