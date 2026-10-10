@@ -481,14 +481,8 @@
                                     <input type="text" id="se-venue-input" class="se-control-input" value="Festival Main Stage FOH" maxlength="38" />
                                 </div>
                                 <div class="se-btn-stack">
-                                    <button type="button" id="se-btn-download-card" class="se-btn se-btn-primary">
-                                        <span class="material-symbols-outlined">download</span> Download High-Res PNG
-                                    </button>
-                                    <button type="button" id="se-btn-copy-card" class="se-btn se-btn-secondary">
-                                        <span class="material-symbols-outlined">content_copy</span> Copy Image
-                                    </button>
-                                    <button type="button" id="se-btn-native-share" class="se-btn se-btn-secondary">
-                                        <span class="material-symbols-outlined">share</span> Share (Mobile / Instagram)
+                                    <button type="button" id="se-btn-native-share" class="se-btn se-btn-primary">
+                                        <span class="material-symbols-outlined">ios_share</span> Share / Save Alignment Card
                                     </button>
                                 </div>
                             </div>
@@ -506,8 +500,6 @@
             const previewCanvas = document.getElementById('se-share-canvas');
             const closeBtn = document.getElementById('se-modal-close-btn');
             const backdrop = modal.querySelector('.se-modal-backdrop');
-            const btnDownload = document.getElementById('se-btn-download-card');
-            const btnCopy = document.getElementById('se-btn-copy-card');
             const btnShare = document.getElementById('se-btn-native-share');
 
             const currentData = { ...initialData };
@@ -545,120 +537,106 @@
                 return `soundengg-delay-${slug || 'alignment'}.png`;
             };
 
-            const exportViaNativePlugin = async (mode = 'download') => {
-                const nativeExporter = window.Capacitor?.Plugins?.NativeAudioExport || window.Capacitor?.Plugins?.AudioSessionPlugin;
-                if (!nativeExporter) return false;
-                try {
-                    const dataUrl = previewCanvas.toDataURL('image/png');
-                    const base64Data = dataUrl.split(',')[1];
-                    const fileName = getFileName();
-                    const shareText = `Acoustic delay aligned to ${currentData.totalDelayMs} ms (${currentData.distance} ${currentData.unit} @ ${currentData.temp}${currentData.tempUnit}). Calibrated with SoundEngg.`;
-
-                    if (mode === 'download' && typeof nativeExporter.saveWavToDownloads === 'function') {
-                        await nativeExporter.saveWavToDownloads({
-                            base64Data,
-                            fileName,
-                            mimeType: 'image/png'
-                        });
-                        return true;
-                    } else if (typeof nativeExporter.shareWavFile === 'function') {
-                        await nativeExporter.shareWavFile({
-                            base64Data,
-                            fileName,
-                            mimeType: 'image/png',
-                            title: 'SoundEngg FOH Alignment Spec',
-                            text: shareText
-                        });
-                        return true;
-                    }
-                } catch (err) {
-                    console.warn('Native PNG export fallback:', err);
+            const getNativeExportPlugin = () => {
+                if (window._cachedNativeAudioExportPlugin) return window._cachedNativeAudioExportPlugin;
+                const existing = window.Capacitor?.Plugins?.NativeAudioExport;
+                if (existing) {
+                    window._cachedNativeAudioExportPlugin = existing;
+                    return existing;
                 }
-                return false;
+                if (window.Capacitor?.registerPlugin) {
+                    try {
+                        window._cachedNativeAudioExportPlugin = window.Capacitor.registerPlugin('NativeAudioExport');
+                        return window._cachedNativeAudioExportPlugin;
+                    } catch (e) {}
+                }
+                return window.Capacitor?.Plugins?.AudioSessionPlugin || window.Capacitor?.Plugins?.AudioSession || null;
             };
 
-            // 1. Download High-Res PNG (Native iOS/Android + Web)
-            btnDownload.onclick = async () => {
-                const origHtml = btnDownload.innerHTML;
-                if (window.isNativeMobile && window.isNativeMobile()) {
-                    btnDownload.innerHTML = '<span class="material-symbols-outlined">hourglass_top</span> Exporting PNG...';
-                    const handled = await exportViaNativePlugin('download');
-                    if (handled) {
-                        btnDownload.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Ready to Save / Share!';
-                        setTimeout(() => { btnDownload.innerHTML = origHtml; }, 2500);
-                        return;
-                    }
-                }
-                const link = document.createElement('a');
-                link.download = getFileName();
-                link.href = previewCanvas.toDataURL('image/png');
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
-                btnDownload.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Downloaded PNG!';
-                setTimeout(() => { btnDownload.innerHTML = origHtml; }, 2200);
-            };
-
-            // 2. Copy Image to Clipboard (with Native Mobile fallback)
-            btnCopy.onclick = async () => {
-                const origHtml = btnCopy.innerHTML;
-                try {
-                    previewCanvas.toBlob(async (blob) => {
-                        if (!blob) return;
-                        if (navigator.clipboard && window.ClipboardItem) {
-                            try {
-                                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                                btnCopy.innerHTML = '<span class="material-symbols-outlined">check</span> Copied to Clipboard!';
-                                setTimeout(() => { btnCopy.innerHTML = origHtml; }, 2500);
-                                return;
-                            } catch (clipErr) {
-                                console.warn('ClipboardItem write restricted in WebView, falling back:', clipErr);
-                            }
-                        }
-                        // Fallback on native mobile WebViews where image clipboard is restricted: copy text spec + open native sheet
-                        const specSummary = `SoundEngg FOH Alignment Spec — ${currentData.zoneName}: ${currentData.totalDelayMs} ms (${currentData.distance} ${currentData.unit} @ ${currentData.temp}${currentData.tempUnit}, c=${currentData.speed} m/s)`;
-                        if (navigator.clipboard && navigator.clipboard.writeText) {
-                            try { await navigator.clipboard.writeText(specSummary); } catch (e) {}
-                        }
-                        if (window.isNativeMobile && window.isNativeMobile()) {
-                            await exportViaNativePlugin('share');
-                        }
-                        btnCopy.innerHTML = '<span class="material-symbols-outlined">check</span> Spec Copied!';
-                        setTimeout(() => { btnCopy.innerHTML = origHtml; }, 2500);
-                    }, 'image/png');
-                } catch (e) {
-                    if (window.isNativeMobile && window.isNativeMobile()) {
-                        await exportViaNativePlugin('share');
-                    }
-                }
-            };
-
-            // 3. Native Share (Mobile / Instagram / AirDrop / WhatsApp)
+            // Single Unified Native Share / Save Handler
             btnShare.onclick = async () => {
                 const origHtml = btnShare.innerHTML;
-                if (window.isNativeMobile && window.isNativeMobile()) {
-                    const handled = await exportViaNativePlugin('share');
-                    if (handled) {
-                        btnShare.innerHTML = '<span class="material-symbols-outlined">check</span> Share Sheet Opened';
-                        setTimeout(() => { btnShare.innerHTML = origHtml; }, 2200);
-                        return;
-                    }
-                }
-                if (navigator.share && previewCanvas.toBlob) {
-                    previewCanvas.toBlob(async (blob) => {
-                        const file = new File([blob], getFileName(), { type: 'image/png' });
-                        try {
-                            await navigator.share({
-                                title: 'SoundEngg Delay Alignment Spec',
-                                text: `Acoustic delay aligned to ${currentData.totalDelayMs} ms at ${currentData.distance} ${currentData.unit}. Generated with SoundEngg.`,
-                                files: [file]
-                            });
-                        } catch (err) {
-                            console.log('Share canceled or dismissed');
+                const fileName = getFileName();
+                const shareText = `SoundEngg FOH Alignment Spec — ${currentData.zoneName} (${currentData.venueName}): ${currentData.totalDelayMs} ms (${currentData.distance} ${currentData.unit} @ ${currentData.temp}${currentData.tempUnit}, c=${currentData.speed} m/s) • https://www.soundengg.com/app.html`;
+
+                btnShare.style.pointerEvents = 'none';
+                btnShare.innerHTML = '<span class="material-symbols-outlined">hourglass_top</span> Preparing High-Res PNG...';
+
+                const restoreBtn = (labelHtml, delay = 2200) => {
+                    btnShare.innerHTML = labelHtml;
+                    setTimeout(() => {
+                        btnShare.innerHTML = origHtml;
+                        btnShare.style.pointerEvents = '';
+                    }, delay);
+                };
+
+                try {
+                    const isNative = typeof window !== 'undefined' && (
+                        window.Capacitor?.isNativePlatform?.() ||
+                        (window.isNativeMobile && window.isNativeMobile())
+                    );
+
+                    // 1. Native iOS / iPadOS / Android Share Sheet via Capacitor Plugin
+                    if (isNative) {
+                        const dataUrl = previewCanvas.toDataURL('image/png');
+                        const base64Data = dataUrl.split(',')[1];
+                        const nativeExporter = getNativeExportPlugin();
+
+                        if (nativeExporter && typeof nativeExporter.shareWavFile === 'function') {
+                            try {
+                                await nativeExporter.shareWavFile({
+                                    base64Data,
+                                    fileName,
+                                    mimeType: 'image/png',
+                                    title: 'SoundEngg FOH Alignment Spec',
+                                    text: shareText
+                                });
+                                restoreBtn('<span class="material-symbols-outlined">check_circle</span> Ready to Share / Save!');
+                                return;
+                            } catch (nativeErr) {
+                                console.warn('[ShareCard] NativeAudioExport.shareWavFile fallback:', nativeErr);
+                            }
                         }
-                    }, 'image/png');
-                } else {
-                    btnDownload.click();
+                    }
+
+                    // 2. Web Share API (Mobile Safari / Chrome / Supported Browsers)
+                    if (navigator.share && previewCanvas.toBlob) {
+                        const blob = await new Promise(resolve => previewCanvas.toBlob(resolve, 'image/png'));
+                        if (blob) {
+                            const file = new File([blob], fileName, { type: 'image/png' });
+                            if (!navigator.canShare || navigator.canShare({ files: [file] })) {
+                                try {
+                                    await navigator.share({
+                                        title: 'SoundEngg FOH Alignment Spec',
+                                        text: shareText,
+                                        files: [file]
+                                    });
+                                    restoreBtn('<span class="material-symbols-outlined">check_circle</span> Shared Successfully!');
+                                    return;
+                                } catch (shareErr) {
+                                    if (shareErr && shareErr.name === 'AbortError') {
+                                        btnShare.innerHTML = origHtml;
+                                        btnShare.style.pointerEvents = '';
+                                        return;
+                                    }
+                                    console.warn('[ShareCard] Web Share API fallback:', shareErr);
+                                }
+                            }
+                        }
+                    }
+
+                    // 3. Desktop Browser Direct High-Res PNG Download Fallback
+                    const link = document.createElement('a');
+                    link.download = fileName;
+                    link.href = previewCanvas.toDataURL('image/png');
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                    restoreBtn('<span class="material-symbols-outlined">check_circle</span> Saved High-Res PNG!');
+                } catch (err) {
+                    console.error('[ShareCard] Unexpected share error:', err);
+                    btnShare.innerHTML = origHtml;
+                    btnShare.style.pointerEvents = '';
                 }
             };
         },
