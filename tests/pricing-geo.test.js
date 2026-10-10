@@ -30,4 +30,20 @@ describe('Regional Pricing Logic in Codebase', () => {
         assert.equal(fileContent.includes('amount = 99900'), true, 'Should contain 99900 (₹999)');
         assert.equal(fileContent.includes('amount = 199900'), true, 'Should contain 199900 (₹1,999)');
     });
+
+    test('supabase/functions/secure-payment/index.ts contains updated USD (499, 2999, 6900) and INR (199900) amounts and no legacy 3499 or $19.99', () => {
+        const edgeContent = fs.readFileSync('supabase/functions/secure-payment/index.ts', 'utf8');
+
+        assert.equal(edgeContent.includes('3499'), false, 'Edge function must not contain legacy 3499 / 349900');
+        assert.equal(edgeContent.includes('$1.99 or $19.99'), false, 'Edge function must not contain legacy $1.99 or $19.99');
+        assert.equal(edgeContent.includes('6900'), true, 'Edge function must contain 6900 ($69.00 USD lifetime)');
+        assert.equal(edgeContent.includes('199900'), true, 'Edge function must contain 199900 (₹1,999 INR lifetime)');
+        assert.equal(edgeContent.includes('499'), true, 'Edge function must contain 499 ($4.99 USD monthly)');
+        assert.equal(edgeContent.includes('2999'), true, 'Edge function must contain 2999 ($29.99 USD yearly)');
+    });
+
+    test('checkoutAndPlatform.js supports soundengg-country-override for testing India vs International pricing', () => {
+        const fileContent = fs.readFileSync('assets/js/modules/checkoutAndPlatform.js', 'utf8');
+        assert.equal(fileContent.includes('soundengg-country-override'), true, 'Should support soundengg-country-override');
+    });
 });

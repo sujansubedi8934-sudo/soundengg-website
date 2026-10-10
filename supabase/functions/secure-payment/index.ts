@@ -40,7 +40,7 @@ serve(async (req) => {
 
       // --- UNIFIED RAZORPAY GATEWAY (DOMESTIC & INTERNATIONAL) ---
       if (plan === "lifetime") {
-        const amount = isUSD ? 3499 : 349900; // $34.99 USD in cents OR ₹3,499 INR in paise
+        const amount = isUSD ? 6900 : 199900; // $69.00 USD in cents OR ₹1,999 INR in paise
         const currency = isUSD ? "USD" : "INR";
 
         const orderBody: any = {
@@ -72,8 +72,8 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       } else if (isUSD) {
-        // International Non-Recurring Passes (1 Month / 1 Year) via Razorpay One-Time Orders
-        const amount = plan === "monthly" ? 199 : 1999; // $1.99 or $19.99 in cents
+        // International Passes (1 Month / 1 Year) via Razorpay Orders
+        const amount = plan === "monthly" ? 499 : 2999; // $4.99 or $29.99 in cents
         const currency = "USD";
 
         const orderBody: any = {
@@ -105,21 +105,24 @@ serve(async (req) => {
           headers: { ...corsHeaders, "Content-Type": "application/json" }
         });
       } else {
-        // Domestic India Recurring Subscriptions via Razorpay Subscriptions
+        // Domestic India Recurring Subscriptions via Razorpay Subscriptions (₹199/mo or ₹999/yr with 7-Day Free Trial)
         const planId = plan === "monthly"
-          ? "plan_SsjtsdD4GW4rR7" // SoundEngg Pro Monthly Pass (₹199/mo)
-          : "plan_SsjusefppDE8Lb";  // SoundEngg Pro Yearly Pass (₹1,999/yr)
+          ? (Deno.env.get("RAZORPAY_PLAN_MONTHLY") || "plan_SsjtsdD4GW4rR7") // SoundEngg Pro Monthly Pass (₹199/mo)
+          : (Deno.env.get("RAZORPAY_PLAN_YEARLY") || "plan_SsjusefppDE8Lb");  // SoundEngg Pro Yearly Pass (₹999/yr)
 
         const totalCount = plan === "monthly" ? 120 : 10;
+        const trialStartAt = Math.floor(Date.now() / 1000) + (7 * 24 * 60 * 60); // 7-Day Free Trial before first billing
 
         const subscriptionBody: any = {
           plan_id: planId,
           total_count: totalCount,
           quantity: 1,
+          start_at: trialStartAt,
           customer_notify: 1,
           notes: {
             user_id: user.id,
-            plan: plan
+            plan: plan,
+            trial_days: 7
           }
         };
 

@@ -19,4 +19,9 @@ describe('7-Day Free Trial UI and Copy Verification', () => {
         assert.equal(proHtml.includes('Start 7-Day Free Trial'), true, 'pro.html should have Start 7-Day Free Trial button');
         assert.equal(proHtml.includes('7-Day Free Trial • Most Popular'), true, 'pro.html should have 7-Day Free Trial badge');
     });
+
+    test('app.html profile modal (#btn-sub-upgrade) shows START 7-DAY FREE TRIAL instead of legacy UPGRADE TO PRO PASS', () => {
+        const appHtml = fs.readFileSync('app.html', 'utf8');
+        assert.equal(appHtml.includes('UPGRADE TO PRO PASS'), false, 'app.html should not contain legacy UPGRADE TO PRO PASS');
+    });
 });

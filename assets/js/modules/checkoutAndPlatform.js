@@ -444,8 +444,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.isIndiaUser = false;
 
+// Helper to manually toggle India ('IN') vs International ('US') pricing during testing
+window.setPricingCountry = function(countryCode) {
+    if (!countryCode) {
+        localStorage.removeItem('soundengg-country-override');
+    } else {
+        const normalized = String(countryCode).toUpperCase().trim();
+        localStorage.setItem('soundengg-country-override', normalized);
+        window.isIndiaUser = (normalized === 'IN');
+    }
+    initPricingPage(true);
+    return window.isIndiaUser ? 'India (INR: ₹199 / ₹999 / ₹1,999)' : 'International (USD: $4.99 / $29.99 / $69.00)';
+};
+
 // 1. Detect User Location (Exact Timezone check with reliable Geo-IP fallback)
 async function detectUserCountry() {
+    // 0. Check explicit testing override first
+    const countryOverride = localStorage.getItem('soundengg-country-override') || window.forceCountryOverride;
+    if (countryOverride) {
+        window.isIndiaUser = (String(countryOverride).toUpperCase().trim() === 'IN');
+        return window.isIndiaUser;
+    }
+
     // 1. Timezone Check (strictly for India timezone) - local, instantaneous, and extremely accurate
     try {
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -501,7 +521,7 @@ window.detectUserCountry = detectUserCountry;
 
 
 // 2. Initialize Pricing Grid Dynamic Rendering
-async function initPricingPage() {
+async function initPricingPage(skipDetect = false) {
     const priceMonthly = document.getElementById('price-monthly');
     const priceYearly = document.getElementById('price-yearly');
     const priceLifetime = document.getElementById('price-lifetime');
@@ -509,11 +529,14 @@ async function initPricingPage() {
     const modalMonthly = document.getElementById('modal-price-monthly');
     const modalYearly = document.getElementById('modal-price-yearly');
     const modalLifetime = document.getElementById('modal-price-lifetime');
+    const proPreview = document.getElementById('pro-plan-pricing-preview');
     
     // Check if we are either on pro.html or app.html plan selector modal
-    if (!priceMonthly && !priceYearly && !priceLifetime && !modalMonthly && !modalYearly && !modalLifetime) return;
+    if (!priceMonthly && !priceYearly && !priceLifetime && !modalMonthly && !modalYearly && !modalLifetime && !proPreview) return;
 
-    await detectUserCountry();
+    if (!skipDetect) {
+        await detectUserCountry();
+    }
 
     // Set prices dynamically based on country
     if (window.isIndiaUser) {
@@ -524,6 +547,7 @@ async function initPricingPage() {
         if (modalMonthly) modalMonthly.innerHTML = '₹199<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span>';
         if (modalYearly) modalYearly.innerHTML = '₹999<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
         if (modalLifetime) modalLifetime.innerHTML = '₹1,999';
+        if (proPreview) proPreview.textContent = '₹0.00 today • Renews at ₹999/yr';
     } else {
         if (priceMonthly) priceMonthly.innerHTML = '$4.99<span>/month</span>';
         if (priceYearly) priceYearly.innerHTML = '$29.99<span>/year</span>';
@@ -532,6 +556,7 @@ async function initPricingPage() {
         if (modalMonthly) modalMonthly.innerHTML = '$4.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/mo</span>';
         if (modalYearly) modalYearly.innerHTML = '$29.99<span style="font-size: 0.8rem; font-weight: 400; color: var(--text-muted);">/yr</span>';
         if (modalLifetime) modalLifetime.innerHTML = '$69.00';
+        if (proPreview) proPreview.textContent = '$0.00 today • Renews at $29.99/yr';
     }
 
     // Bind checkout click listeners
@@ -786,29 +811,32 @@ function showCheckoutConfirmModal(user, plan) {
     const existing = document.getElementById('checkout-confirm-modal');
     if (existing) existing.remove();
 
+    const isTrialEligible = (plan === 'monthly' || plan === 'yearly');
     let planTitle = "Lifetime Pro Access";
     let planCost = "₹1,999";
+    let dueToday = window.isIndiaUser ? "₹0.00 (7-Day Free Trial)" : "$0.00 (7-Day Free Trial)";
+
     if (window.isIndiaUser) {
         if (plan === 'monthly') {
-            planTitle = "Monthly Pro Subscription";
-            planCost = "₹199";
+            planTitle = "Monthly Pass (7-Day Free Trial)";
+            planCost = "₹199 / month";
         } else if (plan === 'yearly') {
-            planTitle = "Yearly Pro Subscription";
-            planCost = "₹999";
+            planTitle = "Yearly Pass (7-Day Free Trial)";
+            planCost = "₹999 / year";
         } else {
-            planTitle = "Lifetime Pro Access";
-            planCost = "₹1,999";
+            planTitle = "Founder's Lifetime Access";
+            planCost = "₹1,999 (One-Time)";
         }
     } else {
         if (plan === 'monthly') {
-            planTitle = "Monthly Pro Subscription";
-            planCost = "$4.99";
+            planTitle = "Monthly Pass (7-Day Free Trial)";
+            planCost = "$4.99 / month";
         } else if (plan === 'yearly') {
-            planTitle = "Yearly Pro Subscription";
-            planCost = "$29.99";
+            planTitle = "Yearly Pass (7-Day Free Trial)";
+            planCost = "$29.99 / year";
         } else {
-            planTitle = "Lifetime Pro Access";
-            planCost = "$69.00";
+            planTitle = "Founder's Lifetime Access";
+            planCost = "$69.00 (One-Time)";
         }
     }
 
@@ -826,6 +854,17 @@ function showCheckoutConfirmModal(user, plan) {
         </p>
     ` : "";
 
+    const trialRowHtml = isTrialEligible ? `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+            <span style="font-size: 0.8rem; color: var(--text-dim);">DUE TODAY</span>
+            <span style="font-size: 0.85rem; color: #00ffcc; font-weight: bold;">${dueToday}</span>
+        </div>
+    ` : "";
+
+    const priceLabelText = isTrialEligible ? "THEN RENEWS AT" : "PRICE RATE";
+    const actionBtnLabel = isTrialEligible ? "START 7-DAY FREE TRIAL" : "PROCEED TO SECURE PAYMENT";
+    const actionBtnIcon = isTrialEligible ? "bolt" : "lock";
+
     modal.innerHTML = `
         <div class="modal-content auth-modal-box" style="max-width: 440px; width: 90%; text-align: center; border: 2px solid var(--neon-blue); box-shadow: 0 0 25px rgba(0, 240, 255, 0.3); background: #0b0c10; padding: 2.5rem 2rem; border-radius: 8px; position: relative;">
             <button id="btn-close-checkout-confirm" style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 20px;"><span class="material-symbols-outlined">close</span></button>
@@ -842,8 +881,9 @@ function showCheckoutConfirmModal(user, plan) {
                     <span style="font-size: 0.8rem; color: var(--text-dim);">UPGRADE PLAN</span>
                     <span style="font-size: 0.85rem; color: #fff; font-weight: bold; text-transform: uppercase;">${planTitle}</span>
                 </div>
+                ${trialRowHtml}
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
-                    <span style="font-size: 0.8rem; color: var(--text-dim);">PRICE RATE</span>
+                    <span style="font-size: 0.8rem; color: var(--text-dim);">${priceLabelText}</span>
                     <span style="font-size: 0.85rem; color: var(--primary); font-weight: bold;">${planCost}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; padding-top: 0.25rem;">
@@ -854,7 +894,7 @@ function showCheckoutConfirmModal(user, plan) {
             </div>
             
             <button id="btn-proceed-to-payment" style="width: 100%; border: none; padding: 14px; font-weight: bold; font-family: var(--font-mono); font-size: 0.95rem; cursor: pointer; border-radius: 4px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; box-shadow: 0 0 15px rgba(20, 167, 181, 0.4); display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease;">
-                <span class="material-symbols-outlined">lock</span> PROCEED TO SECURE PAYMENT
+                <span class="material-symbols-outlined">${actionBtnIcon}</span> ${actionBtnLabel}
             </button>
             <div style="font-size: 0.75rem; color: var(--text-dim); margin-top: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 4px;">
                 <span class="material-symbols-outlined" style="font-size: 14px; color: var(--primary);">shield</span> Secured by ${gatewayName} Payment Gateway
