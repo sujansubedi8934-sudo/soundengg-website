@@ -455,7 +455,21 @@ function initGlobalUnits() {
             readDraftInputTemp();
             window.applyGlobalVenueEnvironment(draftDistUnit, draftTempUnit, draftTempC, true);
             window.closeVenueEnvModal();
-            window.location.href = 'pro.html';
+            if (typeof window.openPlanSelector === 'function') {
+                window.openPlanSelector();
+            } else {
+                const planSelectorModal = document.getElementById('plan-selector-modal');
+                if (planSelectorModal) {
+                    if (typeof window.openModal === 'function') {
+                        window.openModal(planSelectorModal);
+                    } else {
+                        planSelectorModal.classList.remove('hidden');
+                        planSelectorModal.style.removeProperty('display');
+                    }
+                } else {
+                    window.location.href = 'pro.html';
+                }
+            }
         });
     }
     if (btnConfirm) {
