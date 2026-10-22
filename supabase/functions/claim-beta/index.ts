@@ -58,17 +58,8 @@ serve(async (req) => {
     let userId: string;
 
     if (existingUser) {
-      console.log(`[claim-beta] User already exists in auth.users with ID: ${existingUser.id}. Updating password...`);
+      console.log(`[claim-beta] User already exists in auth.users with ID: ${existingUser.id}. Preserving credentials and applying beta upgrade...`);
       userId = existingUser.id;
-
-      // Update password of existing auth user
-      const { error: updateAuthErr } = await supabaseAdmin.auth.admin.updateUserById(userId, {
-        password: generatedPassword
-      });
-
-      if (updateAuthErr) {
-        throw new Error(`Failed to update existing user's credentials: ${updateAuthErr.message}`);
-      }
     } else {
       console.log(`[claim-beta] Creating new auth account...`);
       // Create new auth user
@@ -222,13 +213,15 @@ serve(async (req) => {
             <div class="content-body">
               <p style="font-size: 18px; color: #ffffff; font-weight: 600; margin-top: 0;">Hi ${name},</p>
               <p class="welcome-msg">
-                Welcome to the SoundEngg Closed Beta Guild program! We have pre-created your account and activated your <strong>1-Month Free Pro Upgrade</strong> to give you full, unrestricted access to the complete suite of live audio calculations and tools.
+                ${existingUser 
+                  ? "Welcome back to the SoundEngg Beta Guild! Your existing account has been upgraded with a <strong>1-Month Free Pro Upgrade</strong> to give you full, unrestricted access to the complete suite of live audio calculations and tools."
+                  : "Welcome to the SoundEngg Closed Beta Guild program! We have pre-created your account and activated your <strong>1-Month Free Pro Upgrade</strong> to give you full, unrestricted access to the complete suite of live audio calculations and tools."}
               </p>
               
               <div class="cred-card">
-                <div class="cred-title">[SIGN-IN CREDENTIALS]</div>
+                <div class="cred-title">${existingUser ? "[ACCOUNT STATUS]" : "[SIGN-IN CREDENTIALS]"}</div>
                 <div class="cred-row"><strong>Email:</strong> ${lowerEmail}</div>
-                <div class="cred-row"><strong>Password:</strong> <span style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 3px; font-weight: bold; color: #14a7b5;">${generatedPassword}</span></div>
+                <div class="cred-row"><strong>Password:</strong> ${existingUser ? "<span style='color: #94a3b8;'>Use your existing account password</span>" : `<span style="font-family: monospace; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 3px; font-weight: bold; color: #14a7b5;">${generatedPassword}</span>`}</div>
                 <div class="badge">1-MONTH PRO ACTIVE</div>
               </div>
 
@@ -239,7 +232,9 @@ serve(async (req) => {
               <a href="https://soundengg.com/app" class="cta-button" target="_blank">Launch Web Console</a>
 
               <p class="welcome-msg" style="font-size: 13px; margin-top: 20px;">
-                *Note: You can update this temporary password at any time from the "Security" section inside your user profile.
+                ${existingUser 
+                  ? "*Note: If you forgot your existing password, you can reset it via the 'Forgot Password' link on the login screen." 
+                  : "*Note: You can update this temporary password at any time from the 'Security' section inside your user profile."}
               </p>
             </div>
             <div class="footer">

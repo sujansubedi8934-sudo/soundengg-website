@@ -981,6 +981,9 @@ function highlightPlanCard(plan) {
     const planSelectorModal = document.getElementById('plan-selector-modal');
     if (!planSelectorModal) return;
     
+    const validPlans = ['monthly', 'yearly', 'lifetime', 'quarterly'];
+    const safePlan = validPlans.includes(plan) ? plan : 'yearly';
+
     // Clear previous highlighting style triggers
     planSelectorModal.querySelectorAll('.plan-card-option').forEach(card => {
         card.style.transform = 'none';
@@ -992,7 +995,7 @@ function highlightPlanCard(plan) {
         }
     });
 
-    const targetCard = planSelectorModal.querySelector(`.plan-card-option[data-plan="${plan}"]`);
+    const targetCard = planSelectorModal.querySelector(`.plan-card-option[data-plan="${safePlan}"]`);
     if (targetCard) {
         // Apply beautiful scaling, primary glow, and smooth scroll focus
         targetCard.style.transform = 'scale(1.03)';

@@ -3,6 +3,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const REVENUECAT_WEBHOOK_AUTH = Deno.env.get("REVENUECAT_WEBHOOK_AUTH") || "";
 
+// Constant-time comparison to prevent timing attacks
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
 serve(async (req) => {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
@@ -20,7 +30,7 @@ serve(async (req) => {
       const authHeader = req.headers.get("Authorization") || "";
       const token = authHeader.replace(/^Bearer\s+/i, "").trim();
       const expected = REVENUECAT_WEBHOOK_AUTH.replace(/^Bearer\s+/i, "").trim();
-      if (token !== expected) {
+      if (!safeCompare(token, expected)) {
         console.error("[RevenueCat Webhook] Invalid Authorization header");
         return new Response(JSON.stringify({ success: false, error: "Unauthorized" }), {
           status: 401,

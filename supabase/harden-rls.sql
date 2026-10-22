@@ -30,6 +30,30 @@ CREATE POLICY "profiles_update_own" ON public.profiles
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+-- Prevent client-side escalation of is_pro or subscription_tier
+CREATE OR REPLACE FUNCTION public.protect_profile_subscription_columns()
+RETURNS trigger AS $$
+BEGIN
+    IF auth.role() = 'authenticated' THEN
+        IF (NEW.is_pro IS DISTINCT FROM OLD.is_pro) OR
+           (NEW.subscription_tier IS DISTINCT FROM OLD.subscription_tier) OR
+           (NEW.subscription_expires_at IS DISTINCT FROM OLD.subscription_expires_at) OR
+           (NEW.subscription_provider IS DISTINCT FROM OLD.subscription_provider) OR
+           (NEW.subscription_status IS DISTINCT FROM OLD.subscription_status) OR
+           (NEW.has_used_trial IS DISTINCT FROM OLD.has_used_trial) THEN
+            RAISE EXCEPTION 'Security Violation: Subscription and entitlement fields cannot be modified client-side.';
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_protect_profile_subscription_columns ON public.profiles;
+CREATE TRIGGER trg_protect_profile_subscription_columns
+BEFORE UPDATE ON public.profiles
+FOR EACH ROW
+EXECUTE FUNCTION public.protect_profile_subscription_columns();
+
 
 -- ============================================================================
 -- 2. User Configs Table Policies

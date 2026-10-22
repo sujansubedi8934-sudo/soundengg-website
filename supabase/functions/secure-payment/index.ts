@@ -6,6 +6,16 @@ import { crypto } from "https://deno.land/std@0.168.0/crypto/mod.ts"
 const RZP_KEY_ID = Deno.env.get("RAZORPAY_KEY_ID") || "rzp_live_SsjbdTD8vcr6Hp";
 const RZP_KEY_SECRET = Deno.env.get("RAZORPAY_KEY_SECRET") || "";
 
+// Constant-time comparison to prevent timing attacks
+function safeCompare(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
 serve(async (req) => {
   // CORS Preflight headers
   const corsHeaders = {
@@ -180,7 +190,7 @@ serve(async (req) => {
         .map(b => b.toString(16).padStart(2, "0"))
         .join("");
 
-      if (generatedSignature !== signature) {
+      if (!safeCompare(generatedSignature, signature)) {
         return new Response(JSON.stringify({ success: false, error: "Invalid payment signature verification failed." }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" }

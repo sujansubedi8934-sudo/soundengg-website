@@ -669,6 +669,10 @@
                         <span class="material-symbols-outlined">share</span> Share Scorecard (Instagram / X)
                     </button>
 
+                    <button type="button" id="btn-share-whatsapp" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 8px; padding: 11px; width: 100%; border-color: rgba(37, 211, 102, 0.4); color: #25D366;">
+                        <span class="material-symbols-outlined">chat</span> Share with Audio Crew (WhatsApp)
+                    </button>
+
                     <button type="button" id="btn-play-again" class="btn btn-outline" style="display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px; border-color: var(--outline); color: var(--text-muted); width: 100%;">
                         <span class="material-symbols-outlined" style="font-size: 18px;">replay</span> Play Again
                     </button>
@@ -1172,23 +1176,58 @@
 
             document.getElementById('btn-share-cert').onclick = async () => {
                 const canvas = document.getElementById('challenge-cert-canvas');
-                if (navigator.share && canvas.toBlob) {
-                    canvas.toBlob(async (blob) => {
-                        const file = new File([blob], 'soundengg-golden-ears-badge.png', { type: 'image/png' });
-                        try {
-                            await navigator.share({
-                                title: 'My SoundEngg Golden Ears Badge',
-                                text: `I scored ${Math.round((score / totalRounds) * 100)}% on the Golden Ears Audio Frequency Challenge! Can you beat my score?`,
-                                files: [file]
-                            });
-                        } catch (err) {
-                            console.log('Share canceled');
-                        }
-                    });
+                const pct = Math.round((score / totalRounds) * 100);
+                const engName = document.getElementById('cert-engineer-name').value || 'Live Sound Tech';
+                const shareText = `🎯 Scored ${pct}% on the SoundEngg Golden Ears Audio Frequency Challenge! Can your ears identify feedback faster? Take the test:`;
+                const shareUrl = 'https://www.soundengg.com/challenge.html';
+
+                if (navigator.share) {
+                    if (canvas && canvas.toBlob) {
+                        canvas.toBlob(async (blob) => {
+                            const file = new File([blob], `soundengg-golden-ears-${engName.toLowerCase().replace(/[^a-z0-9]/g, '-')}.png`, { type: 'image/png' });
+                            try {
+                                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                                    await navigator.share({
+                                        title: 'My SoundEngg Golden Ears Badge',
+                                        text: `${shareText}\n${shareUrl}`,
+                                        url: shareUrl,
+                                        files: [file]
+                                    });
+                                    return;
+                                }
+                            } catch (e) {
+                                // Fallback to URL/text share if file share not supported
+                            }
+
+                            try {
+                                await navigator.share({
+                                    title: 'My SoundEngg Golden Ears Badge',
+                                    text: `${shareText}\n${shareUrl}`,
+                                    url: shareUrl
+                                });
+                            } catch (err) {
+                                console.log('Share dismissed');
+                            }
+                        });
+                    }
                 } else {
+                    // Desktop fallback: copy text and trigger download
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+                    }
+                    alert('Score & Challenge link copied to clipboard! Scorecard PNG downloading for your Instagram Story...');
                     document.getElementById('btn-download-cert').click();
                 }
             };
+
+            const btnShareWA = document.getElementById('btn-share-whatsapp');
+            if (btnShareWA) {
+                btnShareWA.onclick = () => {
+                    const pct = Math.round((score / totalRounds) * 100);
+                    const waText = encodeURIComponent(`🎛️ I just scored ${pct}% on the SoundEngg Golden Ears Audio Frequency Challenge! Can your ears beat this? Take the challenge here: https://www.soundengg.com/challenge.html`);
+                    window.open(`https://api.whatsapp.com/send?text=${waText}`, '_blank');
+                };
+            }
 
             document.getElementById('btn-play-again').onclick = () => {
                 currentRound = 1;
