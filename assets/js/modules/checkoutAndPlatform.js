@@ -803,6 +803,31 @@ window.showCheckoutSuccessOverlay = function(plan) {
     });
 };
 
+// 4.7 Global Lemon Squeezy Checkout Initiator (International Web Checkouts)
+window.initiateLemonSqueezyCheckout = function(user, plan = 'lifetime') {
+    const LEMON_SQUEEZY_URLS = {
+        monthly: 'https://soundengg.lemonsqueezy.com/checkout/buy/ae264353-27d2-483b-958c-1718ed29bc32',
+        yearly: 'https://soundengg.lemonsqueezy.com/checkout/buy/b83283fe-7901-455e-a90f-4b39bf78d074',
+        lifetime: 'https://soundengg.lemonsqueezy.com/checkout/buy/f0cd82b2-102c-473b-99dd-5f44cecd5717'
+    };
+
+    let checkoutUrl = LEMON_SQUEEZY_URLS[plan] || LEMON_SQUEEZY_URLS.lifetime;
+    try {
+        const url = new URL(checkoutUrl);
+        if (user) {
+            if (user.id) url.searchParams.set('checkout[custom][user_id]', user.id);
+            if (user.email) url.searchParams.set('checkout[email]', user.email);
+        }
+        url.searchParams.set('checkout[custom][plan]', plan);
+        checkoutUrl = url.toString();
+    } catch (e) {
+        console.warn("[LemonSqueezy] Could not append params to URL, using raw link:", e);
+    }
+
+    console.log(`[LemonSqueezy] Redirecting to checkout for plan: ${plan}`, checkoutUrl);
+    window.location.href = checkoutUrl;
+};
+
 // 4.8 Premium Checkout Confirmation Modal to completely bypass Browser Popup Blockers
 function showCheckoutConfirmModal(user, plan) {
     if (typeof window.hideNativeBannerAd === 'function') {
@@ -848,7 +873,9 @@ function showCheckoutConfirmModal(user, plan) {
 
     const gatewayLabel = isIOSNative
         ? "Secured by Apple App Store"
-        : (isAndroidNative ? "Secured by Google Play" : "Secured by Razorpay Payment Gateway");
+        : (isAndroidNative 
+            ? "Secured by Google Play" 
+            : (window.isIndiaUser ? "Secured by Razorpay Payment Gateway" : "Secured by Lemon Squeezy (Merchant of Record)"));
 
     const modal = document.createElement('div');
     modal.id = 'checkout-confirm-modal';
@@ -943,33 +970,43 @@ function showCheckoutConfirmModal(user, plan) {
             return;
         }
 
-        // Route to Razorpay exclusively for Web checkouts (handles both INR and USD internationally)
-        if (typeof Razorpay === 'undefined') {
-            console.log("Loading Razorpay SDK dynamically...");
-            const script = document.createElement('script');
-            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.onload = () => {
-                modal.remove();
+        // Web Route:
+        // Indian users route to Razorpay (UPI, RuPay, Netbanking in INR)
+        // International users route to Lemon Squeezy (USD, Credit Cards, PayPal, Global MoR)
+        modal.remove();
+
+        if (window.isIndiaUser) {
+            if (typeof Razorpay === 'undefined') {
+                console.log("Loading Razorpay SDK dynamically...");
+                const script = document.createElement('script');
+                script.src = "https://checkout.razorpay.com/v1/checkout.js";
+                script.onload = () => {
+                    if (typeof window.initiateRazorpayCheckout === 'function') {
+                        window.initiateRazorpayCheckout(user, plan);
+                    } else {
+                        console.error("window.initiateRazorpayCheckout is not defined");
+                        alert("Error: Checkout handler not initialized properly. Please refresh the page.");
+                    }
+                };
+                script.onerror = () => {
+                    alert("Failed to load Razorpay payment SDK.");
+                };
+                document.head.appendChild(script);
+            } else {
                 if (typeof window.initiateRazorpayCheckout === 'function') {
                     window.initiateRazorpayCheckout(user, plan);
                 } else {
                     console.error("window.initiateRazorpayCheckout is not defined");
                     alert("Error: Checkout handler not initialized properly. Please refresh the page.");
                 }
-            };
-            script.onerror = () => {
-                proceedBtn.disabled = false;
-                proceedBtn.innerHTML = `<span class="material-symbols-outlined">lock</span> PROCEED TO SECURE PAYMENT`;
-                alert("Failed to load Razorpay payment SDK.");
-            };
-            document.head.appendChild(script);
+            }
         } else {
-            modal.remove();
-            if (typeof window.initiateRazorpayCheckout === 'function') {
-                window.initiateRazorpayCheckout(user, plan);
+            // International Web Checkouts via Lemon Squeezy
+            if (typeof window.initiateLemonSqueezyCheckout === 'function') {
+                window.initiateLemonSqueezyCheckout(user, plan);
             } else {
-                console.error("window.initiateRazorpayCheckout is not defined");
-                alert("Error: Checkout handler not initialized properly. Please refresh the page.");
+                console.error("window.initiateLemonSqueezyCheckout is not defined");
+                alert("Error: International checkout handler not initialized properly. Please refresh the page.");
             }
         }
     };

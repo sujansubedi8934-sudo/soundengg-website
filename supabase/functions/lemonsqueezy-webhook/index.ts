@@ -71,13 +71,6 @@ serve(async (req) => {
 
     console.log(`[Webhook] Lemon Squeezy event: ${eventName} for user: ${userId}, plan: ${plan}`);
 
-    if (!userId) {
-      console.warn("[Webhook] Missing user_id in custom_data. Unable to route payment.");
-      return new Response(JSON.stringify({ success: true, warning: "Missing user_id" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" }
-      });
-    }
-
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") || "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || ""
@@ -87,11 +80,34 @@ serve(async (req) => {
     const attributes = dataObj?.attributes || {};
     const subscriptionId = dataObj?.id?.toString();
 
+    // Fallback: If user_id wasn't in custom_data, resolve target user by customer email
+    let targetUserId = userId;
+    const customerEmail = attributes.user_email || attributes.customer_email;
+    if (!targetUserId && customerEmail) {
+      console.log(`[Webhook] Attempting lookup by customer email: ${customerEmail}`);
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("id")
+        .eq("email", customerEmail)
+        .maybeSingle();
+      if (profile?.id) {
+        targetUserId = profile.id;
+        console.log(`[Webhook] Found profile ID ${targetUserId} by email: ${customerEmail}`);
+      }
+    }
+
+    if (!targetUserId) {
+      console.warn("[Webhook] Missing target user (no custom user_id or matching email). Unable to route payment.");
+      return new Response(JSON.stringify({ success: true, warning: "Missing target user" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" }
+      });
+    }
+
     // --- CASE 1: ONE-TIME PURCHASE (LIFETIME ORDER CREATED) ---
     if (eventName === "order_created") {
       const status = attributes.status; // 'pending', 'failed', 'paid', 'refunded'
       if (status === "paid") {
-        console.log(`[Webhook] Processing successful order for user: ${userId}`);
+        console.log(`[Webhook] Processing successful order for user: ${targetUserId}`);
 
         const { error } = await supabaseAdmin
           .from("profiles")
@@ -103,7 +119,7 @@ serve(async (req) => {
             subscription_expires_at: null,
             updated_at: new Date().toISOString()
           })
-          .eq("id", userId);
+          .eq("id", targetUserId);
 
         if (error) throw error;
       }
@@ -118,7 +134,7 @@ serve(async (req) => {
       const isActive = status === "active" || status === "on_trial";
       const isCancelled = status === "cancelled";
 
-      console.log(`[Webhook] Subscription status: ${status} for sub ID: ${subscriptionId}`);
+      console.log(`[Webhook] Subscription status: ${status} for sub ID: ${subscriptionId}, user: ${targetUserId}`);
 
       if (isActive) {
         const expiresAt = renewsAt ? new Date(renewsAt).toISOString() : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
@@ -133,7 +149,7 @@ serve(async (req) => {
             subscription_expires_at: expiresAt,
             updated_at: new Date().toISOString()
           })
-          .eq("id", userId);
+          .eq("id", targetUserId);
 
         if (error) throw error;
       } else if (isCancelled && endsAt) {
@@ -151,12 +167,12 @@ serve(async (req) => {
             subscription_expires_at: expiresAt,
             updated_at: new Date().toISOString()
           })
-          .eq("id", userId);
+          .eq("id", targetUserId);
 
         if (error) throw error;
       } else {
         // expired, unpaid, past_due
-        console.log(`[Webhook] Deactivating subscription for user: ${userId} due to status: ${status}`);
+        console.log(`[Webhook] Deactivating subscription for user: ${targetUserId} due to status: ${status}`);
         const { error } = await supabaseAdmin
           .from("profiles")
           .update({
@@ -165,7 +181,7 @@ serve(async (req) => {
             subscription_expires_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
           })
-          .eq("id", userId);
+          .eq("id", targetUserId);
 
         if (error) throw error;
       }
@@ -176,7 +192,7 @@ serve(async (req) => {
       const expiresAt = endsAt ? new Date(endsAt).toISOString() : new Date().toISOString();
       const isStillActive = new Date(expiresAt) > new Date();
 
-      console.log(`[Webhook] Subscription cancelled. Deactivation scheduled at: ${expiresAt}`);
+      console.log(`[Webhook] Subscription cancelled. Deactivation scheduled at: ${expiresAt} for user: ${targetUserId}`);
 
       const { error } = await supabaseAdmin
         .from("profiles")
@@ -188,7 +204,7 @@ serve(async (req) => {
           subscription_expires_at: expiresAt,
           updated_at: new Date().toISOString()
         })
-        .eq("id", userId);
+        .eq("id", targetUserId);
 
       if (error) throw error;
     }
