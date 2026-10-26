@@ -17,14 +17,16 @@ window.RtaAdController = {
         let currentBannerMargin = null;
         let bannerDebounceTimer = null;
         let wasAnalyzingBeforeAd = false;
+        let isNativeBannerLoaded = false;
+        let isNativeBannerHidden = false;
 
         const isRtaViewOrFullscreenActive = () => rtaCtx.isRtaViewOrFullscreenActive();
 
-        // Helper to dynamically show native banner ads (Mitigating bottom viewport overlay)
+        // Helper to dynamically show native banner ads (Mitigating bottom viewport overlay & recycling banner instance)
         window.showNativeBannerAd = function() {
             // Suppress ads immediately if user is a premium Pro subscriber OR inside RTA / Fullscreen RTA
             if (window.isPremiumActive() || isRtaViewOrFullscreenActive()) {
-                window.hideNativeBannerAd();
+                window.hideNativeBannerAd(false);
                 return;
             }
 
@@ -65,8 +67,8 @@ window.RtaAdController = {
             const isTablet = window.innerWidth >= 768;
             const bannerMargin = isTabsVisible ? (isTablet ? 80 : 72) : 0;
 
-            // If banner is already actively displayed with the correct layout margin, avoid redundant native showBanner calls
-            if (window.isNativeBannerActive && currentBannerMargin === bannerMargin) {
+            // If banner is already actively displayed with the correct layout margin, avoid redundant calls
+            if (window.isNativeBannerActive && !isNativeBannerHidden && currentBannerMargin === bannerMargin) {
                 return;
             }
 
@@ -80,12 +82,12 @@ window.RtaAdController = {
 
                 if (window.isPremiumActive() || isRtaViewOrFullscreenActive() || !navigator.onLine || !window.isNativeMobile() || !window.isAdMobInitialized) {
                     if (isRtaViewOrFullscreenActive()) {
-                        window.hideNativeBannerAd();
+                        window.hideNativeBannerAd(false);
                     }
                     return;
                 }
 
-                if (window.isNativeBannerActive && currentBannerMargin === bannerMargin) {
+                if (window.isNativeBannerActive && !isNativeBannerHidden && currentBannerMargin === bannerMargin) {
                     return;
                 }
 
@@ -101,6 +103,30 @@ window.RtaAdController = {
                     if (!AdMob) {
                         isBannerOperationInProgress = false;
                         return;
+                    }
+
+                    // FAST RESUME: If banner already loaded in memory and margin matches, simply resume it
+                    if (isNativeBannerLoaded && isNativeBannerHidden && currentBannerMargin === bannerMargin) {
+                        try {
+                            console.log('[AdMob] Resuming cached native banner ad (saving redundant request)...');
+                            await AdMob.resumeBanner();
+                            isNativeBannerHidden = false;
+                            window.isNativeBannerActive = true;
+                            document.body.classList.add('has-native-banner');
+                            return;
+                        } catch (resumeErr) {
+                            console.warn('[AdMob] resumeBanner failed, will recreate banner:', resumeErr);
+                            try { await AdMob.removeBanner(); } catch (_) {}
+                            isNativeBannerLoaded = false;
+                            isNativeBannerHidden = false;
+                        }
+                    }
+
+                    // If margin changed while banner was loaded, destroy previous banner before recreating
+                    if (isNativeBannerLoaded && currentBannerMargin !== bannerMargin) {
+                        try { await AdMob.removeBanner(); } catch (_) {}
+                        isNativeBannerLoaded = false;
+                        isNativeBannerHidden = false;
                     }
 
                     const isAndroid = window.Capacitor.getPlatform() === 'android';
@@ -119,21 +145,25 @@ window.RtaAdController = {
                         isTesting: !!useTest
                     });
 
-                    // If user entered RTA while AdMob.showBanner was awaiting, immediately tear down the banner
+                    // If user entered RTA while AdMob.showBanner was awaiting, hide immediately
                     if (isRtaViewOrFullscreenActive() || window.isPremiumActive()) {
-                        try { await AdMob.removeBanner(); } catch (e) {}
+                        try { await AdMob.hideBanner(); } catch (e) {}
+                        isNativeBannerHidden = true;
                         window.isNativeBannerActive = false;
-                        currentBannerMargin = null;
                         document.body.classList.remove('has-native-banner');
                         return;
                     }
 
+                    isNativeBannerLoaded = true;
+                    isNativeBannerHidden = false;
                     window.isNativeBannerActive = true;
                     currentBannerMargin = bannerMargin;
                     document.body.classList.add('has-native-banner');
                 } catch (err) {
                     console.error('Error showing native banner ad:', err);
                     window.isNativeBannerActive = false;
+                    isNativeBannerLoaded = false;
+                    isNativeBannerHidden = false;
                     currentBannerMargin = null;
                     document.body.classList.remove('has-native-banner');
                 } finally {
@@ -145,7 +175,7 @@ window.RtaAdController = {
             }, 250);
         };
 
-        window.hideNativeBannerAd = async function() {
+        window.hideNativeBannerAd = async function(isPermanent = false) {
             if (bannerDebounceTimer) {
                 clearTimeout(bannerDebounceTimer);
                 bannerDebounceTimer = null;
@@ -162,10 +192,8 @@ window.RtaAdController = {
                 el.style.display = 'none';
             });
 
-            const wasBannerActive = window.isNativeBannerActive;
             // Always clean up DOM banner padding and class states
             window.isNativeBannerActive = false;
-            currentBannerMargin = null;
             document.body.classList.remove('has-native-banner');
 
             if (!window.isNativeMobile()) return;
@@ -174,9 +202,23 @@ window.RtaAdController = {
                 const { AdMob } = window.Capacitor?.Plugins || {};
                 if (!AdMob) return;
 
-                if (wasBannerActive || isBannerOperationInProgress) {
-                    console.log('Removing native bottom banner ad...');
+                if (window.isPremiumActive() || isPermanent) {
+                    console.log('Permanently removing native bottom banner ad...');
                     try { await AdMob.removeBanner(); } catch (e) {}
+                    isNativeBannerLoaded = false;
+                    isNativeBannerHidden = false;
+                    currentBannerMargin = null;
+                } else if (isNativeBannerLoaded && !isNativeBannerHidden) {
+                    console.log('Temporarily hiding native bottom banner ad (preserving memory instance)...');
+                    try {
+                        await AdMob.hideBanner();
+                        isNativeBannerHidden = true;
+                    } catch (e) {
+                        try { await AdMob.removeBanner(); } catch (_) {}
+                        isNativeBannerLoaded = false;
+                        isNativeBannerHidden = false;
+                        currentBannerMargin = null;
+                    }
                 }
             } catch (err) {
                 console.error('Error hiding native banner ad:', err);

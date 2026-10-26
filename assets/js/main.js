@@ -391,15 +391,16 @@ function setupNavigation() {
                 safeStorage.setItem('tool_switch_count', '0');
             }
 
-            // SCENARIO 2: Returning to Dashboard from a tool -> Trigger Interstitial ad on every 2 tool switches after 2.5m cooldown
-            if (isCurrentTool && isGoingToDashboard) {
+            // SCENARIO 2: Navigating between tools or returning to Dashboard -> Trigger high-eCPM interstitial every 3 tool switches after 2.5m cooldown
+            const isToolSwitchTransition = (isCurrentTool && isGoingToDashboard) || (isCurrentTool && isTargetTool && currentView !== targetView);
+            if (isToolSwitchTransition && (!window.isPremiumActive || !window.isPremiumActive())) {
                 let toolSwitchCount = parseInt(safeStorage.getItem('tool_switch_count') || '0', 10) + 1;
                 const unlockedUntil = safeStorage.getItem('tools_unlocked_until');
                 const now = Date.now();
                 const isCooldownExpired = !unlockedUntil || now >= parseInt(unlockedUntil, 10);
 
-                if (toolSwitchCount >= 2 && isCooldownExpired) {
-                    console.log('[AdGate] 2 tool switches completed & cooldown expired. Triggering native interstitial ad...');
+                if (toolSwitchCount >= 3 && isCooldownExpired) {
+                    console.log('[AdGate] 3 tool switches completed & 2.5m cooldown expired. Triggering native interstitial ad...');
                     safeStorage.setItem('tool_switch_count', '0');
                     safeStorage.setItem('tools_unlocked_until', (now + 2.5 * 60 * 1000).toString()); // Reset 2.5m cooldown
                     if (window.isNativeMobile() && typeof window.showNativeInterstitialAd === 'function') {

@@ -158,9 +158,12 @@ window.showNativeRewardedAd = async function showNativeRewardedAd(onRewardCallba
 };
 
 let nativeInterstitialAdLoaded = false;
+let isInterstitialPreloadInProgress = false;
 
 window.preloadNativeInterstitialAd = async function preloadNativeInterstitialAd() {
     if (!window.isNativeMobile()) return;
+    if (window.isPremiumActive && window.isPremiumActive()) return;
+    if (isInterstitialPreloadInProgress) return;
     if (!window.isAdMobInitialized) {
         console.warn('preloadNativeInterstitialAd called before AdMob initialization.');
         return;
@@ -169,9 +172,13 @@ window.preloadNativeInterstitialAd = async function preloadNativeInterstitialAd(
         console.log('Device is offline. Skipping native interstitial preloading.');
         return;
     }
+    isInterstitialPreloadInProgress = true;
     try {
         const { AdMob } = window.Capacitor?.Plugins || {};
-        if (!AdMob) return;
+        if (!AdMob) {
+            isInterstitialPreloadInProgress = false;
+            return;
+        }
         const isAndroid = window.Capacitor?.getPlatform() === 'android';
         let adId;
         if (USE_TEST_INTERSTITIAL_ADS) {
@@ -185,6 +192,14 @@ window.preloadNativeInterstitialAd = async function preloadNativeInterstitialAd(
     } catch (err) {
         console.error('Error preloading native interstitial ad:', err);
         nativeInterstitialAdLoaded = false;
+        // Auto-retry in 15 seconds if failed (e.g. network ramp on launch)
+        setTimeout(() => {
+            if (!nativeInterstitialAdLoaded && navigator.onLine && (!window.isPremiumActive || !window.isPremiumActive())) {
+                window.preloadNativeInterstitialAd();
+            }
+        }, 15000);
+    } finally {
+        isInterstitialPreloadInProgress = false;
     }
 };
 
@@ -296,6 +311,7 @@ window.showNativeInterstitialAd = async function showNativeInterstitialAd(onDism
         }
 
         await AdMob.showInterstitial();
+        nativeInterstitialAdLoaded = false;
     } catch (err) {
         console.error('Failed to show native AdMob interstitial:', err);
         cleanup();
