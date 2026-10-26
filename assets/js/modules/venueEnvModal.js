@@ -297,7 +297,8 @@ function initGlobalUnits() {
         }
 
         if (supportBox) {
-            supportBox.style.display = window.isUserPro ? 'none' : 'flex';
+            const isPro = window.isUserPro || (typeof window.isPremiumActive === 'function' && window.isPremiumActive());
+            supportBox.style.display = isPro ? 'none' : 'flex';
         }
     }
 
@@ -320,6 +321,10 @@ function initGlobalUnits() {
             modal.classList.remove('hidden');
             modal.style.removeProperty('display');
             document.body.classList.add('modal-open');
+        }
+        // Preload interstitial immediately so if user presses "SUPPORT (1 AD)", it is ready to serve with 0 lag
+        if (window.isNativeMobile && window.isNativeMobile() && typeof window.preloadNativeInterstitialAd === 'function') {
+            window.preloadNativeInterstitialAd();
         }
     };
 
@@ -435,18 +440,26 @@ function initGlobalUnits() {
             window.applyGlobalVenueEnvironment(draftDistUnit, draftTempUnit, draftTempC, true);
             window.closeVenueEnvModal();
 
-            const thankYouMsg = '❤️ Thank you for supporting SoundEngg! Venue settings applied.';
+            const thankYouMsg = '❤️ Thank you for supporting SoundEngg! 10 min ad-free tools unlocked.';
+            // Condition: When user voluntarily presses "SUPPORT (1 AD)", always serve ad immediately, ignoring any active cooldown period
             if (window.isNativeMobile && window.isNativeMobile() && typeof window.showNativeInterstitialAd === 'function') {
+                if (typeof window.showToast === 'function') {
+                    window.showToast('Loading ad... Thank you for supporting SoundEngg!');
+                }
                 window.showNativeInterstitialAd(
                     () => {
+                        // Voluntary ad watched: Reward the user with 10 minutes of ad-free cooldown
+                        const now = Date.now();
+                        safeStorage.setItem('tools_unlocked_until', (now + 10 * 60 * 1000).toString());
+                        safeStorage.setItem('tool_switch_count', '0');
                         if (typeof window.showToast === 'function') window.showToast(thankYouMsg);
                     },
                     () => {
-                        if (typeof window.showToast === 'function') window.showToast(thankYouMsg);
+                        if (typeof window.showToast === 'function') window.showToast('❤️ Thank you for supporting SoundEngg! Venue settings applied.');
                     }
                 );
             } else {
-                if (typeof window.showToast === 'function') window.showToast(thankYouMsg);
+                if (typeof window.showToast === 'function') window.showToast('❤️ Thank you for supporting SoundEngg! Venue settings applied.');
             }
         });
     }
