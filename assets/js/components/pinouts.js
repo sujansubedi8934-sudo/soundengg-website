@@ -1196,22 +1196,15 @@ function getPinoutById(id) {
 
 // =========================================================================
 // INTERACTIVE A-TO-B CUSTOM CABLE & ADAPTER PIN MAPPER ENGINE (R2)
+// Real-world practical audio & lighting interconnects only
 // =========================================================================
 const MAPPER_ENDPOINTS = [
-    { id: 'xlr3', label: 'XLR 3-Pin Balanced (Mic/Line)' },
-    { id: 'trs', label: '1/4" TRS Balanced (6.35mm)' },
-    { id: 'ts', label: '1/4" TS Unbalanced (Mono Instrument/Line)' },
-    { id: 'trs35', label: '3.5mm TRS Stereo (Laptop / Phone / IEM)' },
-    { id: 'rca', label: 'Dual RCA Stereo (DJ / Consumer Line)' },
-    { id: 'euroblock3', label: 'Euroblock / Phoenix 3-Pin (DSP Install)' },
-    { id: 'tt-bantam', label: 'TT / Bantam 4.4mm (Studio Patchbay)' },
-    { id: 'aes72', label: 'AES72 RJ45 4-Ch CatSnake (Cat5e/Cat6)' },
-    { id: 'db25', label: 'DB25 8-Ch Snake (Tascam AES59)' },
-    { id: 'xlr5', label: 'XLR 5-Pin DMX512-A (Lighting)' },
-    { id: 'dmx-rj45', label: 'RJ45 DMX over Cat5 (ESTA E1.27-2)' },
-    { id: 'midi', label: 'DIN 5-Pin MIDI (31.25 kbaud)' },
-    { id: 'bnc', label: 'BNC 75Ω Coax (SDI / Word Clock / LTC)' },
-    { id: 'ltc-timecode', label: 'LEMO 5-Pin SMPTE Timecode' }
+    { id: 'xlr3', label: 'XLR 3-Pin Balanced (Mic / Line)' },
+    { id: 'trs', label: '1/4" TRS Balanced (6.35mm Line)' },
+    { id: 'ts', label: '1/4" TS Unbalanced (Mono Instrument / Line)' },
+    { id: 'trs35', label: '3.5mm TRS Stereo (Laptop / Phone / Tablet)' },
+    { id: 'rca', label: 'Dual RCA Stereo (DJ Mixer / Media)' },
+    { id: 'xlr5', label: 'XLR 5-Pin DMX (Lighting / Turnaround)' }
 ];
 
 function normalizeEndpointId(id) {
@@ -1687,14 +1680,28 @@ function ensureCableMapperPanel() {
     const optionsHtml = MAPPER_ENDPOINTS.map(ep => `<option value="${ep.id}">${ep.label}</option>`).join('');
 
     panel.innerHTML = `
-        <div class="mapper-hdr" style="display:flex; justify-content:space-between; align-items:center; padding:0.75rem 1rem; background:rgba(0,210,255,0.06); border-bottom:1px solid var(--outline); cursor:pointer;" onclick="const body=this.nextElementSibling; if(body){body.style.display=body.style.display==='none'?'block':'none';}">
+        <div class="mapper-hdr" id="mapper-hdr-toggle" style="display:flex; justify-content:space-between; align-items:center; padding:0.85rem 1rem; background:rgba(0,210,255,0.05); cursor:pointer; user-select:none; transition:background 0.2s ease;" onclick="
+            const body = document.getElementById('mapper-body-content');
+            const icon = document.getElementById('mapper-toggle-chevron');
+            if (body) {
+                const isHidden = body.style.display === 'none';
+                body.style.display = isHidden ? 'block' : 'none';
+                if (icon) icon.textContent = isHidden ? 'keyboard_arrow_up' : 'keyboard_arrow_down';
+            }
+        ">
             <div style="display:flex; align-items:center; gap:8px;">
-                <span class="material-symbols-outlined" style="color:var(--primary); font-size:18px;">cable</span>
-                <strong style="font-family:var(--font-mono, monospace); font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-main);">Interactive A-to-B Custom Cable & Adapter Pin Mapper</strong>
+                <span class="material-symbols-outlined" style="color:var(--primary); font-size:20px;">cable</span>
+                <div>
+                    <strong style="font-family:var(--font-mono, monospace); font-size:0.82rem; letter-spacing:0.5px; text-transform:uppercase; color:var(--text-main); display:block;">Custom Cable & Adapter Pin Mapper</strong>
+                    <span style="font-size:0.68rem; color:var(--text-muted); display:block; margin-top:2px;">Tap to calculate pin-to-pin wiring between XLR, TRS, TS, 3.5mm & RCA</span>
+                </div>
             </div>
-            <span style="font-family:var(--font-mono, monospace); font-size:0.68rem; color:var(--primary);">FIELD WIRING WORKSTATION</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span style="font-family:var(--font-mono, monospace); font-size:0.62rem; color:var(--primary); background:rgba(0,210,255,0.1); border:1px solid rgba(0,210,255,0.25); border-radius:4px; padding:2px 6px;">ADAPTER TOOL</span>
+                <span class="material-symbols-outlined" id="mapper-toggle-chevron" style="color:var(--text-muted); font-size:22px; transition:transform 0.2s;">keyboard_arrow_down</span>
+            </div>
         </div>
-        <div class="mapper-body" style="padding:1rem;">
+        <div class="mapper-body" id="mapper-body-content" style="display:none; padding:1rem; border-top:1px solid var(--outline);">
             <div style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:flex-end; margin-bottom:1rem;">
                 <div style="flex:1; min-width:200px;">
                     <label for="mapper-source-select" style="display:block; font-family:var(--font-mono, monospace); font-size:0.7rem; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px;">Connector A (Source / Output)</label>
@@ -1702,7 +1709,7 @@ function ensureCableMapperPanel() {
                         ${optionsHtml}
                     </select>
                 </div>
-                <button type="button" onclick="window.swapCableMapperEndpoints()" title="Swap Source & Destination" style="padding:0.5rem 0.85rem; border-radius:6px; background:rgba(0,210,255,0.1); color:var(--primary); border:1px solid rgba(0,210,255,0.3); cursor:pointer; font-family:var(--font-mono, monospace); font-size:0.75rem; display:inline-flex; align-items:center; gap:4px;">
+                <button type="button" onclick="window.swapCableMapperEndpoints()" title="Swap Source & Destination" style="padding:0.5rem 0.85rem; border-radius:6px; background:rgba(0,210,255,0.1); color:var(--primary); border:1px solid rgba(0,210,255,0.3); cursor:pointer; font-family:var(--font-mono, monospace); font-size:0.75rem; display:inline-flex; align-items:center; gap:4px; height:36px;">
                     <span class="material-symbols-outlined" style="font-size:16px;">swap_horiz</span> Swap A ⇄ B
                 </button>
                 <div style="flex:1; min-width:200px;">
