@@ -4,11 +4,9 @@ const PINOUT_CATS = [
     {id:'all', label:'All'},
     {id:'analog', label:'Analog & Intercom'},
     {id:'speaker', label:'Touring Speaker'},
-    {id:'adapter', label:'Adapters & Converters'},
-    {id:'digital', label:'Digital & CatSnake'},
+    {id:'adapter', label:'Adapters & Turnarounds'},
+    {id:'digital', label:'Digital Audio & Sync'},
     {id:'lighting', label:'Lighting & DMX'},
-    {id:'video', label:'Video & Broadcast'},
-    {id:'sfx', label:'SFX, Pyro & Timecode'},
     {id:'power', label:'Stage Power & Distro'}
 ];
 
@@ -91,27 +89,6 @@ const PINOUT_DATA = [
     cableSpec: '26–28 AWG Multi-Conductor Shielded Y-Cable (32Ω–10kΩ)',
     troubleshootTip: 'Check continuity Tip-to-Tip and Ring-to-Ring. Ensure Tip and Ring do not short to Sleeve. Never connect directly to +48V mic inputs without a pad/isolation transformer.',
     svg: `<svg width="80" height="90" viewBox="0 0 80 90"><rect x="14" y="38" width="52" height="14" rx="7" fill="#888780" stroke="#666" stroke-width="1"/><rect class="interactive-svg-pin" data-pin="T" x="14" y="38" width="15" height="14" rx="7" fill="#E24B4A" stroke="#c0392b" stroke-width="1"/><rect class="interactive-svg-pin" data-pin="R" x="32" y="38" width="12" height="14" fill="#1D9E75" stroke="#0F6E56" stroke-width="1"/><text class="interactive-svg-pin" data-pin="T" x="21" y="48" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">T</text><text class="interactive-svg-pin" data-pin="R" x="38" y="48" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">R</text><text class="interactive-svg-pin" data-pin="S" x="57" y="48" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">S</text><text x="40" y="68" text-anchor="middle" fill="#888" font-size="9">3.5mm</text></svg>`
-  },
-  {
-    id: 'trrs',
-    aliases: ['35mm-trrs', 'trrs35', 'headset-jack'],
-    name: '3.5mm TRRS (CTIA vs. OMTP Headset)',
-    cat: 'analog',
-    tag: 'Headset mic & stereo',
-    color: '#7F77DD',
-    desc: '4-conductor miniature 3.5mm jack standard on mobile phones and broadcast beltpacks. CTIA standard (Apple, Android, modern laptops): Tip = Left, Ring 1 = Right, Ring 2 = Ground, Sleeve = Mic. OMTP (legacy): Ground and Mic swapped.',
-    uses: ['Smartphone headset', 'Wireless lavalier bodypack', 'Intercom beltpack headset', 'Gimbal mic input'],
-    note: 'CTIA: R2=GND, S=Mic. OMTP: R2=Mic, S=GND. Incompatible wiring causes hollow vocals and non-functional mic.',
-    pins: [
-      {n:'T', pin:'T', sig:'Tip — Left Channel', name:'Tip — Left Channel', color:'#E24B4A', col:'#E24B4A', note:'Left earphone audio', desc:'Left earphone audio'},
-      {n:'R1', pin:'R1', sig:'Ring 1 — Right Channel', name:'Ring 1 — Right Channel', color:'#1D9E75', col:'#1D9E75', note:'Right earphone audio', desc:'Right earphone audio'},
-      {n:'R2', pin:'R2', sig:'Ring 2 — CTIA Ground', name:'Ring 2 — CTIA Ground', color:'#888780', col:'#888780', note:'CTIA: Ground / OMTP: Mic bias', desc:'CTIA: Ground / OMTP: Mic bias'},
-      {n:'S', pin:'S', sig:'Sleeve — CTIA Mic (+)', name:'Sleeve — CTIA Mic (+)', color:'#7F77DD', col:'#7F77DD', note:'CTIA: Electret mic bias / OMTP: Ground', desc:'CTIA: Electret mic bias / OMTP: Ground'}
-    ],
-    phantomSafety: 'danger',
-    cableSpec: '28 AWG 4-Conductor Shielded Headset Cable',
-    troubleshootTip: 'Check CTIA vs OMTP with multimeter: Measure resistance between Ring 2 and Sleeve. With CTIA headset, electret mic capsule measures ~1.5kΩ–2.5kΩ bias resistance.',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><rect x="10" y="38" width="60" height="14" rx="7" fill="#888780" stroke="#666" stroke-width="1"/><rect class="interactive-svg-pin" data-pin="T" x="10" y="38" width="13" height="14" rx="7" fill="#E24B4A"/><rect class="interactive-svg-pin" data-pin="R1" x="25" y="38" width="10" height="14" fill="#1D9E75"/><rect class="interactive-svg-pin" data-pin="R2" x="37" y="38" width="10" height="14" fill="#888780"/><rect class="interactive-svg-pin" data-pin="S" x="49" y="38" width="18" height="14" fill="#7F77DD"/><text class="interactive-svg-pin" data-pin="T" x="16" y="48" text-anchor="middle" fill="#fff" font-size="8">T</text><text class="interactive-svg-pin" data-pin="R1" x="30" y="48" text-anchor="middle" fill="#fff" font-size="7">R1</text><text class="interactive-svg-pin" data-pin="R2" x="42" y="48" text-anchor="middle" fill="#fff" font-size="7">R2</text><text class="interactive-svg-pin" data-pin="S" x="58" y="48" text-anchor="middle" fill="#fff" font-size="8">S</text><text x="40" y="68" text-anchor="middle" fill="#888" font-size="9">TRRS 3.5mm</text></svg>`
   },
   {
     id: 'rca',
@@ -400,22 +377,22 @@ const PINOUT_DATA = [
   // ==========================================
   {
     id: 'ts-xlr',
-    aliases: ['ts-to-xlr', 'unbalanced-xlr'],
-    name: 'TS to XLR Unbalanced Adapter',
+    aliases: ['ts-to-xlr', 'unbalanced-xlr', 'ts-xlr-unbal'],
+    name: 'TS to XLR (Unbalanced Interface — Pin 1 & 3 Tied)',
     cat: 'adapter',
-    tag: 'Instrument → console',
+    tag: 'Unbalanced line (NOT a DI box)',
     color: '#D85A30',
-    desc: 'Connects an unbalanced TS source (synth, DJ mixer, guitar pedal) to an XLR balanced console input. Pin 2 carries signal hot; Pin 3 is tied to Pin 1 (ground) at the XLR connector to prevent the cold differential input from floating.',
-    uses: ['Synth unbalanced output to console', 'Guitar/pedal line to mixer without DI', 'DJ mixer unbalanced booth to powered speaker'],
-    warn: 'DO NOT ENGAGE +48V! Pin 3 dead-shorts +48V to ground, and Pin 2 injects 48V DC directly into the instrument output stage.',
+    desc: 'Direct physical cable adapter connecting an unbalanced 1/4" TS output (synth, pedal, DJ mixer) to an XLR console input. Pin 2 carries signal hot; Pin 3 is tied directly to Pin 1 (ground) at the XLR connector to prevent the input differential receiver from floating. NOTE: This is purely a mechanical pin adapter — it DOES NOT balance the signal. The line remains 100% unbalanced with no common-mode rejection.',
+    uses: ['Synth unbalanced output to console', 'Emergency patch when no DI box is available', 'DJ mixer unbalanced booth output to powered speaker'],
+    warn: 'CRITICAL LIVE SOUND WARNING: This adapter DOES NOT convert unbalanced audio to balanced! For long stage runs or ground isolation, ALWAYS use a DI box. NEVER ENGAGE +48V PHANTOM POWER: Pin 3 dead-shorts +48V to ground, and Pin 2 injects 48V DC directly into the instrument output stage, risking permanent hardware destruction.',
     pins: [
-      {n:'Tip', pin:'Tip', sig:'→ XLR Pin 2 (Hot +)', name:'TS Tip → XLR 2', color:'#E24B4A', col:'#E24B4A', note:'Signal wire', desc:'Signal wire'},
-      {n:'Sleeve', pin:'Sleeve', sig:'→ XLR Pin 1 + Pin 3 (GND)', name:'TS Sleeve → XLR 1+3', color:'#888780', col:'#888780', note:'Ground bridged to both pins 1 and 3', desc:'Ground bridged to both pins 1 and 3'}
+      {n:'Tip', pin:'Tip', sig:'→ XLR Pin 2 (Hot +)', name:'TS Tip → XLR Pin 2', color:'#E24B4A', col:'#E24B4A', note:'Signal hot conductor', desc:'Signal hot conductor'},
+      {n:'Sleeve', pin:'Sleeve', sig:'→ XLR Pin 1 + Pin 3 (GND)', name:'TS Sleeve → XLR Pins 1+3 Tied', color:'#888780', col:'#888780', note:'Ground bridged to both Pin 1 (Shield) and Pin 3 (Cold) to prevent floating differential input', desc:'Ground bridged to Pin 1 and Pin 3'}
     ],
     phantomSafety: 'danger',
-    cableSpec: 'Shielded Single-Conductor Audio Cable (<5m)',
-    troubleshootTip: 'Tip to Pin 2 <0.3Ω; Sleeve to Pin 1 <0.3Ω; Sleeve to Pin 3 <0.3Ω; Pin 2 to Pin 1 >50MΩ. If Pin 3 is floating, input loses 6dB gain and picks up hum.',
-    svg: `<svg width="160" height="60" viewBox="0 0 160 60"><rect x="4" y="22" width="30" height="14" rx="7" fill="#888780" stroke="#666"/><rect class="interactive-svg-pin" data-pin="Tip" x="4" y="22" width="12" height="14" rx="7" fill="#EF9F27"/><text class="interactive-svg-pin" data-pin="Tip" x="10" y="32" text-anchor="middle" fill="#fff" font-size="9">T</text><text class="interactive-svg-pin" data-pin="Sleeve" x="25" y="32" text-anchor="middle" fill="#fff" font-size="9">S</text><line x1="35" y1="29" x2="60" y2="44" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="35" y1="29" x2="60" y2="20" stroke="#888780" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="80" cy="20" r="7" fill="#888780"/><text x="80" y="24" text-anchor="middle" fill="#fff" font-size="8">1</text><circle cx="65" cy="44" r="7" fill="#E24B4A"/><text x="65" y="48" text-anchor="middle" fill="#fff" font-size="8">2</text><circle cx="95" cy="44" r="7" fill="#eee" stroke="#ccc"/><text x="95" y="48" text-anchor="middle" fill="#333" font-size="8">3</text><line x1="80" y1="27" x2="95" y2="37" stroke="#888780" stroke-width="1.5" stroke-dasharray="2 2"/><text x="80" y="58" text-anchor="middle" fill="#888" font-size="8">pin 3 tied to pin 1</text></svg>`
+    cableSpec: 'Shielded Single-Conductor Audio Cable (<5m / 15ft max)',
+    troubleshootTip: 'Multimeter: Tip to Pin 2 <0.3Ω; Sleeve to Pin 1 <0.3Ω; Sleeve to Pin 3 <0.3Ω; Pin 2 to Pin 1 >50MΩ open. If Pin 3 is left floating, you lose 6dB gain and pick up severe 50/60Hz hum.',
+    svg: `<svg width="160" height="60" viewBox="0 0 160 60"><rect x="4" y="22" width="30" height="14" rx="7" fill="#888780" stroke="#666"/><rect class="interactive-svg-pin" data-pin="Tip" x="4" y="22" width="12" height="14" rx="7" fill="#EF9F27"/><text class="interactive-svg-pin" data-pin="Tip" x="10" y="32" text-anchor="middle" fill="#fff" font-size="9">T</text><text class="interactive-svg-pin" data-pin="Sleeve" x="25" y="32" text-anchor="middle" fill="#fff" font-size="9">S</text><line x1="35" y1="29" x2="60" y2="44" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="3 2"/><line x1="35" y1="29" x2="60" y2="20" stroke="#888780" stroke-width="1.5" stroke-dasharray="3 2"/><circle cx="80" cy="20" r="7" fill="#888780"/><text x="80" y="24" text-anchor="middle" fill="#fff" font-size="8">1</text><circle cx="65" cy="44" r="7" fill="#E24B4A"/><text x="65" y="48" text-anchor="middle" fill="#fff" font-size="8">2</text><circle cx="95" cy="44" r="7" fill="#eee" stroke="#ccc"/><text x="95" y="48" text-anchor="middle" fill="#333" font-size="8">3</text><line x1="80" y1="27" x2="95" y2="37" stroke="#888780" stroke-width="1.5" stroke-dasharray="2 2"/><text x="80" y="58" text-anchor="middle" fill="#888" font-size="8">pin 3 tied to pin 1 (unbalanced!)</text></svg>`
   },
   {
     id: 'trs-xlr',
@@ -684,7 +661,7 @@ const PINOUT_DATA = [
     phantomSafety: 'na',
     cableSpec: 'Shielded Twisted Pair Audio Cable (max run 15m / 50ft)',
     troubleshootTip: 'On MIDI OUT: measure DC voltage Pin 4 to Pin 2 (+5.0V DC). On MIDI IN cable: measure resistance Pin 4 to Pin 5 (~220Ω through input optocoupler LED).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="44" r="32" fill="#1a1a22" stroke="#D4537E" stroke-width="1.5"/><circle class="interactive-svg-pin" data-pin="1" cx="40" cy="18" r="6" fill="#D3D1C7"/><text class="interactive-svg-pin" data-pin="1" x="40" y="22" text-anchor="middle" fill="#555" font-size="8">1</text><circle class="interactive-svg-pin" data-pin="2" cx="20" cy="34" r="6" fill="#888780"/><text class="interactive-svg-pin" data-pin="2" x="20" y="38" text-anchor="middle" fill="#fff" font-size="8">2</text><circle class="interactive-svg-pin" data-pin="3" cx="60" cy="34" r="6" fill="#D3D1C7"/><text class="interactive-svg-pin" data-pin="3" x="60" y="38" text-anchor="middle" fill="#555" font-size="8">3</text><circle class="interactive-svg-pin" data-pin="4" cx="26" cy="56" r="6" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="4" x="26" y="60" text-anchor="middle" fill="#fff" font-size="8">4</text><circle class="interactive-svg-pin" data-pin="5" cx="54" cy="56" r="6" fill="#7F77DD"/><text class="interactive-svg-pin" data-pin="5" x="54" y="60" text-anchor="middle" fill="#fff" font-size="8">5</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">DIN 5-Pin</text></svg>`
+    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="44" r="32" fill="#1a1a22" stroke="#D4537E" stroke-width="1.5"/><rect x="37" y="12" width="6" height="4" rx="1" fill="#555"/><circle class="interactive-svg-pin" data-pin="1" cx="18" cy="46" r="6" fill="#D3D1C7"/><text class="interactive-svg-pin" data-pin="1" x="18" y="50" text-anchor="middle" fill="#555" font-size="8">1</text><circle class="interactive-svg-pin" data-pin="4" cx="27" cy="30" r="6" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="4" x="27" y="34" text-anchor="middle" fill="#fff" font-size="8">4</text><circle class="interactive-svg-pin" data-pin="2" cx="40" cy="24" r="6" fill="#888780"/><text class="interactive-svg-pin" data-pin="2" x="40" y="28" text-anchor="middle" fill="#fff" font-size="8">2</text><circle class="interactive-svg-pin" data-pin="5" cx="53" cy="30" r="6" fill="#7F77DD"/><text class="interactive-svg-pin" data-pin="5" x="53" y="34" text-anchor="middle" fill="#fff" font-size="8">5</text><circle class="interactive-svg-pin" data-pin="3" cx="62" cy="46" r="6" fill="#D3D1C7"/><text class="interactive-svg-pin" data-pin="3" x="62" y="50" text-anchor="middle" fill="#555" font-size="8">3</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">DIN 5-Pin (1-4-2-5-3)</text></svg>`
   },
   {
     id: 'toslink',
@@ -746,8 +723,48 @@ const PINOUT_DATA = [
     svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="34" fill="#1a1a22" stroke="#378ADD" stroke-width="1.5"/><circle class="interactive-svg-pin" data-pin="2" cx="24" cy="34" r="8" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="2" x="24" y="38" text-anchor="middle" fill="#fff" font-size="9">2</text><circle class="interactive-svg-pin" data-pin="1" cx="56" cy="34" r="8" fill="#888780"/><text class="interactive-svg-pin" data-pin="1" x="56" y="38" text-anchor="middle" fill="#fff" font-size="9">1</text><circle class="interactive-svg-pin" data-pin="3" cx="40" cy="62" r="8" fill="#eee" stroke="#ccc"/><text class="interactive-svg-pin" data-pin="3" x="40" y="66" text-anchor="middle" fill="#333" font-size="9">3</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">110Ω AES3</text></svg>`
   },
 
-  // ==========================================
-  // CATEGORY 5: LIGHTING, DMX & SHOW CONTROL (3 Entries)
+  {
+    id: 'bnc',
+    aliases: ['sdi-bnc', 'bnc-75', 'word-clock', 'madi-bnc'],
+    name: 'BNC 75Ω (Word Clock, MADI & SDI Sync)',
+    cat: 'digital',
+    tag: '75Ω coax SDI / sync',
+    color: '#888780',
+    desc: 'Precision 75Ω bayonet coaxial connector for Serial Digital Video (HD-SDI, 3G-SDI, 6G-SDI, 12G-SDI 4K/60p) and studio Word Clock synchronization. Never use 50Ω RF BNC cables — 50Ω cable causes severe impedance mismatch reflections and SDI CRC packet dropouts.',
+    uses: ['Broadcast camera SDI feeds', 'Video router patchbays', 'LED video wall processor inputs', 'Studio Word Clock distribution'],
+    pins: [
+      {n:'C', pin:'C', sig:'Center Pin — Signal (+)', name:'Center Pin (+)', color:'#EF9F27', col:'#EF9F27', note:'Serial digital video or word clock pulse', desc:'Signal'},
+      {n:'O', pin:'O', sig:'Outer Shell — Ground / Shield', name:'Outer Shell (GND)', color:'#888780', col:'#888780', note:'Coaxial braided ground screen', desc:'GND'}
+    ],
+    phantomSafety: 'na',
+    cableSpec: 'Strict 75Ω Precision Coaxial Cable (Belden 1694A / Belden 4794R)',
+    troubleshootTip: 'Center-to-Center <0.3Ω; Shell-to-Shell <0.3Ω; Center-to-Shell >100MΩ. Max distance: 3G-SDI 80m (1694A) / 100m (4794R); 12G-SDI 45m (1694A) / 70m (4794R).',
+    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle class="interactive-svg-pin" data-pin="O" cx="40" cy="44" r="28" fill="#1a1a22" stroke="#888780" stroke-width="6"/><circle class="interactive-svg-pin" data-pin="C" cx="40" cy="44" r="10" fill="#EF9F27" stroke="#BA7517" stroke-width="1.5"/><text class="interactive-svg-pin" data-pin="C" x="40" y="48" text-anchor="middle" fill="#fff" font-size="8" font-weight="500">75Ω</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">Coax — BNC</text></svg>`
+  },
+  {
+    id: 'ltc-timecode',
+    aliases: ['smpte-timecode', 'ltc', 'lemo-timecode'],
+    name: 'LTC SMPTE Timecode (XLR ↔ BNC ↔ LEMO 5)',
+    cat: 'digital',
+    tag: 'Timecode sync',
+    color: '#EF9F27',
+    desc: 'SMPTE 12M Linear Timecode (LTC) audio signal format. Encoded as an 80-bit per frame bi-phase mark modulated square/sine wave running at 1.2 kHz to 2.4 kHz. Synchronizes lighting, pyro, laser, video playback, and DAW multi-tracks. XLR: 1 GND, 2 Hot, 3 Cold; BNC: Center Hot, Shell GND; LEMO 5-Pin: 1 GND, 2 LTC IN, 5 LTC OUT.',
+    uses: ['Show control master clock sync', 'ARRI / RED camera timecode sync', 'Ambient Lockit / Tentacle Sync boxes', 'Audio playback track sync to lighting'],
+    warn: 'DO NOT ENGAGE +48V! Applying phantom power destroys the output driver op-amp on timecode boxes and cameras.',
+    pins: [
+      {n:'1', pin:'1', sig:'Ground / Shield (All Connectors)', name:'Ground / Shield', color:'#888780', col:'#888780', note:'XLR Pin 1 / BNC Shell / LEMO Pin 1', desc:'GND'},
+      {n:'2', pin:'2', sig:'LTC Signal Hot (+) / LEMO LTC IN', name:'LTC Hot / IN', color:'#E24B4A', col:'#E24B4A', note:'XLR Pin 2 / BNC Center / LEMO Pin 2 (IN)', desc:'LTC Hot'},
+      {n:'3', pin:'3', sig:'LTC Cold (−) / LEMO RS232 TX', name:'LTC Cold / RS232', color:'#ffffff', col:'#ffffff', note:'XLR Pin 3 / LEMO Pin 3 (ASCII metadata)', desc:'LTC Cold', border:'#cccccc'},
+      {n:'5', pin:'5', sig:'LEMO Pin 5: LTC Timecode OUT', name:'LEMO Pin 5 (OUT)', color:'#EF9F27', col:'#EF9F27', note:'Timecode output signal on 5-pin LEMO', desc:'LTC Out'}
+    ],
+    phantomSafety: 'danger',
+    cableSpec: '24 AWG Shielded Twisted Pair (XLR) or 75Ω RG179 Coax (BNC / LEMO 0B.305)',
+    troubleshootTip: 'LTC is audible as a harsh, buzzing continuous tone. Measure AC voltage on DMM: should read 1.0V to 2.0V AC (+4 dBu to +8 dBu). Verify timecode generator frame rate matches console (24, 25, 29.97DF, 30 fps).',
+    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="32" fill="#1a1a22" stroke="#EF9F27" stroke-width="1.5"/><circle class="interactive-svg-pin" data-pin="2" cx="24" cy="34" r="6" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="2" x="24" y="38" text-anchor="middle" fill="#fff" font-size="8">2</text><circle class="interactive-svg-pin" data-pin="1" cx="56" cy="34" r="6" fill="#888"/><text class="interactive-svg-pin" data-pin="1" x="56" y="38" text-anchor="middle" fill="#fff" font-size="8">1</text><circle class="interactive-svg-pin" data-pin="3" cx="40" cy="62" r="6" fill="#fff" stroke="#ccc"/><text class="interactive-svg-pin" data-pin="3" x="40" y="66" text-anchor="middle" fill="#333" font-size="8">3</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">LTC (SMPTE 12M)</text></svg>`
+  },
+
+// ==========================================
+  // CATEGORY 5: LIGHTING & DMX (USITT DMX512-A)
   // ==========================================
   {
     id: 'xlr5',
@@ -768,39 +785,14 @@ const PINOUT_DATA = [
     phantomSafety: 'danger',
     cableSpec: '120Ω (±10%) Shielded Twisted Pair DMX Cable (Belden 9841 / 9842)',
     troubleshootTip: 'With console transmitting, measure DC on Pin 2 and Pin 3 to Pin 1 (~2.5V DC with high-speed AC toggle). Measure end-of-line resistance across 2 & 3: reads 120Ω with terminator, open without.',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="34" fill="#1a1a22" stroke="#534AB7" stroke-width="1.5"/><circle class="interactive-svg-pin" data-pin="1" cx="40" cy="17" r="7" fill="#888780"/><text class="interactive-svg-pin" data-pin="1" x="40" y="21" text-anchor="middle" fill="#fff" font-size="9">1</text><circle class="interactive-svg-pin" data-pin="2" cx="20" cy="34" r="7" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="2" x="20" y="38" text-anchor="middle" fill="#fff" font-size="9">2</text><circle class="interactive-svg-pin" data-pin="3" cx="60" cy="34" r="7" fill="#eee" stroke="#ccc"/><text class="interactive-svg-pin" data-pin="3" x="60" y="38" text-anchor="middle" fill="#333" font-size="9">3</text><circle class="interactive-svg-pin" data-pin="4" cx="26" cy="60" r="7" fill="#1D9E75"/><text class="interactive-svg-pin" data-pin="4" x="26" y="64" text-anchor="middle" fill="#fff" font-size="9">4</text><circle class="interactive-svg-pin" data-pin="5" cx="54" cy="60" r="7" fill="#378ADD"/><text class="interactive-svg-pin" data-pin="5" x="54" y="64" text-anchor="middle" fill="#fff" font-size="9">5</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="9">Female (front)</text></svg>`
-  },
-  {
-    id: 'dmx-rj45',
-    aliases: ['dmx-cat5', 'esta-e127', 'dmx-ethernet'],
-    name: 'DMX over RJ45 (ESTA E1.27-2 Standard)',
-    cat: 'lighting',
-    tag: 'DMX over Cat5',
-    color: '#7F77DD',
-    desc: 'The official ANSI/ESTA E1.27-2 standard for transmitting DMX512 across structured Cat5e/Cat6 cabling. Pin 1: Data 1+, Pin 2: Data 1−, Pin 3: Data 2+, Pin 6: Data 2−, Pin 7: Data 1 Common, Pin 8: Data 2 Common. Center pins 4 and 5 are deliberately unassigned to protect against phone line voltages.',
-    uses: ['Architectural lighting control', 'Theatrical DMX patch panels', 'DMX distribution gateways'],
-    warn: 'DO NOT plug into PoE network switches or audio lines with phantom power.',
-    pins: [
-      {n:'1', pin:'1', sig:'Data 1 True (+) [W-Org]', name:'Pin 1 (Data 1+)', color:'#E24B4A', col:'#E24B4A', note:'Primary DMX positive data', desc:'Data 1+'},
-      {n:'2', pin:'2', sig:'Data 1 Comp (−) [Org]', name:'Pin 2 (Data 1−)', color:'#D85A30', col:'#D85A30', note:'Primary DMX negative data', desc:'Data 1−'},
-      {n:'3', pin:'3', sig:'Data 2 True (+) [W-Grn]', name:'Pin 3 (Data 2+)', color:'#1D9E75', col:'#1D9E75', note:'Secondary DMX positive data', desc:'Data 2+'},
-      {n:'4', pin:'4', sig:'Unassigned [Blu]', name:'Pin 4 (N.C.)', color:'#888780', col:'#888780', note:'Protected against telco ring voltage', desc:'N/C'},
-      {n:'5', pin:'5', sig:'Unassigned [W-Blu]', name:'Pin 5 (N.C.)', color:'#888780', col:'#888780', note:'Protected against telco ring voltage', desc:'N/C'},
-      {n:'6', pin:'6', sig:'Data 2 Comp (−) [Grn]', name:'Pin 6 (Data 2−)', color:'#639922', col:'#639922', note:'Secondary DMX negative data', desc:'Data 2−'},
-      {n:'7', pin:'7', sig:'Data 1 Common [W-Brn]', name:'Pin 7 (Common 1)', color:'#D4537E', col:'#D4537E', note:'Signal ground for Data 1', desc:'Common 1'},
-      {n:'8', pin:'8', sig:'Data 2 Common [Brn]', name:'Pin 8 (Common 2)', color:'#8B4513', col:'#8B4513', note:'Signal ground for Data 2', desc:'Common 2'}
-    ],
-    phantomSafety: 'danger',
-    cableSpec: 'Cat5e / Cat6 STP (Shielded Twisted Pair) with Drain Wire',
-    troubleshootTip: 'Check Pair 1 continuity (Pins 1 & 2) and Common (Pin 7). Verify Pins 4 & 5 are open circuit (>100MΩ).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><rect x="14" y="22" width="52" height="42" rx="4" fill="#1a1a22" stroke="#7F77DD" stroke-width="1.5"/><rect class="interactive-svg-pin" data-pin="1" x="18" y="28" width="5" height="28" rx="1" fill="#E24B4A"/><rect class="interactive-svg-pin" data-pin="2" x="24" y="28" width="5" height="28" rx="1" fill="#D85A30"/><rect class="interactive-svg-pin" data-pin="3" x="30" y="28" width="5" height="28" rx="1" fill="#1D9E75"/><rect class="interactive-svg-pin" data-pin="4" x="36" y="28" width="5" height="28" rx="1" fill="#555"/><rect class="interactive-svg-pin" data-pin="5" x="42" y="28" width="5" height="28" rx="1" fill="#555"/><rect class="interactive-svg-pin" data-pin="6" x="48" y="28" width="5" height="28" rx="1" fill="#639922"/><rect class="interactive-svg-pin" data-pin="7" x="54" y="28" width="5" height="28" rx="1" fill="#D4537E"/><rect class="interactive-svg-pin" data-pin="8" x="60" y="28" width="5" height="28" rx="1" fill="#8B4513"/><text x="40" y="80" text-anchor="middle" fill="#888" font-size="8">E1.27-2 DMX</text></svg>`
+    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="34" fill="#1a1a22" stroke="#534AB7" stroke-width="1.5"/><rect x="36" y="11" width="8" height="4" fill="#555"/><circle class="interactive-svg-pin" data-pin="3" cx="24" cy="28" r="7" fill="#eee" stroke="#ccc"/><text class="interactive-svg-pin" data-pin="3" x="24" y="32" text-anchor="middle" fill="#333" font-size="9" font-weight="500">3</text><circle class="interactive-svg-pin" data-pin="4" cx="56" cy="28" r="7" fill="#1D9E75"/><text class="interactive-svg-pin" data-pin="4" x="56" y="32" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">4</text><circle class="interactive-svg-pin" data-pin="2" cx="22" cy="50" r="7" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="2" x="22" y="54" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">2</text><circle class="interactive-svg-pin" data-pin="5" cx="58" cy="50" r="7" fill="#378ADD"/><text class="interactive-svg-pin" data-pin="5" x="58" y="54" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">5</text><circle class="interactive-svg-pin" data-pin="1" cx="40" cy="66" r="7" fill="#888780"/><text class="interactive-svg-pin" data-pin="1" x="40" y="70" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">1</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="9">Female (front)</text></svg>`
   },
   {
     id: 'socapex19',
     aliases: ['soca19', 'socapex', '19-pin-mains'],
     name: 'Socapex 19-Pin (6-Circuit Mains / Motor)',
-    cat: 'lighting',
-    tag: '6-circuit mains / motor',
+    cat: 'power',
+    tag: '6-circuit mains / PA trunk',
     color: '#E24B4A',
     desc: 'Heavy-duty circular 19-pin connector carrying 6 independent 120V or 208V/240V mains power circuits (16A/20A per circuit). Industry standard for theatrical lighting truss multicore and 3-phase chain hoist motors. CRITICAL: Every circuit MUST maintain its own dedicated isolated neutral wire — never common neutrals!',
     uses: ['Truss multi-cables to 6-lamp bars', 'Moving light power distro trunks', '3-phase stage chain hoist motor power'],
@@ -832,209 +824,27 @@ const PINOUT_DATA = [
   },
 
   // ==========================================
-  // CATEGORY 6: VIDEO & BROADCAST (3 Entries)
-  // ==========================================
-  {
-    id: 'bnc',
-    aliases: ['sdi-bnc', 'bnc-75', 'word-clock'],
-    name: 'BNC 75Ω (3G / 6G / 12G-SDI & Word Clock)',
-    cat: 'video',
-    tag: '75Ω coax SDI / sync',
-    color: '#888780',
-    desc: 'Precision 75Ω bayonet coaxial connector for Serial Digital Video (HD-SDI, 3G-SDI, 6G-SDI, 12G-SDI 4K/60p) and studio Word Clock synchronization. Never use 50Ω RF BNC cables — 50Ω cable causes severe impedance mismatch reflections and SDI CRC packet dropouts.',
-    uses: ['Broadcast camera SDI feeds', 'Video router patchbays', 'LED video wall processor inputs', 'Studio Word Clock distribution'],
-    pins: [
-      {n:'C', pin:'C', sig:'Center Pin — Signal (+)', name:'Center Pin (+)', color:'#EF9F27', col:'#EF9F27', note:'Serial digital video or word clock pulse', desc:'Signal'},
-      {n:'O', pin:'O', sig:'Outer Shell — Ground / Shield', name:'Outer Shell (GND)', color:'#888780', col:'#888780', note:'Coaxial braided ground screen', desc:'GND'}
-    ],
-    phantomSafety: 'na',
-    cableSpec: 'Strict 75Ω Precision Coaxial Cable (Belden 1694A / Belden 4794R)',
-    troubleshootTip: 'Center-to-Center <0.3Ω; Shell-to-Shell <0.3Ω; Center-to-Shell >100MΩ. Max distance: 3G-SDI 80m (1694A) / 100m (4794R); 12G-SDI 45m (1694A) / 70m (4794R).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle class="interactive-svg-pin" data-pin="O" cx="40" cy="44" r="28" fill="#1a1a22" stroke="#888780" stroke-width="6"/><circle class="interactive-svg-pin" data-pin="C" cx="40" cy="44" r="10" fill="#EF9F27" stroke="#BA7517" stroke-width="1.5"/><text class="interactive-svg-pin" data-pin="C" x="40" y="48" text-anchor="middle" fill="#fff" font-size="8" font-weight="500">75Ω</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">Coax — BNC</text></svg>`
-  },
-  {
-    id: 'hdmi',
-    aliases: ['hdmi-type-a', 'hdmi-19pin', 'hdmi20'],
-    name: 'HDMI Type A (19-Pin)',
-    cat: 'video',
-    tag: 'Digital video & audio',
-    color: '#378ADD',
-    desc: 'High-Definition Multimedia Interface 19-pin standard. Carries uncompressed digital video and multichannel audio over 4 shielded TMDS/FRL twisted pairs. Pins 1-9: TMDS Data 0/1/2, Pins 10-12: TMDS Clock, Pin 13: CEC, Pin 14: ARC/eARC, Pins 15/16: DDC I2C, Pin 17: GND, Pin 18: +5V Power, Pin 19: Hot Plug Detect (HPD).',
-    uses: ['Laptops to presentation switchers (Barco, Analog Way)', 'Video playback servers', 'Field production monitors', 'LED video processors'],
-    pins: [
-      {n:'1', pin:'1', sig:'TMDS Data2+', name:'Pin 1 (Data2+)', color:'#378ADD', col:'#378ADD', note:'Differential video Lane 2 (+)', desc:'Data2+'},
-      {n:'2', pin:'2', sig:'TMDS Data2 Shield', name:'Pin 2 (Data2 Shield)', color:'#888780', col:'#888780', note:'Dedicated shield for Lane 2', desc:'Shield'},
-      {n:'3', pin:'3', sig:'TMDS Data2−', name:'Pin 3 (Data2−)', color:'#378ADD', col:'#378ADD', note:'Differential video Lane 2 (−)', desc:'Data2−'},
-      {n:'4', pin:'4', sig:'TMDS Data1+', name:'Pin 4 (Data1+)', color:'#1D9E75', col:'#1D9E75', note:'Differential video Lane 1 (+)', desc:'Data1+'},
-      {n:'5', pin:'5', sig:'TMDS Data1 Shield', name:'Pin 5 (Data1 Shield)', color:'#888780', col:'#888780', note:'Dedicated shield for Lane 1', desc:'Shield'},
-      {n:'6', pin:'6', sig:'TMDS Data1−', name:'Pin 6 (Data1−)', color:'#1D9E75', col:'#1D9E75', note:'Differential video Lane 1 (−)', desc:'Data1−'},
-      {n:'7', pin:'7', sig:'TMDS Data0+', name:'Pin 7 (Data0+)', color:'#378ADD', col:'#378ADD', note:'Differential video Lane 0 (+)', desc:'Data0+'},
-      {n:'8', pin:'8', sig:'TMDS Data0 Shield', name:'Pin 8 (Data0 Shield)', color:'#888780', col:'#888780', note:'Dedicated shield for Lane 0', desc:'Shield'},
-      {n:'9', pin:'9', sig:'TMDS Data0−', name:'Pin 9 (Data0−)', color:'#378ADD', col:'#378ADD', note:'Differential video Lane 0 (−)', desc:'Data0−'},
-      {n:'10', pin:'10', sig:'TMDS Clock+', name:'Pin 10 (Clock+)', color:'#EF9F27', col:'#EF9F27', note:'TMDS reference pixel clock (+)', desc:'Clock+'},
-      {n:'11', pin:'11', sig:'TMDS Clock Shield', name:'Pin 11 (Clock Shield)', color:'#888780', col:'#888780', note:'Dedicated shield for Clock pair', desc:'Shield'},
-      {n:'12', pin:'12', sig:'TMDS Clock−', name:'Pin 12 (Clock−)', color:'#EF9F27', col:'#EF9F27', note:'TMDS reference pixel clock (−)', desc:'Clock−'},
-      {n:'13', pin:'13', sig:'CEC (Consumer Electronics Control)', name:'Pin 13 (CEC)', color:'#EF9F27', col:'#EF9F27', note:'Device control bus', desc:'CEC'},
-      {n:'14', pin:'14', sig:'Utility / ARC / eARC+', name:'Pin 14 (eARC+)', color:'#7F77DD', col:'#7F77DD', note:'Audio Return Channel', desc:'eARC+'},
-      {n:'15', pin:'15', sig:'SCL (DDC I2C Clock)', name:'Pin 15 (SCL)', color:'#D4537E', col:'#D4537E', note:'EDID I2C handshake clock', desc:'DDC SCL'},
-      {n:'16', pin:'16', sig:'SDA (DDC I2C Data)', name:'Pin 16 (SDA)', color:'#D4537E', col:'#D4537E', note:'EDID I2C handshake data', desc:'DDC SDA'},
-      {n:'17', pin:'17', sig:'DDC / CEC / HEC Ground', name:'Pin 17 (GND)', color:'#888780', col:'#888780', note:'Reference ground for DDC & +5V', desc:'GND'},
-      {n:'18', pin:'18', sig:'+5V Power (+5V DC, 55mA min)', name:'Pin 18 (+5V)', color:'#E24B4A', col:'#E24B4A', note:'+5V power from source for EDID EEPROM', desc:'+5V'},
-      {n:'19', pin:'19', sig:'Hot Plug Detect (HPD / eARC−)', name:'Pin 19 (HPD)', color:'#639922', col:'#639922', note:'Detects display connection (>2.4V DC)', desc:'HPD'}
-    ],
-    phantomSafety: 'na',
-    cableSpec: 'High Speed / Ultra High Speed HDMI Cable (100Ω differential pairs, max passive run 5m / 16ft)',
-    troubleshootTip: 'Check Pin 18 +5V power: measure Pin 18 to Pin 17 ground on source (must read +4.8V to +5.3V DC). Measure Pin 19 HPD voltage (>2.4V DC when display connected). Use active optical HDMI for runs >10m.',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><polygon points="12,30 68,30 64,54 16,54" fill="#1a1a22" stroke="#378ADD" stroke-width="1.5"/><rect class="interactive-svg-pin" data-pin="1" x="20" y="34" width="40" height="5" fill="#378ADD"/><rect class="interactive-svg-pin" data-pin="10" x="20" y="42" width="40" height="5" fill="#1D9E75"/><text x="40" y="78" text-anchor="middle" fill="#888" font-size="8">HDMI Type A</text></svg>`
-  },
-  {
-    id: 'opticalcon-smpte',
-    aliases: ['opticalcon', 'smpte-311m', 'smpte-fiber'],
-    name: 'opticalCON & SMPTE 311M Hybrid Fiber',
-    cat: 'video',
-    tag: 'Broadcast camera hybrid',
-    color: '#888780',
-    desc: 'SMPTE 311M / SMPTE 304M hybrid camera connection system. Combines 2 single-mode optical fibers for uncompressed bidirectional HD/4K video with copper conductors for high-voltage (240V–400V) camera power and safety sense loops. Neutrik opticalCON DUO/QUAD provides a ruggedized touring metal shell around LC fibers.',
-    uses: ['Broadcast studio camera chains (Sony HDC, Grass Valley LDX)', 'OB truck camera umbilical runs', 'Touring LED wall fiber links'],
-    warn: 'DANGER: High voltage camera power (up to 400V DC/AC) carried on copper conductors. Safety interlock sense loop cuts voltage when unplugged.',
-    pins: [
-      {n:'F1', pin:'F1', sig:'Fiber 1 (Blue) — Downlink', name:'Fiber 1 (Downlink)', color:'#378ADD', col:'#378ADD', note:'CCU to Camera (viewfinder, prompter, control)', desc:'Fiber 1'},
-      {n:'F2', pin:'F2', sig:'Fiber 2 (Yellow) — Uplink', name:'Fiber 2 (Uplink)', color:'#EF9F27', col:'#EF9F27', note:'Camera to CCU (4K/HD program video, mics)', desc:'Fiber 2'},
-      {n:'1/2', pin:'1–2', sig:'Copper Power: 240V–400V AC/DC', name:'Pins 1 & 2 (Power)', color:'#E24B4A', col:'#E24B4A', note:'Camera mains power supply', desc:'Mains'},
-      {n:'3/4', pin:'3–4', sig:'Control & Safety Sense Interlock', name:'Pins 3 & 4 (Sense)', color:'#1D9E75', col:'#1D9E75', note:'Low-voltage safety loop (kills power if broken)', desc:'Sense'},
-      {n:'Shield', pin:'Shield', sig:'Heavy Stainless Steel Braid', name:'Shield / Earth', color:'#888780', col:'#888780', note:'Mechanical tensile strength and ground bond', desc:'Shield'}
-    ],
-    phantomSafety: 'danger',
-    cableSpec: 'SMPTE 311M Hybrid Cable (Two 9/125µm single-mode fibers + two 20 AWG power wires)',
-    troubleshootTip: 'Fiber test: measure optical power at 1310nm/1550nm (attenuation <1.5dB total). Inspect fiber ferrule with 400x scope; clean with one-click cleaner. Copper test: verify continuity on sense loop (Pins 3 & 4).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="32" fill="#1a1a22" stroke="#888" stroke-width="2"/><circle class="interactive-svg-pin" data-pin="F1" cx="32" cy="40" r="5" fill="#378ADD"/><circle class="interactive-svg-pin" data-pin="F2" cx="48" cy="40" r="5" fill="#EF9F27"/><circle class="interactive-svg-pin" data-pin="1/2" cx="28" cy="54" r="4" fill="#E24B4A"/><circle class="interactive-svg-pin" data-pin="3/4" cx="52" cy="54" r="4" fill="#1D9E75"/><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">opticalCON SMPTE</text></svg>`
-  },
-
-  // ==========================================
-  // CATEGORY 7: SFX, PYRO & TIMECODE (3 Entries)
-  // ==========================================
-  {
-    id: 'ltc-timecode',
-    aliases: ['smpte-timecode', 'ltc', 'lemo-timecode'],
-    name: 'LTC SMPTE Timecode (XLR ↔ BNC ↔ LEMO 5)',
-    cat: 'sfx',
-    tag: 'Timecode sync',
-    color: '#EF9F27',
-    desc: 'SMPTE 12M Linear Timecode (LTC) audio signal format. Encoded as an 80-bit per frame bi-phase mark modulated square/sine wave running at 1.2 kHz to 2.4 kHz. Synchronizes lighting, pyro, laser, video playback, and DAW multi-tracks. XLR: 1 GND, 2 Hot, 3 Cold; BNC: Center Hot, Shell GND; LEMO 5-Pin: 1 GND, 2 LTC IN, 5 LTC OUT.',
-    uses: ['Show control master clock sync', 'ARRI / RED camera timecode sync', 'Ambient Lockit / Tentacle Sync boxes', 'Audio playback track sync to lighting'],
-    warn: 'DO NOT ENGAGE +48V! Applying phantom power destroys the output driver op-amp on timecode boxes and cameras.',
-    pins: [
-      {n:'1', pin:'1', sig:'Ground / Shield (All Connectors)', name:'Ground / Shield', color:'#888780', col:'#888780', note:'XLR Pin 1 / BNC Shell / LEMO Pin 1', desc:'GND'},
-      {n:'2', pin:'2', sig:'LTC Signal Hot (+) / LEMO LTC IN', name:'LTC Hot / IN', color:'#E24B4A', col:'#E24B4A', note:'XLR Pin 2 / BNC Center / LEMO Pin 2 (IN)', desc:'LTC Hot'},
-      {n:'3', pin:'3', sig:'LTC Cold (−) / LEMO RS232 TX', name:'LTC Cold / RS232', color:'#ffffff', col:'#ffffff', note:'XLR Pin 3 / LEMO Pin 3 (ASCII metadata)', desc:'LTC Cold', border:'#cccccc'},
-      {n:'5', pin:'5', sig:'LEMO Pin 5: LTC Timecode OUT', name:'LEMO Pin 5 (OUT)', color:'#EF9F27', col:'#EF9F27', note:'Timecode output signal on 5-pin LEMO', desc:'LTC Out'}
-    ],
-    phantomSafety: 'danger',
-    cableSpec: '24 AWG Shielded Twisted Pair (XLR) or 75Ω RG179 Coax (BNC / LEMO 0B.305)',
-    troubleshootTip: 'LTC is audible as a harsh, buzzing continuous tone. Measure AC voltage on DMM: should read 1.0V to 2.0V AC (+4 dBu to +8 dBu). Verify timecode generator frame rate matches console (24, 25, 29.97DF, 30 fps).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="32" fill="#1a1a22" stroke="#EF9F27" stroke-width="1.5"/><circle class="interactive-svg-pin" data-pin="2" cx="24" cy="34" r="6" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="2" x="24" y="38" text-anchor="middle" fill="#fff" font-size="8">2</text><circle class="interactive-svg-pin" data-pin="1" cx="56" cy="34" r="6" fill="#888"/><text class="interactive-svg-pin" data-pin="1" x="56" y="38" text-anchor="middle" fill="#fff" font-size="8">1</text><circle class="interactive-svg-pin" data-pin="3" cx="40" cy="62" r="6" fill="#fff" stroke="#ccc"/><text class="interactive-svg-pin" data-pin="3" x="40" y="66" text-anchor="middle" fill="#333" font-size="8">3</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">LTC (SMPTE 12M)</text></svg>`
-  },
-  {
-    id: 'sfx-pyro',
-    aliases: ['sfx-estop', 'pyro-firing', 'estop-interlock'],
-    name: 'SFX / Pyro E-Stop & Safety Loop',
-    cat: 'sfx',
-    tag: 'Pyro & SFX safety',
-    color: '#E24B4A',
-    desc: 'Safety-critical hardware interlock systems for stage special effects (MagicFX CO2 jets, flame projectors, Le Maitre pyro controllers, Galaxis wireless firing units). Operates as a continuous normally closed (NC) 24V DC loop. Breaking the loop immediately shuts pneumatic valves and disarms firing lines. Includes squib shunt rules.',
-    uses: ['CO2 jet emergency stop buttons', 'Flame projector arming key switches', 'Stage pyro firing controllers', 'Laser safety emergency shutters'],
-    warn: 'CRITICAL SAFETY RULE: Two-wire electric match (squib) lead wires MUST be shunted (twisted together) until connected to the firing console to prevent premature detonation from ESD or stray RF!',
-    pins: [
-      {n:'1', pin:'1', sig:'Safety Ground / Return', name:'Pin 1 (GND)', color:'#888780', col:'#888780', note:'System reference return ground', desc:'GND'},
-      {n:'2', pin:'2', sig:'+24V DC Safety Supply (Active High)', name:'Pin 2 (+24V DC)', color:'#E24B4A', col:'#E24B4A', note:'+24V DC supply from master controller', desc:'+24V Loop'},
-      {n:'3', pin:'3', sig:'Safety Sense Return Loop', name:'Pin 3 (Sense)', color:'#378ADD', col:'#378ADD', note:'Closed when E-Stop is pulled out (armed)', desc:'Sense'}
-    ],
-    phantomSafety: 'danger',
-    cableSpec: '16–18 AWG Heavy-Duty Rubber Control Cable (SOOW / H07RN-F)',
-    troubleshootTip: 'Test E-Stop switch continuity: closed when arm button pulled out (<0.5Ω); open when E-Stop pressed (>10MΩ). NEVER test squibs with a standard high-current multimeter buzzer (use intrinsically safe pyro tester <10mA).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="45" r="32" fill="#1a1a22" stroke="#E24B4A" stroke-width="2"/><circle class="interactive-svg-pin" data-pin="2" cx="40" cy="30" r="10" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="2" x="40" y="34" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">STOP</text><line x1="30" y1="55" x2="50" y2="55" stroke="#378ADD" stroke-width="2"/><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">24V NC Interlock</text></svg>`
-  },
-  {
-    id: 'gpio-tally',
-    aliases: ['gpio', 'tally', 'contact-closure'],
-    name: 'GPI/O Contact Closure & Broadcast Tally',
-    cat: 'sfx',
-    tag: 'Contact closure / tally',
-    color: '#1D9E75',
-    desc: 'General Purpose Input/Output interface utilized in broadcast vision mixers (Ross, Grass Valley, Blackmagic ATEM), digital audio consoles, and automated cue controllers. Provides dry contact closure trigger inputs and open-collector tally outputs.',
-    uses: ['On-Air tally lights', 'Video switcher auto-triggers', 'Foot-switch cue advancing', 'Automation event triggers'],
-    pins: [
-      {n:'GPI', pin:'GPI', sig:'GPI Trigger In (Dry Contact to GND)', name:'GPI In', color:'#1D9E75', col:'#1D9E75', note:'Active Low input with internal 5V/12V pull-up', desc:'Trigger In'},
-      {n:'GPO', pin:'GPO', sig:'GPO Tally Out (Open-Collector)', name:'GPO Out', color:'#E24B4A', col:'#E24B4A', note:'Sinks up to 50mA to ground when triggered', desc:'Tally Out'},
-      {n:'+V', pin:'+V', sig:'+5V / +12V DC Reference Output', name:'+V Ref', color:'#EF9F27', col:'#EF9F27', note:'External supply rail for driving relays/LEDs', desc:'+5V/+12V'},
-      {n:'GND', pin:'GND', sig:'Common Logic Ground', name:'GND', color:'#888780', col:'#888780', note:'Common logic reference ground', desc:'GND'}
-    ],
-    phantomSafety: 'na',
-    cableSpec: '24 AWG Multi-Conductor Shielded Control Cable',
-    troubleshootTip: 'Test GPI: measure DC voltage GPI In to GND (+5V or +3.3V pulled high). Shorting pin to ground should drop voltage to 0V and fire cue. Test GPO: verify resistance to ground drops to <1Ω when tallied.',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><rect x="14" y="24" width="52" height="40" rx="3" fill="#1a1a22" stroke="#1D9E75" stroke-width="1.5"/><rect class="interactive-svg-pin" data-pin="GPI" x="18" y="32" width="9" height="15" fill="#1D9E75"/><text class="interactive-svg-pin" data-pin="GPI" x="22" y="43" text-anchor="middle" fill="#fff" font-size="6">IN</text><rect class="interactive-svg-pin" data-pin="GPO" x="31" y="32" width="9" height="15" fill="#E24B4A"/><text class="interactive-svg-pin" data-pin="GPO" x="35" y="43" text-anchor="middle" fill="#fff" font-size="6">OUT</text><rect class="interactive-svg-pin" data-pin="+V" x="44" y="32" width="9" height="15" fill="#EF9F27"/><text class="interactive-svg-pin" data-pin="+V" x="48" y="43" text-anchor="middle" fill="#fff" font-size="6">+V</text><rect class="interactive-svg-pin" data-pin="GND" x="57" y="32" width="9" height="15" fill="#888"/><text class="interactive-svg-pin" data-pin="GND" x="61" y="43" text-anchor="middle" fill="#fff" font-size="6">GND</text><text x="40" y="80" text-anchor="middle" fill="#888" font-size="8">GPI/O Logic</text></svg>`
-  },
-
-  // ==========================================
-  // CATEGORY 8: STAGE POWER & DISTRO (8 Entries)
+  // CATEGORY 6: STAGE POWER & DISTRO
   // ==========================================
   {
     id: 'powercon',
-    aliases: ['pcon', 'powercon-nac3', 'nac3'],
-    name: 'PowerCON — General NAC3 (Locking Mains)',
+    aliases: ['powercon-nac3', 'nac3', 'nac3fca', 'nac3fcb', 'powercon-blue', 'powercon-grey', 'pcon'],
+    name: 'powerCON 20A — NAC3FCA (Blue In) / NAC3FCB (Grey Out)',
     cat: 'power',
-    tag: 'Locking mains power',
-    color: '#E24B4A',
-    desc: 'Neutrik 3-conductor locking mains connector rated at 250V AC / 16A (EU) or 20A (US). Features pre-mating protective earth ground contact. WARNING: Original PowerCON (NAC3) has NO BREAKING CAPACITY (CBC) — never connect or disconnect under electrical load.',
-    uses: ['Stage power distribution', 'Powered PA speakers', 'Moving light fixture power', 'Amplifier rack mains'],
-    warn: 'DANGER — LIVE MAINS VOLTAGE (120V–240V). Disconnect supply circuit breaker before unplugging. Do not connect/disconnect under load.',
+    tag: 'Locking 20A mains power',
+    color: '#378ADD',
+    desc: 'Neutrik 3-conductor locking mains connector rated at 250V AC / 16A (EU) or 20A (US). Blue (NAC3FCA, Type A keyway) is strictly for Power IN; Grey (NAC3FCB, Type B keyway) is strictly for Power OUT / loop-through. WARNING: Standard NAC3 series has NO BREAKING CAPACITY (CBC) — never connect or disconnect under electrical load.',
+    uses: ['Amplifier rack mains distribution', 'Powered PA speaker mains input', 'Stage lighting distribution boxes', 'Rack equipment power loop-through'],
+    warn: 'DANGER — LIVE MAINS VOLTAGE (120V–240V). Disconnect supply circuit breaker before unplugging. No breaking capacity — disconnecting under load causes dangerous electrical arcing and pin pitting.',
     pins: [
       {n:'L', pin:'L', sig:'Line (Live) — Brown / Black', name:'Line (L)', color:'#E24B4A', col:'#E24B4A', note:'Brown wire (UK/EU) / Black wire (US)', desc:'Live'},
       {n:'N', pin:'N', sig:'Neutral — Blue / White', name:'Neutral (N)', color:'#1a1a22', col:'#1a1a22', note:'Blue wire (UK/EU) / White wire (US)', desc:'Neutral', border:'#555555'},
-      {n:'E', pin:'PE', sig:'Earth (PE) — Green-Yellow', name:'Earth (PE)', color:'#639922', col:'#639922', note:'Protective Earth ground bond', desc:'Earth'}
+      {n:'PE', pin:'PE', sig:'Earth (PE) — Green-Yellow', name:'Earth (PE)', color:'#639922', col:'#639922', note:'Protective Earth (mating first, breaking last)', desc:'Earth'}
     ],
     phantomSafety: 'na',
-    cableSpec: '3-Conductor 14 AWG (2.0mm²) to 12 AWG (3.3mm²) Heavy-Duty Flexible Rubber (H07RN-F / SOOW)',
-    troubleshootTip: 'Earth bond test: measure resistance between PE terminal and equipment metal chassis (<0.1Ω). Verify Live and Neutral are not reversed.',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="44" r="32" fill="#1a1a22" stroke="#E24B4A" stroke-width="2"/><circle class="interactive-svg-pin" data-pin="L" cx="22" cy="52" r="8" fill="#E24B4A" stroke="#c0392b" stroke-width="1"/><text class="interactive-svg-pin" data-pin="L" x="22" y="56" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">L</text><circle class="interactive-svg-pin" data-pin="N" cx="58" cy="52" r="8" fill="#222" stroke="#555" stroke-width="1"/><text class="interactive-svg-pin" data-pin="N" x="58" y="56" text-anchor="middle" fill="#aaa" font-size="9" font-weight="500">N</text><circle class="interactive-svg-pin" data-pin="E" cx="40" cy="30" r="8" fill="#3B6D11" stroke="#639922" stroke-width="1"/><text class="interactive-svg-pin" data-pin="E" x="40" y="34" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">E</text><text x="40" y="82" text-anchor="middle" fill="#E24B4A" font-size="8">⚡ mains voltage</text></svg>`
-  },
-  {
-    id: 'powercon-blue',
-    aliases: ['pcon-in', 'nac3fca', 'powercon-inlet'],
-    name: 'PowerCON Blue — NAC3FCA (Power Input)',
-    cat: 'power',
-    tag: 'Power input',
-    color: '#378ADD',
-    desc: 'The official mains power input connector (blue housing with type A keyway). Accepts incoming mains power from distribution distros into equipment. Keying physically prevents mating with grey NAC3FCB power output jacks.',
-    uses: ['Equipment mains power inlet', 'Powered speaker power in', 'Amplifier power inlet'],
-    pins: [
-      {n:'L', pin:'L', sig:'Line (Live) — Brown / Black', name:'Line (L)', color:'#E24B4A', col:'#E24B4A', note:'Incoming live phase from distro', desc:'Live'},
-      {n:'N', pin:'N', sig:'Neutral — Blue / White', name:'Neutral (N)', color:'#1a1a22', col:'#1a1a22', note:'Incoming neutral return', desc:'Neutral', border:'#555555'},
-      {n:'E', pin:'PE', sig:'Earth (PE) — Green-Yellow', name:'Earth (PE)', color:'#639922', col:'#639922', note:'Always connects first / breaks last', desc:'Earth'}
-    ],
-    phantomSafety: 'na',
-    cableSpec: '3-Conductor 14–12 AWG SOOW / H07RN-F',
-    troubleshootTip: 'Blue = IN (power into device). Grey = OUT (power out of device). Physically keyed and incompatible. Test voltage L-N (120V/230V AC) and L-PE (120V/230V AC); N-PE should be <2V AC.',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="44" r="32" fill="#1a1a22" stroke="#378ADD" stroke-width="3"/><circle class="interactive-svg-pin" data-pin="L" cx="22" cy="52" r="8" fill="#E24B4A" stroke="#c0392b" stroke-width="1"/><text class="interactive-svg-pin" data-pin="L" x="22" y="56" text-anchor="middle" fill="#fff" font-size="9">L</text><circle class="interactive-svg-pin" data-pin="N" cx="58" cy="52" r="8" fill="#222" stroke="#555" stroke-width="1"/><text class="interactive-svg-pin" data-pin="N" x="58" y="56" text-anchor="middle" fill="#aaa" font-size="9">N</text><circle class="interactive-svg-pin" data-pin="E" cx="40" cy="30" r="8" fill="#3B6D11" stroke="#639922" stroke-width="1"/><text class="interactive-svg-pin" data-pin="E" x="40" y="34" text-anchor="middle" fill="#fff" font-size="9">E</text><text x="40" y="82" text-anchor="middle" fill="#378ADD" font-size="8">Blue — IN</text></svg>`
-  },
-  {
-    id: 'powercon-grey',
-    aliases: ['pcon-out', 'nac3fcb', 'powercon-outlet'],
-    name: 'PowerCON Grey — NAC3FCB (Power Output)',
-    cat: 'power',
-    tag: 'Power loop-through',
-    color: '#888780',
-    desc: 'The official power output connector (grey housing with type B keyway). Passes mains power through to adjacent fixtures (daisy-chain loop). Same L/N/PE pinout but physically keyed differently so it cannot be plugged into power inputs.',
-    uses: ['Power distro output', 'Daisy-chain amplifier power', 'Moving light fixture power pass-through'],
-    pins: [
-      {n:'L', pin:'L', sig:'Line (Live) Loop-Through', name:'Line (L)', color:'#E24B4A', col:'#E24B4A', note:'Feeds live to next device', desc:'Live Out'},
-      {n:'N', pin:'N', sig:'Neutral Loop-Through', name:'Neutral (N)', color:'#1a1a22', col:'#1a1a22', note:'Neutral return from daisy chain', desc:'Neutral Out', border:'#555555'},
-      {n:'E', pin:'PE', sig:'Earth (PE) Continuity', name:'Earth (PE)', color:'#639922', col:'#639922', note:'Continuous safety earth bond', desc:'Earth Out'}
-    ],
-    phantomSafety: 'na',
-    cableSpec: '3-Conductor 14–12 AWG SOOW / H07RN-F (rated 16A/20A max total chain load)',
-    troubleshootTip: 'Verify total connected wattage in daisy chain does not exceed 16A (Europe: 3680W) or 20A (USA: 2400W).',
-    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="44" r="32" fill="#1a1a22" stroke="#888780" stroke-width="3"/><circle class="interactive-svg-pin" data-pin="L" cx="22" cy="52" r="8" fill="#E24B4A" stroke="#c0392b" stroke-width="1"/><text class="interactive-svg-pin" data-pin="L" x="22" y="56" text-anchor="middle" fill="#fff" font-size="9">L</text><circle class="interactive-svg-pin" data-pin="N" cx="58" cy="52" r="8" fill="#222" stroke="#555" stroke-width="1"/><text class="interactive-svg-pin" data-pin="N" x="58" y="56" text-anchor="middle" fill="#aaa" font-size="9">N</text><circle class="interactive-svg-pin" data-pin="E" cx="40" cy="30" r="8" fill="#3B6D11" stroke="#639922" stroke-width="1"/><text class="interactive-svg-pin" data-pin="E" x="40" y="34" text-anchor="middle" fill="#fff" font-size="9">E</text><text x="40" y="82" text-anchor="middle" fill="#888" font-size="8">Grey — OUT</text></svg>`
+    cableSpec: '3-Conductor 14 AWG (2.0mm²) to 12 AWG (3.3mm²) SOOW / H07RN-F',
+    troubleshootTip: 'Blue = IN (power into unit). Grey = OUT (power to next unit). Keying prevents mismatch. Test L-N (120V/230V AC) and L-PE (120V/230V AC); N-PE must be <2V AC. PE resistance to chassis <0.1Ω.',
+    svg: `<svg width="80" height="90" viewBox="0 0 80 90"><circle cx="40" cy="44" r="32" fill="#1a1a22" stroke="#378ADD" stroke-width="2.5"/><circle class="interactive-svg-pin" data-pin="L" cx="22" cy="52" r="8" fill="#E24B4A" stroke="#c0392b" stroke-width="1"/><text class="interactive-svg-pin" data-pin="L" x="22" y="56" text-anchor="middle" fill="#fff" font-size="9" font-weight="500">L</text><circle class="interactive-svg-pin" data-pin="N" cx="58" cy="52" r="8" fill="#222" stroke="#555" stroke-width="1"/><text class="interactive-svg-pin" data-pin="N" x="58" y="56" text-anchor="middle" fill="#aaa" font-size="9" font-weight="500">N</text><circle class="interactive-svg-pin" data-pin="PE" cx="40" cy="30" r="8" fill="#3B6D11" stroke="#639922" stroke-width="1"/><text class="interactive-svg-pin" data-pin="PE" x="40" y="34" text-anchor="middle" fill="#fff" font-size="8" font-weight="500">PE</text><text x="40" y="82" text-anchor="middle" fill="#378ADD" font-size="8">Blue IN / Grey OUT</text></svg>`
   },
   {
     id: 'powercon-true1',
@@ -1295,7 +1105,8 @@ function calculateCableMapping(sourceId, destId) {
         const dPins = getBalancedPinLabels(dNorm);
         phantomStatus = 'danger';
         phantomMessage = 'DO NOT APPLY +48V! Destination console +48V phantom power will back-feed 48V DC into the unbalanced source output stage and short Cold to Ground.';
-        rules.push(`Tie destination Cold (Pin ${dPins.coldPin}) to Ground (Pin ${dPins.gndPin}) at the destination connector so the differential input references ground instead of floating.`);
+        rules.push('CRITICAL LIVE SOUND FACT: This adapter DOES NOT balance the audio! The connection remains 100% unbalanced with NO common-mode noise rejection (CMRR).');
+        rules.push(`Tie destination Cold (Pin ${dPins.coldPin}) to Ground (Pin ${dPins.gndPin}) at the destination connector so the differential receiver references ground instead of floating.`);
         rules.push('For runs longer than 6m (20ft) on stage, use an active or passive DI box instead of a passive adapter cable to reject ground loops and isolate +48V.');
         wiringTable.push({ sourcePin: sPins.hotPin, sourceName: sPins.hotName, destPin: dPins.hotPin, destName: dPins.hotName, wireColor: '#E24B4A', status: 'direct', notes: 'Primary unbalanced signal to non-inverting Hot (+)' });
         wiringTable.push({ sourcePin: sPins.gndPin, sourceName: sPins.gndName, destPin: dPins.gndPin, destName: dPins.gndName, wireColor: '#888780', status: 'direct', notes: 'Cable shield & ground reference' });
